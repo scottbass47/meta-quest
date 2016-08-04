@@ -1,0 +1,61 @@
+knight_anim.png
+size: 167, 32
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+knightruncycle01
+  rotate: false
+  xy: 0, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle02
+  rotate: false
+  xy: 21, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle03
+  rotate: false
+  xy: 42, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle04
+  rotate: false
+  xy: 63, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle05
+  rotate: false
+  xy: 84, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle06
+  rotate: false
+  xy: 105, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle07
+  rotate: false
+  xy: 126, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
+knightruncycle08
+  rotate: false
+  xy: 147, 0
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: -1
