@@ -2,7 +2,6 @@ package com.fullspectrum.game;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
@@ -62,18 +61,18 @@ public class GdxGame extends Game {
 		screens.put(ScreenState.GAME, new GameScreen(camera, this, screens));
 		setScreen(screens.get(ScreenState.MENU));
 		
- 		// Load Animation
-		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
-		knightRunning = new Animation(DURATION, knightAtlas.getRegions(), Animation.PlayMode.LOOP);
-		for (TextureRegion tr : knightRunning.getKeyFrames()){
-			tr.getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-		}
-		
-		// Setup Knight Sprite
-		knight = new Sprite(knightRunning.getKeyFrames()[0]);
-		knight.setOrigin(knight.getWidth() * 0.5f, knight.getHeight() * 0.5f);
-		knight.setPosition(WORLD_WIDTH * 0.5f - knight.getWidth() * 0.5f, WORLD_HEIGHT * 0.5f - knight.getHeight() * 0.5f);
-		knight.setScale(6.0f);
+// 		// Load Animation
+//		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
+//		knightRunning = new Animation(DURATION, knightAtlas.getRegions(), Animation.PlayMode.LOOP);
+//		for (TextureRegion tr : knightRunning.getKeyFrames()){
+//			tr.getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+//		}
+//		
+//		// Setup Knight Sprite
+//		knight = new Sprite(knightRunning.getKeyFrames()[0]);
+//		knight.setOrigin(knight.getWidth() * 0.5f, knight.getHeight() * 0.5f);
+//		knight.setPosition(WORLD_WIDTH * 0.5f - knight.getWidth() * 0.5f, WORLD_HEIGHT * 0.5f - knight.getHeight() * 0.5f);
+//		knight.setScale(6.0f);
 	}
 
 	@Override

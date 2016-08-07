@@ -27,6 +27,7 @@ public abstract class AbstractScreen extends ScreenAdapter{
 	
 	@Override
 	public void render(float delta) {
+		handleInput();
 		update(delta);
 		render();
 	}
@@ -42,6 +43,9 @@ public abstract class AbstractScreen extends ScreenAdapter{
 		super.hide();
 		destroy();
 	}
+	
+	/** Called once per frame immediately preceding the update. Used to handle user input */
+	public abstract void handleInput();
 	
 	/** Called once per frame for updating objects */
 	public abstract void update(float delta);

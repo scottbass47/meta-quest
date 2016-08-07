@@ -1,9 +1,7 @@
 package com.fullspectrum.game;
 
 import com.badlogic.gdx.Game;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -18,12 +16,16 @@ public class GameScreen extends AbstractScreen {
 
 	// Debug Graphics
 	private ShapeRenderer sRenderer;
+	
+	// Player
+	private Player player;
 
 	public GameScreen(OrthographicCamera camera, Game game, ArrayMap<ScreenState, Screen> screens) {
 		super(camera, game, screens);
 		cameraHUD = new OrthographicCamera();
 		viewportHUD = new FitViewport(GdxGame.WORLD_WIDTH, GdxGame.WORLD_HEIGHT, cameraHUD);
 		sRenderer = new ShapeRenderer();
+		player = new Player();
 	}
 
 	@Override
@@ -39,8 +41,13 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	@Override
+	public void handleInput(){
+		player.handleInput();
+	}
+	
+	@Override
 	public void update(float delta) {
-
+		player.update(delta);
 	}
 
 	@Override
@@ -50,8 +57,10 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.setProjectionMatrix(camera.combined);
 
 		batch.begin();
+		player.render(batch);
 		batch.end();
 	}
+	
 
 	@Override
 	protected void destroy() {

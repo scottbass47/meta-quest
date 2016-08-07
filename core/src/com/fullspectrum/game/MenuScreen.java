@@ -12,6 +12,16 @@ public class MenuScreen extends AbstractScreen {
 	}
 
 	@Override
+	protected void init() {
+		setScreen(ScreenState.GAME);
+	}
+	
+	@Override
+	public void handleInput() {
+		
+	}
+	
+	@Override
 	public void update(float delta) {
 
 	}
@@ -21,14 +31,11 @@ public class MenuScreen extends AbstractScreen {
 
 	}
 
-	@Override
-	protected void init() {
-		setScreen(ScreenState.GAME);
-	}
 
 	@Override
 	protected void destroy() {
 
 	}
+
 
 }
