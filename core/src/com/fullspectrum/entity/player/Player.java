@@ -1,6 +1,7 @@
-package com.fullspectrum.game;
+package com.fullspectrum.entity.player;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
@@ -8,8 +9,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.Disposable;
 
-public class Player {
+public class Player implements Disposable{
 
 	// Animation
 	private ArrayMap<PlayerAnim, Animation> animations;
@@ -17,6 +19,7 @@ public class Player {
 	private IPlayerState playerState;
 	private Animation currentAnimation;
 	private float frameTime = 0.0f;
+	private TextureAtlas knightAtlas;
 	
 	// Position and Velocity
 	protected float x;
@@ -24,7 +27,7 @@ public class Player {
 	protected float dx;
 	protected float dy;
 	protected boolean facingRight = true;
-	public final static float SPEED = 90.0f;
+	public final static float SPEED = 150.0f;
 	
 	public Player(){
 		init();
@@ -32,13 +35,14 @@ public class Player {
 	
 	private void init(){
 		playerState = new IdleState();
-		TextureAtlas knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
+		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
 		animations = new ArrayMap<PlayerAnim, Animation>();
 		for(TextureRegion tr : knightAtlas.getRegions()){
 			tr.getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 		}
-		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightrandomidle"), PlayMode.LOOP));
-		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightruncycle"), PlayMode.LOOP));
+		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightidle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightrandomidle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightruncycle"), PlayMode.NORMAL));
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 		
 		x = 500;
@@ -52,6 +56,10 @@ public class Player {
 	
 	public void update(float delta){
 		frameTime += delta;
+		if(frameTime > currentAnimation.getAnimationDuration()){ 
+			frameTime = 0;
+			playerState.animFinished(this);
+		}
 		x += dx * delta;
 		y += dy * delta;
 	}
@@ -70,6 +78,23 @@ public class Player {
 			playerState.init(this);
 		}
 		playerState.update(this);
+		if(playerState instanceof IDirection){
+			if(Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)){
+				dx = 0;
+			}
+			else if(Gdx.input.isKeyPressed(Keys.A)){
+				dx = -SPEED;
+			}
+			else if(Gdx.input.isKeyPressed(Keys.D)){
+				dx = SPEED;
+			}
+			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
+		}
 	}
-	
+
+	@Override
+	public void dispose() {
+		knightAtlas.dispose();
+	}
+
 }

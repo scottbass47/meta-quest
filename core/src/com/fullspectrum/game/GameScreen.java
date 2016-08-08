@@ -5,14 +5,9 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.viewport.FitViewport;
-import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fullspectrum.entity.player.Player;
 
 public class GameScreen extends AbstractScreen {
-
-	// HUD
-	private Viewport viewportHUD;
-	private OrthographicCamera cameraHUD;
 
 	// Debug Graphics
 	private ShapeRenderer sRenderer;
@@ -20,24 +15,16 @@ public class GameScreen extends AbstractScreen {
 	// Player
 	private Player player;
 
-	public GameScreen(OrthographicCamera camera, Game game, ArrayMap<ScreenState, Screen> screens) {
-		super(camera, game, screens);
-		cameraHUD = new OrthographicCamera();
-		viewportHUD = new FitViewport(GdxGame.WORLD_WIDTH, GdxGame.WORLD_HEIGHT, cameraHUD);
+	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens) {
+		super(worldCamera, hudCamera, game, screens);
 		sRenderer = new ShapeRenderer();
 		player = new Player();
 	}
 
 	@Override
-	public void resize(int width, int height) {
-		super.resize(width, height);
-		viewportHUD.update(width, height);
-	}
-
-	@Override
 	protected void init() {
-		camera.position.x = GdxGame.WORLD_WIDTH * 0.5f;
-		camera.position.y = GdxGame.WORLD_HEIGHT * 0.5f;
+		worldCamera.position.x = GdxGame.WORLD_WIDTH * 0.5f;
+		worldCamera.position.y = GdxGame.WORLD_HEIGHT * 0.5f;
 	}
 
 	@Override
@@ -48,13 +35,14 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 		player.update(delta);
+		worldCamera.position.x += 20.0f * delta;
 	}
 
 	@Override
 	public void render() {
-		camera.update();
-		batch.setProjectionMatrix(camera.combined);
-		sRenderer.setProjectionMatrix(camera.combined);
+		worldCamera.update();
+		batch.setProjectionMatrix(worldCamera.combined);
+		sRenderer.setProjectionMatrix(worldCamera.combined);
 
 		batch.begin();
 		player.render(batch);
@@ -64,7 +52,13 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	protected void destroy() {
-
+		
 	}
-
+	
+	@Override
+	public void dispose() {
+		super.dispose();
+		sRenderer.dispose();
+		player.dispose();
+	}
 }

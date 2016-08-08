@@ -7,8 +7,8 @@ import com.badlogic.gdx.utils.ArrayMap;
 
 public class MenuScreen extends AbstractScreen {
 
-	public MenuScreen(OrthographicCamera camera, Game game, ArrayMap<ScreenState, Screen> screens) {
-		super(camera, game, screens);
+	public MenuScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens) {
+		super(worldCamera, hudCamera, game, screens);
 	}
 
 	@Override
