@@ -78,3 +78,5 @@ war/
 gen/
 
 *.class
+
+android/build.gradle

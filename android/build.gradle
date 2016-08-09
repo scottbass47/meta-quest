@@ -1,6 +1,6 @@
 android {
     buildToolsVersion "24.0.1"
-    compileSdkVersion 24
+    compileSdkVersion 16
     sourceSets {
         main {
             manifest.srcFile 'AndroidManifest.xml'
@@ -17,7 +17,7 @@ android {
     defaultConfig {
         applicationId "com.fullspectrum.game"
         minSdkVersion 8
-        targetSdkVersion 24
+        targetSdkVersion 16
     }
 }
 
