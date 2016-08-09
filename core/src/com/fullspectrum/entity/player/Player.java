@@ -56,6 +56,7 @@ public class Player implements Disposable{
 	
 	public void update(float delta){
 		frameTime += delta;
+		playerState.update(this);
 		if(frameTime > currentAnimation.getAnimationDuration()){ 
 			frameTime = 0;
 			playerState.animFinished(this);
@@ -77,7 +78,6 @@ public class Player implements Disposable{
 			playerState = newState;
 			playerState.init(this);
 		}
-		playerState.update(this);
 		if(playerState instanceof IDirection){
 			if(Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)){
 				dx = 0;

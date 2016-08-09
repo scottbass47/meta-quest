@@ -23,7 +23,6 @@ public class IdleState implements IPlayerState {
 		timePassed += 1.0f / GdxGame.UPS;
 		if (timePassed > THRESHOLD && !wasIdle) {
 			if (Math.random() < 1.0f / 250) {
-				System.out.println("RANDOM");
 				randomIdle = true;
 			}
 		}

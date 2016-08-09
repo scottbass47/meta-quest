@@ -40,11 +40,11 @@ public abstract class AbstractScreen extends ScreenAdapter {
 			update(1.0f / GdxGame.UPS);
 			lag -= 1.0f / GdxGame.UPS;
 		}
-//		if(seconds > 1.0f){
-//			System.out.println(ups);
-//			ups = 0;
-//			seconds -= 1.0f;
-//		}
+		if(seconds > 1.0f){
+			System.out.println(ups);
+			ups = 0;
+			seconds -= 1.0f;
+		}
 		render();
 	}
 	
