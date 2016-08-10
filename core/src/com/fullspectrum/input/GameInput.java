@@ -29,46 +29,49 @@ public class GameInput implements InputProcessor, ControllerListener {
 		Controllers.addListener(this);
 	}
 
-	private void initInputMaps(){
-		for(Actions a : Actions.values()){
+	private void initInputMaps() {
+		for (Actions a : Actions.values()) {
 			currentInput.put(a, false);
 			previousInput.put(a, false);
 		}
 	}
 	
 	public void update() {
-		if (Controllers.getControllers().size > 0) {
-			System.out.println("Controller inbound!");
+		if (Controllers.getControllers().size > 0 && !usingController) {
+//			System.out.println("Controller inbound!");
 			usingController = true;
 			controller = Controllers.getControllers().get(0);
 			profile.setContext("xbox_one");
-		}
-		else{
-			System.out.println("No controller found :(");
+			initInputMaps();
+		} else if(Controllers.getControllers().size <= 0 && usingController){
+//			System.out.println("No controller found :(");
 			usingController = false;
 			profile.setContext("keyboard");
+			initInputMaps();
 		}
 	}
-	
+
 	/**
-	 * Returns true if the current input state is true (pressed down) and the previous input state is false (was not pressed down).
-	 * Use this when performing actions that should not repeat continuously as long as the input is held down (e.g. attacking).
+	 * Returns true if the current input state is true (pressed down) and the
+	 * previous input state is false (was not pressed down). Use this when
+	 * performing actions that should not repeat continuously as long as the
+	 * input is held down (e.g. attacking).
 	 * 
 	 * @param action
 	 * @return
 	 */
-	public boolean isAction(Actions action){
+	public boolean isAction(Actions action) {
 		return currentInput.get(action) && !previousInput.get(action);
 	}
-	
+
 	/**
-	 * Returns true only if the current state is true (pressed down).
-	 * Use this for continuous actions such as running.
+	 * Returns true only if the current state is true (pressed down). Use this
+	 * for continuous actions such as running.
 	 * 
 	 * @param action
 	 * @return
 	 */
-	public boolean isPressed(Actions action){
+	public boolean isPressed(Actions action) {
 		return currentInput.get(action);
 	}
 
@@ -108,16 +111,31 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	@Override
 	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		System.out.println("Axis: " + axisCode + ", Value: " + value);
+		if (axisCode == 1)
+			System.out.println("Axis: " + axisCode + ", Value: " + value);
 		return false;
 	}
 
 	@Override
 	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
 		System.out.println(value);
+		if (value.name().equals("center")) {
+			for (Actions a : profile.getContext().getPOVActions()) {
+				previousInput.put(a, currentInput.get(a));
+				currentInput.put(a, false);
+			}
+		}
 		Actions action = profile.getPOV(value.name());
-		previousInput.put(action, currentInput.get(action));
-		currentInput.put(action, false);
+		if (action != null) {
+			for (Actions a : profile.getContext().getPOVActions()) {
+				if (currentInput.get(a)) {
+					previousInput.put(a, currentInput.get(a));
+					currentInput.put(a, false);
+				}
+			}
+			previousInput.put(action, currentInput.get(action));
+			currentInput.put(action, true);
+		}
 		return false;
 	}
 

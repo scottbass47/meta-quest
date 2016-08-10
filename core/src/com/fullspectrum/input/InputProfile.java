@@ -32,6 +32,9 @@ public class InputProfile {
 		currentContext = contexts.get(contextName);
 	}
 	
+	public InputContext getContext(){
+		return currentContext;
+	}
 	
 	public void load(String path){
 		XmlReader xml = new XmlReader();

@@ -1,7 +1,11 @@
 package com.fullspectrum.input;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.XmlReader.Element;
 
 public class InputContext {
@@ -33,6 +37,16 @@ public class InputContext {
 				povMap.put(actionType.get("name"), Actions.getAction(name));
 			}
 		}
+	}
+	
+	public Array<Actions> getPOVActions(){
+		Array<Actions> ret = new Array<Actions>();
+		Iterator<Entry<String, Actions>> iter = povMap.iterator();
+		while(iter.hasNext()){
+			Entry<String, Actions> action = iter.next();
+			ret.add(action.value);
+		}
+		return ret;
 	}
 
 	public String getName() {
