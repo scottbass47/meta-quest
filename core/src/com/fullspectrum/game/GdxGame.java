@@ -107,7 +107,7 @@ public class GdxGame extends Game {
 				fpsLogger.log();
 			}
 			startTime = System.nanoTime();
-			input.update();
+//			input.update();
 		}
 	}
 

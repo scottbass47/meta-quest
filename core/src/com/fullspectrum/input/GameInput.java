@@ -14,42 +14,45 @@ public class GameInput implements InputProcessor, ControllerListener {
 	private InputProfile profile;
 
 	// Controller
-	private boolean usingController;
 	private Controller controller;
 
-	private ArrayMap<Actions, Boolean> currentInput;
-	private ArrayMap<Actions, Boolean> previousInput;
+	private ArrayMap<Actions, Float> currentInput;
+	private ArrayMap<Actions, Float> previousInput;
 
 	public GameInput(InputProfile profile) {
 		this.profile = profile;
-		currentInput = new ArrayMap<Actions, Boolean>();
-		previousInput = new ArrayMap<Actions, Boolean>();
+		currentInput = new ArrayMap<Actions, Float>();
+		previousInput = new ArrayMap<Actions, Float>();
 		initInputMaps();
 		Gdx.input.setInputProcessor(this);
 		Controllers.addListener(this);
+		if(Controllers.getControllers().size > 0){
+			this.controller = Controllers.getControllers().first();
+			profile.setContext("xbox_one");
+		}
 	}
 
 	private void initInputMaps() {
 		for (Actions a : Actions.values()) {
-			currentInput.put(a, false);
-			previousInput.put(a, false);
+			currentInput.put(a, 0.0f);
+			previousInput.put(a, 0.0f);
 		}
 	}
 	
-	public void update() {
-		if (Controllers.getControllers().size > 0 && !usingController) {
-//			System.out.println("Controller inbound!");
-			usingController = true;
-			controller = Controllers.getControllers().get(0);
-			profile.setContext("xbox_one");
-			initInputMaps();
-		} else if(Controllers.getControllers().size <= 0 && usingController){
-//			System.out.println("No controller found :(");
-			usingController = false;
-			profile.setContext("keyboard");
-			initInputMaps();
-		}
-	}
+//	public void update() {
+//		if (Controllers.getControllers().size > 0 && !usingController) {
+////			System.out.println("Controller inbound!");
+//			usingController = true;
+//			controller = Controllers.getControllers().get(0);
+//			profile.setContext("xbox_one");
+//			initInputMaps();
+//		} else if(Controllers.getControllers().size <= 0 && usingController){
+////			System.out.println("No controller found :(");
+//			usingController = false;
+//			profile.setContext("keyboard");
+//			initInputMaps();
+//		}
+//	}
 
 	/**
 	 * Returns true if the current input state is true (pressed down) and the
@@ -61,7 +64,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	 * @return
 	 */
 	public boolean isAction(Actions action) {
-		return currentInput.get(action) && !previousInput.get(action);
+		return currentInput.get(action) == 1.0f && previousInput.get(action) == 0.0f;
 	}
 
 	/**
@@ -72,6 +75,20 @@ public class GameInput implements InputProcessor, ControllerListener {
 	 * @return
 	 */
 	public boolean isPressed(Actions action) {
+		return currentInput.get(action) == 1.0f;
+	}
+	
+	/**
+	 * Returns a float value between 0 and 1 (both inclusive).
+	 * 
+	 * E.g. how far over an analog stick is on a controller, 1 being all the way over, 0 being in the center. <br>
+	 * <br/>
+	 * Note: For all binary controls this function will only output either 0 or 1. (e.g. keys, buttons, dpad, etc..)
+	 * 
+	 * @param action
+	 * @return
+	 */
+	public Float getValue(Actions action){
 		return currentInput.get(action);
 	}
 
@@ -81,11 +98,19 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	@Override
 	public void connected(Controller controller) {
-		System.out.println("Connected");
+		// TAKE OUT THIS LINE TO ALLOW MULTIPLE CONTROLLERS
+		if(this.controller != null) return;
+		this.controller = controller;
+		profile.setContext("xbox_one");
+		initInputMaps();
+		System.out.println("Controller Connected");
 	}
 
 	@Override
 	public void disconnected(Controller controller) {
+		this.controller = null;
+		profile.setContext("keyboard");
+		initInputMaps();
 		System.out.println("Disconnected");
 	}
 
@@ -94,7 +119,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 		Actions action = profile.getButton(buttonCode);
 		if (action != null) {
 			previousInput.put(action, currentInput.get(action));
-			currentInput.put(action, true);
+			currentInput.put(action, 1.0f);
 		}
 		return false;
 	}
@@ -104,37 +129,44 @@ public class GameInput implements InputProcessor, ControllerListener {
 		Actions action = profile.getButton(buttonCode);
 		if (action != null) {
 			previousInput.put(action, currentInput.get(action));
-			currentInput.put(action, false);
+			currentInput.put(action, 0.0f);
 		}
 		return false;
 	}
 
 	@Override
 	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		if (axisCode == 1)
-			System.out.println("Axis: " + axisCode + ", Value: " + value);
+		System.out.println("Axis: " + axisCode + ", Value: " + value);
+		int axisNum = axisCode;
+		String dir = value < 0.0f ? "neg" : "pos";
+		AxisData axisData = new AxisData(dir, axisNum);
+		Actions action = profile.getAxis(axisData);
+		if(action != null){
+			previousInput.put(action, currentInput.get(action));
+			currentInput.put(action, Math.abs(value));
+		}
 		return false;
 	}
 
 	@Override
 	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
-		System.out.println(value);
+		System.out.println("hit");
 		if (value.name().equals("center")) {
 			for (Actions a : profile.getContext().getPOVActions()) {
 				previousInput.put(a, currentInput.get(a));
-				currentInput.put(a, false);
+				currentInput.put(a, 0.0f);
 			}
 		}
 		Actions action = profile.getPOV(value.name());
 		if (action != null) {
 			for (Actions a : profile.getContext().getPOVActions()) {
-				if (currentInput.get(a)) {
+				if (currentInput.get(a) == 1.0f) {
 					previousInput.put(a, currentInput.get(a));
-					currentInput.put(a, false);
+					currentInput.put(a, 0.0f);
 				}
 			}
 			previousInput.put(action, currentInput.get(action));
-			currentInput.put(action, true);
+			currentInput.put(action, 1.0f);
 		}
 		return false;
 	}
@@ -161,7 +193,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 		Actions action = profile.getKey(keycode);
 		if (action != null) {
 			previousInput.put(action, currentInput.get(action));
-			currentInput.put(action, true);
+			currentInput.put(action, 1.0f);
 		}
 		return false;
 	}
@@ -171,7 +203,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 		Actions action = profile.getKey(keycode);
 		if (action != null) {
 			previousInput.put(action, currentInput.get(action));
-			currentInput.put(action, false);
+			currentInput.put(action, 0.0f);
 		}
 		return false;
 	}

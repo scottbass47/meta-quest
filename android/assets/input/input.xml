@@ -23,10 +23,10 @@
 	<context type="xbox_one">
 	    <actions>
 	        <!-- Movement Controls -->
-	        <action name="MOVE_UP"><pov name="north"/></action>
-	        <action name="MOVE_DOWN"><pov name="south"/></action>
-	        <action name="MOVE_RIGHT"><pov name="east"/></action>
-	        <action name="MOVE_LEFT"><pov name="west"/></action>
+	        <action name="MOVE_UP"><axis num="1" dir="neg"/></action>
+	        <action name="MOVE_DOWN"><axis num="1" dir="pos"/></action>
+	        <action name="MOVE_RIGHT"><axis num="0" dir="pos"/></action>
+	        <action name="MOVE_LEFT"><axis num="0" dir="neg"/></action>
 	        <action name="JUMP"><button name="A"/></action>
 	            
 	        <!-- Action Controls -->

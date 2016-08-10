@@ -28,6 +28,10 @@ public class InputProfile {
 		return currentContext.getPOV(povCode);
 	}
 	
+	public Actions getAxis(AxisData axisData){
+		return currentContext.getAxis(axisData);
+	}
+	
 	public void setContext(String contextName){
 		currentContext = contexts.get(contextName);
 	}

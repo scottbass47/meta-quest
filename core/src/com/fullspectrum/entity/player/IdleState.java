@@ -30,7 +30,7 @@ public class IdleState implements IPlayerState {
 
 	@Override
 	public IPlayerState handleInput(GameInput input) {
-		if (input.isPressed(Actions.MOVE_LEFT) || input.isPressed(Actions.MOVE_RIGHT)) {
+		if (input.getValue(Actions.MOVE_LEFT) > Player.ANALOG_THRESHOLD || input.getValue(Actions.MOVE_RIGHT) > Player.ANALOG_THRESHOLD) {
 			return new RunningState();
 		}
 		return null;

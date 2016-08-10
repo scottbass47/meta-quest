@@ -14,12 +14,14 @@ public class InputContext {
 	private ArrayMap<Integer, Actions> keyMap;
 	private ArrayMap<Integer, Actions> buttonMap;
 	private ArrayMap<String, Actions> povMap;
+	private ArrayMap<AxisData, Actions> axisMap;
 	
 	public InputContext(String name){
 		this.setName(name);
 		keyMap = new ArrayMap<Integer, Actions>();
 		buttonMap = new ArrayMap<Integer, Actions>();
 		povMap = new ArrayMap<String, Actions>();
+		axisMap = new ArrayMap<AxisData, Actions>();
 	}
 	
 	public void loadActions(Element element){
@@ -36,6 +38,9 @@ public class InputContext {
 			else if(actionType.getName().equals("pov")){
 				povMap.put(actionType.get("name"), Actions.getAction(name));
 			}
+			else if(actionType.getName().equals("axis")){
+				axisMap.put(new AxisData(actionType.get("dir"), actionType.getInt("num")), Actions.getAction(name));
+			}
 		}
 	}
 	
@@ -44,6 +49,16 @@ public class InputContext {
 		Iterator<Entry<String, Actions>> iter = povMap.iterator();
 		while(iter.hasNext()){
 			Entry<String, Actions> action = iter.next();
+			ret.add(action.value);
+		}
+		return ret;
+	}
+	
+	public Array<Actions> getAxisActions(){
+		Array<Actions> ret = new Array<Actions>();
+		Iterator<Entry<AxisData, Actions>> iter = axisMap.iterator();
+		while(iter.hasNext()){
+			Entry<AxisData, Actions> action = iter.next();
 			ret.add(action.value);
 		}
 		return ret;
@@ -67,5 +82,9 @@ public class InputContext {
 	
 	public Actions getPOV(String povCode){
 		return povMap.get(povCode);
+	}
+	
+	public Actions getAxis(AxisData axisData){
+		return axisMap.get(axisData);
 	}
 }

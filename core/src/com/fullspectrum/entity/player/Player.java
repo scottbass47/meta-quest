@@ -1,7 +1,6 @@
 package com.fullspectrum.entity.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -29,6 +28,7 @@ public class Player implements Disposable{
 	protected float dy;
 	protected boolean facingRight = true;
 	public final static float SPEED = 150.0f;
+	public final static float ANALOG_THRESHOLD = 0.3f;
 	
 	public Player(){
 		init();
@@ -38,12 +38,9 @@ public class Player implements Disposable{
 		playerState = new IdleState();
 		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
 		animations = new ArrayMap<PlayerAnim, Animation>();
-		for(TextureRegion tr : knightAtlas.getRegions()){
-			tr.getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-		}
-		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightidle"), PlayMode.NORMAL));
-		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightrandomidle"), PlayMode.NORMAL));
-		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knightruncycle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_randomidle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_runcycle"), PlayMode.NORMAL));
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 		
 		x = 500;
@@ -80,14 +77,14 @@ public class Player implements Disposable{
 			playerState.init(this);
 		}
 		if(playerState instanceof IDirection){
-			if(input.isPressed(Actions.MOVE_LEFT) && input.isPressed(Actions.MOVE_RIGHT)){
+			if(input.getValue(Actions.MOVE_LEFT) < ANALOG_THRESHOLD && input.getValue(Actions.MOVE_RIGHT) < ANALOG_THRESHOLD){
 				dx = 0;
 			}
-			else if(input.isPressed(Actions.MOVE_LEFT)){
-				dx = -SPEED;
+			else if(input.getValue(Actions.MOVE_LEFT) > ANALOG_THRESHOLD){
+				dx = -SPEED * input.getValue(Actions.MOVE_LEFT);
 			}
-			else if(input.isPressed(Actions.MOVE_RIGHT)){
-				dx = SPEED;
+			else if(input.getValue(Actions.MOVE_RIGHT) > ANALOG_THRESHOLD){
+				dx = SPEED * input.getValue(Actions.MOVE_RIGHT);
 			}
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
 		}
