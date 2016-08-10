@@ -1,0 +1,43 @@
+<InputProfile>
+    <context type="keyboard">
+        <actions>
+       	 	<!-- Movement Controls -->
+	        <action name="MOVE_UP"><key code="Up"/></action>
+	        <action name="MOVE_DOWN"><key code="Down"/></action>
+	        <action name="MOVE_RIGHT"><key code="Right"/></action>
+	        <action name="MOVE_LEFT"><key code="Left"/></action>
+	        <action name="JUMP"><key code="Space"/></action>
+	            
+	        <!-- Action Controls -->
+	        <action name="ATTACK"><key code="Z"/></action>
+	        <action name="BLOCK"><key code="X"/></action>
+	        <action name="MOVEMENT"><key code="C"/></action>
+	        <action name="CHARGE"><key code="V"/></action>
+	            
+	        <!-- Menu Controls -->
+	        <action name="SELECT"><key code="Enter"/></action>
+	        <action name="PAUSE"><key code="Escape"/></action>
+       	 	
+    	</actions>
+    </context>
+	<context type="xbox_one">
+	    <actions>
+	        <!-- Movement Controls -->
+	        <action name="MOVE_UP"><pov name="north"/></action>
+	        <action name="MOVE_DOWN"><pov name="south"/></action>
+	        <action name="MOVE_RIGHT"><pov name="east"/></action>
+	        <action name="MOVE_LEFT"><pov name="west"/></action>
+	        <action name="JUMP"><button name="A"/></action>
+	            
+	        <!-- Action Controls -->
+	        <action name="ATTACK"><button name="X"/></action>
+	        <action name="BLOCK"><button name="B"/></action>
+	        <action name="MOVEMENT"><button name="Y"/></action>
+	        <action name="CHARGE"><button name="RIGHT_BUMPER"/></action>
+	            
+	        <!-- Menu Controls -->
+	        <action name="SELECT"><button name="A"/></action>
+	        <action name="PAUSE"><button name="START"/></action>
+	    </actions>
+	</context>
+</InputProfile>

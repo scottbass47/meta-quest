@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.entity.player.Player;
+import com.fullspectrum.input.GameInput;
 
 public class GameScreen extends AbstractScreen {
 
@@ -15,8 +16,8 @@ public class GameScreen extends AbstractScreen {
 	// Player
 	private Player player;
 
-	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens) {
-		super(worldCamera, hudCamera, game, screens);
+	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
+		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
 		player = new Player();
 	}
@@ -29,7 +30,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void handleInput(){
-		player.handleInput();
+		player.handleInput(input);
 	}
 	
 	@Override

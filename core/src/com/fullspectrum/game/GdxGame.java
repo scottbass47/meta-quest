@@ -12,12 +12,14 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fullspectrum.input.GameInput;
+import com.fullspectrum.input.InputProfile;
 
 public class GdxGame extends Game {
 	// Dimensions
 	public static final int WORLD_WIDTH = 1280;
 	public static final int WORLD_HEIGHT = 720;
-	
+
 	// Rendering
 	private SpriteBatch batch;
 	private OrthographicCamera worldCamera;
@@ -26,9 +28,13 @@ public class GdxGame extends Game {
 	private Viewport hudViewport;
 	private BitmapFont font;
 	
+	// Input
+	private GameInput input;
+	private InputProfile profile;
+
 	// Screens
 	private ArrayMap<ScreenState, Screen> screens;
-	
+
 	// FPS Logging
 	public final static int UPS = 60;
 	private int fps = 0;
@@ -37,9 +43,9 @@ public class GdxGame extends Game {
 	private boolean fpsOn = false;
 	private FPSLogger fpsLogger;
 	private boolean prevPressed = false;
-	
+
 	@Override
-	public void create () {
+	public void create() {
 		batch = new SpriteBatch();
 		worldCamera = new OrthographicCamera();
 		worldViewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, worldCamera);
@@ -48,19 +54,24 @@ public class GdxGame extends Game {
 		font = new BitmapFont();
 		fpsLogger = new FPSLogger();
 		
+		// Setup Input
+		profile = new InputProfile();
+		profile.load("input/input.xml");
+		input = new GameInput(profile);
+
 		// Initialize Screens
 		screens = new ArrayMap<ScreenState, Screen>();
-		screens.put(ScreenState.MENU, new MenuScreen(worldCamera, hudCamera, this, screens));
-		screens.put(ScreenState.GAME, new GameScreen(worldCamera, hudCamera, this, screens));
+		screens.put(ScreenState.MENU, new MenuScreen(worldCamera, hudCamera, this, screens, input));
+		screens.put(ScreenState.GAME, new GameScreen(worldCamera, hudCamera, this, screens, input));
 		setScreen(screens.get(ScreenState.MENU));
-		
+
 		// Center HUD Camera
 		hudCamera.position.x = WORLD_WIDTH * 0.5f;
 		hudCamera.position.y = WORLD_HEIGHT * 0.5f;
 	}
 
 	@Override
-	public void render () {
+	public void render() {
 		// Clear the Screen
 		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -71,38 +82,42 @@ public class GdxGame extends Game {
 
 		batch.begin();
 		fps++;
-		if(fpsOn) {
+		if (fpsOn) {
 			font.draw(batch, "" + drawFPS, 10, 710);
 		}
 		batch.end();
 
 		// Setup P to Toggle FPS
-		if(Gdx.input.isKeyPressed(Keys.P)){
-			if(!prevPressed) fpsOn = !fpsOn;
+		if (Gdx.input.isKeyPressed(Keys.P)) {
+			if (!prevPressed)
+				fpsOn = !fpsOn;
 			prevPressed = false;
-			if(fpsOn){
+			if (fpsOn) {
 				startTime = System.nanoTime();
 				fps = 0;
 			}
 		}
 		prevPressed = Gdx.input.isKeyPressed(Keys.P);
 
-		// FPS
-		if((System.nanoTime() - startTime) / 1000000 > 1000 && fpsOn){
-			drawFPS = fps;
+		// FPS and Controller
+		if ((System.nanoTime() - startTime) / 1000000 > 1000) {
+			if (fpsOn) {
+				drawFPS = fps;
+				fps = 0;
+				fpsLogger.log();
+			}
 			startTime = System.nanoTime();
-			fps = 0;
-			fpsLogger.log();
+			input.update();
 		}
 	}
-	
+
 	@Override
-	public void dispose () {
+	public void dispose() {
 		super.dispose();
 		batch.dispose();
 		font.dispose();
 	}
-	
+
 	@Override
 	public void resize(int width, int height) {
 		super.resize(width, height);

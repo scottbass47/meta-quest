@@ -1,8 +1,8 @@
 package com.fullspectrum.entity.player;
 
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.fullspectrum.game.GdxGame;
+import com.fullspectrum.input.Actions;
+import com.fullspectrum.input.GameInput;
 
 public class IdleState implements IPlayerState {
 
@@ -29,8 +29,8 @@ public class IdleState implements IPlayerState {
 	}
 
 	@Override
-	public IPlayerState handleInput() {
-		if (Gdx.input.isKeyPressed(Keys.A) || Gdx.input.isKeyPressed(Keys.D)) {
+	public IPlayerState handleInput(GameInput input) {
+		if (input.isPressed(Actions.MOVE_LEFT) || input.isPressed(Actions.MOVE_RIGHT)) {
 			return new RunningState();
 		}
 		return null;

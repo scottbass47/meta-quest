@@ -1,7 +1,6 @@
 package com.fullspectrum.entity.player;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
@@ -10,6 +9,8 @@ import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
+import com.fullspectrum.input.Actions;
+import com.fullspectrum.input.GameInput;
 
 public class Player implements Disposable{
 
@@ -72,20 +73,20 @@ public class Player implements Disposable{
 		frame.flip(frame.isFlipX(), false);
 	}
 	
-	public void handleInput(){
-		IPlayerState newState = playerState.handleInput();
+	public void handleInput(GameInput input){
+		IPlayerState newState = playerState.handleInput(input);
 		if(newState != null){
 			playerState = newState;
 			playerState.init(this);
 		}
 		if(playerState instanceof IDirection){
-			if(Gdx.input.isKeyPressed(Keys.A) && Gdx.input.isKeyPressed(Keys.D)){
+			if(input.isPressed(Actions.MOVE_LEFT) && input.isPressed(Actions.MOVE_RIGHT)){
 				dx = 0;
 			}
-			else if(Gdx.input.isKeyPressed(Keys.A)){
+			else if(input.isPressed(Actions.MOVE_LEFT)){
 				dx = -SPEED;
 			}
-			else if(Gdx.input.isKeyPressed(Keys.D)){
+			else if(input.isPressed(Actions.MOVE_RIGHT)){
 				dx = SPEED;
 			}
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
