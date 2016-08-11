@@ -44,6 +44,26 @@ public class InputContext {
 		}
 	}
 	
+	public Array<Actions> getKeyMap(){
+		Array<Actions> ret = new Array<Actions>();
+		Iterator<Entry<Integer, Actions>> iter = keyMap.iterator();
+		while(iter.hasNext()){
+			Entry<Integer, Actions> action = iter.next();
+			ret.add(action.value);
+		}
+		return ret;
+	}
+	
+	public Array<Actions> getButtonMap(){
+		Array<Actions> ret = new Array<Actions>();
+		Iterator<Entry<Integer, Actions>> iter = buttonMap.iterator();
+		while(iter.hasNext()){
+			Entry<Integer, Actions> action = iter.next();
+			ret.add(action.value);
+		}
+		return ret;
+	}
+	
 	public Array<Actions> getPOVActions(){
 		Array<Actions> ret = new Array<Actions>();
 		Iterator<Entry<String, Actions>> iter = povMap.iterator();

@@ -36,7 +36,7 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 		player.update(delta);
-		worldCamera.position.x += 20.0f * delta;
+		//worldCamera.position.x += 20.0f * delta;
 	}
 
 	@Override

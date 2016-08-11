@@ -13,7 +13,6 @@ public enum XboxOneButtons {
 	LEFT_STICK,
 	RIGHT_STICK;
 	
-	
 	public String getButtonName(){
 		return name();
 	}

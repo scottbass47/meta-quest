@@ -36,7 +36,7 @@
 	        <action name="CHARGE"><button name="RIGHT_BUMPER"/></action>
 	            
 	        <!-- Menu Controls -->
-	        <action name="SELECT"><button name="A"/></action>
+	        <action name="SELECT"><button name="LEFT_BUMPER"/></action>
 	        <action name="PAUSE"><button name="START"/></action>
 	    </actions>
 	</context>

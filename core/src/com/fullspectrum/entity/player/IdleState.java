@@ -4,7 +4,7 @@ import com.fullspectrum.game.GdxGame;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
-public class IdleState implements IPlayerState {
+public class IdleState extends GroundState implements IPlayerState {
 
 	private boolean randomIdle = false;
 	private boolean wasIdle = false;
@@ -33,7 +33,7 @@ public class IdleState implements IPlayerState {
 		if (input.getValue(Actions.MOVE_LEFT) > Player.ANALOG_THRESHOLD || input.getValue(Actions.MOVE_RIGHT) > Player.ANALOG_THRESHOLD) {
 			return new RunningState();
 		}
-		return null;
+		return super.handleInput(input);
 	}
 
 	@Override

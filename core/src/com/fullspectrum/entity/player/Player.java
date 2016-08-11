@@ -30,6 +30,12 @@ public class Player implements Disposable{
 	public final static float SPEED = 150.0f;
 	public final static float ANALOG_THRESHOLD = 0.3f;
 	
+	// Jumping
+	public final static float JUMP_GRAV = -750.0f;
+	public final static float JUMP_VELOCITY = 500.0f;
+	protected boolean jumping;
+	private float jumpTime = 0.0f;
+	
 	public Player(){
 		init();
 	}
@@ -41,6 +47,8 @@ public class Player implements Disposable{
 		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idle"), PlayMode.NORMAL));
 		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_randomidle"), PlayMode.NORMAL));
 		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_runcycle"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.RISE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_rise"), PlayMode.NORMAL));
+		animations.put(PlayerAnim.JUMP, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump"), PlayMode.NORMAL));
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 		
 		x = 500;
@@ -52,6 +60,10 @@ public class Player implements Disposable{
 		currentAnimation = animations.get(playerAnim);
 	}
 	
+	protected void jump(){
+		jumping = true;
+	}
+	
 	public void update(float delta){
 		frameTime += delta;
 		playerState.update(this);
@@ -59,8 +71,20 @@ public class Player implements Disposable{
 			frameTime = 0;
 			playerState.animFinished(this);
 		}
+		if(jumping){
+			jumpTime += delta;
+			dy = JUMP_GRAV * jumpTime + JUMP_VELOCITY;
+		}
 		x += dx * delta;
 		y += dy * delta;
+		
+		// Fake collision detection
+		if(y < 300){
+			jumpTime = 0;
+			jumping = false;
+			dy = 0;
+			y = 300;
+		}
 	}
 	
 	public void render(SpriteBatch batch){
@@ -88,6 +112,16 @@ public class Player implements Disposable{
 			}
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
 		}
+	}
+	
+	/**
+	 * Sets the current <code>IPlayerState</code> and initializes it.
+	 * 
+	 * @param state
+	 */
+	public void setPlayerState(IPlayerState state){
+		this.playerState = state;
+		state.init(this);
 	}
 
 	@Override

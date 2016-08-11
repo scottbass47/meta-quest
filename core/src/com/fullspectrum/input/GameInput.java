@@ -136,12 +136,20 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	@Override
 	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		System.out.println("Axis: " + axisCode + ", Value: " + value);
+		if(axisCode == 0){
+			System.out.println(value);
+		}
 		int axisNum = axisCode;
 		String dir = value < 0.0f ? "neg" : "pos";
 		AxisData axisData = new AxisData(dir, axisNum);
 		Actions action = profile.getAxis(axisData);
 		if(action != null){
+			AxisData oppAxis = new AxisData(value > 0.0f ? "neg" : "pos", axisNum);
+			Actions oppAction = profile.getAxis(oppAxis);
+			if(currentInput.get(oppAction) >= 0.0f){
+				previousInput.put(oppAction, currentInput.get(oppAction));
+				currentInput.put(oppAction, 0.0f);
+			}
 			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, Math.abs(value));
 		}
@@ -150,7 +158,6 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	@Override
 	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
-		System.out.println("hit");
 		if (value.name().equals("center")) {
 			for (Actions a : profile.getContext().getPOVActions()) {
 				previousInput.put(a, currentInput.get(a));

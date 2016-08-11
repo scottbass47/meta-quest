@@ -1,5 +1,5 @@
 knight_anim.png
-size: 480, 32
+size: 20, 989
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -12,161 +12,203 @@ knight_idle
   index: 1
 knight_idle
   rotate: false
-  xy: 20, 0
+  xy: 0, 33
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 2
 knight_idle
   rotate: false
-  xy: 40, 0
+  xy: 0, 66
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 3
 knight_idle
   rotate: false
-  xy: 60, 0
+  xy: 0, 99
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 4
+knight_jump
+  rotate: false
+  xy: 0, 132
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 1
+knight_jump
+  rotate: false
+  xy: 0, 165
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 2
 knight_randomidle
   rotate: false
-  xy: 80, 0
+  xy: 0, 198
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 1
 knight_randomidle
   rotate: false
-  xy: 100, 0
+  xy: 0, 231
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 2
 knight_randomidle
   rotate: false
-  xy: 120, 0
+  xy: 0, 264
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 3
 knight_randomidle
   rotate: false
-  xy: 140, 0
+  xy: 0, 297
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 4
 knight_randomidle
   rotate: false
-  xy: 160, 0
+  xy: 0, 330
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 5
 knight_randomidle
   rotate: false
-  xy: 180, 0
+  xy: 0, 363
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 6
 knight_randomidle
   rotate: false
-  xy: 200, 0
+  xy: 0, 396
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 7
 knight_randomidle
   rotate: false
-  xy: 220, 0
+  xy: 0, 429
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 8
 knight_randomidle
   rotate: false
-  xy: 240, 0
+  xy: 0, 462
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 9
 knight_randomidle
   rotate: false
-  xy: 260, 0
+  xy: 0, 495
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 10
 knight_randomidle
   rotate: false
-  xy: 280, 0
+  xy: 0, 528
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 11
 knight_randomidle
   rotate: false
-  xy: 300, 0
+  xy: 0, 561
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 12
-knight_runcycle
+knight_rise
   rotate: false
-  xy: 320, 0
+  xy: 0, 594
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 1
-knight_runcycle
+knight_rise
   rotate: false
-  xy: 340, 0
+  xy: 0, 627
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 2
-knight_runcycle
+knight_rise
   rotate: false
-  xy: 360, 0
+  xy: 0, 660
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 3
-knight_runcycle
+knight_rise
   rotate: false
-  xy: 380, 0
+  xy: 0, 693
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 4
 knight_runcycle
   rotate: false
-  xy: 400, 0
+  xy: 0, 726
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 1
+knight_runcycle
+  rotate: false
+  xy: 0, 759
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 2
+knight_runcycle
+  rotate: false
+  xy: 0, 792
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 3
+knight_runcycle
+  rotate: false
+  xy: 0, 825
+  size: 20, 32
+  orig: 20, 32
+  offset: 0, 0
+  index: 4
+knight_runcycle
+  rotate: false
+  xy: 0, 858
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 5
 knight_runcycle
   rotate: false
-  xy: 420, 0
+  xy: 0, 891
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 6
 knight_runcycle
   rotate: false
-  xy: 440, 0
+  xy: 0, 924
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
   index: 7
 knight_runcycle
   rotate: false
-  xy: 460, 0
+  xy: 0, 957
   size: 20, 32
   orig: 20, 32
   offset: 0, 0
