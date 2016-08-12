@@ -14,12 +14,9 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
+import static com.fullspectrum.game.GameVars.*;
 
 public class GdxGame extends Game {
-	// Dimensions
-	public static final int WORLD_WIDTH = 1280;
-	public static final int WORLD_HEIGHT = 720;
-
 	// Rendering
 	private SpriteBatch batch;
 	private OrthographicCamera worldCamera;
@@ -48,9 +45,9 @@ public class GdxGame extends Game {
 	public void create() {
 		batch = new SpriteBatch();
 		worldCamera = new OrthographicCamera();
-		worldViewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, worldCamera);
+		worldViewport = new FitViewport(R_WORLD_WIDTH , R_WORLD_HEIGHT, worldCamera);
 		hudCamera = new OrthographicCamera();
-		hudViewport = new FitViewport(WORLD_WIDTH, WORLD_HEIGHT, hudCamera);
+		hudViewport = new FitViewport(V_WORLD_WIDTH, V_WORLD_HEIGHT, hudCamera);
 		font = new BitmapFont();
 		fpsLogger = new FPSLogger();
 		
@@ -66,8 +63,8 @@ public class GdxGame extends Game {
 		setScreen(screens.get(ScreenState.MENU));
 
 		// Center HUD Camera
-		hudCamera.position.x = WORLD_WIDTH * 0.5f;
-		hudCamera.position.y = WORLD_HEIGHT * 0.5f;
+		hudCamera.position.x = V_WORLD_WIDTH * 0.5f;
+		hudCamera.position.y = V_WORLD_HEIGHT * 0.5f;
 	}
 
 	@Override

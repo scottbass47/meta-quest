@@ -39,6 +39,12 @@ public class GameInput implements InputProcessor, ControllerListener {
 		}
 	}
 	
+	public void update(){
+		for(Actions a : Actions.values()){
+			previousInput.put(a, currentInput.get(a));
+		}
+	}
+	
 //	public void update() {
 //		if (Controllers.getControllers().size > 0 && !usingController) {
 ////			System.out.println("Controller inbound!");
@@ -63,7 +69,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	 * @param action
 	 * @return
 	 */
-	public boolean isAction(Actions action) {
+	public boolean isJustPressed(Actions action) {
 		return currentInput.get(action) == 1.0f && previousInput.get(action) == 0.0f;
 	}
 
@@ -118,7 +124,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	public boolean buttonDown(Controller controller, int buttonCode) {
 		Actions action = profile.getButton(buttonCode);
 		if (action != null) {
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, 1.0f);
 		}
 		return false;
@@ -128,7 +134,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	public boolean buttonUp(Controller controller, int buttonCode) {
 		Actions action = profile.getButton(buttonCode);
 		if (action != null) {
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, 0.0f);
 		}
 		return false;
@@ -136,9 +142,6 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	@Override
 	public boolean axisMoved(Controller controller, int axisCode, float value) {
-		if(axisCode == 0){
-			System.out.println(value);
-		}
 		int axisNum = axisCode;
 		String dir = value < 0.0f ? "neg" : "pos";
 		AxisData axisData = new AxisData(dir, axisNum);
@@ -147,10 +150,10 @@ public class GameInput implements InputProcessor, ControllerListener {
 			AxisData oppAxis = new AxisData(value > 0.0f ? "neg" : "pos", axisNum);
 			Actions oppAction = profile.getAxis(oppAxis);
 			if(currentInput.get(oppAction) >= 0.0f){
-				previousInput.put(oppAction, currentInput.get(oppAction));
+//				previousInput.put(oppAction, currentInput.get(oppAction));
 				currentInput.put(oppAction, 0.0f);
 			}
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, Math.abs(value));
 		}
 		return false;
@@ -160,7 +163,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	public boolean povMoved(Controller controller, int povCode, PovDirection value) {
 		if (value.name().equals("center")) {
 			for (Actions a : profile.getContext().getPOVActions()) {
-				previousInput.put(a, currentInput.get(a));
+//				previousInput.put(a, currentInput.get(a));
 				currentInput.put(a, 0.0f);
 			}
 		}
@@ -168,11 +171,11 @@ public class GameInput implements InputProcessor, ControllerListener {
 		if (action != null) {
 			for (Actions a : profile.getContext().getPOVActions()) {
 				if (currentInput.get(a) == 1.0f) {
-					previousInput.put(a, currentInput.get(a));
+//					previousInput.put(a, currentInput.get(a));
 					currentInput.put(a, 0.0f);
 				}
 			}
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, 1.0f);
 		}
 		return false;
@@ -199,7 +202,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	public boolean keyDown(int keycode) {
 		Actions action = profile.getKey(keycode);
 		if (action != null) {
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, 1.0f);
 		}
 		return false;
@@ -209,7 +212,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 	public boolean keyUp(int keycode) {
 		Actions action = profile.getKey(keycode);
 		if (action != null) {
-			previousInput.put(action, currentInput.get(action));
+//			previousInput.put(action, currentInput.get(action));
 			currentInput.put(action, 0.0f);
 		}
 		return false;

@@ -15,7 +15,7 @@ public class GroundState implements IPlayerState{
 
 	@Override
 	public IPlayerState handleInput(GameInput input) {
-		if(input.isAction(Actions.JUMP)){
+		if(input.isJustPressed(Actions.JUMP)){
 			return new JumpingState();
 		}
 		return null;

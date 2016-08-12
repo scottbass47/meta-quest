@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
+import static com.fullspectrum.game.GameVars.*;
 
 public class Player implements Disposable{
 
@@ -27,12 +28,12 @@ public class Player implements Disposable{
 	protected float dx;
 	protected float dy;
 	protected boolean facingRight = true;
-	public final static float SPEED = 150.0f;
+	public final static float SPEED = 3.0f;
 	public final static float ANALOG_THRESHOLD = 0.3f;
 	
 	// Jumping
-	public final static float JUMP_GRAV = -750.0f;
-	public final static float JUMP_VELOCITY = 500.0f;
+	public final static float JUMP_GRAV = -7.0f;
+	public final static float JUMP_VELOCITY = 5.0f;
 	protected boolean jumping;
 	private float jumpTime = 0.0f;
 	
@@ -51,8 +52,8 @@ public class Player implements Disposable{
 		animations.put(PlayerAnim.JUMP, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump"), PlayMode.NORMAL));
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 		
-		x = 500;
-		y = 300;
+		x = 5;
+		y = 5;
 	}
 	
 	protected void setAnimation(PlayerAnim playerAnim){
@@ -79,18 +80,19 @@ public class Player implements Disposable{
 		y += dy * delta;
 		
 		// Fake collision detection
-		if(y < 300){
+		if(y < 5){
 			jumpTime = 0;
 			jumping = false;
 			dy = 0;
-			y = 300;
+			y = 5;
 		}
 	}
 	
 	public void render(SpriteBatch batch){
 		TextureRegion frame = currentAnimation.getKeyFrame(frameTime);
 		frame.flip(!facingRight, false);
-		batch.draw(currentAnimation.getKeyFrame(frameTime), x, y, frame.getRegionWidth() * 0.5f, frame.getRegionHeight() * 0.5f, frame.getRegionWidth(), frame.getRegionHeight(), 6.0f, 6.0f, 0.0f);
+		batch.draw(currentAnimation.getKeyFrame(frameTime), x, y, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), 
+					3.0f / PPM, 3.0f / PPM, 0.0f);
 		frame.flip(frame.isFlipX(), false);
 	}
 	
