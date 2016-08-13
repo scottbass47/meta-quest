@@ -16,7 +16,7 @@ public class JumpingState implements IPlayerState, IDirection{
 	public void update(Player player) {
 		if(player.jumping){
 			// Falling now
-			if(player.dy < 0.0f){
+			if(player.body.getLinearVelocity().y < 0.0f){
 				player.setPlayerState(new FallingState());
 			}
 		}

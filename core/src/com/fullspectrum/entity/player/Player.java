@@ -1,16 +1,24 @@
 package com.fullspectrum.entity.player;
 
+import static com.fullspectrum.game.GameVars.PPM;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
+import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
-import static com.fullspectrum.game.GameVars.*;
 
 public class Player implements Disposable{
 
@@ -22,7 +30,11 @@ public class Player implements Disposable{
 	private float frameTime = 0.0f;
 	private TextureAtlas knightAtlas;
 	
-	// Position and Velocity
+	// Physics
+	protected World world;
+	protected Body body;
+	protected float width = 20.0f * 3.0f / PPM;
+	protected float height = 32.0f * 3.0f / PPM;
 	protected float x;
 	protected float y;
 	protected float dx;
@@ -37,7 +49,8 @@ public class Player implements Disposable{
 	protected boolean jumping;
 	private float jumpTime = 0.0f;
 	
-	public Player(){
+	public Player(World world){
+		this.world = world;
 		init();
 	}
 	
@@ -52,8 +65,18 @@ public class Player implements Disposable{
 		animations.put(PlayerAnim.JUMP, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump"), PlayMode.NORMAL));
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 		
-		x = 5;
-		y = 5;
+		// Setup Physics
+		BodyDef bdef = new BodyDef();
+		bdef.active = true;
+		bdef.position.set(10.0f, 10.0f);
+		bdef.type = BodyType.DynamicBody;
+		body = world.createBody(bdef);
+		
+		FixtureDef fdef = new FixtureDef();
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(width * 0.5f, height * 0.5f);
+		fdef.shape = shape;
+		body.createFixture(fdef);
 	}
 	
 	protected void setAnimation(PlayerAnim playerAnim){
@@ -62,7 +85,7 @@ public class Player implements Disposable{
 	}
 	
 	protected void jump(){
-		jumping = true;
+		body.applyForceToCenter(new Vector2(0, 1000), true);
 	}
 	
 	public void update(float delta){
@@ -72,26 +95,27 @@ public class Player implements Disposable{
 			frameTime = 0;
 			playerState.animFinished(this);
 		}
-		if(jumping){
-			jumpTime += delta;
-			dy = JUMP_GRAV * jumpTime + JUMP_VELOCITY;
-		}
-		x += dx * delta;
-		y += dy * delta;
+		jumping = body.getLinearVelocity().y != 0;
+//		if(jumping){
+//			jumpTime += delta;
+//			dy = JUMP_GRAV * jumpTime + JUMP_VELOCITY;
+//		}
+//		x += dx * delta;
+//		y += dy * delta;
 		
 		// Fake collision detection
-		if(y < 5){
-			jumpTime = 0;
-			jumping = false;
-			dy = 0;
-			y = 5;
-		}
+//		if(y < 5){
+//			jumpTime = 0;
+//			jumping = false;
+//			dy = 0;
+//			y = 5;
+//		}
 	}
 	
 	public void render(SpriteBatch batch){
 		TextureRegion frame = currentAnimation.getKeyFrame(frameTime);
 		frame.flip(!facingRight, false);
-		batch.draw(currentAnimation.getKeyFrame(frameTime), x, y, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), 
+		batch.draw(currentAnimation.getKeyFrame(frameTime), body.getPosition().x - width * 0.5f, body.getPosition().y - height * 0.5f, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), 
 					3.0f / PPM, 3.0f / PPM, 0.0f);
 		frame.flip(frame.isFlipX(), false);
 	}
@@ -112,6 +136,7 @@ public class Player implements Disposable{
 			else if(input.getValue(Actions.MOVE_RIGHT) > ANALOG_THRESHOLD){
 				dx = SPEED * input.getValue(Actions.MOVE_RIGHT);
 			}
+			body.applyForceToCenter(dx * 10, 0, true);
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
 		}
 	}

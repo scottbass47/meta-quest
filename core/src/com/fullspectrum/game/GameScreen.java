@@ -1,19 +1,19 @@
 package com.fullspectrum.game;
 
-import static com.fullspectrum.game.GameVars.*;
+import static com.fullspectrum.game.GameVars.BIT_BALL;
+import static com.fullspectrum.game.GameVars.BIT_BOX;
+import static com.fullspectrum.game.GameVars.BIT_GROUND;
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.entity.player.Player;
 import com.fullspectrum.input.GameInput;
+import com.fullspectrum.level.Level;
 
 public class GameScreen extends AbstractScreen {
 
@@ -31,25 +32,23 @@ public class GameScreen extends AbstractScreen {
 	private Player player;
 
 	// Tile Map
-	private TiledMap map;
-	private TmxMapLoader loader;
-	private OrthogonalTiledMapRenderer mapRenderer;
+	private Level level;
 
 	// Box2D
 	private World world;
-	private Box2DDebugRenderer b2dr;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
-		player = new Player();
-		loader = new TmxMapLoader();
-		map = loader.load("map/test.tmx");
-		mapRenderer = new OrthogonalTiledMapRenderer(map, 3.0f / PPM);
-
 		world = new World(new Vector2(0, -9.81f), true);
-		b2dr = new Box2DDebugRenderer();
 
+		player = new Player(world);
+
+		// Setup and Load Level
+		level = new Level(world, worldCamera, batch);
+		level.setPlayer(player);
+		level.loadMap("map/Test.tmx");
+		
 		// Create Platform
 		BodyDef bdef = new BodyDef();
 		bdef.position.set(8,1); // position is defined to be the CENTER of the object
@@ -71,7 +70,7 @@ public class GameScreen extends AbstractScreen {
 		
 		shape.setAsBox(1, 1);
 		fdef.shape = shape;
-		fdef.restitution = 0.75f;
+		fdef.restitution = 0.25f;
 		fdef.filter.categoryBits = BIT_BOX;
 		fdef.filter.maskBits = BIT_GROUND;
 		body.createFixture(fdef);
@@ -102,24 +101,14 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 		world.step(delta, 6, 2);
-		player.update(delta);
+		level.update(delta);
+//		player.update(delta);
 		// worldCamera.position.x += 20.0f * delta;
 	}
 
 	@Override
 	public void render() {
-		worldCamera.update();
-		batch.setProjectionMatrix(worldCamera.combined);
-		sRenderer.setProjectionMatrix(worldCamera.combined);
-
-		mapRenderer.setView(worldCamera);
-		mapRenderer.render();
-
-		b2dr.render(world, worldCamera.combined);
-
-		batch.begin();
-		player.render(batch);
-		batch.end();
+		level.render();
 	}
 
 	@Override
