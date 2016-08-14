@@ -88,7 +88,7 @@ public class Level {
 		mapRenderer.setView(cam);
 		mapRenderer.render();
 
-		b2dr.render(world, cam.combined);
+//		b2dr.render(world, cam.combined);
 
 		if (player != null) {
 			batch.begin();
