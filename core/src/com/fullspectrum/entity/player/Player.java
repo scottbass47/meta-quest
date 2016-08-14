@@ -135,6 +135,7 @@ public class Player implements Disposable{
 				dx = SPEED * input.getValue(Actions.MOVE_RIGHT);
 			}
 			body.applyForceToCenter(dx * 10, 0, true);
+			System.out.println(body.getLinearVelocity().x);
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
 		}
 		if(playerState instanceof GroundState){
