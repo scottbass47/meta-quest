@@ -1,8 +1,5 @@
 package com.fullspectrum.game;
 
-import static com.fullspectrum.game.GameVars.BIT_BALL;
-import static com.fullspectrum.game.GameVars.BIT_BOX;
-import static com.fullspectrum.game.GameVars.BIT_GROUND;
 import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
 import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
@@ -11,12 +8,6 @@ import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.CircleShape;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.entity.player.Player;
@@ -50,41 +41,41 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/Test.tmx");
 		
 		// Create Platform
-		BodyDef bdef = new BodyDef();
-		bdef.position.set(8,1); // position is defined to be the CENTER of the object
-		bdef.type = BodyType.StaticBody; 
-		Body body = world.createBody(bdef);
-		
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(5, 0.25f);
-		FixtureDef fdef = new FixtureDef();
-		fdef.shape = shape;
-		fdef.filter.categoryBits = BIT_GROUND;
-		fdef.filter.maskBits = BIT_BOX | BIT_BALL;
-		body.createFixture(fdef);
-		
-		// Create Falling Box
-		bdef.position.set(8, 9);
-		bdef.type = BodyType.DynamicBody;
-		body = world.createBody(bdef);
-		
-		shape.setAsBox(1, 1);
-		fdef.shape = shape;
-		fdef.restitution = 0.25f;
-		fdef.filter.categoryBits = BIT_BOX;
-		fdef.filter.maskBits = BIT_GROUND;
-		body.createFixture(fdef);
-		
-		// Create Ball
-		bdef.position.set(8f, 10);
-		body = world.createBody(bdef);
-		
-		CircleShape cshape = new CircleShape();
-		cshape.setRadius(0.25f);
-		fdef.shape = cshape;
-		fdef.filter.categoryBits = BIT_BALL;
-		fdef.filter.maskBits = BIT_GROUND;
-		body.createFixture(fdef);
+//		BodyDef bdef = new BodyDef();
+//		bdef.position.set(8,1); // position is defined to be the CENTER of the object
+//		bdef.type = BodyType.StaticBody; 
+//		Body body = world.createBody(bdef);
+//		
+//		PolygonShape shape = new PolygonShape();
+//		shape.setAsBox(5, 0.25f);
+//		FixtureDef fdef = new FixtureDef();
+//		fdef.shape = shape;
+//		fdef.filter.categoryBits = BIT_GROUND;
+//		fdef.filter.maskBits = BIT_BOX | BIT_BALL;
+//		body.createFixture(fdef);
+//		
+//		// Create Falling Box
+//		bdef.position.set(8, 9);
+//		bdef.type = BodyType.DynamicBody;
+//		body = world.createBody(bdef);
+//		
+//		shape.setAsBox(1, 1);
+//		fdef.shape = shape;
+//		fdef.restitution = 0.25f;
+//		fdef.filter.categoryBits = BIT_BOX;
+//		fdef.filter.maskBits = BIT_GROUND;
+//		body.createFixture(fdef);
+//		
+//		// Create Ball
+//		bdef.position.set(8f, 10);
+//		body = world.createBody(bdef);
+//		
+//		CircleShape cshape = new CircleShape();
+//		cshape.setRadius(0.25f);
+//		fdef.shape = cshape;
+//		fdef.filter.categoryBits = BIT_BALL;
+//		fdef.filter.maskBits = BIT_GROUND;
+//		body.createFixture(fdef);
 	}
 
 	@Override

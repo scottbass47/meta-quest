@@ -1,5 +1,6 @@
 package com.fullspectrum.entity.player;
 
+import static com.fullspectrum.game.GameVars.PLAYER_SCALE;
 import static com.fullspectrum.game.GameVars.PPM;
 
 import com.badlogic.gdx.Gdx;
@@ -12,6 +13,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -33,14 +35,14 @@ public class Player implements Disposable{
 	// Physics
 	protected World world;
 	protected Body body;
-	protected float width = 20.0f * 3.0f / PPM;
-	protected float height = 32.0f * 3.0f / PPM;
+	protected float width = 20.0f * PLAYER_SCALE / PPM;
+	protected float height = 32.0f * PLAYER_SCALE / PPM;
 	protected float x;
 	protected float y;
 	protected float dx;
 	protected float dy;
 	protected boolean facingRight = true;
-	public final static float SPEED = 3.0f;
+	public final static float SPEED = 3.5f;
 	public final static float ANALOG_THRESHOLD = 0.3f;
 	
 	// Jumping
@@ -74,8 +76,18 @@ public class Player implements Disposable{
 		
 		FixtureDef fdef = new FixtureDef();
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(width * 0.5f, height * 0.5f);
+		shape.setAsBox(width * 0.3f, height * 0.4f, new Vector2(0.1f,-0.1f),0);
 		fdef.shape = shape;
+		body.createFixture(fdef);
+		
+		// Feet
+		CircleShape cshape = new CircleShape();
+		cshape.setRadius(0.1f);
+		cshape.setPosition(new Vector2(0.59f, -1.35f));
+		fdef.shape = cshape;
+		body.createFixture(fdef);
+		
+		cshape.setPosition(new Vector2(-0.4f, -1.35f));
 		body.createFixture(fdef);
 	}
 	
@@ -96,27 +108,13 @@ public class Player implements Disposable{
 			playerState.animFinished(this);
 		}
 		jumping = body.getLinearVelocity().y != 0;
-//		if(jumping){
-//			jumpTime += delta;
-//			dy = JUMP_GRAV * jumpTime + JUMP_VELOCITY;
-//		}
-//		x += dx * delta;
-//		y += dy * delta;
-		
-		// Fake collision detection
-//		if(y < 5){
-//			jumpTime = 0;
-//			jumping = false;
-//			dy = 0;
-//			y = 5;
-//		}
 	}
 	
 	public void render(SpriteBatch batch){
 		TextureRegion frame = currentAnimation.getKeyFrame(frameTime);
 		frame.flip(!facingRight, false);
 		batch.draw(currentAnimation.getKeyFrame(frameTime), body.getPosition().x - width * 0.5f, body.getPosition().y - height * 0.5f, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), 
-					3.0f / PPM, 3.0f / PPM, 0.0f);
+					PLAYER_SCALE / PPM, PLAYER_SCALE / PPM, 0.0f);
 		frame.flip(frame.isFlipX(), false);
 	}
 	
@@ -138,6 +136,11 @@ public class Player implements Disposable{
 			}
 			body.applyForceToCenter(dx * 10, 0, true);
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
+		}
+		if(playerState instanceof GroundState){
+			if(body.getLinearVelocity().y < 0 && !(playerState instanceof FallingState)){
+				setPlayerState(new FallingState());
+			}
 		}
 	}
 	
