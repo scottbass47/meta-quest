@@ -31,7 +31,7 @@ public class GameScreen extends AbstractScreen {
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
-		world = new World(new Vector2(0, -9.81f), true);
+		world = new World(new Vector2(0, -23.0f), true);
 
 		player = new Player(world);
 

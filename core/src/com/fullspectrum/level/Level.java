@@ -61,7 +61,7 @@ public class Level {
 		shape.setAsBox(0.5f, 0.5f);
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
-		fdef.friction = 1.0f;
+		fdef.friction = 0.0f;
 
 		for (int row = 0; row < layer.getHeight(); row++) {
 			for (int col = 0; col < layer.getWidth(); col++) {
