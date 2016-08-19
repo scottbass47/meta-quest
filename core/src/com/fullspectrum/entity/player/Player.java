@@ -19,10 +19,14 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
+import com.fullspectrum.component.GraphicsComponent;
+import com.fullspectrum.component.InputComponent;
+import com.fullspectrum.component.PhysicsComponent;
+import com.fullspectrum.entity.Entity;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
-public class Player implements Disposable {
+public class Player extends Entity implements Disposable {
 
 	// Animation
 	private ArrayMap<PlayerAnim, Animation> animations;
@@ -31,6 +35,7 @@ public class Player implements Disposable {
 	private Animation currentAnimation;
 	private float frameTime = 0.0f;
 	private TextureAtlas knightAtlas;
+	protected boolean facingRight = true;
 
 	// Physics
 	protected World world;
@@ -41,7 +46,6 @@ public class Player implements Disposable {
 	protected float y;
 	protected float dx;
 	protected float dy;
-	protected boolean facingRight = true;
 	public final static float SPEED = 4.5f;
 	public final static float ANALOG_THRESHOLD = 0.3f;
 
@@ -51,8 +55,8 @@ public class Player implements Disposable {
 	protected boolean jumping;
 	private float jumpTime = 0.0f;
 
-	public Player(World world) {
-		this.world = world;
+	public Player(InputComponent input, PhysicsComponent physics, GraphicsComponent graphics) {
+		super(input, physics, graphics);
 		init();
 	}
 
@@ -91,9 +95,6 @@ public class Player implements Disposable {
 
 		cshape.setPosition(new Vector2(-0.4f, -1.35f));
 		body.createFixture(fdef);
-		
-		
-
 	}
 
 	protected void setAnimation(PlayerAnim playerAnim) {
@@ -102,7 +103,7 @@ public class Player implements Disposable {
 	}
 
 	protected void jump() {
-		body.applyForceToCenter(new Vector2(0, 1000), true);
+		body.applyForceToCenter(new Vector2(0, 500), true);
 	}
 
 	public void update(float delta) {
@@ -141,11 +142,6 @@ public class Player implements Disposable {
 			body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
 			// System.out.println(body.getLinearVelocity().x);
 			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
-		}
-		if (playerState instanceof GroundState) {
-			if (body.getLinearVelocity().y < 0 && !(playerState instanceof FallingState)) {
-				setPlayerState(new FallingState());
-			}
 		}
 	}
 

@@ -20,6 +20,7 @@ public class IdleState extends GroundState implements IPlayerState {
 
 	@Override
 	public void update(Player player) {
+		super.update(player);
 		timePassed += 1.0f / GdxGame.UPS;
 		if (timePassed > THRESHOLD && !wasIdle) {
 			if (Math.random() < 1.0f / 250) {

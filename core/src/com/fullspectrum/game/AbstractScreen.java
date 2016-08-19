@@ -39,7 +39,6 @@ public abstract class AbstractScreen extends ScreenAdapter {
 		lag += delta;
 		while(lag > (1.0f / GdxGame.UPS)){
 //			ups++;
-			handleInput();
 			update(1.0f / GdxGame.UPS);
 			lag -= 1.0f / GdxGame.UPS;
 			input.update();
@@ -69,9 +68,6 @@ public abstract class AbstractScreen extends ScreenAdapter {
 		super.dispose();
 		batch.dispose();
 	}
-	
-	/** Called once per frame immediately preceding the update. Used to handle user input */
-	public abstract void handleInput();
 	
 	/** Called once per frame for updating objects */
 	public abstract void update(float delta);

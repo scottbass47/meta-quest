@@ -15,6 +15,7 @@ public class GameInput implements InputProcessor, ControllerListener {
 
 	// Controller
 	private Controller controller;
+	public final static float ANALOG_THRESHOLD = 0.3f;
 
 	private ArrayMap<Actions, Float> currentInput;
 	private ArrayMap<Actions, Float> previousInput;

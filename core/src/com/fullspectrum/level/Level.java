@@ -15,6 +15,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
+import com.fullspectrum.entity.Entity;
 import com.fullspectrum.entity.player.Player;
 
 public class Level {
@@ -29,7 +30,7 @@ public class Level {
 	private OrthogonalTiledMapRenderer mapRenderer;
 
 	// Player
-	private Player player;
+	private Entity player;
 
 	// Camera
 	private OrthographicCamera cam;
@@ -97,7 +98,7 @@ public class Level {
 		}
 	}
 
-	public void setPlayer(Player player) {
+	public void setPlayer(Entity player) {
 		this.player = player;
 	}
 
