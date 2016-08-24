@@ -12,7 +12,7 @@ public class RunningState extends GroundState implements IDirection{
 
 	@Override
 	public void update(Player player) {
-		
+		super.update(player);
 	}
 
 	@Override

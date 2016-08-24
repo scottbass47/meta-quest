@@ -10,7 +10,14 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.component.GraphicsComponent;
+import com.fullspectrum.component.InputComponent;
+import com.fullspectrum.component.PhysicsComponent;
+import com.fullspectrum.entity.Entity;
 import com.fullspectrum.entity.player.Player;
+import com.fullspectrum.entity.player.PlayerGraphicsComponent;
+import com.fullspectrum.entity.player.PlayerInputComponent;
+import com.fullspectrum.entity.player.PlayerPhysicsComponent;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
 
@@ -20,7 +27,7 @@ public class GameScreen extends AbstractScreen {
 	private ShapeRenderer sRenderer;
 
 	// Player
-	private Player player;
+	private Entity player;
 
 	// Tile Map
 	private Level level;
@@ -32,50 +39,17 @@ public class GameScreen extends AbstractScreen {
 		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
 		world = new World(new Vector2(0, -23.0f), true);
-
-		player = new Player(world);
+		
+		// Build Player
+		InputComponent playerInput = new PlayerInputComponent(input);
+		PhysicsComponent playerPhysics = new PlayerPhysicsComponent(world);
+		GraphicsComponent playerGraphics = new PlayerGraphicsComponent(playerPhysics);
+		player = new Player(playerInput, playerPhysics, playerGraphics);
 
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
 		level.setPlayer(player);
 		level.loadMap("map/Test.tmx");
-		
-		// Create Platform
-//		BodyDef bdef = new BodyDef();
-//		bdef.position.set(8,1); // position is defined to be the CENTER of the object
-//		bdef.type = BodyType.StaticBody; 
-//		Body body = world.createBody(bdef);
-//		
-//		PolygonShape shape = new PolygonShape();
-//		shape.setAsBox(5, 0.25f);
-//		FixtureDef fdef = new FixtureDef();
-//		fdef.shape = shape;
-//		fdef.filter.categoryBits = BIT_GROUND;
-//		fdef.filter.maskBits = BIT_BOX | BIT_BALL;
-//		body.createFixture(fdef);
-//		
-//		// Create Falling Box
-//		bdef.position.set(8, 9);
-//		bdef.type = BodyType.DynamicBody;
-//		body = world.createBody(bdef);
-//		
-//		shape.setAsBox(1, 1);
-//		fdef.shape = shape;
-//		fdef.restitution = 0.25f;
-//		fdef.filter.categoryBits = BIT_BOX;
-//		fdef.filter.maskBits = BIT_GROUND;
-//		body.createFixture(fdef);
-//		
-//		// Create Ball
-//		bdef.position.set(8f, 10);
-//		body = world.createBody(bdef);
-//		
-//		CircleShape cshape = new CircleShape();
-//		cshape.setRadius(0.25f);
-//		fdef.shape = cshape;
-//		fdef.filter.categoryBits = BIT_BALL;
-//		fdef.filter.maskBits = BIT_GROUND;
-//		body.createFixture(fdef);
 	}
 
 	@Override
@@ -85,16 +59,9 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	@Override
-	public void handleInput() {
-		player.handleInput(input);
-	}
-
-	@Override
 	public void update(float delta) {
 		world.step(delta, 6, 2);
 		level.update(delta);
-//		player.update(delta);
-		// worldCamera.position.x += 20.0f * delta;
 	}
 
 	@Override

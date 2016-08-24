@@ -11,6 +11,9 @@ public class GroundState implements IPlayerState{
 
 	@Override
 	public void update(Player player) {
+		if (player.body.getLinearVelocity().y < 0) {
+			player.setPlayerState(new FallingState());
+		}
 	}
 
 	@Override
