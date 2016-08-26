@@ -19,22 +19,18 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
-import com.fullspectrum.component.GraphicsComponent;
-import com.fullspectrum.component.InputComponent;
-import com.fullspectrum.component.PhysicsComponent;
-import com.fullspectrum.entity.Entity;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
-public class Player extends Entity implements Disposable {
+public class Player implements Disposable {
 
 	// Animation
-	private ArrayMap<PlayerAnim, Animation> animations;
+	public static ArrayMap<PlayerAnim, Animation> animations;
 	private final static float ANIM_SPEED = 0.1f;
 	private IPlayerState playerState;
 	private Animation currentAnimation;
 	private float frameTime = 0.0f;
-	private TextureAtlas knightAtlas;
+	private static TextureAtlas knightAtlas;
 	protected boolean facingRight = true;
 
 	// Physics
@@ -55,13 +51,7 @@ public class Player extends Entity implements Disposable {
 	protected boolean jumping;
 	private float jumpTime = 0.0f;
 
-	public Player(InputComponent input, PhysicsComponent physics, GraphicsComponent graphics) {
-		super(input, physics, graphics);
-		init();
-	}
-
-	private void init() {
-		playerState = new IdleState();
+	static {
 		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
 		animations = new ArrayMap<PlayerAnim, Animation>();
 		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idle"), PlayMode.NORMAL));
@@ -69,6 +59,15 @@ public class Player extends Entity implements Disposable {
 		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_runcycle"), PlayMode.NORMAL));
 		animations.put(PlayerAnim.RISE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_rise"), PlayMode.NORMAL));
 		animations.put(PlayerAnim.JUMP, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump"), PlayMode.NORMAL));
+	}
+	
+	public Player() {
+		init();
+	}
+
+	private void init() {
+		playerState = new IdleState();
+		
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 
 		// Setup Physics

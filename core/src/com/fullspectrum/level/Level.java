@@ -1,7 +1,11 @@
 package com.fullspectrum.level;
 
-import static com.fullspectrum.game.GameVars.*;
+import static com.fullspectrum.game.GameVars.PPM;
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
+import static com.fullspectrum.game.GameVars.TILE_SCALE;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.tiled.TiledMap;
@@ -15,8 +19,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
-import com.fullspectrum.entity.Entity;
-import com.fullspectrum.entity.player.Player;
 
 public class Level {
 
