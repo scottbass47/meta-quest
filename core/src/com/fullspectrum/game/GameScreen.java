@@ -19,14 +19,26 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.entity.player.Player;
 import com.fullspectrum.entity.player.PlayerAnim;
+import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.PlayerStates;
+import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
+import com.fullspectrum.fsm.transition.FallingTransition;
+import com.fullspectrum.fsm.transition.LandedTransition;
+import com.fullspectrum.fsm.transition.RandomTransition;
+import com.fullspectrum.fsm.transition.RandomTransitionData;
+import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RenderingSystem;
 
@@ -60,13 +72,59 @@ public class GameScreen extends AbstractScreen {
 		renderer = new RenderingSystem(batch);
 		engine.addSystem(renderer);
 		engine.addSystem(new PositioningSystem());
-		
+		engine.addSystem(new AnimationSystem());
+		engine.addSystem(RandomTransition.getInstance());
+		engine.addSystem(AnimationFinishedTransition.getInstance());
+		engine.addSystem(FallingTransition.getInstance());
+		engine.addSystem(LandedTransition.getInstance());
 		
 		// Setup Player
 		player = new Entity();
 		player.add(new PositionComponent(5, 5));
 		player.add(new RenderComponent());
-		player.add(new TextureComponent(Player.animations.get(PlayerAnim.RUNNING).getKeyFrame(0)));
+		player.add(new TextureComponent(Player.animations.get(PlayerAnim.IDLE).getKeyFrame(0)));
+		player.add(new AnimationComponent()
+			.addAnimation(PlayerAnim.IDLE, Player.animations.get(PlayerAnim.IDLE))
+			.addAnimation(PlayerAnim.RUNNING, Player.animations.get(PlayerAnim.RUNNING))
+			.addAnimation(PlayerAnim.JUMP, Player.animations.get(PlayerAnim.JUMP))
+			.addAnimation(PlayerAnim.FALLING, Player.animations.get(PlayerAnim.FALLING))
+			.addAnimation(PlayerAnim.RANDOM_IDLE, Player.animations.get(PlayerAnim.RANDOM_IDLE))
+			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE)));
+		
+		EntityStateMachine fsm = new EntityStateMachine(player);
+		fsm.createState(PlayerStates.RUNNING)
+			.addTag(TransitionTag.GROUND_STATE)
+			.withAnimation(PlayerAnim.RUNNING);
+
+		fsm.createState(PlayerStates.IDLING)
+			.addTag(TransitionTag.GROUND_STATE)
+			.withAnimation(PlayerAnim.IDLE);
+		
+		fsm.createState(PlayerStates.FALLING)
+			.withAnimation(PlayerAnim.RISE);
+		
+		fsm.createState(PlayerStates.JUMPING)
+			.withAnimation(PlayerAnim.JUMP);
+		
+		fsm.createState(PlayerStates.RISING)
+			.withAnimation(PlayerAnim.RISE);
+		
+		fsm.createState(PlayerStates.RANDOM_IDLING)
+			.addTag(TransitionTag.GROUND_STATE)
+			.withAnimation(PlayerAnim.RANDOM_IDLE);
+		
+		RandomTransitionData rtd = new RandomTransitionData();
+		rtd.waitTime = 4.0f;
+		rtd.probability = 1.0f;
+		
+		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, PlayerStates.FALLING);
+		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
+		fsm.addTransition(PlayerStates.IDLING, Transition.RANDOM, rtd, PlayerStates.RANDOM_IDLING);
+		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
+		
+		fsm.changeState(PlayerStates.IDLING);
+		
+		player.add(new FSMComponent(fsm));
 		
 		// Player physics
 		Body body;
@@ -116,7 +174,7 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
 		
-//		world.step(delta, 6, 2);
+		world.step(delta, 6, 2);
 //		level.update(delta);
 	}
 

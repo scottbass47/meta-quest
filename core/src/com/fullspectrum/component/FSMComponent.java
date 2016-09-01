@@ -1,13 +1,13 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
-import com.fullspectrum.fsm.FSM;
+import com.fullspectrum.fsm.EntityStateMachine;
 
 public class FSMComponent implements Component{
 
-	public FSM fsm;
+	public EntityStateMachine fsm;
 	
-	public FSMComponent(FSM fsm){
+	public FSMComponent(EntityStateMachine fsm){
 		this.fsm = fsm;
 	}
 	
