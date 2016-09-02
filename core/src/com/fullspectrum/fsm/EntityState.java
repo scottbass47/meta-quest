@@ -14,10 +14,9 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 
 public class EntityState {
 
+	// Data
 	private Array<Component> components;
 	private ArrayMap<TransitionObject, IStateIdentifier> transitionMap;
-//	private ArrayMap<Transition, IStateIdentifier> transitionMap;
-//	private ArrayMap<Transition, Object> transitionData;
 	private Array<Transition> transitions;
 	private Array<TransitionTag> tags;
 	protected IAnimState animState;
@@ -28,9 +27,7 @@ public class EntityState {
 	
 	protected EntityState(){
 		components = new Array<Component>();
-//		transitionMap = new ArrayMap<Transition, IStateIdentifier>();
 		transitionMap = new ArrayMap<TransitionObject, IStateIdentifier>();
-//		transitionData = new ArrayMap<Transition, Object>();
 		transitions = new Array<Transition>();
 		tags = new Array<TransitionTag>();
 		bits = new Bits();
@@ -49,11 +46,9 @@ public class EntityState {
 	
 	protected void addTransition(Transition transition, Object data, IStateIdentifier toState){
 		TransitionObject obj = new TransitionObject(transition, data);
-		// Assert that the transition being added is unique if it doesn't allow multiple
+		// Assert that the transition being added is unique if it doesn't allow multiple transitions of its type
 		assert(!(transitionMap.containsKey(obj) && !transition.allowMultiple));
 		transitionMap.put(obj, toState);
-//		transitionMap.put(transition, toState);
-//		transitionData.put(transition, data);
 		transitions.add(transition);
 	}
 	
@@ -69,10 +64,6 @@ public class EntityState {
 	public Array<TransitionTag> getTags(){
 		return tags;
 	}
-	
-//	public ArrayMap<Transition, IStateIdentifier> getTransitionMap(){
-//		return transitionMap;
-//	}
 	
 	public Array<TransitionObject> getData(Transition transition){
 		Array<TransitionObject> ret = new Array<TransitionObject>();
@@ -105,21 +96,9 @@ public class EntityState {
 		return transitionMap;
 	}
 	
-//	public ArrayMap<Transition, Object> getTransitionData(){
-//		return transitionData;
-//	}
-	
 	public Array<Transition> getTransitions(){
 		return transitions;
 	}
-	
-//	public Object getTransitionData(Transition transition){
-//		return transitionData.get(transition);
-//	}
-	
-//	public IStateIdentifier getState(Transition transition){
-//		return transitionMap.get(transition);
-//	}
 	
 	@Override
 	public String toString(){
