@@ -141,7 +141,6 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.IDLING, Transition.RANDOM, rtd, PlayerStates.RANDOM_IDLING);
 		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
-		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
 		
 		System.out.print(fsm.printTransitions());
 		

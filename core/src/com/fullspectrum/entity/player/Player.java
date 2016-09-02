@@ -43,7 +43,6 @@ public class Player implements Disposable {
 	protected float dx;
 	protected float dy;
 	public final static float SPEED = 4.5f;
-	public final static float ANALOG_THRESHOLD = 0.3f;
 
 	// Jumping
 	public final static float JUMP_GRAV = -7.0f;
