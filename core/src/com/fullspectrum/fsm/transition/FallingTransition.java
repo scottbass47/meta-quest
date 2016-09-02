@@ -24,9 +24,10 @@ public class FallingTransition extends TransitionSystem	{
 			BodyComponent bodyComp = Mappers.body.get(e);
 			assert(fsmComp != null && bodyComp != null);
 			EntityStateMachine fsm = fsmComp.fsm;
+			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.FALLING);
 			if(bodyComp.body.getLinearVelocity().y < 0){
 				System.out.println("Falling");
-				fsm.changeState(fsm.getCurrentState().getState(Transition.FALLING));
+				fsm.changeState(fsm.getCurrentState().getState(obj));
 			}
 		}
 	}

@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FSMComponent;
+import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.TextureComponent;
@@ -31,11 +32,14 @@ import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.PlayerStates;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
+import com.fullspectrum.fsm.transition.InputTransition;
+import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.systems.AnimationSystem;
@@ -77,12 +81,14 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(AnimationFinishedTransition.getInstance());
 		engine.addSystem(FallingTransition.getInstance());
 		engine.addSystem(LandedTransition.getInstance());
+		engine.addSystem(InputTransition.getInstance());
 		
 		// Setup Player
 		player = new Entity();
 		player.add(new PositionComponent(5, 5));
 		player.add(new RenderComponent());
 		player.add(new TextureComponent(Player.animations.get(PlayerAnim.IDLE).getKeyFrame(0)));
+		player.add(new InputComponent(input));
 		player.add(new AnimationComponent()
 			.addAnimation(PlayerAnim.IDLE, Player.animations.get(PlayerAnim.IDLE))
 			.addAnimation(PlayerAnim.RUNNING, Player.animations.get(PlayerAnim.RUNNING))
@@ -101,12 +107,15 @@ public class GameScreen extends AbstractScreen {
 			.withAnimation(PlayerAnim.IDLE);
 		
 		fsm.createState(PlayerStates.FALLING)
+			.addTag(TransitionTag.AIR_STATE)
 			.withAnimation(PlayerAnim.RISE);
 		
 		fsm.createState(PlayerStates.JUMPING)
+			.addTag(TransitionTag.AIR_STATE)
 			.withAnimation(PlayerAnim.JUMP);
 		
 		fsm.createState(PlayerStates.RISING)
+			.addTag(TransitionTag.AIR_STATE)
 			.withAnimation(PlayerAnim.RISE);
 		
 		fsm.createState(PlayerStates.RANDOM_IDLING)
@@ -117,10 +126,23 @@ public class GameScreen extends AbstractScreen {
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 		
+		InputTransitionData runningData = new InputTransitionData();
+		runningData.triggers.add(Actions.MOVE_LEFT);
+		runningData.triggers.add(Actions.MOVE_RIGHT);
+		
+		InputTransitionData jumpData = new InputTransitionData();
+		jumpData.triggers.add(Actions.JUMP);
+		
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, PlayerStates.FALLING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.RUNNING), Transition.INPUT, runningData, PlayerStates.RUNNING);
+		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, PlayerStates.JUMPING);
+		fsm.addTransition(PlayerStates.JUMPING, Transition.ANIMATION_FINISHED, PlayerStates.RISING);
+		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING), Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.IDLING, Transition.RANDOM, rtd, PlayerStates.RANDOM_IDLING);
 		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
+		
+		System.out.print(fsm.printTransitions());
 		
 		fsm.changeState(PlayerStates.IDLING);
 		

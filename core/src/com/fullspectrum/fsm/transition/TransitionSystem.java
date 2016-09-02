@@ -8,7 +8,7 @@ public class TransitionSystem extends EntitySystem{
 
 	protected Array<Entity> entities;
 	
-	public TransitionSystem() { 
+	protected TransitionSystem() { 
 		entities = new Array<Entity>(); 
 	}
 	
