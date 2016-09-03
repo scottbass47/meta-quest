@@ -1,6 +1,6 @@
 package com.fullspectrum.fsm.transition;
 
-public interface ITag {
+public interface Tag {
 
 	public int getIndex();
 	

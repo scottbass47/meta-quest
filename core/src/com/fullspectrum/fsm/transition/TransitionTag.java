@@ -1,6 +1,6 @@
 package com.fullspectrum.fsm.transition;
 
-public enum TransitionTag implements ITag{
+public enum TransitionTag implements Tag{
 	GROUND_STATE,
 	AIR_STATE;
 

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
@@ -38,10 +39,18 @@ public class RenderingSystem extends EntitySystem {
 		for (Entity e : entities) {
 			PositionComponent position = Mappers.position.get(e);
 			TextureComponent texture = Mappers.texture.get(e);
+			FacingComponent facing = Mappers.facing.get(e);
 			if (texture.region == null) return;
 			float width = texture.region.getRegionWidth();
 			float height = texture.region.getRegionHeight();
-			batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PLAYER_SCALE / PPM, PLAYER_SCALE / PPM, 0.0f);
+			if(facing != null){
+				texture.region.flip(!facing.facingRight, false);
+				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, 1 / PPM, 1 / PPM, 0.0f);
+				texture.region.flip(texture.region.isFlipX(), false);
+			}
+			else{
+				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, 1 / PPM, 1 / PPM, 0.0f);
+			}
 		}
 		batch.end();
 	}

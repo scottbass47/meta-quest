@@ -1,6 +1,6 @@
 package com.fullspectrum.fsm.transition;
 
-public class RandomTransitionData implements ITransitionData{
+public class RandomTransitionData implements TransitionData{
 
 	public float waitTime = 0.0f;
 	public float probability = 0.5f;

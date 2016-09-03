@@ -1,8 +1,8 @@
 package com.fullspectrum.fsm;
 
-import com.fullspectrum.fsm.transition.ITag;
+import com.fullspectrum.fsm.transition.Tag;
 
-public enum PlayerStates implements IStateIdentifier, ITag{
+public enum PlayerStates implements StateIdentifier, Tag{
 	IDLING,
 	RANDOM_IDLING,
 	RUNNING,

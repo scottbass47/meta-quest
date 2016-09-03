@@ -9,7 +9,7 @@ import com.badlogic.gdx.controllers.PovDirection;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.ArrayMap;
 
-public class GameInput implements InputProcessor, ControllerListener {
+public class GameInput implements InputProcessor, ControllerListener, Input {
 
 	private InputProfile profile;
 
@@ -61,40 +61,17 @@ public class GameInput implements InputProcessor, ControllerListener {
 //		}
 //	}
 
-	/**
-	 * Returns true if the current input state is true (pressed down) and the
-	 * previous input state is false (was not pressed down). Use this when
-	 * performing actions that should not repeat continuously as long as the
-	 * input is held down (e.g. attacking).
-	 * 
-	 * @param action
-	 * @return
-	 */
+	@Override
 	public boolean isJustPressed(Actions action) {
 		return currentInput.get(action) == 1.0f && previousInput.get(action) == 0.0f;
 	}
 
-	/**
-	 * Returns true only if the current state is true (pressed down). Use this
-	 * for continuous actions such as running.
-	 * 
-	 * @param action
-	 * @return
-	 */
+	@Override
 	public boolean isPressed(Actions action) {
 		return currentInput.get(action) == 1.0f;
 	}
 	
-	/**
-	 * Returns a float value between 0 and 1 (both inclusive).
-	 * 
-	 * E.g. how far over an analog stick is on a controller, 1 being all the way over, 0 being in the center. <br>
-	 * <br/>
-	 * Note: For all binary controls this function will only output either 0 or 1. (e.g. keys, buttons, dpad, etc..)
-	 * 
-	 * @param action
-	 * @return
-	 */
+	@Override
 	public Float getValue(Actions action){
 		return currentInput.get(action);
 	}

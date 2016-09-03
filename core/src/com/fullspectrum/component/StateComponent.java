@@ -4,10 +4,10 @@ import com.badlogic.ashley.core.Component;
 
 public class StateComponent implements Component{
 
-	public IAnimState state;
+	public AnimState state;
 	public float time = 0;
 	
-	public StateComponent(IAnimState state){
+	public StateComponent(AnimState state){
 		this.state = state;
 	}
 	

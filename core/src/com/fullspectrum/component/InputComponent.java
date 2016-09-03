@@ -1,13 +1,13 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
-import com.fullspectrum.input.GameInput;
+import com.fullspectrum.input.Input;
 
 public class InputComponent implements Component{
 
-	public GameInput input;
+	public Input input;
 	
-	public InputComponent(GameInput input){
+	public InputComponent(Input input){
 		this.input = input;
 	}
 	

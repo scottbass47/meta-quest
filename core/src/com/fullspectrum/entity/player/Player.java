@@ -27,7 +27,6 @@ public class Player implements Disposable {
 	// Animation
 	public static ArrayMap<PlayerAnim, Animation> animations;
 	private final static float ANIM_SPEED = 0.1f;
-	private IPlayerState playerState;
 	private Animation currentAnimation;
 	private float frameTime = 0.0f;
 	private static TextureAtlas knightAtlas;
@@ -65,7 +64,6 @@ public class Player implements Disposable {
 	}
 
 	private void init() {
-		playerState = new IdleState();
 		
 		currentAnimation = animations.get(PlayerAnim.IDLE);
 
@@ -106,10 +104,8 @@ public class Player implements Disposable {
 
 	public void update(float delta) {
 		frameTime += delta;
-		playerState.update(this);
 		if (frameTime > currentAnimation.getAnimationDuration()) {
 			frameTime = 0;
-			playerState.animFinished(this);
 		}
 		jumping = body.getLinearVelocity().y != 0;
 	}
@@ -121,37 +117,37 @@ public class Player implements Disposable {
 		frame.flip(frame.isFlipX(), false);
 	}
 
-	public void handleInput(GameInput input) {
-		IPlayerState newState = playerState.handleInput(input);
-		if (newState != null) {
-			playerState = newState;
-			playerState.init(this);
-		}
-		if (playerState instanceof IDirection) {
-			if (input.getValue(Actions.MOVE_LEFT) < ANALOG_THRESHOLD && input.getValue(Actions.MOVE_RIGHT) < ANALOG_THRESHOLD) {
-				dx = 0;
-			} else if (input.getValue(Actions.MOVE_LEFT) > ANALOG_THRESHOLD) {
-				dx = -SPEED * input.getValue(Actions.MOVE_LEFT);
-			} else if (input.getValue(Actions.MOVE_RIGHT) > ANALOG_THRESHOLD) {
-				dx = SPEED * input.getValue(Actions.MOVE_RIGHT);
-			}
-			float velChange = dx - body.getLinearVelocity().x;
-			float impulse = body.getMass() * velChange;
-			body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
-			// System.out.println(body.getLinearVelocity().x);
-			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
-		}
-	}
-
-	/**
-	 * Sets the current <code>IPlayerState</code> and initializes it.
-	 * 
-	 * @param state
-	 */
-	public void setPlayerState(IPlayerState state) {
-		this.playerState = state;
-		state.init(this);
-	}
+//	public void handleInput(GameInput input) {
+//		IPlayerState newState = playerState.handleInput(input);
+//		if (newState != null) {
+//			playerState = newState;
+//			playerState.init(this);
+//		}
+//		if (playerState instanceof IDirection) {
+//			if (input.getValue(Actions.MOVE_LEFT) < ANALOG_THRESHOLD && input.getValue(Actions.MOVE_RIGHT) < ANALOG_THRESHOLD) {
+//				dx = 0;
+//			} else if (input.getValue(Actions.MOVE_LEFT) > ANALOG_THRESHOLD) {
+//				dx = -SPEED * input.getValue(Actions.MOVE_LEFT);
+//			} else if (input.getValue(Actions.MOVE_RIGHT) > ANALOG_THRESHOLD) {
+//				dx = SPEED * input.getValue(Actions.MOVE_RIGHT);
+//			}
+//			float velChange = dx - body.getLinearVelocity().x;
+//			float impulse = body.getMass() * velChange;
+//			body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
+//			// System.out.println(body.getLinearVelocity().x);
+//			facingRight = dx > 0 || dx < 0 ? dx > 0 : facingRight;
+//		}
+//	}
+//
+//	/**
+//	 * Sets the current <code>IPlayerState</code> and initializes it.
+//	 * 
+//	 * @param state
+//	 */
+//	public void setPlayerState(IPlayerState state) {
+//		this.playerState = state;
+//		state.init(this);
+//	}
 
 	@Override
 	public void dispose() {

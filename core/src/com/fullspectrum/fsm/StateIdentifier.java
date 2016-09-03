@@ -1,6 +1,6 @@
 package com.fullspectrum.fsm;
 
-public interface IStateIdentifier {
+public interface StateIdentifier {
 	
 	public int numStates();
 	

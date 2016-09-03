@@ -3,10 +3,10 @@ package com.fullspectrum.game;
 public class GameVars {
 
 	// Dimensions
-	public final static int V_WORLD_WIDTH = 1280;
-	public final static int V_WORLD_HEIGHT = 720;
-	public final static float TILE_SCALE = 2.0f;
-	public final static float PLAYER_SCALE = 3.0f;
+	public final static int V_WORLD_WIDTH = 640;
+	public final static int V_WORLD_HEIGHT = 360;
+	public final static float TILE_SCALE = 1.0f;
+	public final static float PLAYER_SCALE = 1.0f;
 	public final static float PPM = 16 * TILE_SCALE;
 	public final static float R_WORLD_WIDTH = (float)V_WORLD_WIDTH / (float)PPM;
 	public final static float R_WORLD_HEIGHT = (float)V_WORLD_HEIGHT / (float)PPM;

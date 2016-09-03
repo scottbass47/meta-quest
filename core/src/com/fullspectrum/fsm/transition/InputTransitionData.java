@@ -3,9 +3,11 @@ package com.fullspectrum.fsm.transition;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.input.Actions;
 
-public class InputTransitionData implements ITransitionData{
+public class InputTransitionData implements TransitionData{
 
 	public Array<Actions> triggers;
+	public boolean all = false;
+	public boolean pressed = true;
 	
 	public InputTransitionData(){
 		triggers = new Array<Actions>();

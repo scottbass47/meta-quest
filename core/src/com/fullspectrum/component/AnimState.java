@@ -1,5 +1,5 @@
 package com.fullspectrum.component;
 
-public interface IAnimState {
+public interface AnimState {
 
 }

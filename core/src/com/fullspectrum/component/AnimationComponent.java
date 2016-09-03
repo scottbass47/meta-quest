@@ -6,13 +6,13 @@ import com.badlogic.gdx.utils.ArrayMap;
 
 public class AnimationComponent implements Component{
 
-	public ArrayMap<IAnimState, Animation> animations;
+	public ArrayMap<AnimState, Animation> animations;
 	
 	public AnimationComponent(){
-		animations = new ArrayMap<IAnimState, Animation>();
+		animations = new ArrayMap<AnimState, Animation>();
 	}
 	
-	public AnimationComponent addAnimation(IAnimState key, Animation value){
+	public AnimationComponent addAnimation(AnimState key, Animation value){
 		animations.put(key, value);
 		return this;
 	}

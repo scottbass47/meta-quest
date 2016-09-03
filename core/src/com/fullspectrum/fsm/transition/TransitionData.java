@@ -1,7 +1,7 @@
 package com.fullspectrum.fsm.transition;
 
-public interface ITransitionData {
-
+public interface TransitionData {
+	
 	public void reset();
 	
 }
