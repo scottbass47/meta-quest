@@ -116,7 +116,7 @@ public class GameScreen extends AbstractScreen {
 		
 		EntityStateMachine fsm = new EntityStateMachine(player);
 		fsm.createState(PlayerStates.RUNNING)
-			.add(new SpeedComponent(10.0f))
+			.add(new SpeedComponent(1.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.addTag(TransitionTag.GROUND_STATE)
@@ -206,16 +206,16 @@ public class GameScreen extends AbstractScreen {
 
 		body.createFixture(fdef);
 
-		// Feet
-		CircleShape cshape = new CircleShape();
-		cshape.setRadius(0.1f);
-		cshape.setPosition(new Vector2(0.59f, -1.35f));
-		fdef.shape = cshape;
-		fdef.friction = 1.0f;
-		body.createFixture(fdef);
-
-		cshape.setPosition(new Vector2(-0.4f, -1.35f));
-		body.createFixture(fdef);
+//		// Feet
+//		CircleShape cshape = new CircleShape();
+//		cshape.setRadius(0.1f);
+//		cshape.setPosition(new Vector2(0.59f, -1.35f));
+//		fdef.shape = cshape;
+//		fdef.friction = 1.0f;
+//		body.createFixture(fdef);
+//
+//		cshape.setPosition(new Vector2(-0.4f, -1.35f));
+//		body.createFixture(fdef);
 		
 		player.add(new BodyComponent(body));
 		engine.addEntity(player);
