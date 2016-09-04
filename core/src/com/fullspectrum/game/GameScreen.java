@@ -1,31 +1,36 @@
 package com.fullspectrum.game;
 
-import static com.fullspectrum.game.GameVars.*;
+import static com.fullspectrum.game.GameVars.PPM;
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -48,6 +53,7 @@ import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.systems.AnimationSystem;
+import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
@@ -68,6 +74,7 @@ public class GameScreen extends AbstractScreen {
 
 	// Player
 	private Entity player;
+	private Entity cameraEntity;
 
 	// Tile Map
 	private Level level;
@@ -97,6 +104,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
+		engine.addSystem(new CameraSystem());
 		
 		// Setup Player
 		player = new Entity();
@@ -116,7 +124,7 @@ public class GameScreen extends AbstractScreen {
 		
 		EntityStateMachine fsm = new EntityStateMachine(player);
 		fsm.createState(PlayerStates.RUNNING)
-			.add(new SpeedComponent(1.0f))
+			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.addTag(TransitionTag.GROUND_STATE)
@@ -130,14 +138,14 @@ public class GameScreen extends AbstractScreen {
 			.withAnimation(PlayerAnim.IDLE);
 		
 		fsm.createState(PlayerStates.FALLING)
-			.add(new SpeedComponent(10.0f))
+			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.addTag(TransitionTag.AIR_STATE)
 			.withAnimation(PlayerAnim.RISE);
 		
 		fsm.createState(PlayerStates.JUMPING)
-			.add(new SpeedComponent(10.0f))
+			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.add(new JumpComponent(1000.0f))
@@ -145,7 +153,7 @@ public class GameScreen extends AbstractScreen {
 			.withAnimation(PlayerAnim.JUMP);
 		
 		fsm.createState(PlayerStates.RISING)
-			.add(new SpeedComponent(10.0f))
+			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.addTag(TransitionTag.AIR_STATE)
@@ -185,7 +193,7 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
 		
-		System.out.print(fsm.printTransitions());
+//		System.out.print(fsm.printTransitions());
 		
 		fsm.changeState(PlayerStates.IDLING);
 		
@@ -224,6 +232,20 @@ public class GameScreen extends AbstractScreen {
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
 		level.loadMap("map/Test.tmx");
+		
+		// Setup Camera
+		cameraEntity = new Entity();
+		CameraComponent cameraComp = new CameraComponent(worldCamera, player);
+		cameraComp.minX = -100;
+		cameraComp.minY = -100;
+		cameraComp.maxX = level.getWidth() + 100;
+		cameraComp.maxY = level.getHeight() + 100;
+		cameraComp.windowMinX = -2f;
+		cameraComp.windowMinY = 0f;
+		cameraComp.windowMaxX = 2f;
+		cameraComp.windowMaxY = 0f;
+		cameraEntity.add(cameraComp);
+		engine.addEntity(cameraEntity);
 	}
 
 	@Override
@@ -233,8 +255,6 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-		worldCamera.position.x = R_WORLD_WIDTH * 0.5f;
-		worldCamera.position.y = R_WORLD_HEIGHT * 0.5f;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -246,8 +266,17 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void render() {
 		renderer.render();
-		b2dr.render(world, worldCamera.combined);
-//		level.render();
+//		b2dr.render(world, worldCamera.combined);
+		level.render();
+		CameraComponent camera = Mappers.camera.get(cameraEntity);
+		sRenderer.setProjectionMatrix(worldCamera.combined);
+		sRenderer.begin(ShapeType.Line);
+		sRenderer.setColor(Color.RED);
+		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
+		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
+		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
+		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
+		sRenderer.end();
 	}
 
 	@Override

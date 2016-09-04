@@ -37,8 +37,8 @@ public class InputTransition extends TransitionSystem {
 							|| inputComp.input.getValue(trigger) < GameInput.ANALOG_THRESHOLD && !itd.pressed) {
 						if (!itd.all) {
 							itd.reset();
-							System.out.println("Input " + debug);
-							System.out.println(itd);
+//							System.out.println("Input " + debug);
+//							System.out.println(itd);
 							fsm.changeState(fsm.getCurrentState().getState(obj));
 							break outerloop;
 						}
@@ -52,8 +52,8 @@ public class InputTransition extends TransitionSystem {
 				}
 				if(itd.all && allPressed){
 					itd.reset();
-					System.out.println("Input " + debug);
-					System.out.println(itd);
+//					System.out.println("Input " + debug);
+//					System.out.println(itd);
 					fsm.changeState(fsm.getCurrentState().getState(obj));
 				}
 			}

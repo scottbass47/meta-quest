@@ -1,6 +1,5 @@
 package com.fullspectrum.entity.player;
 
-import static com.fullspectrum.game.GameVars.PLAYER_SCALE;
 import static com.fullspectrum.game.GameVars.PPM;
 
 import com.badlogic.gdx.Gdx;
@@ -19,8 +18,6 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Disposable;
-import com.fullspectrum.input.Actions;
-import com.fullspectrum.input.GameInput;
 
 public class Player implements Disposable {
 
@@ -35,8 +32,8 @@ public class Player implements Disposable {
 	// Physics
 	protected World world;
 	protected Body body;
-	protected float width = 20.0f * PLAYER_SCALE / PPM;
-	protected float height = 32.0f * PLAYER_SCALE / PPM;
+//	protected float width = 20.0f * PLAYER_SCALE / PPM;
+//	protected float height = 32.0f * PLAYER_SCALE / PPM;
 	protected float x;
 	protected float y;
 	protected float dx;
@@ -76,7 +73,7 @@ public class Player implements Disposable {
 
 		FixtureDef fdef = new FixtureDef();
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(width * 0.3f, height * 0.4f, new Vector2(0.1f, -0.1f), 0);
+//		shape.setAsBox(width * 0.3f, height * 0.4f, new Vector2(0.1f, -0.1f), 0);
 		fdef.shape = shape;
 
 		body.createFixture(fdef);
@@ -113,7 +110,7 @@ public class Player implements Disposable {
 	public void render(SpriteBatch batch) {
 		TextureRegion frame = currentAnimation.getKeyFrame(frameTime);
 		frame.flip(!facingRight, false);
-		batch.draw(currentAnimation.getKeyFrame(frameTime), body.getPosition().x - width * 0.5f, body.getPosition().y - height * 0.5f, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), PLAYER_SCALE / PPM, PLAYER_SCALE / PPM, 0.0f);
+//		batch.draw(currentAnimation.getKeyFrame(frameTime), body.getPosition().x - width * 0.5f, body.getPosition().y - height * 0.5f, 0, 0, frame.getRegionWidth(), frame.getRegionHeight(), PLAYER_SCALE / PPM, PLAYER_SCALE / PPM, 0.0f);
 		frame.flip(frame.isFlipX(), false);
 	}
 

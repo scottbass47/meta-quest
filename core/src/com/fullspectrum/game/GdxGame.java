@@ -9,11 +9,13 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
+
 import static com.fullspectrum.game.GameVars.*;
 
 public class GdxGame extends Game {
@@ -65,6 +67,8 @@ public class GdxGame extends Game {
 		// Center HUD Camera
 		hudCamera.position.x = V_WORLD_WIDTH * 0.5f;
 		hudCamera.position.y = V_WORLD_HEIGHT * 0.5f;
+		
+		GLProfiler.enable();
 	}
 
 	@Override
@@ -103,6 +107,7 @@ public class GdxGame extends Game {
 				fps = 0;
 				fpsLogger.log();
 			}
+//			System.out.printf("Calls: %d, Draw Calls: %d\n", GLProfiler.calls, GLProfiler.drawCalls);
 			startTime = System.nanoTime();
 //			input.update();
 		}

@@ -26,7 +26,7 @@ public class LandedTransition extends TransitionSystem {
 			EntityStateMachine fsm = fsmComp.fsm;
 			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.LANDED);
 			if(bodyComp.body.getLinearVelocity().y == 0){
-				System.out.println("Landed");
+//				System.out.println("Landed");
 				fsm.changeState(fsm.getCurrentState().getState(obj));
 			}
 		}

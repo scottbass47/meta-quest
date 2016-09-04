@@ -31,7 +31,7 @@ public class RandomTransition extends TransitionSystem {
 				if (rtd.timePassed < rtd.waitTime) continue;
 				if (rtd.probability / deltaTime > Math.random()) {
 					rtd.reset();
-					System.out.println("Random Transition");
+//					System.out.println("Random Transition");
 					fsm.changeState(fsm.getCurrentState().getState(obj));
 					break;
 				}

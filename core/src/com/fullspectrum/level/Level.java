@@ -1,16 +1,16 @@
 package com.fullspectrum.level;
 
-import static com.fullspectrum.game.GameVars.PPM;
-import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
-import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
-import static com.fullspectrum.game.GameVars.TILE_SCALE;
+import static com.fullspectrum.game.GameVars.*;
 
 import java.util.Comparator;
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -35,6 +35,8 @@ public class Level {
 	private TiledMap map;
 	private TmxMapLoader loader;
 	private OrthogonalTiledMapRenderer mapRenderer;
+	private int width;
+	private int height;
 
 	// Player
 	private Entity player;
@@ -55,13 +57,23 @@ public class Level {
 
 	public void loadMap(String path) {
 		map = loader.load(path);
-		mapRenderer = new OrthogonalTiledMapRenderer(map, TILE_SCALE / PPM);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
 		setupTilePhysics();
+	}
+	
+	public int getWidth(){
+		return width;
+	}
+	
+	public int getHeight(){
+		return height;
 	}
 
 	private void setupTilePhysics() {
 		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
-
+		width = layer.getWidth();
+		height = layer.getHeight();
+		
 		// Init Physics Object
 		BodyDef bdef = new BodyDef();
 		bdef.type = BodyType.StaticBody;
@@ -293,14 +305,16 @@ public class Level {
 
 		mapRenderer.setView(cam);
 		mapRenderer.render();
+		
+		
 
 //		b2dr.render(world, cam.combined);
 
-		if (player != null) {
-			batch.begin();
-			player.render(batch);
-			batch.end();
-		}
+//		if (player != null) {
+//			batch.begin();
+//			player.render(batch);
+//			batch.end();
+//		}
 	}
 
 	public void setPlayer(Entity player) {

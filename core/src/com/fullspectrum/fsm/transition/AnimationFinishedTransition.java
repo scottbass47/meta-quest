@@ -26,7 +26,7 @@ public class AnimationFinishedTransition extends TransitionSystem{
 			EntityStateMachine fsm = fsmComp.fsm;
 			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.ANIMATION_FINISHED);
 			if(fsm.animationTime > animComp.animations.get(fsm.getAnimation()).getAnimationDuration()){
-				System.out.println("Animation Finished");
+//				System.out.println("Animation Finished");
 				fsm.changeState(fsm.getCurrentState().getState(obj));
 			}
 		}
