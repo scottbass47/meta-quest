@@ -23,6 +23,8 @@ public class PositioningSystem extends IteratingSystem{
 		TextureComponent texComp = Mappers.texture.get(entity);
 		posComp.x = (float) (bodyComp.body.getPosition().x - ((texComp.region.getRegionWidth() * 0.5) / GameVars.PPM));
 		posComp.y = (float) (bodyComp.body.getPosition().y - ((texComp.region.getRegionHeight() * 0.5) / GameVars.PPM));
+//		posComp.x = ((int)(posComp.x * GameVars.PPM)) / GameVars.PPM;
+//		posComp.y = ((int)(posComp.y * GameVars.PPM)) / GameVars.PPM;
 	}
 	
 }

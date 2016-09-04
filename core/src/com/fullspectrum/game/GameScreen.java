@@ -236,10 +236,10 @@ public class GameScreen extends AbstractScreen {
 		// Setup Camera
 		cameraEntity = new Entity();
 		CameraComponent cameraComp = new CameraComponent(worldCamera, player);
-		cameraComp.minX = -100;
-		cameraComp.minY = -100;
-		cameraComp.maxX = level.getWidth() + 100;
-		cameraComp.maxY = level.getHeight() + 100;
+		cameraComp.minX = 0f;
+		cameraComp.minY = 0f;
+		cameraComp.maxX = level.getWidth();
+		cameraComp.maxY = level.getHeight();
 		cameraComp.windowMinX = -2f;
 		cameraComp.windowMinY = 0f;
 		cameraComp.windowMaxX = 2f;

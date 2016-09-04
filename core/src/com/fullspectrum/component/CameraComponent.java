@@ -6,6 +6,8 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 
 public class CameraComponent implements Component{
 
+	public float x = 0.0f;
+	public float y = 0.0f;
 	public float minX = 0.0f;
 	public float minY = 0.0f;
 	public float maxX = 0.0f;
@@ -19,6 +21,7 @@ public class CameraComponent implements Component{
 	public Entity toFollow;
 	
 	public CameraComponent(OrthographicCamera camera, Entity toFollow){
+		camera.zoom = 1f;
 		this.camera = camera;
 		this.toFollow = toFollow;
 	}
