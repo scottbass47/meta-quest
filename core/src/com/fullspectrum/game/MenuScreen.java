@@ -18,11 +18,6 @@ public class MenuScreen extends AbstractScreen {
 	}
 	
 	@Override
-	public void handleInput() {
-		
-	}
-	
-	@Override
 	public void update(float delta) {
 
 	}

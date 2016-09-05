@@ -1,10 +1,13 @@
 package com.fullspectrum.game;
 
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
+import static com.fullspectrum.game.GameVars.V_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.V_WORLD_WIDTH;
+
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -15,8 +18,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
-
-import static com.fullspectrum.game.GameVars.*;
 
 public class GdxGame extends Game {
 	// Rendering
@@ -36,12 +37,12 @@ public class GdxGame extends Game {
 
 	// FPS Logging
 	public final static int UPS = 60;
-	private int fps = 0;
-	private int drawFPS = fps;
-	private long startTime = System.nanoTime();
-	private boolean fpsOn = false;
-	private FPSLogger fpsLogger;
-	private boolean prevPressed = false;
+//	private int fps = 0;
+//	private int drawFPS = fps;
+//	private long startTime = System.nanoTime();
+//	private boolean fpsOn = false;
+//	private FPSLogger fpsLogger;
+//	private boolean prevPressed = false;
 
 	@Override
 	public void create() {
@@ -51,7 +52,7 @@ public class GdxGame extends Game {
 		hudCamera = new OrthographicCamera();
 		hudViewport = new FitViewport(V_WORLD_WIDTH, V_WORLD_HEIGHT, hudCamera);
 		font = new BitmapFont();
-		fpsLogger = new FPSLogger();
+//		fpsLogger = new FPSLogger();
 		
 		// Setup Input
 		profile = new InputProfile();
@@ -81,36 +82,36 @@ public class GdxGame extends Game {
 		hudCamera.update();
 		batch.setProjectionMatrix(hudCamera.combined);
 
-		batch.begin();
-		fps++;
-		if (fpsOn) {
-			font.draw(batch, "" + drawFPS, 10, 710);
-		}
-		batch.end();
-
-		// Setup P to Toggle FPS
-		if (Gdx.input.isKeyPressed(Keys.P)) {
-			if (!prevPressed)
-				fpsOn = !fpsOn;
-			prevPressed = false;
-			if (fpsOn) {
-				startTime = System.nanoTime();
-				fps = 0;
-			}
-		}
-		prevPressed = Gdx.input.isKeyPressed(Keys.P);
-
-		// FPS and Controller
-		if ((System.nanoTime() - startTime) / 1000000 > 1000) {
-			if (fpsOn) {
-				drawFPS = fps;
-				fps = 0;
-				fpsLogger.log();
-			}
-//			System.out.printf("Calls: %d, Draw Calls: %d\n", GLProfiler.calls, GLProfiler.drawCalls);
-			startTime = System.nanoTime();
-//			input.update();
-		}
+//		batch.begin();
+//		fps++;
+//		if (fpsOn) {
+//			font.draw(batch, "" + drawFPS, 10, 710);
+//		}
+//		batch.end();
+//
+//		// Setup P to Toggle FPS
+//		if (Gdx.input.isKeyPressed(Keys.P)) {
+//			if (!prevPressed)
+//				fpsOn = !fpsOn;
+//			prevPressed = false;
+//			if (fpsOn) {
+//				startTime = System.nanoTime();
+//				fps = 0;
+//			}
+//		}
+//		prevPressed = Gdx.input.isKeyPressed(Keys.P);
+//
+//		// FPS and Controller
+//		if ((System.nanoTime() - startTime) / 1000000 > 1000) {
+//			if (fpsOn) {
+//				drawFPS = fps;
+//				fps = 0;
+//				fpsLogger.log();
+//			}
+////			System.out.printf("Calls: %d, Draw Calls: %d\n", GLProfiler.calls, GLProfiler.drawCalls);
+//			startTime = System.nanoTime();
+////			input.update();
+//		}
 	}
 
 	@Override

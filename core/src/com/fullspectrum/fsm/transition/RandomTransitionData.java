@@ -13,6 +13,6 @@ public class RandomTransitionData implements TransitionData{
 	
 	@Override
 	public String toString() {
-		return String.format("Wait time: %.2f, Probability: %.2f", waitTime, probability);
+		return "Wait time: " + waitTime + ", Probability: " + probability;
 	}
 }

@@ -27,10 +27,10 @@ public class CameraSystem extends IteratingSystem{
 //		System.out.printf("Camera X: %.2f, Player X: %.2f, DX: %.2f\n", cameraComp.camera.position.x, body.getPosition().x, dx);
 //		System.out.printf("Camera Y: %.2f, Player Y: %.2f, DY: %.2f\n", cameraComp.camera.position.y, posComp.y, dy);
 		if(dx < cameraComp.windowMinX || dx > cameraComp.windowMaxX){
-			cameraComp.x = MathUtils.lerp(cameraComp.x, body.getPosition().x, deltaTime * 2.5f);
+			cameraComp.x = MathUtils.lerp(cameraComp.x, body.getPosition().x, deltaTime * 3f);
 		}
 		if(dy < cameraComp.windowMinY || dy > cameraComp.windowMaxY){
-			cameraComp.y = MathUtils.lerp(cameraComp.y, body.getPosition().y, deltaTime * 2.5f);
+			cameraComp.y = MathUtils.lerp(cameraComp.y, body.getPosition().y, deltaTime * 3f);
 		}
 		
 		cameraComp.x = MathUtils.clamp(cameraComp.x, cameraComp.minX + R_WORLD_WIDTH * 0.5f, cameraComp.maxX - R_WORLD_WIDTH * 0.5f);
@@ -41,7 +41,7 @@ public class CameraSystem extends IteratingSystem{
 //		cameraComp.camera.position.x = (int)cameraComp.x;
 //		cameraComp.camera.position.y = (int)cameraComp.y;
 		
-		System.out.printf("X: %.3f, Y: %.3f\n", cameraComp.camera.position.x, cameraComp.camera.position.y);
+//		System.out.printf("X: %.3f, Y: %.3f\n", cameraComp.camera.position.x, cameraComp.camera.position.y);
 //		cameraComp.camera.position.x = (int)(body.getPosition().x * PPM) / PPM;
 //		cameraComp.camera.position.y = (int)(body.getPosition().y * PPM) / PPM;
 	}

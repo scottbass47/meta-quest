@@ -69,6 +69,28 @@ public class Level {
 		return height;
 	}
 
+	public void update(float delta) {
+//		if (player != null) player.update(delta);
+		cam.position.x = R_WORLD_WIDTH * 0.5f;
+		cam.position.y = R_WORLD_HEIGHT * 0.5f;
+	}
+	
+	public void render() {
+		cam.update();
+		batch.setProjectionMatrix(cam.combined);
+		
+		mapRenderer.setView(cam);
+		mapRenderer.render();
+		
+//		b2dr.render(world, cam.combined);
+		
+//		if (player != null) {
+//			batch.begin();
+//			player.render(batch);
+//			batch.end();
+//		}
+	}
+	
 	private void setupTilePhysics() {
 		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
 		width = layer.getWidth();
@@ -293,29 +315,6 @@ public class Level {
 		}
 	}
 	
-	public void update(float delta) {
-		if (player != null) player.update(delta);
-		cam.position.x = R_WORLD_WIDTH * 0.5f;
-		cam.position.y = R_WORLD_HEIGHT * 0.5f;
-	}
-
-	public void render() {
-		cam.update();
-		batch.setProjectionMatrix(cam.combined);
-
-		mapRenderer.setView(cam);
-		mapRenderer.render();
-		
-		
-
-//		b2dr.render(world, cam.combined);
-
-//		if (player != null) {
-//			batch.begin();
-//			player.render(batch);
-//			batch.end();
-//		}
-	}
 
 	public void setPlayer(Entity player) {
 		this.player = player;

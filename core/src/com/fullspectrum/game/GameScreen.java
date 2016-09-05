@@ -193,7 +193,7 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
 		
-//		System.out.print(fsm.printTransitions());
+		System.out.print(fsm.printTransitions());
 		
 		fsm.changeState(PlayerStates.IDLING);
 		
@@ -231,7 +231,7 @@ public class GameScreen extends AbstractScreen {
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
-		level.loadMap("map/Test.tmx");
+		level.loadMap("map/TestMap2.tmx");
 		
 		// Setup Camera
 		cameraEntity = new Entity();
@@ -244,6 +244,7 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMinY = 0f;
 		cameraComp.windowMaxX = 2f;
 		cameraComp.windowMaxY = 0f;
+		cameraComp.camera.zoom = 1f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
 	}
@@ -268,15 +269,15 @@ public class GameScreen extends AbstractScreen {
 		renderer.render();
 //		b2dr.render(world, worldCamera.combined);
 		level.render();
-		CameraComponent camera = Mappers.camera.get(cameraEntity);
-		sRenderer.setProjectionMatrix(worldCamera.combined);
-		sRenderer.begin(ShapeType.Line);
-		sRenderer.setColor(Color.RED);
-		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
-		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
-		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
-		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
-		sRenderer.end();
+//		CameraComponent camera = Mappers.camera.get(cameraEntity);
+//		sRenderer.setProjectionMatrix(worldCamera.combined);
+//		sRenderer.begin(ShapeType.Line);
+//		sRenderer.setColor(Color.RED);
+//		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
+//		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
+//		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
+//		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
+//		sRenderer.end();
 	}
 
 	@Override
