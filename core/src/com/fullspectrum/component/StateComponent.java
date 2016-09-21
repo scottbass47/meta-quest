@@ -1,6 +1,7 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
+import com.fullspectrum.fsm.AnimState;
 
 public class StateComponent implements Component{
 

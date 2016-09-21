@@ -1,6 +1,6 @@
 package com.fullspectrum.entity.player;
 
-import com.fullspectrum.component.AnimState;
+import com.fullspectrum.fsm.AnimState;
 
 public enum PlayerAnim implements AnimState{
 	IDLE,
@@ -8,5 +8,10 @@ public enum PlayerAnim implements AnimState{
 	RUNNING,
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
-	FALLING
+	FALLING;
+
+	@Override
+	public int numStates() {
+		return values().length;
+	}
 }

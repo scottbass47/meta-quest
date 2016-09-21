@@ -1,17 +1,13 @@
 package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.PPM;
-import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
-import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -30,7 +26,6 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
-import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -38,6 +33,7 @@ import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.entity.player.Player;
 import com.fullspectrum.entity.player.PlayerAnim;
+import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.PlayerStates;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
@@ -123,52 +119,43 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE)));
 		
 		EntityStateMachine fsm = new EntityStateMachine(player);
-		fsm.createState(PlayerStates.RUNNING)
+		EntityState runningState = fsm.createState(PlayerStates.RUNNING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addTag(TransitionTag.GROUND_STATE)
-			.withAnimation(PlayerAnim.RUNNING);
-
-		fsm.createState(PlayerStates.IDLING)
+			.addAnimation(PlayerAnim.RUNNING);
+		runningState.addTag(TransitionTag.GROUND_STATE);
+			
+		RandomTransitionData rtd = new RandomTransitionData();
+		rtd.waitTime = 4.0f;
+		rtd.probability = 1.0f;
+		
+		EntityState idleState = fsm.createState(PlayerStates.IDLING)
 			.add(new SpeedComponent(0.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addTag(TransitionTag.GROUND_STATE)
-			.withAnimation(PlayerAnim.IDLE);
+			.addAnimation(PlayerAnim.IDLE)
+			.addAnimation(PlayerAnim.RANDOM_IDLE)
+			.addAnimTransition(PlayerAnim.IDLE, Transition.RANDOM, rtd, PlayerAnim.RANDOM_IDLE)
+			.addAnimTransition(PlayerAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, PlayerAnim.IDLE);
+		idleState.addTag(TransitionTag.GROUND_STATE);
 		
-		fsm.createState(PlayerStates.FALLING)
+		EntityState fallingState = fsm.createState(PlayerStates.FALLING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addTag(TransitionTag.AIR_STATE)
-			.withAnimation(PlayerAnim.RISE);
+			.addAnimation(PlayerAnim.RISE);
+		fallingState.addTag(TransitionTag.AIR_STATE);
 		
-		fsm.createState(PlayerStates.JUMPING)
+		EntityState jumpingState = fsm.createState(PlayerStates.JUMPING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
 			.add(new JumpComponent(1000.0f))
-			.addTag(TransitionTag.AIR_STATE)
-			.withAnimation(PlayerAnim.JUMP);
-		
-		fsm.createState(PlayerStates.RISING)
-			.add(new SpeedComponent(8.0f))
-			.add(new DirectionComponent())
-			.add(new GroundMovementComponent())
-			.addTag(TransitionTag.AIR_STATE)
-			.withAnimation(PlayerAnim.RISE);
-		
-		fsm.createState(PlayerStates.RANDOM_IDLING)
-			.add(new SpeedComponent(0.0f))
-			.add(new DirectionComponent())
-			.add(new GroundMovementComponent())
-			.addTag(TransitionTag.GROUND_STATE)
-			.withAnimation(PlayerAnim.RANDOM_IDLE);
-		
-		RandomTransitionData rtd = new RandomTransitionData();
-		rtd.waitTime = 4.0f;
-		rtd.probability = 1.0f;
+			.addAnimation(PlayerAnim.JUMP)
+			.addAnimation(PlayerAnim.RISE)
+			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE);
+		jumpingState.addTag(TransitionTag.AIR_STATE);
 		
 		InputTransitionData runningData = new InputTransitionData();
 		runningData.triggers.add(Actions.MOVE_LEFT);
@@ -186,14 +173,11 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.RUNNING), Transition.INPUT, runningData, PlayerStates.RUNNING);
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, PlayerStates.JUMPING);
-		fsm.addTransition(PlayerStates.JUMPING, Transition.ANIMATION_FINISHED, PlayerStates.RISING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING), Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
-		fsm.addTransition(PlayerStates.IDLING, Transition.RANDOM, rtd, PlayerStates.RANDOM_IDLING);
-		fsm.addTransition(PlayerStates.RANDOM_IDLING, Transition.ANIMATION_FINISHED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
 		
-		System.out.print(fsm.printTransitions());
+//		System.out.print(fsm.printTransitions());
 		
 		fsm.changeState(PlayerStates.IDLING);
 		

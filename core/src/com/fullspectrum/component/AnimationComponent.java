@@ -3,6 +3,7 @@ package com.fullspectrum.component;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.fsm.AnimState;
 
 public class AnimationComponent implements Component{
 
