@@ -5,6 +5,7 @@ import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.StateIdentifier;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
@@ -39,7 +40,7 @@ public class InputTransition extends TransitionSystem {
 							itd.reset();
 //							System.out.println("Input " + debug);
 //							System.out.println(itd);
-							fsm.changeState(fsm.getCurrentState().getState(obj));
+							fsm.changeState((StateIdentifier) fsm.getCurrentState().getState(obj));
 							break outerloop;
 						}
 					}
@@ -54,7 +55,7 @@ public class InputTransition extends TransitionSystem {
 					itd.reset();
 //					System.out.println("Input " + debug);
 //					System.out.println(itd);
-					fsm.changeState(fsm.getCurrentState().getState(obj));
+					fsm.changeState((StateIdentifier) fsm.getCurrentState().getState(obj));
 				}
 			}
 

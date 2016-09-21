@@ -63,7 +63,7 @@ public class GameScreen extends AbstractScreen {
 	// Debug Graphics
 	private ShapeRenderer sRenderer;
 	private Box2DDebugRenderer b2dr;
-	
+
 	// Ashley
 	private Engine engine;
 	private RenderingSystem renderer;
@@ -123,7 +123,8 @@ public class GameScreen extends AbstractScreen {
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addAnimation(PlayerAnim.RUNNING);
+			.addAnimation(PlayerAnim.RUNNING)
+			.setInitialAnimation(PlayerAnim.RUNNING);
 		runningState.addTag(TransitionTag.GROUND_STATE);
 			
 		RandomTransitionData rtd = new RandomTransitionData();
@@ -137,14 +138,16 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.IDLE)
 			.addAnimation(PlayerAnim.RANDOM_IDLE)
 			.addAnimTransition(PlayerAnim.IDLE, Transition.RANDOM, rtd, PlayerAnim.RANDOM_IDLE)
-			.addAnimTransition(PlayerAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, PlayerAnim.IDLE);
+			.addAnimTransition(PlayerAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, PlayerAnim.IDLE)
+			.setInitialAnimation(PlayerAnim.IDLE);
 		idleState.addTag(TransitionTag.GROUND_STATE);
 		
 		EntityState fallingState = fsm.createState(PlayerStates.FALLING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addAnimation(PlayerAnim.RISE);
+			.addAnimation(PlayerAnim.RISE)
+			.setInitialAnimation(PlayerAnim.RISE);
 		fallingState.addTag(TransitionTag.AIR_STATE);
 		
 		EntityState jumpingState = fsm.createState(PlayerStates.JUMPING)
@@ -154,7 +157,8 @@ public class GameScreen extends AbstractScreen {
 			.add(new JumpComponent(1000.0f))
 			.addAnimation(PlayerAnim.JUMP)
 			.addAnimation(PlayerAnim.RISE)
-			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE);
+			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE)
+			.setInitialAnimation(PlayerAnim.JUMP);
 		jumpingState.addTag(TransitionTag.AIR_STATE);
 		
 		InputTransitionData runningData = new InputTransitionData();
@@ -235,7 +239,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	protected void init() {
-		
+
 	}
 
 	@Override
@@ -243,25 +247,37 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
-		
+
 		world.step(delta, 6, 2);
-//		level.update(delta);
+		// level.update(delta);
 	}
 
 	@Override
 	public void render() {
 		renderer.render();
-//		b2dr.render(world, worldCamera.combined);
+		// b2dr.render(world, worldCamera.combined);
 		level.render();
-//		CameraComponent camera = Mappers.camera.get(cameraEntity);
-//		sRenderer.setProjectionMatrix(worldCamera.combined);
-//		sRenderer.begin(ShapeType.Line);
-//		sRenderer.setColor(Color.RED);
-//		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
-//		sRenderer.line(camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMinY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
-//		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMinX, camera.camera.position.y + camera.windowMaxY);
-//		sRenderer.line(camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMaxY, camera.camera.position.x + camera.windowMaxX, camera.camera.position.y + camera.windowMinY);
-//		sRenderer.end();
+		// CameraComponent camera = Mappers.camera.get(cameraEntity);
+		// sRenderer.setProjectionMatrix(worldCamera.combined);
+		// sRenderer.begin(ShapeType.Line);
+		// sRenderer.setColor(Color.RED);
+		// sRenderer.line(camera.camera.position.x + camera.windowMinX,
+		// camera.camera.position.y + camera.windowMinY,
+		// camera.camera.position.x + camera.windowMinX,
+		// camera.camera.position.y + camera.windowMaxY);
+		// sRenderer.line(camera.camera.position.x + camera.windowMinX,
+		// camera.camera.position.y + camera.windowMinY,
+		// camera.camera.position.x + camera.windowMaxX,
+		// camera.camera.position.y + camera.windowMinY);
+		// sRenderer.line(camera.camera.position.x + camera.windowMaxX,
+		// camera.camera.position.y + camera.windowMaxY,
+		// camera.camera.position.x + camera.windowMinX,
+		// camera.camera.position.y + camera.windowMaxY);
+		// sRenderer.line(camera.camera.position.x + camera.windowMaxX,
+		// camera.camera.position.y + camera.windowMaxY,
+		// camera.camera.position.x + camera.windowMaxX,
+		// camera.camera.position.y + camera.windowMinY);
+		// sRenderer.end();
 	}
 
 	@Override
@@ -273,6 +289,6 @@ public class GameScreen extends AbstractScreen {
 	public void dispose() {
 		super.dispose();
 		sRenderer.dispose();
-//		player.dispose();
+		// player.dispose();
 	}
 }

@@ -14,4 +14,9 @@ public enum PlayerAnim implements AnimState{
 	public int numStates() {
 		return values().length;
 	}
+
+	@Override
+	public int getIndex() {
+		return ordinal();
+	}
 }

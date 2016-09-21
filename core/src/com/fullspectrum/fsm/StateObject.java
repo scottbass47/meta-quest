@@ -11,7 +11,7 @@ import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
-public class StateObject {
+public class StateObject{
 	// Data
 	private ArrayMap<TransitionObject, State> transitionMap;
 	private Array<Transition> transitions;
@@ -22,11 +22,14 @@ public class StateObject {
 	protected Bits bits;
 	protected int bitOffset;
 
-	protected StateObject(Entity entity) {
+	protected StateObject() {
 		transitionMap = new ArrayMap<TransitionObject, State>();
 		transitions = new Array<Transition>();
 		tags = new Array<TransitionTag>();
 		bits = new Bits();
+	}
+	
+	public void setEntity(Entity entity){
 		this.entity = entity;
 	}
 

@@ -2,7 +2,6 @@ package com.fullspectrum.fsm;
 
 import java.util.Iterator;
 
-import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
@@ -17,17 +16,19 @@ public class StateMachine<S extends State, E extends StateObject> {
 	protected ArrayMap<S, E> states;
 	protected E currentState;
 	protected Entity entity;
+	private Class<E> stateClass;
 
 	// Bits
 	private Builder builder = new Builder();
 	private int bitOffset;
 	private boolean firstState = false;
 
-	public StateMachine(Entity entity) {
+	public StateMachine(Entity entity, Class<E> stateClass) {
 		this.entity = entity;
 		states = new ArrayMap<S, E>();
+		this.stateClass = stateClass;
 	}
-	
+
 	public E createState(S key) {
 		// State identifiers must also be taggable
 		assert (key instanceof Tag);
@@ -35,18 +36,26 @@ public class StateMachine<S extends State, E extends StateObject> {
 			firstState = true;
 			bitOffset = key.numStates();
 		}
-		E state = (E) new StateObject(entity);
+		E state = null;
+		try {
+			state = stateClass.newInstance();
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		}
+		state.setEntity(entity);
 		state.bitOffset = bitOffset;
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);
 		return state;
 	}
-	
-	public E getCurrentState(){
+
+	public E getCurrentState() {
 		return currentState;
 	}
-	
-	public void changeState(S identifier){
+
+	public void changeState(S identifier) {
 		E newState = states.get(identifier);
 		if (newState == currentState) return;
 		if (currentState != null) {
@@ -59,7 +68,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		}
 		currentState = newState;
 	}
-	
+
 	public void addTransition(S fromState, Transition transition, S toState) {
 		states.get(fromState).addTransition(transition, null, toState);
 	}
@@ -103,11 +112,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 			addTransition(entry.key, transition, data, toState);
 		}
 	}
-	
-	//****************************************
-	//* 			  BUILDER				 *
-	//****************************************
-	
+
+	// ****************************************
+	// * BUILDER *
+	// ****************************************
+
 	public Builder all(Tag... tags) {
 		return builder.reset().all(tags);
 	}
@@ -120,24 +129,27 @@ public class StateMachine<S extends State, E extends StateObject> {
 		return builder.reset().exclude(tags);
 	}
 
-//	public String printTransitions() {
-//		String ret = "";
-//		Iterator<Entry<StateIdentifier, EntityState>> iter = states.iterator();
-//		while (iter.hasNext()) {
-//			Entry<StateIdentifier, EntityState> entry = iter.next();
-//			Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator();
-//			if (entry.key.equals(PlayerStates.FALLING)) {
-//				System.out.print("");
-//			}
-//			while (iterator.hasNext()) {
-//				Entry<TransitionObject, State> transition = iterator.next();
-//				String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";
-//				ret += entry.key.toString() + ": " + transition.key.transition.toString() + data + " -> " + transition.value.toString() + "\n";
-//			}
-//			ret += "\n";
-//		}
-//		return ret;
-//	}
+	// public String printTransitions() {
+	// String ret = "";
+	// Iterator<Entry<StateIdentifier, EntityState>> iter = states.iterator();
+	// while (iter.hasNext()) {
+	// Entry<StateIdentifier, EntityState> entry = iter.next();
+	// Iterator<Entry<TransitionObject, State>> iterator =
+	// entry.value.getTransitionMap().iterator();
+	// if (entry.key.equals(PlayerStates.FALLING)) {
+	// System.out.print("");
+	// }
+	// while (iterator.hasNext()) {
+	// Entry<TransitionObject, State> transition = iterator.next();
+	// String data = transition.key.data == null ? "" : "(" +
+	// transition.key.data.toString() + ")";
+	// ret += entry.key.toString() + ": " + transition.key.transition.toString()
+	// + data + " -> " + transition.value.toString() + "\n";
+	// }
+	// ret += "\n";
+	// }
+	// return ret;
+	// }
 
 	public class Builder {
 		private Bits all;
@@ -178,8 +190,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 				Tag tag = (Tag) tags[i];
 				if (tag instanceof StateIdentifier) {
 					bits.set(tag.getIndex());
-				}
-				else {
+				} else {
 					bits.set(tag.getIndex() + bitOffset);
 				}
 			}

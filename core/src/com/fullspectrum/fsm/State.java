@@ -1,6 +1,8 @@
 package com.fullspectrum.fsm;
 
-public interface State {
+import com.fullspectrum.fsm.transition.Tag;
+
+public interface State extends Tag{
 
 	public int numStates();
 	

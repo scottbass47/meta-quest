@@ -9,16 +9,19 @@ public class EntityState extends StateObject{
 
 	// Data
 	private Array<Component> components;
-	private Entity entity;
 	
 	// Animations
 	private StateMachine<AnimState, StateObject> animations;
 	
-	protected EntityState(Entity entity){
-		super(entity);
-		this.entity = entity;
+	protected EntityState(){
 		components = new Array<Component>();
-		animations = new StateMachine<AnimState, StateObject>(entity);
+		animations = new StateMachine<AnimState, StateObject>(entity, StateObject.class);
+	}
+	
+	@Override
+	public void setEntity(Entity entity) {
+		this.entity = entity;
+		animations.entity = entity;
 	}
 	
 	public EntityState addAnimation(AnimState anim){
@@ -33,6 +36,11 @@ public class EntityState extends StateObject{
 	
 	public EntityState addAnimTransition(AnimState fromState, Transition transition, AnimState toState){
 		animations.addTransition(fromState, transition, null, toState);
+		return this;
+	}
+	
+	public EntityState setInitialAnimation(AnimState anim){
+		animations.changeState(anim);
 		return this;
 	}
 	
