@@ -45,6 +45,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 			e.printStackTrace();
 		}
 		state.setEntity(entity);
+		state.identifier = key.toString();
 		state.bitOffset = bitOffset;
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);

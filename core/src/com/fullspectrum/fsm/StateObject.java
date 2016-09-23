@@ -21,6 +21,9 @@ public class StateObject{
 	// Bits
 	protected Bits bits;
 	protected int bitOffset;
+	
+	// Debug
+	protected String identifier;
 
 	protected StateObject() {
 		transitionMap = new ArrayMap<TransitionObject, State>();
@@ -85,5 +88,10 @@ public class StateObject{
 
 	public Array<Transition> getTransitions() {
 		return transitions;
+	}
+	
+	@Override
+	public String toString() {
+		return identifier;
 	}
 }
