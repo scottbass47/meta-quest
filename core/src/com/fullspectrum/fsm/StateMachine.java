@@ -16,19 +16,20 @@ public class StateMachine<S extends State, E extends StateObject> {
 	protected ArrayMap<S, E> states;
 	protected E currentState;
 	protected Entity entity;
-	private Class<E> stateClass;
+	private StateCreator<E> creator;
 
 	// Bits
 	private Builder builder = new Builder();
 	private int bitOffset;
 	private boolean firstState = false;
 
-	public StateMachine(Entity entity, Class<E> stateClass) {
+	public StateMachine(Entity entity, StateCreator<E> creator) {
 		this.entity = entity;
+		this.creator = creator;
 		states = new ArrayMap<S, E>();
-		this.stateClass = stateClass;
+		this.creator = creator;
 	}
-
+	
 	public E createState(S key) {
 		// State identifiers must also be taggable
 		assert (key instanceof Tag);
@@ -36,14 +37,15 @@ public class StateMachine<S extends State, E extends StateObject> {
 			firstState = true;
 			bitOffset = key.numStates();
 		}
-		E state = null;
-		try {
-			state = stateClass.newInstance();
-		} catch (InstantiationException e) {
-			e.printStackTrace();
-		} catch (IllegalAccessException e) {
-			e.printStackTrace();
-		}
+//		E state = null;
+//		try {
+//			state = stateClass.newInstance();
+//		} catch (InstantiationException e) {
+//			e.printStackTrace();
+//		} catch (IllegalAccessException e) {
+//			e.printStackTrace();
+//		}
+		E state = creator.getInstance();
 		state.setEntity(entity);
 		state.bitOffset = bitOffset;
 		state.bits.set(((Tag) key).getIndex());
@@ -55,16 +57,20 @@ public class StateMachine<S extends State, E extends StateObject> {
 		return currentState;
 	}
 
-	public void changeState(S identifier) {
+	public Entity getEntity(){
+		return entity;
+	}
+
+	public void changeState(State identifier) {
 		E newState = states.get(identifier);
 		if (newState == currentState) return;
 		if (currentState != null) {
 			for (Transition t : currentState.getTransitions()) {
-				t.getSystem().removeEntity(entity);
+				t.getSystem().removeStateMachine(this);
 			}
 		}
 		for (Transition t : newState.getTransitions()) {
-			t.getSystem().addEntity(entity);
+			t.getSystem().addStateMachine(this);
 		}
 		currentState = newState;
 	}
@@ -188,7 +194,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 			Bits bits = new Bits();
 			for (int i = 0; i < tags.length; i++) {
 				Tag tag = (Tag) tags[i];
-				if (tag instanceof StateIdentifier) {
+				if (tag instanceof State) {
 					bits.set(tag.getIndex());
 				} else {
 					bits.set(tag.getIndex() + bitOffset);

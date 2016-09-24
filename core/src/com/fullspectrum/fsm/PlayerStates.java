@@ -1,7 +1,7 @@
 package com.fullspectrum.fsm;
 
 
-public enum PlayerStates implements StateIdentifier{
+public enum PlayerStates implements State{
 	IDLING,
 	RANDOM_IDLING,
 	RUNNING,

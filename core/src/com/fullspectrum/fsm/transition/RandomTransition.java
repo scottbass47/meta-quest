@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.EntityStateMachine;
-import com.fullspectrum.fsm.StateIdentifier;
 
 public class RandomTransition extends TransitionSystem {
 
@@ -33,7 +32,7 @@ public class RandomTransition extends TransitionSystem {
 				if (rtd.probability / deltaTime > Math.random()) {
 					rtd.reset();
 //					System.out.println("Random Transition");
-					fsm.changeState((StateIdentifier) fsm.getCurrentState().getState(obj));
+					fsm.changeState(fsm.getCurrentState().getState(obj));
 					break;
 				}
 			}

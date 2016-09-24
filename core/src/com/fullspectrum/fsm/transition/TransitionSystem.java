@@ -1,23 +1,25 @@
 package com.fullspectrum.fsm.transition;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 
 public class TransitionSystem extends EntitySystem{
 
-	protected Array<Entity> entities;
+	protected Array<StateMachine<? extends State, ? extends StateObject>> machines;
 	
 	protected TransitionSystem() { 
-		entities = new Array<Entity>(); 
+		machines = new Array<StateMachine<? extends State, ? extends StateObject>>(); 
 	}
 	
-	public void addEntity(Entity e){
-		entities.add(e);
+	public void addStateMachine(StateMachine<? extends State, ? extends StateObject> machine){
+		machines.add(machine);
 	}
 	
-	public void removeEntity(Entity e){
-		entities.removeIndex(entities.indexOf(e, true));
+	public void removeStateMachine(StateMachine<? extends State, ? extends StateObject> machine){
+		machines.removeIndex(machines.indexOf(machine, true));
 	}
 	
 }

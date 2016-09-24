@@ -5,7 +5,6 @@ import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.EntityStateMachine;
-import com.fullspectrum.fsm.StateIdentifier;
 
 public class AnimationFinishedTransition extends TransitionSystem{
 
@@ -28,7 +27,7 @@ public class AnimationFinishedTransition extends TransitionSystem{
 			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.ANIMATION_FINISHED);
 			if(fsm.animationTime > animComp.animations.get(fsm.getAnimation()).getAnimationDuration()){
 //				System.out.println("Animation Finished");
-				fsm.changeState((StateIdentifier) fsm.getCurrentState().getState(obj));
+				fsm.changeState(fsm.getCurrentState().getState(obj));
 			}
 		}
 	}

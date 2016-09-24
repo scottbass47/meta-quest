@@ -1,14 +1,14 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
-import com.fullspectrum.fsm.AnimState;
+import com.fullspectrum.fsm.State;
 
 public class StateComponent implements Component{
 
-	public AnimState state;
+	public State state;
 	public float time = 0;
 	
-	public StateComponent(AnimState state){
+	public StateComponent(State state){
 		this.state = state;
 	}
 	

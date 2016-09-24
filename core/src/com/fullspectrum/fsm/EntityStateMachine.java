@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.ArrayMap;
 
-public class EntityStateMachine extends StateMachine<StateIdentifier, EntityState> {
+public class EntityStateMachine extends StateMachine<State, EntityState> {
 
 	// State
 	private EntityState currentState;
@@ -14,13 +14,13 @@ public class EntityStateMachine extends StateMachine<StateIdentifier, EntityStat
 	public float animationTime;
 
 	public EntityStateMachine(Entity entity) {
-		super(entity, EntityState.class);
+		super(entity, new EntityStateCreator());
 		this.entity = entity;
-		this.states = new ArrayMap<StateIdentifier, EntityState>();
+		this.states = new ArrayMap<State, EntityState>();
 	}
 
 	@Override
-	public void changeState(StateIdentifier identifier) {
+	public void changeState(State identifier) {
 		super.changeState(identifier);
 		EntityState newState = states.get(identifier);
 		if (newState == currentState) return;
@@ -36,7 +36,7 @@ public class EntityStateMachine extends StateMachine<StateIdentifier, EntityStat
 		currentState = newState;
 	}
 	
-	public AnimState getAnimation(){
+	public State getAnimation(){
 		return currentState.getCurrentAnimation();
 	}
 	

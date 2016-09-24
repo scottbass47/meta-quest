@@ -1,8 +1,8 @@
 package com.fullspectrum.entity.player;
 
-import com.fullspectrum.fsm.AnimState;
+import com.fullspectrum.fsm.State;
 
-public enum PlayerAnim implements AnimState{
+public enum PlayerAnim implements State{
 	IDLE,
 	RANDOM_IDLE,
 	RUNNING,

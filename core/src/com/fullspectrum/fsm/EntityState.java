@@ -11,11 +11,11 @@ public class EntityState extends StateObject{
 	private Array<Component> components;
 	
 	// Animations
-	private StateMachine<AnimState, StateObject> animations;
+	private StateMachine<State, StateObject> animations;
 	
 	protected EntityState(){
 		components = new Array<Component>();
-		animations = new StateMachine<AnimState, StateObject>(entity, StateObject.class);
+		animations = new StateMachine<State, StateObject>(entity, new StateObjectCreator());
 	}
 	
 	@Override
@@ -24,27 +24,27 @@ public class EntityState extends StateObject{
 		animations.entity = entity;
 	}
 	
-	public EntityState addAnimation(AnimState anim){
+	public EntityState addAnimation(State anim){
 		animations.createState(anim);
 		return this;
 	}
 	
-	public EntityState addAnimTransition(AnimState fromState, Transition transition, Object data, AnimState toState){
+	public EntityState addAnimTransition(State fromState, Transition transition, Object data, State toState){
 		animations.addTransition(fromState, transition, data, toState);
 		return this;
 	}
 	
-	public EntityState addAnimTransition(AnimState fromState, Transition transition, AnimState toState){
+	public EntityState addAnimTransition(State fromState, Transition transition, State toState){
 		animations.addTransition(fromState, transition, null, toState);
 		return this;
 	}
 	
-	public EntityState setInitialAnimation(AnimState anim){
+	public EntityState setInitialAnimation(State anim){
 		animations.changeState(anim);
 		return this;
 	}
 	
-	public AnimState getCurrentAnimation(){
+	public State getCurrentAnimation(){
 		return animations.states.getKey(animations.currentState, false);
 	}
 	
