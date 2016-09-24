@@ -63,7 +63,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	public void changeState(State identifier) {
-		E newState = states.get(identifier);
+		@SuppressWarnings("unchecked")
+		E newState = states.get((S)identifier);
+		if(newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
 		if (currentState != null) {
 			for (Transition t : currentState.getTransitions()) {
