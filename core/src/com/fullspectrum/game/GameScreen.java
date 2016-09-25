@@ -119,12 +119,12 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE)));
 		
 		EntityStateMachine fsm = new EntityStateMachine(player);
+		fsm.setDebugName("Entity State Machine");
 		EntityState runningState = fsm.createState(PlayerStates.RUNNING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addAnimation(PlayerAnim.RUNNING)
-			.setInitialAnimation(PlayerAnim.RUNNING);
+			.addAnimation(PlayerAnim.RUNNING);
 		runningState.addTag(TransitionTag.GROUND_STATE);
 			
 		RandomTransitionData rtd = new RandomTransitionData();
@@ -138,16 +138,14 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.IDLE)
 			.addAnimation(PlayerAnim.RANDOM_IDLE)
 			.addAnimTransition(PlayerAnim.IDLE, Transition.RANDOM, rtd, PlayerAnim.RANDOM_IDLE)
-			.addAnimTransition(PlayerAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, PlayerAnim.IDLE)
-			.setInitialAnimation(PlayerAnim.IDLE);
+			.addAnimTransition(PlayerAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, PlayerAnim.IDLE);
 		idleState.addTag(TransitionTag.GROUND_STATE);
 		
 		EntityState fallingState = fsm.createState(PlayerStates.FALLING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addAnimation(PlayerAnim.RISE)
-			.setInitialAnimation(PlayerAnim.RISE);
+			.addAnimation(PlayerAnim.RISE);
 		fallingState.addTag(TransitionTag.AIR_STATE);
 		
 		EntityState jumpingState = fsm.createState(PlayerStates.JUMPING)
@@ -157,8 +155,7 @@ public class GameScreen extends AbstractScreen {
 			.add(new JumpComponent(1000.0f))
 			.addAnimation(PlayerAnim.JUMP)
 			.addAnimation(PlayerAnim.RISE)
-			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE)
-			.setInitialAnimation(PlayerAnim.JUMP);
+			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE);
 		jumpingState.addTag(TransitionTag.AIR_STATE);
 		
 		InputTransitionData runningData = new InputTransitionData();

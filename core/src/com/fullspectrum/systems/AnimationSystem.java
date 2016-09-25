@@ -24,8 +24,8 @@ public class AnimationSystem extends IteratingSystem{
 		StateComponent stateComp = Mappers.state.get(entity);
 		
 		if(fsmComp != null){
-			fsmComp.fsm.animationTime += deltaTime;
-			texComp.region = animComp.animations.get(fsmComp.fsm.getAnimation()).getKeyFrame(fsmComp.fsm.animationTime);
+			fsmComp.fsm.addAnimationTime(deltaTime);
+			texComp.region = animComp.animations.get(fsmComp.fsm.getAnimation()).getKeyFrame(fsmComp.fsm.getAnimationTime());
 		}
 		else{
 			stateComp.time += deltaTime;

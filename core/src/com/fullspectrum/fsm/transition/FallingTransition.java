@@ -2,9 +2,10 @@ package com.fullspectrum.fsm.transition;
 
 import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 
 public class FallingTransition extends TransitionSystem	{
 
@@ -19,15 +20,14 @@ public class FallingTransition extends TransitionSystem	{
 	
 	@Override
 	public void update(float deltaTime) {
-		for(Entity e : entities){
-			FSMComponent fsmComp = Mappers.fsm.get(e);
+		for(StateMachine<? extends State, ? extends StateObject> machine : machines){
+			Entity e = machine.getEntity();
 			BodyComponent bodyComp = Mappers.body.get(e);
-			assert(fsmComp != null && bodyComp != null);
-			EntityStateMachine fsm = fsmComp.fsm;
-			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.FALLING);
+			assert(bodyComp != null);
+			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.FALLING);
 			if(bodyComp.body.getLinearVelocity().y < 0){
-//				System.out.println("Falling");
-				fsm.changeState(fsm.getCurrentState().getState(obj));
+				System.out.println(machine + "-> Falling");
+				machine.changeState(machine.getCurrentState().getState(obj));
 			}
 		}
 	}

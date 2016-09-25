@@ -11,11 +11,13 @@ public class EntityState extends StateObject{
 	private Array<Component> components;
 	
 	// Animations
-	private StateMachine<State, StateObject> animations;
+	protected AnimationStateMachine animations;
+	protected State initialAnim;
 	
 	protected EntityState(){
 		components = new Array<Component>();
-		animations = new StateMachine<State, StateObject>(entity, new StateObjectCreator());
+		animations = new AnimationStateMachine(entity, new StateObjectCreator());
+		animations.setDebugName("Animation State Machine");
 	}
 	
 	@Override
@@ -25,6 +27,7 @@ public class EntityState extends StateObject{
 	}
 	
 	public EntityState addAnimation(State anim){
+		if(initialAnim == null) initialAnim = anim;
 		animations.createState(anim);
 		return this;
 	}
@@ -40,12 +43,25 @@ public class EntityState extends StateObject{
 	}
 	
 	public EntityState setInitialAnimation(State anim){
-		animations.changeState(anim);
+		initialAnim = anim;
 		return this;
+	}
+	
+	public void reset(){
+		animations.currentState = animations.states.get(initialAnim);
+		animations.time = 0;
 	}
 	
 	public State getCurrentAnimation(){
 		return animations.states.getKey(animations.currentState, false);
+	}
+	
+	public float getAnimationTime(){
+		return animations.getAnimationTime();
+	}
+	
+	public void addAnimationTime(float time){
+		animations.time += time;
 	}
 	
 	public EntityState add(Component c){

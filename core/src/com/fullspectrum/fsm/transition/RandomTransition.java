@@ -1,9 +1,8 @@
 package com.fullspectrum.fsm.transition;
 
-import com.badlogic.ashley.core.Entity;
-import com.fullspectrum.component.FSMComponent;
-import com.fullspectrum.component.Mappers;
-import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 
 public class RandomTransition extends TransitionSystem {
 
@@ -18,11 +17,8 @@ public class RandomTransition extends TransitionSystem {
 
 	@Override
 	public void update(float deltaTime) {
-		for (Entity e : entities) {
-			FSMComponent fsmComp = Mappers.fsm.get(e);
-			assert (fsmComp != null);
-			EntityStateMachine fsm = fsmComp.fsm;
-			for (TransitionObject obj : fsm.getCurrentState().getData(Transition.RANDOM)) {
+		for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
+			for (TransitionObject obj : machine.getCurrentState().getData(Transition.RANDOM)) {
 				RandomTransitionData rtd = (RandomTransitionData)obj.data;
 				if (rtd == null) {
 					rtd = new RandomTransitionData();
@@ -31,8 +27,8 @@ public class RandomTransition extends TransitionSystem {
 				if (rtd.timePassed < rtd.waitTime) continue;
 				if (rtd.probability / deltaTime > Math.random()) {
 					rtd.reset();
-//					System.out.println("Random Transition");
-					fsm.changeState(fsm.getCurrentState().getState(obj));
+					System.out.println(machine + "-> Random Transition");
+					machine.changeState(machine.getCurrentState().getState(obj));
 					break;
 				}
 			}

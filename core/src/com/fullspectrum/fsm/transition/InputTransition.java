@@ -1,10 +1,11 @@
 package com.fullspectrum.fsm.transition;
 
 import com.badlogic.ashley.core.Entity;
-import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
@@ -21,13 +22,12 @@ public class InputTransition extends TransitionSystem {
 
 	@Override
 	public void update(float deltaTime) {
-		for (Entity e : entities) {
-			FSMComponent fsmComp = Mappers.fsm.get(e);
+		for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
+			Entity e = machine.getEntity();
 			InputComponent inputComp = Mappers.input.get(e);
-			assert (fsmComp != null && inputComp != null);
-			EntityStateMachine fsm = fsmComp.fsm;
+			assert (inputComp != null);
 			outerloop: 
-			for (TransitionObject obj : fsm.getCurrentState().getData(Transition.INPUT)) {
+			for (TransitionObject obj : machine.getCurrentState().getData(Transition.INPUT)) {
 				InputTransitionData itd = (InputTransitionData) obj.data;
 				if (itd == null) continue;
 				boolean allPressed = true;
@@ -37,9 +37,9 @@ public class InputTransition extends TransitionSystem {
 							|| inputComp.input.getValue(trigger) < GameInput.ANALOG_THRESHOLD && !itd.pressed) {
 						if (!itd.all) {
 							itd.reset();
-//							System.out.println("Input " + debug);
+							System.out.println(machine + "-> Input " + debug);
 //							System.out.println(itd);
-							fsm.changeState(fsm.getCurrentState().getState(obj));
+							machine.changeState(machine.getCurrentState().getState(obj));
 							break outerloop;
 						}
 					}
@@ -52,9 +52,9 @@ public class InputTransition extends TransitionSystem {
 				}
 				if(itd.all && allPressed){
 					itd.reset();
-//					System.out.println("Input " + debug);
+					System.out.println(machine + "-> Input " + debug);
 //					System.out.println(itd);
-					fsm.changeState(fsm.getCurrentState().getState(obj));
+					machine.changeState(machine.getCurrentState().getState(obj));
 				}
 			}
 

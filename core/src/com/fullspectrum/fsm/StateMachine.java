@@ -22,6 +22,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 	private Builder builder = new Builder();
 	private int bitOffset;
 	private boolean firstState = false;
+	
+	// Debug
+	private String debugName;
 
 	public StateMachine(Entity entity, StateCreator<E> creator) {
 		this.entity = entity;
@@ -120,6 +123,15 @@ public class StateMachine<S extends State, E extends StateObject> {
 			}
 			addTransition(entry.key, transition, data, toState);
 		}
+	}
+	
+	public void setDebugName(String debugName){
+		this.debugName = debugName;
+	}
+	
+	@Override
+	public String toString() {
+		return debugName != null ? debugName : "";
 	}
 
 	// ****************************************

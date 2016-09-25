@@ -5,6 +5,9 @@ import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 
 public class AnimationFinishedTransition extends TransitionSystem{
 
@@ -19,15 +22,16 @@ public class AnimationFinishedTransition extends TransitionSystem{
 	
 	@Override
 	public void update(float deltaTime) {
-		for(Entity e : entities){
-			FSMComponent fsmComp = Mappers.fsm.get(e);
+		for(StateMachine<? extends State, ? extends StateObject> machine : machines){
+			Entity e = machine.getEntity();
 			AnimationComponent animComp = Mappers.animation.get(e);
+			FSMComponent fsmComp = Mappers.fsm.get(e);
 			assert(fsmComp != null && animComp != null);
 			EntityStateMachine fsm = fsmComp.fsm;
-			TransitionObject obj = fsm.getCurrentState().getFirstData(Transition.ANIMATION_FINISHED);
-			if(fsm.animationTime > animComp.animations.get(fsm.getAnimation()).getAnimationDuration()){
-//				System.out.println("Animation Finished");
-				fsm.changeState(fsm.getCurrentState().getState(obj));
+			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.ANIMATION_FINISHED);
+			if(fsm.getAnimationTime() > animComp.animations.get(fsm.getAnimation()).getAnimationDuration()){
+				System.out.println(machine + "-> Animation Finished");
+				machine.changeState(machine.getCurrentState().getState(obj));
 			}
 		}
 	}
