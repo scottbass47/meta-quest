@@ -1,29 +1,37 @@
 package com.fullspectrum.fsm.transition;
 
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.input.Actions;
 
 public class InputTransitionData implements TransitionData{
 
-	public Array<Actions> triggers;
-	public boolean all = false;
+	public Array<InputTrigger> triggers;
+	public Type type = Type.ALL;
 	public boolean pressed = true;
 	
-	public InputTransitionData(){
-		triggers = new Array<Actions>();
+	public InputTransitionData(Type type, boolean pressed){
+		this.type = type;
+		this.pressed = pressed;
+		triggers = new Array<InputTrigger>();
 	}
 
 	@Override
 	public String toString() {
 		String ret = "";
-		for(Actions action : triggers){
-			ret += action.name() + ", ";
+		for(InputTrigger trigger : triggers){
+			ret += trigger;
 		}
-		return triggers.size > 0 ? ret.substring(0, ret.length() - 2) : "";
+		ret = triggers.size > 0 ? ret.substring(0, ret.length() - 2) : "";
+		return ret + ", all: " + type.name() + ", pressed: " + pressed;
 	}
 	
 	@Override
 	public void reset() {
+	}
+	
+	public enum Type{
+		ONLY_ONE,
+		ANY_ONE,
+		ALL
 	}
 	
 }

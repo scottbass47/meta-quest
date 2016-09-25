@@ -54,11 +54,13 @@ import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
@@ -116,7 +118,7 @@ public class GameScreen extends AbstractScreen {
 		
 		// Setup Ashley
 		engine = new Engine();
-		renderer = new RenderingSystem(batch);
+		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 		engine.addSystem(RandomTransition.getInstance());
 		engine.addSystem(AnimationFinishedTransition.getInstance());
@@ -191,18 +193,20 @@ public class GameScreen extends AbstractScreen {
 			.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE);
 		jumpingState.addTag(TransitionTag.AIR_STATE);
 		
-		InputTransitionData runningData = new InputTransitionData();
-		runningData.triggers.add(Actions.MOVE_LEFT);
-		runningData.triggers.add(Actions.MOVE_RIGHT);
+		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
+		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
 		
-		InputTransitionData jumpData = new InputTransitionData();
-		jumpData.triggers.add(Actions.JUMP);
+		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
+		jumpData.triggers.add(new InputTrigger(Actions.JUMP, true));
 		
-		InputTransitionData idleData = new InputTransitionData();
-		idleData.triggers.add(Actions.MOVE_LEFT);
-		idleData.triggers.add(Actions.MOVE_RIGHT);
-		idleData.all = true;
-		idleData.pressed = false;
+		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
+		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		idleData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+		
+		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
+		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
 		
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.RUNNING), Transition.INPUT, runningData, PlayerStates.RUNNING);
@@ -210,8 +214,9 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING), Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.IDLING), Transition.INPUT, bothData, PlayerStates.IDLING);
 		
-//		System.out.print(fsm.printTransitions());
+		System.out.print(fsm.printTransitions());
 		
 		fsm.changeState(PlayerStates.IDLING);
 		
@@ -293,7 +298,7 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		level.render();
-		renderer.render();
+		renderer.render(batch);
 		frameBuffer.end();
 		
 		HdpiUtils.glViewport(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH, SCREEN_HEIGHT);
@@ -344,6 +349,8 @@ public class GameScreen extends AbstractScreen {
 	public void dispose() {
 		super.dispose();
 		sRenderer.dispose();
+		mellowShader.dispose();
+		frameBuffer.dispose();
 		// player.dispose();
 	}
 }

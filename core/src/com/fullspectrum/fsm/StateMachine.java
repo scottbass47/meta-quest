@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
 public class StateMachine<S extends State, E extends StateObject> {
@@ -150,27 +151,24 @@ public class StateMachine<S extends State, E extends StateObject> {
 		return builder.reset().exclude(tags);
 	}
 
-	// public String printTransitions() {
-	// String ret = "";
-	// Iterator<Entry<StateIdentifier, EntityState>> iter = states.iterator();
-	// while (iter.hasNext()) {
-	// Entry<StateIdentifier, EntityState> entry = iter.next();
-	// Iterator<Entry<TransitionObject, State>> iterator =
-	// entry.value.getTransitionMap().iterator();
-	// if (entry.key.equals(PlayerStates.FALLING)) {
-	// System.out.print("");
-	// }
-	// while (iterator.hasNext()) {
-	// Entry<TransitionObject, State> transition = iterator.next();
-	// String data = transition.key.data == null ? "" : "(" +
-	// transition.key.data.toString() + ")";
-	// ret += entry.key.toString() + ": " + transition.key.transition.toString()
-	// + data + " -> " + transition.value.toString() + "\n";
-	// }
-	// ret += "\n";
-	// }
-	// return ret;
-	// }
+	public String printTransitions() {
+		String ret = "";
+		Iterator<Entry<S, E>> iter = states.iterator();
+		while (iter.hasNext()) {
+			Entry<S, E> entry = iter.next();
+			Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator();
+			if (entry.key.equals(PlayerStates.FALLING)) {
+				System.out.print("");
+			}
+			while (iterator.hasNext()) {
+				Entry<TransitionObject, State> transition = iterator.next();
+				String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";
+				ret += entry.key.toString() + ": " + transition.key.transition.toString() + data + " -> " + transition.value.toString() + "\n";
+			}
+			ret += "\n";
+		}
+		return ret;
+	}
 
 	public class Builder {
 		private Bits all;

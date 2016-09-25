@@ -16,12 +16,7 @@ import static com.fullspectrum.game.GameVars.*;
 
 public class RenderingSystem extends EntitySystem {
 
-	private SpriteBatch batch;
 	private ImmutableArray<Entity> entities;
-
-	public RenderingSystem(SpriteBatch batch) {
-		this.batch = batch;
-	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -34,7 +29,7 @@ public class RenderingSystem extends EntitySystem {
 		
 	}
 	
-	public void render(){
+	public void render(SpriteBatch batch){
 		batch.begin();
 		for (Entity e : entities) {
 			PositionComponent position = Mappers.position.get(e);
