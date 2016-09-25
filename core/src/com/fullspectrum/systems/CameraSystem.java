@@ -36,10 +36,15 @@ public class CameraSystem extends IteratingSystem{
 		cameraComp.x = MathUtils.clamp(cameraComp.x, cameraComp.minX + R_WORLD_WIDTH * 0.5f, cameraComp.maxX - R_WORLD_WIDTH * 0.5f);
 		cameraComp.y = MathUtils.clamp(cameraComp.y, cameraComp.minY + R_WORLD_HEIGHT * 0.5f, cameraComp.maxY - R_WORLD_HEIGHT * 0.5f);
 		
-		cameraComp.camera.position.x = ((int)(cameraComp.x * PPM)) / PPM;
-		cameraComp.camera.position.y = ((int)(cameraComp.y * PPM)) / PPM;
-//		cameraComp.camera.position.x = (int)cameraComp.x;
-//		cameraComp.camera.position.y = (int)cameraComp.y;
+		float sceneIX = MathUtils.floor(cameraComp.x * PPM) / PPM;
+		float sceneIY = MathUtils.floor(cameraComp.y * PPM) / PPM;
+		cameraComp.upscaleOffsetX = (cameraComp.x - sceneIX) * PPM * UPSCALE;
+		cameraComp.upscaleOffsetY = (cameraComp.y - sceneIY) * PPM * UPSCALE;
+		
+//		cameraComp.camera.position.x = ((int)(cameraComp.x * PPM)) / PPM;
+//		cameraComp.camera.position.y = ((int)(cameraComp.y * PPM)) / PPM;
+		cameraComp.camera.position.x = sceneIX;
+		cameraComp.camera.position.y = sceneIY;
 		
 //		System.out.printf("X: %.3f, Y: %.3f\n", cameraComp.camera.position.x, cameraComp.camera.position.y);
 //		cameraComp.camera.position.x = (int)(body.getPosition().x * PPM) / PPM;

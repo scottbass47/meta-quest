@@ -1,12 +1,24 @@
 package com.fullspectrum.game;
 
+import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
+import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
 import static com.fullspectrum.game.GameVars.PPM;
+import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
+import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
+import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Game;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.HdpiUtils;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -17,6 +29,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
@@ -26,6 +39,7 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -77,12 +91,28 @@ public class GameScreen extends AbstractScreen {
 
 	// Box2D
 	private World world;
+	
+	// Rendering
+	private FrameBuffer frameBuffer;
+	private ShaderProgram mellowShader;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, -23.0f), true);
+		
+		// Setup Shader
+		mellowShader = new ShaderProgram(
+				Gdx.files.internal("shaders/mellow.vsh"),
+				Gdx.files.internal("shaders/mellow.fsh"));
+		if (!mellowShader.isCompiled()) {
+			throw new GdxRuntimeException(mellowShader.getLog());
+		}
+		
+		// Setup Frame Buffer
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGB888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
+		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 		
 		// Setup Ashley
 		engine = new Engine();
@@ -251,10 +281,35 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void render() {
-		renderer.render();
-		// b2dr.render(world, worldCamera.combined);
+		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
+		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+
+		frameBuffer.begin();
+		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		worldCamera.update();
+		batch.setProjectionMatrix(worldCamera.combined);
 		level.render();
-		// CameraComponent camera = Mappers.camera.get(cameraEntity);
+		renderer.render();
+		frameBuffer.end();
+		
+		HdpiUtils.glViewport(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH, SCREEN_HEIGHT);
+		HdpiUtils.glScissor(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH - UPSCALE, SCREEN_HEIGHT - UPSCALE);
+
+		CameraComponent camera = Mappers.camera.get(cameraEntity);
+		
+		batch.begin();
+		batch.setShader(mellowShader);
+		batch.setProjectionMatrix(hudCamera.combined);
+		mellowShader.setUniformf("u_textureSizes", FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, UPSCALE, 0.0f);
+		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
+		batch.draw(frameBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
+		batch.end();
+
+		batch.setShader(null);
+		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		// b2dr.render(world, worldCamera.combined);
+		
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);
 		// sRenderer.setColor(Color.RED);

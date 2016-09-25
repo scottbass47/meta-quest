@@ -2,8 +2,8 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
 import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
-import static com.fullspectrum.game.GameVars.V_WORLD_HEIGHT;
-import static com.fullspectrum.game.GameVars.V_WORLD_WIDTH;
+import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
+import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -50,7 +50,7 @@ public class GdxGame extends Game {
 		worldCamera = new OrthographicCamera();
 		worldViewport = new FitViewport(R_WORLD_WIDTH , R_WORLD_HEIGHT, worldCamera);
 		hudCamera = new OrthographicCamera();
-		hudViewport = new FitViewport(V_WORLD_WIDTH, V_WORLD_HEIGHT, hudCamera);
+		hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
 		font = new BitmapFont();
 //		fpsLogger = new FPSLogger();
 		
@@ -66,8 +66,8 @@ public class GdxGame extends Game {
 		setScreen(screens.get(ScreenState.MENU));
 
 		// Center HUD Camera
-		hudCamera.position.x = V_WORLD_WIDTH * 0.5f;
-		hudCamera.position.y = V_WORLD_HEIGHT * 0.5f;
+		hudCamera.position.x = SCREEN_WIDTH * 0.5f;
+		hudCamera.position.y = SCREEN_HEIGHT * 0.5f;
 		
 		GLProfiler.enable();
 	}

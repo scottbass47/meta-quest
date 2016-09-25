@@ -39,7 +39,7 @@ public abstract class AbstractScreen extends ScreenAdapter {
 		lag += delta;
 		while(lag > (1.0f / GdxGame.UPS)){
 //			ups++;
-			update(1.0f / GdxGame.UPS / 3f);
+			update(1.0f / GdxGame.UPS);
 			lag -= 1.0f / GdxGame.UPS;
 			input.update();
 		}

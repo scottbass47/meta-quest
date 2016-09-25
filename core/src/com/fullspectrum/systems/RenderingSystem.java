@@ -45,11 +45,11 @@ public class RenderingSystem extends EntitySystem {
 			float height = texture.region.getRegionHeight();
 			if(facing != null){
 				texture.region.flip(!facing.facingRight, false);
-				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, 1 / PPM, 1 / PPM, 0.0f);
+				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
 				texture.region.flip(texture.region.isFlipX(), false);
 			}
 			else{
-				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, 1 / PPM, 1 / PPM, 0.0f);
+				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
 			}
 		}
 		batch.end();

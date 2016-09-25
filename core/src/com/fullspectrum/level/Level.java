@@ -57,7 +57,7 @@ public class Level {
 
 	public void loadMap(String path) {
 		map = loader.load(path);
-		mapRenderer = new OrthogonalTiledMapRenderer(map, 1 / PPM);
+		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
 		setupTilePhysics();
 	}
 	
@@ -76,9 +76,6 @@ public class Level {
 	}
 	
 	public void render() {
-		cam.update();
-		batch.setProjectionMatrix(cam.combined);
-		
 		mapRenderer.setView(cam);
 		mapRenderer.render();
 		
