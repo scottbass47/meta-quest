@@ -16,4 +16,8 @@ public class InputTrigger {
 		this.justPressed = justPressed;
 	}
 	
+	@Override
+	public String toString() {
+		return "[" + action.name() + " + justPressed: " + justPressed + "]";
+	}
 }

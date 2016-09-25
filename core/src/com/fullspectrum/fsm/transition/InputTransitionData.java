@@ -18,10 +18,10 @@ public class InputTransitionData implements TransitionData{
 	public String toString() {
 		String ret = "";
 		for(InputTrigger trigger : triggers){
-			ret += trigger;
+			ret += trigger + ", ";
 		}
 		ret = triggers.size > 0 ? ret.substring(0, ret.length() - 2) : "";
-		return ret + ", all: " + type.name() + ", pressed: " + pressed;
+		return ret + ", type: " + type.name() + ", " + (pressed ? "press" : "release");
 	}
 	
 	@Override
@@ -33,5 +33,4 @@ public class InputTransitionData implements TransitionData{
 		ANY_ONE,
 		ALL
 	}
-	
 }

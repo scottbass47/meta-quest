@@ -28,8 +28,8 @@ public class InputTransition extends TransitionSystem {
 			assert (inputComp != null);
 			for (TransitionObject obj : machine.getCurrentState().getData(Transition.INPUT)) {
 				InputTransitionData itd = (InputTransitionData) obj.data;
-				if(itd == null) continue;
-				if(checkInput(itd, inputComp.input)){
+				if (itd == null) continue;
+				if (checkInput(itd, inputComp.input)) {
 					itd.reset();
 					String debug = itd.pressed ? "Pressed" : "Released";
 					System.out.println(machine + "-> Input " + debug);
@@ -39,16 +39,16 @@ public class InputTransition extends TransitionSystem {
 			}
 		}
 	}
-	
-	private boolean checkInput(InputTransitionData itd, Input input){
+
+	private boolean checkInput(InputTransitionData itd, Input input) {
 		int counter = 0;
-		for(InputTrigger trigger : itd.triggers){
+		for (InputTrigger trigger : itd.triggers) {
 			boolean triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.getValue(trigger.action) > GameInput.ANALOG_THRESHOLD;
 			triggered = (triggered && itd.pressed) || (!triggered && !itd.pressed);
-			if(triggered && itd.type == InputTransitionData.Type.ANY_ONE) return true;
-			if(triggered) counter++;
+			if (triggered && itd.type == InputTransitionData.Type.ANY_ONE) return true;
+			if (triggered) counter++;
 		}
-		switch(itd.type){
+		switch (itd.type) {
 		case ANY_ONE:
 			return false;
 		case ONLY_ONE:
