@@ -2,7 +2,7 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM;
+import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
@@ -146,7 +146,8 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.JUMP, Player.animations.get(PlayerAnim.JUMP))
 			.addAnimation(PlayerAnim.FALLING, Player.animations.get(PlayerAnim.FALLING))
 			.addAnimation(PlayerAnim.RANDOM_IDLE, Player.animations.get(PlayerAnim.RANDOM_IDLE))
-			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE)));
+			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE))
+			.addAnimation(PlayerAnim.JUMP_APEX, Player.animations.get(PlayerAnim.JUMP_APEX)));
 		
 		EntityStateMachine fsm = new EntityStateMachine(player);
 		fsm.setDebugName("Entity State Machine");
@@ -175,7 +176,9 @@ public class GameScreen extends AbstractScreen {
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
 			.add(new GroundMovementComponent())
-			.addAnimation(PlayerAnim.RISE);
+			.addAnimation(PlayerAnim.JUMP_APEX)
+			.addAnimation(PlayerAnim.FALLING)
+			.addAnimTransition(PlayerAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, PlayerAnim.FALLING);
 		fallingState.addTag(TransitionTag.AIR_STATE);
 		
 		EntityState jumpingState = fsm.createState(PlayerStates.JUMPING)
@@ -224,7 +227,7 @@ public class GameScreen extends AbstractScreen {
 
 		FixtureDef fdef = new FixtureDef();
 		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(20 / PPM * 0.5f, 32 / PPM * 0.5f, new Vector2(0f, 0f), 0);
+		shape.setAsBox(20 * PPM_INV * 0.5f, 40 * PPM_INV * 0.5f, new Vector2(0f, 0f), 0);
 		fdef.shape = shape;
 
 		body.createFixture(fdef);
@@ -308,7 +311,7 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		// b2dr.render(world, worldCamera.combined);
+//		b2dr.render(world, worldCamera.combined);
 		
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);

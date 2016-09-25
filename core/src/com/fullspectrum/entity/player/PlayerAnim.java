@@ -8,7 +8,8 @@ public enum PlayerAnim implements State{
 	RUNNING,
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
-	FALLING;
+	FALLING,
+	JUMP_APEX;
 
 	@Override
 	public int numStates() {

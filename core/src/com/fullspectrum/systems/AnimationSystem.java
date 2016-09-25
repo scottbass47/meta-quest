@@ -9,10 +9,10 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.TextureComponent;
 
-public class AnimationSystem extends IteratingSystem{
+public class AnimationSystem extends IteratingSystem {
 
 	@SuppressWarnings("unchecked")
-	public AnimationSystem(){
+	public AnimationSystem() {
 		super(Family.all(TextureComponent.class, AnimationComponent.class).one(FSMComponent.class, StateComponent.class).get());
 	}
 
@@ -22,15 +22,15 @@ public class AnimationSystem extends IteratingSystem{
 		AnimationComponent animComp = Mappers.animation.get(entity);
 		FSMComponent fsmComp = Mappers.fsm.get(entity);
 		StateComponent stateComp = Mappers.state.get(entity);
-		
-		if(fsmComp != null){
+
+		if (fsmComp != null) {
 			fsmComp.fsm.addAnimationTime(deltaTime);
 			texComp.region = animComp.animations.get(fsmComp.fsm.getAnimation()).getKeyFrame(fsmComp.fsm.getAnimationTime());
 		}
-		else{
+		else {
 			stateComp.time += deltaTime;
 			texComp.region = animComp.animations.get(stateComp.state).getKeyFrame(stateComp.time);
 		}
 	}
-	
+
 }

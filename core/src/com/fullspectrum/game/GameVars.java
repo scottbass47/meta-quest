@@ -15,7 +15,7 @@ public class GameVars {
 	public final static int SCREEN_WIDTH = FRAMEBUFFER_WIDTH * UPSCALE;
 	public final static int SCREEN_HEIGHT = FRAMEBUFFER_HEIGHT * UPSCALE;
 	
-	public final static float R_WORLD_WIDTH = FRAMEBUFFER_WIDTH / PPM;
-	public final static float R_WORLD_HEIGHT = FRAMEBUFFER_HEIGHT / PPM;
+	public final static float R_WORLD_WIDTH = FRAMEBUFFER_WIDTH * PPM_INV;
+	public final static float R_WORLD_HEIGHT = FRAMEBUFFER_HEIGHT * PPM_INV;
 	
 }

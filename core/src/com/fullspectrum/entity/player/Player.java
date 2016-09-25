@@ -49,11 +49,13 @@ public class Player implements Disposable {
 	static {
 		knightAtlas = new TextureAtlas(Gdx.files.internal("sprites/knight_anim.atlas"));
 		animations = new ArrayMap<PlayerAnim, Animation>();
-		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idle"), PlayMode.LOOP));
-		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_randomidle"), PlayMode.LOOP));
-		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_runcycle"), PlayMode.LOOP));
-		animations.put(PlayerAnim.RISE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_rise"), PlayMode.LOOP));
+		animations.put(PlayerAnim.IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idling"), PlayMode.LOOP));
+		animations.put(PlayerAnim.RANDOM_IDLE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_idling"), PlayMode.LOOP));
+		animations.put(PlayerAnim.RUNNING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_walking"), PlayMode.LOOP));
+		animations.put(PlayerAnim.RISE, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_rising"), PlayMode.LOOP));
 		animations.put(PlayerAnim.JUMP, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump"), PlayMode.LOOP));
+		animations.put(PlayerAnim.FALLING, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_falling"), PlayMode.LOOP));
+		animations.put(PlayerAnim.JUMP_APEX, new Animation(ANIM_SPEED, knightAtlas.findRegions("knight_jump_apex"), PlayMode.LOOP));
 	}
 	
 	public Player() {
