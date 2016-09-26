@@ -7,7 +7,8 @@ public enum PlayerStates implements State{
 	RUNNING,
 	JUMPING,
 	RISING,
-	FALLING;
+	FALLING,
+	DIVING;
 
 	@Override
 	public int getIndex() {

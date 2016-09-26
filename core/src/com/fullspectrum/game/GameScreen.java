@@ -183,6 +183,14 @@ public class GameScreen extends AbstractScreen {
 			.addAnimTransition(PlayerAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, PlayerAnim.FALLING);
 		fallingState.addTag(TransitionTag.AIR_STATE);
 		
+		EntityState divingState = fsm.createState(PlayerStates.DIVING)
+			.add(new SpeedComponent(5.0f))
+			.add(new DirectionComponent())
+			.add(new GroundMovementComponent())
+			.add(new JumpComponent(-1000))
+			.addAnimation(PlayerAnim.FALLING);
+		divingState.addTag(TransitionTag.AIR_STATE);
+		
 		EntityState jumpingState = fsm.createState(PlayerStates.JUMPING)
 			.add(new SpeedComponent(8.0f))
 			.add(new DirectionComponent())
@@ -208,13 +216,17 @@ public class GameScreen extends AbstractScreen {
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
 		
+		InputTransitionData diveData = new InputTransitionData(Type.ALL, true);
+		diveData.triggers.add(new InputTrigger(Actions.MOVE_DOWN));
+		
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, PlayerStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.RUNNING), Transition.INPUT, runningData, PlayerStates.RUNNING);
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, PlayerStates.JUMPING);
-		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING), Transition.FALLING, PlayerStates.FALLING);
-		fsm.addTransition(PlayerStates.FALLING, Transition.LANDED, PlayerStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.FALLING, PlayerStates.FALLING);
+		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE), Transition.LANDED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.IDLING), Transition.INPUT, bothData, PlayerStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.INPUT, diveData, PlayerStates.DIVING);
 		
 		System.out.print(fsm.printTransitions());
 		
@@ -292,13 +304,18 @@ public class GameScreen extends AbstractScreen {
 		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
+		// Render Buffer
 		frameBuffer.begin();
+		
 		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
+		
 		level.render();
 		renderer.render(batch);
+		
 		frameBuffer.end();
 		
 		HdpiUtils.glViewport(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH, SCREEN_HEIGHT);
