@@ -17,8 +17,8 @@ public class StateMachine<S extends State, E extends StateObject> {
 	protected ArrayMap<E, StateMachine<? extends State, ? extends StateObject>> substateMachines;
 	protected ArrayMap<S, E> states;
 	protected E currentState;
-	protected Entity entity;
 	protected S initialState;
+	protected Entity entity;
 	private StateCreator<E> creator;
 
 	// Bits
@@ -57,9 +57,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 		state.bitOffset = bitOffset;
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);
-		if(currentState == null){
-			changeState(key);
-		}
 		return state;
 	}
 	
@@ -79,7 +76,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine){
 		substateMachines.put((E)state, machine);
 	}
-
+	
 	public void changeState(State identifier) {
 		@SuppressWarnings("unchecked")
 		E newState = states.get((S)identifier);
@@ -94,8 +91,8 @@ public class StateMachine<S extends State, E extends StateObject> {
 				for(Transition t : machine.currentState.getTransitions()){
 					t.getSystem().removeStateMachine(machine);
 				}
+				machine.reset();
 			}
-			machine.reset();
 		}
 		for (Transition t : newState.getTransitions()) {
 			t.getSystem().addStateMachine(this);

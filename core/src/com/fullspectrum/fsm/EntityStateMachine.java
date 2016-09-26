@@ -17,18 +17,18 @@ public class EntityStateMachine extends StateMachine<State, EntityState> {
 
 	@Override
 	public void changeState(State identifier) {
+		EntityState currState = currentState;
 		super.changeState(identifier);
 		EntityState newState = states.get(identifier);
-		if (newState == currentState) return;
-		if (currentState != null) {
-			for (Component c : currentState.getComponents()) {
+		if (newState == currState) return;
+		if (currState != null) {
+			for (Component c : currState.getComponents()) {
 				entity.remove(c.getClass());
 			}
 		}
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
-		currentState = newState;
 	}
 	
 	public float getAnimationTime(){

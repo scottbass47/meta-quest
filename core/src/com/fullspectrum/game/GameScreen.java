@@ -230,6 +230,8 @@ public class GameScreen extends AbstractScreen {
 		
 		System.out.print(fsm.printTransitions());
 		
+		fsm.changeState(PlayerStates.IDLING);
+		
 		player.add(new FSMComponent(fsm));
 		
 		// Player physics
