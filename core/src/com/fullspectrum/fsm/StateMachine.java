@@ -14,9 +14,11 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 public class StateMachine<S extends State, E extends StateObject> {
 
 	// State
+	protected ArrayMap<E, StateMachine<? extends State, ? extends StateObject>> substateMachines;
 	protected ArrayMap<S, E> states;
 	protected E currentState;
 	protected Entity entity;
+	protected S initialState;
 	private StateCreator<E> creator;
 
 	// Bits
@@ -30,14 +32,15 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public StateMachine(Entity entity, StateCreator<E> creator) {
 		this.entity = entity;
 		this.creator = creator;
+		substateMachines = new ArrayMap<E, StateMachine<? extends State, ? extends StateObject>>();
 		states = new ArrayMap<S, E>();
-		this.creator = creator;
 	}
 	
 	public E createState(S key) {
 		// State identifiers must also be taggable
 		assert (key instanceof Tag);
 		if (!firstState) {
+			initialState = key;
 			firstState = true;
 			bitOffset = key.numStates();
 		}
@@ -49,13 +52,19 @@ public class StateMachine<S extends State, E extends StateObject> {
 //		} catch (IllegalAccessException e) {
 //			e.printStackTrace();
 //		}
-		E state = creator.getInstance();
-		state.setEntity(entity);
+		E state = creator.getInstance(entity, this);
 		state.identifier = key.toString();
 		state.bitOffset = bitOffset;
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);
+		if(currentState == null){
+			changeState(key);
+		}
 		return state;
+	}
+	
+	public void reset(){
+		currentState = states.get(initialState);
 	}
 
 	public E getCurrentState() {
@@ -64,6 +73,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	public Entity getEntity(){
 		return entity;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine){
+		substateMachines.put((E)state, machine);
 	}
 
 	public void changeState(State identifier) {
@@ -75,9 +89,22 @@ public class StateMachine<S extends State, E extends StateObject> {
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
+			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
+			if(machine != null){
+				for(Transition t : machine.currentState.getTransitions()){
+					t.getSystem().removeStateMachine(machine);
+				}
+			}
+			machine.reset();
 		}
 		for (Transition t : newState.getTransitions()) {
 			t.getSystem().addStateMachine(this);
+		}
+		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
+		if(machine != null){
+			for(Transition t : machine.currentState.getTransitions()){
+				t.getSystem().addStateMachine(machine);
+			}
 		}
 		currentState = newState;
 	}

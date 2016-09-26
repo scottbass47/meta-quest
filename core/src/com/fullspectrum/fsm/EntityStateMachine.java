@@ -3,12 +3,10 @@ package com.fullspectrum.fsm;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.fsm.transition.Transition;
 
 public class EntityStateMachine extends StateMachine<State, EntityState> {
 
 	// State
-	private EntityState currentState;
 	private Entity entity;
 
 	public EntityStateMachine(Entity entity) {
@@ -26,16 +24,9 @@ public class EntityStateMachine extends StateMachine<State, EntityState> {
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
-			for(Transition t : currentState.animations.currentState.getTransitions()){
-				t.getSystem().removeStateMachine(currentState.animations);
-			}
 		}
-		newState.reset();
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
-		}
-		for(Transition t : newState.animations.currentState.getTransitions()){
-			t.getSystem().addStateMachine(newState.animations);
 		}
 		currentState = newState;
 	}

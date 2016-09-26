@@ -17,6 +17,7 @@ public class StateObject{
 	private Array<Transition> transitions;
 	private Array<TransitionTag> tags;
 	protected Entity entity;
+	protected StateMachine<? extends State, ? extends StateObject> machine;
 
 	// Bits
 	protected Bits bits;
@@ -25,7 +26,9 @@ public class StateObject{
 	// Debug
 	protected String identifier;
 
-	protected StateObject() {
+	protected StateObject(Entity entity, StateMachine<? extends State, ? extends StateObject> machine) {
+		setEntity(entity);
+		setMachine(machine);
 		transitionMap = new ArrayMap<TransitionObject, State>();
 		transitions = new Array<Transition>();
 		tags = new Array<TransitionTag>();
@@ -34,6 +37,10 @@ public class StateObject{
 	
 	public void setEntity(Entity entity){
 		this.entity = entity;
+	}
+	
+	public void setMachine(StateMachine<? extends State, ? extends StateObject> machine){
+		this.machine = machine;
 	}
 
 	public StateObject addTag(TransitionTag tag) {

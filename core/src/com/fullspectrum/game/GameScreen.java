@@ -223,14 +223,12 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.RUNNING), Transition.INPUT, runningData, PlayerStates.RUNNING);
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, PlayerStates.JUMPING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.FALLING, PlayerStates.FALLING);
-		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE), Transition.LANDED, PlayerStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.JUMPING), Transition.LANDED, PlayerStates.IDLING);
 		fsm.addTransition(PlayerStates.RUNNING, Transition.INPUT, idleData, PlayerStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.IDLING), Transition.INPUT, bothData, PlayerStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.INPUT, diveData, PlayerStates.DIVING);
 		
 		System.out.print(fsm.printTransitions());
-		
-		fsm.changeState(PlayerStates.IDLING);
 		
 		player.add(new FSMComponent(fsm));
 		

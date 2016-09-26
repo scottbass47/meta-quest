@@ -14,20 +14,16 @@ public class EntityState extends StateObject{
 	protected AnimationStateMachine animations;
 	protected State initialAnim;
 	
-	protected EntityState(){
+	protected EntityState(Entity entity, StateMachine<? extends State, ? extends StateObject> machine){
+		super(entity, machine);
 		components = new Array<Component>();
 		animations = new AnimationStateMachine(entity, new StateObjectCreator());
+		machine.addSubstateMachine(this, animations);
 		animations.setDebugName("Animation State Machine");
-	}
-	
-	@Override
-	public void setEntity(Entity entity) {
-		this.entity = entity;
 		animations.entity = entity;
 	}
 	
 	public EntityState addAnimation(State anim){
-		if(initialAnim == null) initialAnim = anim;
 		animations.createState(anim);
 		return this;
 	}
@@ -45,11 +41,6 @@ public class EntityState extends StateObject{
 	public EntityState setInitialAnimation(State anim){
 		initialAnim = anim;
 		return this;
-	}
-	
-	public void reset(){
-		animations.currentState = animations.states.get(initialAnim);
-		animations.time = 0;
 	}
 	
 	public State getCurrentAnimation(){

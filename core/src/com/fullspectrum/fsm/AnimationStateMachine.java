@@ -17,6 +17,12 @@ public class AnimationStateMachine extends StateMachine<State, StateObject>{
 		time = 0;
 	}
 	
+	@Override
+	public void reset() {
+		super.reset();
+		time = 0;
+	}
+	
 	public float getAnimationTime(){
 		return time;
 	}
