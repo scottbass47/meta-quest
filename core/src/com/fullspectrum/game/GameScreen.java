@@ -241,7 +241,7 @@ public class GameScreen extends AbstractScreen {
 		bdef.position.set(10.0f, 10.0f);
 		bdef.type = BodyType.DynamicBody;
 		body = world.createBody(bdef);
-
+		
 		FixtureDef fdef = new FixtureDef();
 		PolygonShape shape = new PolygonShape();
 		shape.setAsBox(20 * PPM_INV * 0.5f, 40 * PPM_INV * 0.5f, new Vector2(0f, 0f), 0);
