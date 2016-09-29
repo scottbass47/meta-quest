@@ -4,10 +4,6 @@
   },
   "Fixtures": [
     {
-      "density": 0,
-      "isSensor": false,
-      "xOff": 0,
-      "yOff": 0,
       "shape": "Box",
       "width": 22,
       "height": 40

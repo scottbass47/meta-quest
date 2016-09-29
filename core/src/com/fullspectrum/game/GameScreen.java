@@ -2,7 +2,6 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
@@ -21,12 +20,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
@@ -54,13 +48,13 @@ import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
-import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
@@ -308,7 +302,7 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-//		b2dr.render(world, worldCamera.combined);
+		b2dr.render(world, worldCamera.combined);
 		
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);

@@ -6,12 +6,8 @@ import com.badlogic.gdx.utils.ArrayMap;
 
 public class EntityStateMachine extends StateMachine<State, EntityState> {
 
-	// State
-	private Entity entity;
-
 	public EntityStateMachine(Entity entity) {
 		super(entity, new EntityStateCreator());
-		this.entity = entity;
 		this.states = new ArrayMap<State, EntityState>();
 	}
 

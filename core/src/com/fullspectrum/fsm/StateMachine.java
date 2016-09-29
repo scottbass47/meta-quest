@@ -44,14 +44,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 			firstState = true;
 			bitOffset = key.numStates();
 		}
-//		E state = null;
-//		try {
-//			state = stateClass.newInstance();
-//		} catch (InstantiationException e) {
-//			e.printStackTrace();
-//		} catch (IllegalAccessException e) {
-//			e.printStackTrace();
-//		}
 		E state = creator.getInstance(entity, this);
 		state.identifier = key.toString();
 		state.bitOffset = bitOffset;
