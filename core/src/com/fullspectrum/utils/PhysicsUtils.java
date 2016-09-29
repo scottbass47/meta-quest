@@ -35,7 +35,7 @@ public class PhysicsUtils {
 		String type = root.getString("type").toLowerCase();
 		
 		if(type.equals("dynamicbody")) bdef.type = DynamicBody;
-		if(type.equals("staticbody")) bdef.type = StaticBody;
+		else if(type.equals("staticbody")) bdef.type = StaticBody;
 		else if(type.equals("kinematicbody")) bdef.type = KinematicBody;
 		else{
 			bdef.type = DynamicBody;
@@ -49,7 +49,7 @@ public class PhysicsUtils {
 	}
 	
 	private static void loadFixtures(JsonValue root, Body body){
-		for(JsonValue fixture : root.get("Fixtures")){
+		for(JsonValue fixture : root){
 			loadFixture(fixture, body);
 		}
 	}

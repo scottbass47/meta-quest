@@ -73,6 +73,7 @@ import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.VelocitySystem;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class GameScreen extends AbstractScreen {
 
@@ -234,33 +235,7 @@ public class GameScreen extends AbstractScreen {
 		
 		player.add(new FSMComponent(fsm));
 		
-		// Player physics
-		Body body;
-		BodyDef bdef = new BodyDef();
-		bdef.active = true;
-		bdef.position.set(10.0f, 10.0f);
-		bdef.type = BodyType.DynamicBody;
-		body = world.createBody(bdef);
-		
-		FixtureDef fdef = new FixtureDef();
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(20 * PPM_INV * 0.5f, 40 * PPM_INV * 0.5f, new Vector2(0f, 0f), 0);
-		fdef.shape = shape;
-
-		body.createFixture(fdef);
-
-//		// Feet
-//		CircleShape cshape = new CircleShape();
-//		cshape.setRadius(0.1f);
-//		cshape.setPosition(new Vector2(0.59f, -1.35f));
-//		fdef.shape = cshape;
-//		fdef.friction = 1.0f;
-//		body.createFixture(fdef);
-//
-//		cshape.setPosition(new Vector2(-0.4f, -1.35f));
-//		body.createFixture(fdef);
-		
-		player.add(new BodyComponent(body));
+		player.add(new BodyComponent(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(10.0f, 10.0f))));
 		engine.addEntity(player);
 		
 		// Setup and Load Level
