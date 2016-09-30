@@ -26,7 +26,7 @@ public class FallingTransition extends TransitionSystem	{
 			assert(bodyComp != null);
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.FALLING);
 			if(bodyComp.body.getLinearVelocity().y < 0){
-				System.out.println(machine + "-> Falling");
+//				System.out.println(machine + "-> Falling");
 				machine.changeState(machine.getCurrentState().getState(obj));
 			}
 		}

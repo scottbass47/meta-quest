@@ -44,6 +44,7 @@ import com.fullspectrum.entity.player.PlayerAnim;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.PlayerStates;
+import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
@@ -58,6 +59,7 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.physics.EntityFixtures;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -225,11 +227,18 @@ public class GameScreen extends AbstractScreen {
 		
 		System.out.print(fsm.printTransitions());
 		
+		player.add(new BodyComponent(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(10.0f, 10.0f), false)));
+		
+		// Setup Player Physics
+		for(State state : fsm.getStates()){
+			EntityFixtures fixtures = PhysicsUtils.getEntityFixtures(Gdx.files.internal("body/player.json"), state);
+			fsm.setFixture(state, fixtures);
+		}
+		
 		fsm.changeState(PlayerStates.IDLING);
 		
 		player.add(new FSMComponent(fsm));
 		
-		player.add(new BodyComponent(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(10.0f, 10.0f))));
 		engine.addEntity(player);
 		
 		// Setup and Load Level

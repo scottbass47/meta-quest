@@ -2,11 +2,23 @@
   "BodyDef": {
     "type": "DynamicBody"
   },
-  "Fixtures": [
-    {
-      "shape": "Box",
-      "width": 22,
-      "height": 40
-    }
-  ]
+  Default: {
+    "Fixtures": [
+        {
+          "shape": "Box",
+          "width": 22,
+          "height": 40
+        }
+    ]
+  },
+  Jumping: {
+      "Fixtures": [
+        {
+          "shape": "Box",
+          "width": 22,
+          "height": 30
+        }
+    ]
+  }
+  
 }

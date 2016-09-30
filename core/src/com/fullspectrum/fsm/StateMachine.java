@@ -3,6 +3,7 @@ package com.fullspectrum.fsm;
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
@@ -140,6 +141,15 @@ public class StateMachine<S extends State, E extends StateObject> {
 			}
 			addTransition(entry.key, transition, data, toState);
 		}
+	}
+	
+	public Array<State> getStates(){
+		Array<State> ret = new Array<State>();
+		Iterator<Entry<S, E>> iter = states.iterator();
+		while(iter.hasNext()){
+			ret.add(iter.next().key);
+		}
+		return ret;
 	}
 	
 	public void setDebugName(String debugName){

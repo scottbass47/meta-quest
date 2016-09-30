@@ -26,7 +26,7 @@ public class LandedTransition extends TransitionSystem {
 			assert(bodyComp != null);
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.LANDED);
 			if(bodyComp.body.getLinearVelocity().y == 0){
-				System.out.println(machine + "-> Landed");
+//				System.out.println(machine + "-> Landed");
 				machine.changeState(machine.getCurrentState().getState(obj));
 			}
 		}

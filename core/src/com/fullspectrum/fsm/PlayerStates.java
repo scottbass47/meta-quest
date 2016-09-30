@@ -25,4 +25,9 @@ public enum PlayerStates implements State{
 		return name();
 	}
 
+	@Override
+	public String getName() {
+		return name();
+	}
+
 }

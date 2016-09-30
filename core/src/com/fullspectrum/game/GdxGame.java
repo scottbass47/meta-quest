@@ -14,6 +14,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.profiling.GLProfiler;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fullspectrum.input.GameInput;
@@ -70,6 +71,7 @@ public class GdxGame extends Game {
 		hudCamera.position.y = SCREEN_HEIGHT * 0.5f;
 		
 		GLProfiler.enable();
+		Gdx.app.setLogLevel(Logger.DEBUG);
 	}
 
 	@Override

@@ -17,16 +17,41 @@ import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.physics.EntityFixtures;
 
 public class PhysicsUtils {
 	
-	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position){
+	public static EntityFixtures getEntityFixtures(FileHandle file, State state){
+		EntityFixtures eFixtures = new EntityFixtures();
+		String jsonString = file.readString();
+		JsonReader reader = new JsonReader();
+		JsonValue root = reader.parse(jsonString);
+		
+		JsonValue value = root.get(StringUtils.toTitleCase(state.getName()));
+		eFixtures.setName(state.getName());
+		if(value == null){
+			value = root.get("Default");
+			eFixtures.setName("Default");
+			if(value == null){
+				Gdx.app.log("ERROR", "no default physics body for this entity.");
+				return null;
+			}
+		}
+		
+		for(JsonValue json : value.get("Fixtures")){
+			eFixtures.add(loadFixture(json));
+		}
+		return eFixtures;
+	}
+	
+	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, boolean withFixtures){
 		String jsonString = file.readString();
 		JsonReader reader = new JsonReader();
 		JsonValue root = reader.parse(jsonString);
 		
 		Body body = loadBodyDef(root.get("BodyDef"), world, position);
-		loadFixtures(root.get("Fixtures"), body);
+		if(withFixtures) loadFixtures(root.get("Fixtures"), body);
 		return body;
 	}
 	
@@ -54,7 +79,7 @@ public class PhysicsUtils {
 		}
 	}
 	
-	private static void loadFixture(JsonValue root, Body body){
+	private static FixtureDef loadFixture(JsonValue root){
 		FixtureDef fdef = new FixtureDef();
 		fdef.density = root.getFloat("density", 0.0f);
 		fdef.restitution = root.getFloat("restitution", 0.0f);
@@ -80,11 +105,14 @@ public class PhysicsUtils {
 			circle.setRadius(radius);
 		}else{
 			Gdx.app.log("ERROR", "no shape type defined.");
-			return;
+			return null;
 		}
 		fdef.shape = shape;
-		body.createFixture(fdef);
-		shape.dispose();
+		return fdef;
 	}
 	
+	private static void loadFixture(JsonValue root, Body body){
+		FixtureDef fdef = loadFixture(root);
+		body.createFixture(fdef);
+	}
 }
