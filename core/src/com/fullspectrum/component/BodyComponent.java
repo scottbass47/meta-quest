@@ -11,4 +11,8 @@ public class BodyComponent implements Component{
 		this.body = body;
 	}
 	
+	public BodyComponent(){
+		this(null);
+	}
+	
 }

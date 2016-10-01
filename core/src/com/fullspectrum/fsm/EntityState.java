@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.physics.EntityFixtures;
 
 public class EntityState extends StateObject{
 
@@ -13,6 +14,9 @@ public class EntityState extends StateObject{
 	// Animations
 	protected AnimationStateMachine animations;
 	protected State initialAnim;
+	
+	// Physics
+	protected EntityFixtures fixtures;
 	
 	protected EntityState(Entity entity, StateMachine<? extends State, ? extends StateObject> machine){
 		super(entity, machine);

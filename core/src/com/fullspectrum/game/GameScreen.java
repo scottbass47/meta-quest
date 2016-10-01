@@ -39,6 +39,7 @@ import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.VelocityComponent;
+import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.player.Player;
 import com.fullspectrum.entity.player.PlayerAnim;
 import com.fullspectrum.fsm.EntityState;
@@ -133,12 +134,14 @@ public class GameScreen extends AbstractScreen {
 		
 		// Setup Player
 		player = new Entity();
-		player.add(new PositionComponent(5, 5));
+		player.add(new PositionComponent(10, 10));
 		player.add(new VelocityComponent());
 		player.add(new RenderComponent());
 		player.add(new TextureComponent(Player.animations.get(PlayerAnim.IDLE).getKeyFrame(0)));
 		player.add(new InputComponent(input));
 		player.add(new FacingComponent());
+		player.add(new BodyComponent());
+		player.add(new WorldComponent(world));
 		player.add(new AnimationComponent()
 			.addAnimation(PlayerAnim.IDLE, Player.animations.get(PlayerAnim.IDLE))
 			.addAnimation(PlayerAnim.RUNNING, Player.animations.get(PlayerAnim.RUNNING))
@@ -148,7 +151,7 @@ public class GameScreen extends AbstractScreen {
 			.addAnimation(PlayerAnim.RISE, Player.animations.get(PlayerAnim.RISE))
 			.addAnimation(PlayerAnim.JUMP_APEX, Player.animations.get(PlayerAnim.JUMP_APEX)));
 		
-		EntityStateMachine fsm = new EntityStateMachine(player);
+		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
 		EntityState runningState = fsm.createState(PlayerStates.RUNNING)
 			.add(new SpeedComponent(8.0f))
@@ -226,14 +229,6 @@ public class GameScreen extends AbstractScreen {
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.INPUT, diveData, PlayerStates.DIVING);
 		
 		System.out.print(fsm.printTransitions());
-		
-		player.add(new BodyComponent(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(10.0f, 10.0f), false)));
-		
-		// Setup Player Physics
-		for(State state : fsm.getStates()){
-			EntityFixtures fixtures = PhysicsUtils.getEntityFixtures(Gdx.files.internal("body/player.json"), state);
-			fsm.setFixture(state, fixtures);
-		}
 		
 		fsm.changeState(PlayerStates.IDLING);
 		

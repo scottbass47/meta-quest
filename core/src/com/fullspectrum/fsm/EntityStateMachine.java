@@ -2,23 +2,41 @@ package com.fullspectrum.fsm;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.physics.EntityFixtures;
+import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityStateMachine extends StateMachine<State, EntityState> {
 
-	private ArrayMap<State, EntityFixtures> fixtures;
-	private EntityFixtures currentFixtures;
+	// Physics
+	private String bodyPath;
 	
-	public EntityStateMachine(Entity entity) {
+	public EntityStateMachine(Entity entity, String bodyPath) {
 		super(entity, new EntityStateCreator());
 		this.states = new ArrayMap<State, EntityState>();
-		fixtures = new ArrayMap<State, EntityFixtures>();
+		this.bodyPath = bodyPath;
+		
+		// Setup Physics
+		PositionComponent posComp = Mappers.position.get(entity);
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		WorldComponent worldComp = Mappers.world.get(entity);
+		assert bodyComp != null && posComp != null && worldComp != null : "Component can't be null.";
+		bodyComp.body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(bodyPath), worldComp.world, new Vector2(posComp.x, posComp.y), false);
+	}
+	
+	@Override
+	public EntityState createState(State key) {
+		EntityState state = super.createState(key);
+		state.fixtures = PhysicsUtils.getEntityFixtures(Gdx.files.internal(bodyPath), key);
+		return state;
 	}
 	
 	@Override
@@ -35,24 +53,23 @@ public class EntityStateMachine extends StateMachine<State, EntityState> {
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
-		if(!fixtures.get(identifier).equals(currentFixtures)){
-			currentFixtures = fixtures.get(identifier);
-			changeBody();
+		if(currState == null){
+			changeBody(newState);
+			return;
+		}
+		if(!newState.fixtures.equals(currState.fixtures)){
+			changeBody(newState);
 		}
 	}
 	
-	public void setFixture(State state, EntityFixtures fixtures){
-		this.fixtures.put(state, fixtures);
-	}
-	
-	private void changeBody(){
+	private void changeBody(EntityState state){
 //		Gdx.app.debug("Entity State Machine", "changing body.");
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		Body body = bodyComp.body;
 		for(Fixture fixture : body.getFixtureList()){
 			body.destroyFixture(fixture);
 		}
-		for(FixtureDef fdef : currentFixtures.getFixtures()){
+		for(FixtureDef fdef : state.fixtures.getFixtures()){
 			body.createFixture(fdef);
 		}
 	}
