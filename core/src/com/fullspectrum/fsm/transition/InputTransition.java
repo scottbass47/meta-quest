@@ -25,7 +25,8 @@ public class InputTransition extends TransitionSystem {
 		for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
 			Entity e = machine.getEntity();
 			InputComponent inputComp = Mappers.input.get(e);
-			assert (inputComp != null);
+			assert inputComp != null : "InputComponent can't be null.";
+			if(!inputComp.enabled) continue;
 			for (TransitionObject obj : machine.getCurrentState().getData(Transition.INPUT)) {
 				InputTransitionData itd = (InputTransitionData) obj.data;
 				if (itd == null) continue;
