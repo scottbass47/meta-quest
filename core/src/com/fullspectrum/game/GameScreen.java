@@ -36,6 +36,7 @@ import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -61,6 +62,7 @@ public class GameScreen extends AbstractScreen {
 	private Entity playerTwo;
 	private Entity cameraEntity;
 	private boolean onPlayerOne = true;
+	private NavMesh playerMesh;
 
 	// Tile Map
 	private Level level;
@@ -117,6 +119,7 @@ public class GameScreen extends AbstractScreen {
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
 		level.loadMap("map/TestMap2.tmx");
+		playerMesh = NavMesh.createNavMesh(playerOne, level);
 		
 		// Setup Camera
 		cameraEntity = new Entity();
@@ -180,6 +183,7 @@ public class GameScreen extends AbstractScreen {
 		
 		level.render();
 		renderer.render(batch);
+		playerMesh.render(batch);
 		
 		frameBuffer.end();
 		

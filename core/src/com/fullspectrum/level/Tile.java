@@ -1,19 +1,48 @@
 package com.fullspectrum.level;
 
+import com.badlogic.gdx.utils.Array;
+
 public class Tile {
 
-	public int row;
-	public int col;
-	public boolean surrounded = true;
-	public Side side = Side.NONE;
+	private final int row;
+	private final int col;
+	private Array<Side> sidesOpen;
+	
+	public Tile(int row, int col){
+		this.row = row;
+		this.col = col;
+		sidesOpen = new Array<Side>();
+	}
+	
+	public int getRow() {
+		return row;
+	}
+
+	public int getCol(){
+		return col;
+	}
 	
 	public int getIndex(int width){
 		return row * width + col;
 	}
 	
+	public void addSide(Side side){
+		if(sidesOpen.contains(side, false)) return;
+		sidesOpen.add(side);
+	}
+	
+	public void removeSide(Side side){
+		if(!sidesOpen.contains(side, false)) return;
+		sidesOpen.removeValue(side, false);
+	}
+	
+	public boolean isOpen(Side side){
+		return sidesOpen.contains(side, false);
+	}
+	
 	@Override
 	public String toString() {
-		return "Row: " + row + ", Col: " + col + ", Surrounded: " + (surrounded ? "true" : "false");
+		return "Row: " + row + ", Col: " + col + ", Surrounded: " + (isSurrounded() ? "true" : "false");
 	}
 
 	@Override
@@ -22,7 +51,7 @@ public class Tile {
 		int result = 1;
 		result = prime * result + col;
 		result = prime * result + row;
-		result = prime * result + (surrounded ? 1231 : 1237);
+		result = prime * result + (isSurrounded() ? 1231 : 1237);
 		return result;
 	}
 
@@ -34,17 +63,18 @@ public class Tile {
 		Tile other = (Tile) obj;
 		if (col != other.col) return false;
 		if (row != other.row) return false;
-		if (surrounded != other.surrounded) return false;
+		if (isSurrounded() != other.isSurrounded()) return false;
 		return true;
 	}
 	
+	public boolean isSurrounded(){
+		return sidesOpen.size > 0;
+	}
+	
 	public enum Side{
-		NONE,
 		NORTH,
 		EAST,
 		SOUTH,
 		WEST
 	}
-	
-	
 }

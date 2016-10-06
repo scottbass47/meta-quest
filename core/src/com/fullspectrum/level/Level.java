@@ -1,16 +1,14 @@
 package com.fullspectrum.level;
 
-import static com.fullspectrum.game.GameVars.*;
+import static com.fullspectrum.game.GameVars.PPM_INV;
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
 import java.util.Comparator;
 import java.util.Iterator;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -18,7 +16,6 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
@@ -29,7 +26,6 @@ public class Level {
 
 	// Physics
 	private World world;
-	private Box2DDebugRenderer b2dr;
 
 	// Tile Map
 	private TiledMap map;
@@ -37,9 +33,7 @@ public class Level {
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private int width;
 	private int height;
-
-	// Player
-	private Entity player;
+	private Tile[][] mapTiles;
 
 	// Camera
 	private OrthographicCamera cam;
@@ -51,7 +45,6 @@ public class Level {
 		this.world = world;
 		this.cam = cam;
 		this.batch = batch;
-		b2dr = new Box2DDebugRenderer();
 		loader = new TmxMapLoader();
 	}
 
@@ -70,7 +63,6 @@ public class Level {
 	}
 
 	public void update(float delta) {
-//		if (player != null) player.update(delta);
 		cam.position.x = R_WORLD_WIDTH * 0.5f;
 		cam.position.y = R_WORLD_HEIGHT * 0.5f;
 	}
@@ -78,14 +70,6 @@ public class Level {
 	public void render() {
 		mapRenderer.setView(cam);
 		mapRenderer.render();
-		
-//		b2dr.render(world, cam.combined);
-		
-//		if (player != null) {
-//			batch.begin();
-//			player.render(batch);
-//			batch.end();
-//		}
 	}
 	
 	private void setupTilePhysics() {
@@ -103,79 +87,68 @@ public class Level {
 		fdef.friction = 0.0f;
 
 		Array<Tile> tiles = new Array<Tile>();
-		Boolean[][] tileExists = new Boolean[layer.getHeight()][layer.getWidth()];
-		for (int row = 0; row < layer.getHeight(); row++) {
-			for (int col = 0; col < layer.getWidth(); col++) {
+		mapTiles = new Tile[height][width];
+		Boolean[][] tileExists = new Boolean[height][width];
+		for (int row = 0; row < height; row++) {
+			for (int col = 0; col < width; col++) {
 				Cell cell = layer.getCell(col, row);
-				if (cell == null){
+				if (cell == null || cell.getTile() == null){
 					tileExists[row][col] = false;
-					continue;
-				}
-				if (cell.getTile() == null){
-					tileExists[row][col] = false;
+					mapTiles[row][col] = new Tile(row, col);
 					continue;
 				}
 				tileExists[row][col] = true;
 				
-				Tile tile = new Tile();
-				tile.row = row;
-				tile.col = col;
+				Tile tile = new Tile(row, col);
 				
-				boolean surrounded = true;
 				if(row > 0){
 					Cell c = layer.getCell(col, row - 1);
 					if(c == null || c.getTile() == null) {
-						tile.side = Side.SOUTH;
-						surrounded = false;
+						tile.addSide(Side.SOUTH);
 					}
 				}
-				if(row < layer.getHeight() - 1 && surrounded){
+				if(row < height - 1){
 					Cell c = layer.getCell(col, row + 1);
 					if(c == null || c.getTile() == null) {
-						tile.side = Side.NORTH;
-						surrounded = false;
+						tile.addSide(Side.NORTH);
 					}
 				}
-				if(col > 0 && surrounded){
+				if(col > 0){
 					Cell c = layer.getCell(col - 1, row);
 					if(c == null || c.getTile() == null) {
-						tile.side = Side.WEST;
-						surrounded = false;
+						tile.addSide(Side.WEST);
 					}
 				}
-				if(col < layer.getWidth() - 1 && surrounded){
+				if(col < width - 1){
 					Cell c = layer.getCell(col + 1, row);
 					if(c == null || c.getTile() == null) {
-						tile.side = Side.EAST;
-						surrounded = false;
+						tile.addSide(Side.EAST);
 					}
 				}
-				tile.surrounded = surrounded;
 				tiles.add(tile);
-//				bdef.position.set(col + 0.5f, row + 0.5f);
-//				world.createBody(bdef).createFixture(fdef);
+				mapTiles[row][col] = tile;
 			}
 		}
 		tiles.sort(new Comparator<Tile>() {
 			@Override
 			public int compare(Tile o1, Tile o2) {
-				if(o1.surrounded && !o2.surrounded) return 1;
-				if(!o1.surrounded && o2.surrounded) return -1;
+				if(o1.isSurrounded() && !o2.isSurrounded()) return 1;
+				if(!o1.isSurrounded() && o2.isSurrounded()) return -1;
 				return o1.getIndex(layer.getWidth()) < o2.getIndex(layer.getWidth()) ? -1 : 1;
 			}
 		});
 		while(tiles.size > 0){
 			Tile t = tiles.first();
-			if(!tileExists[t.row][t.col]) continue;
-			tileExists[t.row][t.col] = false;
-			int startCol = t.col;
-			int startRow = t.row;
-			int endCol = t.col;
-			int endRow = t.row;
+			if(!tileExists[t.getRow()][t.getCol()]) continue;
+			tileExists[t.getRow()][t.getCol()] = false;
+			int startCol = t.getCol();
+			int startRow = t.getRow();
+			int endCol = t.getCol();
+			int endRow = t.getRow();
 			
 			// Do expansion
-			if(!t.surrounded && (t.side == Side.WEST || t.side == Side.EAST)){
-				int[] coords = expandCol(startRow, t.col, layer.getHeight(), tileExists);
+			if(!t.isSurrounded() && (t.isOpen(Side.WEST) || t.isOpen(Side.EAST))){
+				int[] coords = expandCol(startRow, t.getCol(), layer.getHeight(), tileExists);
 				startRow = coords[0];
 				endRow = coords[1];
 				coords = expandRow(startRow, endRow, startCol, layer.getWidth(), tileExists);
@@ -183,7 +156,7 @@ public class Level {
 				endCol = coords[1];
 			}
 			else{
-				int[] coords = expandRow(startCol, t.row, layer.getWidth(), tileExists);
+				int[] coords = expandRow(startCol, t.getRow(), layer.getWidth(), tileExists);
 				startCol = coords[0];
 				endCol = coords[1];
 				coords = expandCol(startCol, endCol, startRow, layer.getHeight(), tileExists);
@@ -198,6 +171,19 @@ public class Level {
 			world.createBody(bdef).createFixture(fdef);
 			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
+	}
+	
+	public Array<Tile> getWalkableTiles(){
+		Array<Tile> ret = new Array<Tile>();
+		for(int row = 0; row < height; row++){
+			for(int col = 0; col < width; col++){
+				Tile tile = mapTiles[row][col];
+				if(tile.isOpen(Side.NORTH) && row + 1 <= height) {
+					ret.add(mapTiles[row + 1][col]);
+				}
+			}
+		}
+		return ret;
 	}
 	
 	private int[] expandRow(int startCol, int row, int maxWidth, Boolean[][] tileExists){
@@ -306,15 +292,9 @@ public class Level {
 		Iterator<Tile> iter = tiles.iterator();
 		while(iter.hasNext()){
 			Tile t = iter.next();
-			if(t.row >= startRow && t.row <= endRow && t.col >= startCol && t.col <= endCol){
+			if(t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >= startCol && t.getCol() <= endCol){
 				iter.remove();
 			}
 		}
 	}
-	
-
-	public void setPlayer(Entity player) {
-		this.player = player;
-	}
-
 }
