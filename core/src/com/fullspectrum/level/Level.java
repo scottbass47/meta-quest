@@ -177,6 +177,10 @@ public class Level {
 		return mapTiles[row][col];
 	}
 	
+	public boolean isAir(int row, int col){
+		return mapTiles[row][col].isAir();
+	}
+	
 	private int[] expandRow(int startCol, int row, int maxWidth, Boolean[][] tileExists){
 		int[] coords = new int[2];
 		int sCol = startCol;
