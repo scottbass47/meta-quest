@@ -60,6 +60,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public E getCurrentState() {
 		return currentState;
 	}
+	
+	public E getState(S state){
+		return states.get(state);
+	}
 
 	public Entity getEntity(){
 		return entity;

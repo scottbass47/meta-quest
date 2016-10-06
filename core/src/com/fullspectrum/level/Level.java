@@ -94,12 +94,12 @@ public class Level {
 				Cell cell = layer.getCell(col, row);
 				if (cell == null || cell.getTile() == null){
 					tileExists[row][col] = false;
-					mapTiles[row][col] = new Tile(row, col);
+					mapTiles[row][col] = new Tile(row, col, true);
 					continue;
 				}
 				tileExists[row][col] = true;
 				
-				Tile tile = new Tile(row, col);
+				Tile tile = new Tile(row, col, false);
 				
 				if(row > 0){
 					Cell c = layer.getCell(col, row - 1);
@@ -173,17 +173,8 @@ public class Level {
 		}
 	}
 	
-	public Array<Tile> getWalkableTiles(){
-		Array<Tile> ret = new Array<Tile>();
-		for(int row = 0; row < height; row++){
-			for(int col = 0; col < width; col++){
-				Tile tile = mapTiles[row][col];
-				if(tile.isOpen(Side.NORTH) && row + 1 <= height) {
-					ret.add(mapTiles[row + 1][col]);
-				}
-			}
-		}
-		return ret;
+	public Tile tileAt(int row, int col){
+		return mapTiles[row][col];
 	}
 	
 	private int[] expandRow(int startCol, int row, int maxWidth, Boolean[][] tileExists){

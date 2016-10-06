@@ -28,6 +28,7 @@ import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.fsm.PlayerStates;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
@@ -119,7 +120,7 @@ public class GameScreen extends AbstractScreen {
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
 		level.loadMap("map/TestMap2.tmx");
-		playerMesh = NavMesh.createNavMesh(playerOne, level);
+		playerMesh = NavMesh.createNavMesh(playerOne, level, PlayerStates.RUNNING, PlayerStates.JUMPING);
 		
 		// Setup Camera
 		cameraEntity = new Entity();

@@ -7,10 +7,12 @@ public class Tile {
 	private final int row;
 	private final int col;
 	private Array<Side> sidesOpen;
+	private final boolean isAir;
 	
-	public Tile(int row, int col){
+	public Tile(int row, int col, boolean isAir){
 		this.row = row;
 		this.col = col;
+		this.isAir = isAir;
 		sidesOpen = new Array<Side>();
 	}
 	
@@ -69,6 +71,10 @@ public class Tile {
 	
 	public boolean isSurrounded(){
 		return sidesOpen.size > 0;
+	}
+	
+	public boolean isAir(){
+		return isAir;
 	}
 	
 	public enum Side{

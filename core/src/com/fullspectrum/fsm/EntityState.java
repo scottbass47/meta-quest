@@ -48,6 +48,10 @@ public class EntityState extends StateObject{
 		return this;
 	}
 	
+	public EntityFixtures getFixtures(){
+		return fixtures;
+	}
+	
 	public State getCurrentAnimation(){
 		return animations.states.getKey(animations.currentState, false);
 	}
