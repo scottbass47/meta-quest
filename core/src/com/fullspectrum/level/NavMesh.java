@@ -178,6 +178,10 @@ public class NavMesh {
 			}
 		}
 	}
+	
+	private static void setupJumpConnections(Array<Node> nodes, Level level, float maxSpeed, float maxJump){
+		
+	}
 
 	private static boolean isValidNode(int row, int col, Level level, Rectangle boundingBox) {
 		if (row + 1 > level.getHeight() || !level.tileAt(row, col).isOpen(Side.NORTH)) return false;
