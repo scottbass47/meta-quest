@@ -47,7 +47,11 @@ public class EntityFactory {
 
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
-		EntityState runningState = fsm.createState(PlayerStates.RUNNING).add(new SpeedComponent(8.0f)).add(new DirectionComponent()).add(new GroundMovementComponent()).addAnimation(PlayerAnim.RUNNING);
+		EntityState runningState = fsm.createState(PlayerStates.RUNNING)
+				.add(new SpeedComponent(8.0f))
+				.add(new DirectionComponent())
+				.add(new GroundMovementComponent())
+				.addAnimation(PlayerAnim.RUNNING);
 		runningState.addTag(TransitionTag.GROUND_STATE);
 
 		RandomTransitionData rtd = new RandomTransitionData();
@@ -76,7 +80,7 @@ public class EntityFactory {
 				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
-				.add(new JumpComponent(-1000))
+				.add(new JumpComponent(-20.0f))
 				.addAnimation(PlayerAnim.FALLING);
 		divingState.addTag(TransitionTag.AIR_STATE);
 
@@ -84,7 +88,7 @@ public class EntityFactory {
 				.add(new SpeedComponent(8.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
-				.add(new JumpComponent(1000.0f))
+				.add(new JumpComponent(20.0f))
 				.addAnimation(PlayerAnim.JUMP)
 				.addAnimation(PlayerAnim.RISE)
 				.addAnimTransition(PlayerAnim.JUMP, Transition.ANIMATION_FINISHED, PlayerAnim.RISE);
@@ -117,7 +121,7 @@ public class EntityFactory {
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(PlayerStates.IDLING), Transition.INPUT, bothData, PlayerStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(PlayerStates.FALLING, PlayerStates.DIVING), Transition.INPUT, diveData, PlayerStates.DIVING);
 
-		System.out.print(fsm.printTransitions());
+//		System.out.print(fsm.printTransitions());
 
 		fsm.changeState(PlayerStates.IDLING);
 

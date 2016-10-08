@@ -72,6 +72,14 @@ public class Level {
 		mapRenderer.render();
 	}
 	
+	public boolean inBounds(int row, int col){
+		return row >= 0 && row < height && col >= 0 && col < width;
+	}
+	
+	public boolean inBounds(float x, float y){
+		return inBounds((int)y, (int)x);
+	}
+	
 	private void setupTilePhysics() {
 		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
 		width = layer.getWidth();

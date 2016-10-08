@@ -7,14 +7,14 @@ public class Node {
 	protected int row;
 	protected int col;
 	
-	protected Type type = Type.MIDDLE;
+	protected NodeType type = NodeType.MIDDLE;
 	private Array<NavLink> links;
 	
 	public Node(){
 		links = new Array<NavLink>();
 	}
 	
-	public enum Type{
+	public enum NodeType{
 		LEFT_EDGE,
 		RIGHT_EDGE,
 		SOLO,

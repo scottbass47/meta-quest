@@ -20,7 +20,8 @@ public class JumpSystem extends IteratingSystem{
 		Body body = Mappers.body.get(entity).body;
 		JumpComponent jumpComp = Mappers.jump.get(entity);
 		
-		body.applyForceToCenter(0, jumpComp.force, true);
+//		body.applyForceToCenter(0, jumpComp.force, true);
+		body.applyLinearImpulse(0, jumpComp.force, body.getWorldCenter().x, body.getWorldCenter().y, true);
 		entity.remove(JumpComponent.class);
 	}
 	

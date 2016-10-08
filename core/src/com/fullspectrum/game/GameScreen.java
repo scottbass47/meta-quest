@@ -79,7 +79,7 @@ public class GameScreen extends AbstractScreen {
 		super(worldCamera, hudCamera, game, screens, input);
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
-		world = new World(new Vector2(0, -23.0f), true);
+		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		
 		// Setup Shader
 		mellowShader = new ShaderProgram(

@@ -2,6 +2,7 @@ package com.fullspectrum.level;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
+import java.awt.Point;
 import java.util.Comparator;
 
 import com.badlogic.ashley.core.Entity;
@@ -13,10 +14,13 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.FSMComponent;
+import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.State;
-import com.fullspectrum.level.Node.Type;
+import com.fullspectrum.game.GameVars;
+import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -33,32 +37,52 @@ public class NavMesh {
 	public static NavMesh createNavMesh(Entity entity, Level level, State runningState, State jumpingState) {
 		FSMComponent fsmComp = Mappers.fsm.get(entity);
 
-		Array<Node> nodes = getValidNodes(level, fsmComp.fsm.getState(runningState));
-		setupNodeTypes(nodes);
-		setupRunConnections(nodes);
-		setupFallConnections(nodes, level);
+		assert (fsmComp != null);
 
+		EntityState running = fsmComp.fsm.getState(runningState);
+		EntityState jumping = fsmComp.fsm.getState(jumpingState);
+		
+		float maxSpeed = jumping.getComponent(SpeedComponent.class).speed;
+		float maxJump = jumping.getComponent(JumpComponent.class).force;
+
+		Array<Node> nodes = getValidNodes(level, running);
+		setupNodeTypes(nodes);
+		setupRunConnections(nodes, running.getComponent(SpeedComponent.class).speed);
+		setupFallConnections(nodes, level, running.getComponent(SpeedComponent.class).speed);
+		setupJumpConnections(nodes, level, maxSpeed, maxJump, jumping);
+		
 		return new NavMesh(nodes);
 	}
 
 	public void render(SpriteBatch batch) {
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
 		sRender.begin(ShapeType.Line);
-		
+
 		// Render NavLinks first
-		for(Node node : nodes){
-			for(NavLink link : node.getLinks()){
-				switch(link.type){
+		for (Node node : nodes) {
+			for (NavLink link : node.getLinks()) {
+				switch (link.type) {
 				case RUN:
-					sRender.setColor(Color.MAGENTA);
+					sRender.setColor(Color.BLUE);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
 				case FALL:
 					sRender.setColor(Color.GOLD);
-//					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, node.row + 0.5f);
-//					sRender.line(link.toNode.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
+					// sRender.line(node.col + 0.5f, node.row + 0.5f,
+					// link.toNode.col + 0.5f, node.row + 0.5f);
+					// sRender.line(link.toNode.col + 0.5f, node.row + 0.5f,
+					// link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
+				case JUMP:
+					JumpLink jumpLink = (JumpLink) link;
+					for (int i = 0; i < jumpLink.trajectory.size - 1; i++) {
+						Color color = i < jumpLink.trajectory.size / 2 ? Color.SALMON : Color.BLACK;
+						Point2f point1 = jumpLink.trajectory.get(i);
+						Point2f point2 = jumpLink.trajectory.get(i + 1);
+						sRender.setColor(color);
+						sRender.line(point1.x, point1.y, point2.x, point2.y);
+					}
 				default:
 					break;
 				}
@@ -68,7 +92,7 @@ public class NavMesh {
 		sRender.begin(ShapeType.Filled);
 		// Render Nodes
 		for (Node node : nodes) {
-			switch(node.type){
+			switch (node.type) {
 			case MIDDLE:
 				sRender.setColor(Color.RED);
 				break;
@@ -96,10 +120,9 @@ public class NavMesh {
 		for (int row = 0; row < level.getHeight(); row++) {
 			for (int col = 0; col < level.getWidth(); col++) {
 				if (isValidNode(row, col, level, boundingBox)) {
-					Tile tile = level.tileAt(row + 1, col);
 					Node node = new Node();
-					node.row = tile.getRow();
-					node.col = tile.getCol();
+					node.row = row + 1;
+					node.col = col;
 					ret.add(node);
 				}
 			}
@@ -115,79 +138,165 @@ public class NavMesh {
 
 			tileOnLeft = i - 1 >= 0 && (nodes.get(i - 1).row == node.row && nodes.get(i - 1).col + 1 == node.col);
 			tileOnRight = i + 1 <= nodes.size - 1 && (nodes.get(i + 1).row == node.row && nodes.get(i + 1).col - 1 == node.col);
-			
-			if(tileOnLeft && tileOnRight) node.type = Type.MIDDLE;
-			else if(tileOnLeft) node.type = Type.RIGHT_EDGE;
-			else if(tileOnRight) node.type = Type.LEFT_EDGE;
-			else node.type = Type.SOLO;
+
+			if (tileOnLeft && tileOnRight)
+				node.type = NodeType.MIDDLE;
+			else if (tileOnLeft)
+				node.type = NodeType.RIGHT_EDGE;
+			else if (tileOnRight)
+				node.type = NodeType.LEFT_EDGE;
+			else
+				node.type = NodeType.SOLO;
 		}
-	}
-	
-	private static void setupRunConnections(Array<Node> nodes){
-		for(int i = 0; i < nodes.size; i++){
-			Node node = nodes.get(i);
-			if(node.type == Type.LEFT_EDGE || node.type == Type.MIDDLE){
-				node.addLink(new NavLink(NavLink.Type.RUN, nodes.get(i+1)));
-			}
-			if(node.type == Type.RIGHT_EDGE || node.type == Type.MIDDLE){
-				node.addLink(new NavLink(NavLink.Type.RUN, nodes.get(i-1)));
-			}
-		}
-	}
-	
-	private static void setupFallConnections(Array<Node> nodes, Level level){
-		ArrayMap<Integer, Array<Node>> nodeCols = new ArrayMap<Integer, Array<Node>>();
-		Array<Node> edges = new Array<Node>();
-		for(Node node : nodes){
-			if(!nodeCols.containsKey(node.col)) nodeCols.put(node.col, new Array<Node>());
-			nodeCols.get(node.col).add(node);
-			if(node.type != Type.MIDDLE) edges.add(node);
-		}
-		for(Node edgeNode : edges){
-			if(edgeNode.type == Type.LEFT_EDGE || edgeNode.type == Type.SOLO){
-				if(edgeNode.col - 1 < 0 || !level.isAir(edgeNode.row, edgeNode.col - 1)){
-					if(edgeNode.type != Type.SOLO) continue;
-				}
-				Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
-				fallToNodes.sort(new Comparator<Node>(){
-					@Override
-					public int compare(Node o1, Node o2) {
-						return o1.row < o2.row ? 1 : -1;
-					}
-				});
-				for(Node fallNode : fallToNodes){
-					if(fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.Type.FALL, fallNode));
-					break;
-				}
-			}
-			if(edgeNode.type == Type.RIGHT_EDGE || edgeNode.type == Type.SOLO){
-				if(edgeNode.col + 1 > level.getWidth() - 1 || !level.isAir(edgeNode.row, edgeNode.col + 1)) continue;
-				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
-				fallToNodes.sort(new Comparator<Node>(){
-					@Override
-					public int compare(Node o1, Node o2) {
-						return o1.row < o2.row ? 1 : -1;
-					}
-				});
-				for(Node fallNode : fallToNodes){
-					if(fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.Type.FALL, fallNode));
-					break;
-				}
-			}
-		}
-	}
-	
-	private static void setupJumpConnections(Array<Node> nodes, Level level, float maxSpeed, float maxJump){
-		
 	}
 
+	private static void setupRunConnections(Array<Node> nodes, float runSpeed) {
+		for (int i = 0; i < nodes.size; i++) {
+			Node node = nodes.get(i);
+			if (node.type == NodeType.LEFT_EDGE || node.type == NodeType.MIDDLE) {
+				node.addLink(new NavLink(NavLink.LinkType.RUN, nodes.get(i + 1), 1.0f / runSpeed));
+			}
+			if (node.type == NodeType.RIGHT_EDGE || node.type == NodeType.MIDDLE) {
+				node.addLink(new NavLink(NavLink.LinkType.RUN, nodes.get(i - 1), 1.0f / runSpeed));
+			}
+		}
+	}
+
+	private static void setupFallConnections(Array<Node> nodes, Level level, float runSpeed) {
+		ArrayMap<Integer, Array<Node>> nodeCols = new ArrayMap<Integer, Array<Node>>();
+		Array<Node> edges = new Array<Node>();
+		for (Node node : nodes) {
+			if (!nodeCols.containsKey(node.col)) nodeCols.put(node.col, new Array<Node>());
+			nodeCols.get(node.col).add(node);
+			if (node.type != NodeType.MIDDLE) edges.add(node);
+		}
+		for (Node edgeNode : edges) {
+			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
+				if (edgeNode.col - 1 < 0 || !level.isAir(edgeNode.row, edgeNode.col - 1)) {
+					if (edgeNode.type != NodeType.SOLO) continue;
+				}
+				Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
+				fallToNodes.sort(new Comparator<Node>() {
+					@Override
+					public int compare(Node o1, Node o2) {
+						return o1.row < o2.row ? 1 : -1;
+					}
+				});
+				for (Node fallNode : fallToNodes) {
+					if (fallNode.row > edgeNode.row) continue;
+					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(runSpeed, edgeNode.row - fallNode.row)));
+					break;
+				}
+			}
+			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
+				if (edgeNode.col + 1 > level.getWidth() - 1 || !level.isAir(edgeNode.row, edgeNode.col + 1)) continue;
+				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
+				fallToNodes.sort(new Comparator<Node>() {
+					@Override
+					public int compare(Node o1, Node o2) {
+						return o1.row < o2.row ? 1 : -1;
+					}
+				});
+				for (Node fallNode : fallToNodes) {
+					if (fallNode.row > edgeNode.row) continue;
+					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(runSpeed, edgeNode.row - fallNode.row)));
+					break;
+				}
+			}
+		}
+	}
+
+	private static void setupJumpConnections(Array<Node> nodes, Level level, float maxSpeed, float maxJump, EntityState jumpState) {
+		Rectangle boundingBox = PhysicsUtils.getAABB(jumpState.getFixtures());
+		ArrayMap<Point, Node> nodeMap = new ArrayMap<Point, Node>();
+		Array<Node> edgeNodes = new Array<Node>();
+		int divisions = 3;
+
+		for (Node node : nodes) {
+			nodeMap.put(new Point(node.row, node.col), node);
+			if (node.type != NodeType.MIDDLE) edgeNodes.add(node);
+		}
+		int linksCreated = 0;
+		for (Node edgeNode : edgeNodes) {
+			for(int i = 1; i <= divisions; i++){
+				for(int j = 1; j <= divisions; j++){
+					float speed = maxSpeed / i;
+					float jumpForce = maxJump / j;
+					if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
+						JumpData rightJump = getTrajectory(nodeMap, level, edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true);
+						if (rightJump != null) {
+							edgeNode.addLink(new JumpLink(rightJump.toNode, rightJump.time, rightJump.trajectory, speed, jumpForce));
+							linksCreated++;
+						}
+					}
+					if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
+						JumpData leftJump = getTrajectory(nodeMap, level, edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false);
+						if (leftJump != null) {
+							edgeNode.addLink(new JumpLink(leftJump.toNode, leftJump.time, leftJump.trajectory, speed, jumpForce));
+							linksCreated++;
+						}
+					}
+				}
+			}
+		}
+		System.out.println("Links created: " + linksCreated);
+	}
+
+	private static JumpData getTrajectory(ArrayMap<Point, Node> nodes, Level level, int row, int col, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
+		float interval = 0.0015f;
+		boolean finished = false;
+		Array<Point2f> points = new Array<Point2f>();
+		Node toNode = null;
+		float time = 0;
+		while (!finished) {
+			Point2f point = new Point2f(col + boundingBox.width * 0.5f + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+			if (!level.inBounds(point.x, point.y)) return null;
+			if(!isValidPoint(point.x, point.y, level, boundingBox)) return null;
+			points.add(point);
+			time += interval;
+			float deriv = jumpForce + GameVars.GRAVITY * time;
+			if (deriv >= 0) continue;
+			Node node = nodes.get(new Point((int)point.y, (int)point.x));
+			if (node != null) {
+				toNode = node;
+				finished = true;
+			}
+		}
+		return new JumpData(points, time, toNode);
+	}
+	
+	// -distance = (1/2) * gravity * t^2
+	// -2distance / gravity = t ^ 2
+	// sqrt(-2distance / gravity) = t
+	private static float getFallingCost(float runSpeed, float distance){
+		float cost = 1.0f / runSpeed;
+		return cost + (float)Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
+	}
+	
+	private static boolean isValidPoint(float x, float y, Level level, Rectangle boundingBox){
+		float hw = boundingBox.width * 0.5f;
+		float hh = boundingBox.height * 0.5f;
+		float minX = x - hw;
+		float minY = y - hh;
+		float maxX = x + hw;
+		float maxY = y + hh;
+		
+		for(float row = minY; row < maxY; row++){
+			for(float col = minX; col < maxX; col++){
+				if(!level.inBounds(col, row)) return true;
+				if(!level.isAir((int)row, (int)col)){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	private static boolean isValidNode(int row, int col, Level level, Rectangle boundingBox) {
 		if (row + 1 > level.getHeight() || !level.tileAt(row, col).isOpen(Side.NORTH)) return false;
 		int tilesTall = (int) (boundingBox.height + 1.0f);
 		for (int i = 1; i <= tilesTall; i++) {
-			if (row + i >= level.getHeight()) return true;
+			if (!level.inBounds(row + i, (int)col)) return true;
 			Tile t = level.tileAt(row + i, col);
 			if (!t.isAir()) return false;
 		}

@@ -52,6 +52,14 @@ public class EntityState extends StateObject{
 		return fixtures;
 	}
 	
+	@SuppressWarnings("unchecked")
+	public <T extends Component> T getComponent(Class<T> clazz){
+		for(Component c : components){
+			if(c.getClass() == clazz) return (T) c;
+		}
+		return null;
+	}
+	
 	public State getCurrentAnimation(){
 		return animations.states.getKey(animations.currentState, false);
 	}
