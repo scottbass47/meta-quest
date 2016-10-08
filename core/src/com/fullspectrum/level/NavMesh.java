@@ -6,6 +6,7 @@ import java.awt.Point;
 import java.util.Comparator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -26,32 +27,59 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class NavMesh {
 
+	// Nodes
 	private Array<Node> nodes;
+	private ArrayMap<Point, Node> nodeMap;
+	private Array<Node> edgeNodes;
+	
+	// Debug Renderer
 	private ShapeRenderer sRender;
+	
+	// Data
+	private Entity entity;
+	private Level level;
+	
+	// Jump Stats
+	private float maxSpeed;
+	private float maxJumpForce;
+	
+	// Run Stats
+	private float runSpeed;
+	
+	// States
+	private EntityState runningState;
+	private EntityState jumpingState;
 
-	private NavMesh(Array<Node> nodes) {
-		this.nodes = nodes;
+	private NavMesh(Entity entity, Level level, State running, State jumping) {
+		this.entity = entity;
+		this.level = level;
+		
+		nodes = new Array<Node>();
+		nodeMap = new ArrayMap<Point, Node>();
+		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
+		
+		FSMComponent fsmComp = Mappers.fsm.get(entity);
+		
+		assert (fsmComp != null);
+		
+		runningState = fsmComp.fsm.getState(running);
+		jumpingState = fsmComp.fsm.getState(jumping);
+		
+		maxSpeed = jumpingState.getComponent(SpeedComponent.class).speed;
+		maxJumpForce = jumpingState.getComponent(JumpComponent.class).force;
+		runSpeed = runningState.getComponent(SpeedComponent.class).speed;
+		
+		createNodes();
+		setupNodeTypes();
+		setupRunConnections();
+		setupFallConnections();
+		setupJumpConnections();
+		
 	}
 
 	public static NavMesh createNavMesh(Entity entity, Level level, State runningState, State jumpingState) {
-		FSMComponent fsmComp = Mappers.fsm.get(entity);
-
-		assert (fsmComp != null);
-
-		EntityState running = fsmComp.fsm.getState(runningState);
-		EntityState jumping = fsmComp.fsm.getState(jumpingState);
-		
-		float maxSpeed = jumping.getComponent(SpeedComponent.class).speed;
-		float maxJump = jumping.getComponent(JumpComponent.class).force;
-
-		Array<Node> nodes = getValidNodes(level, running);
-		setupNodeTypes(nodes);
-		setupRunConnections(nodes, running.getComponent(SpeedComponent.class).speed);
-		setupFallConnections(nodes, level, running.getComponent(SpeedComponent.class).speed);
-		setupJumpConnections(nodes, level, maxSpeed, maxJump, jumping);
-		
-		return new NavMesh(nodes);
+		return new NavMesh(entity, level, runningState, jumpingState);
 	}
 
 	public void render(SpriteBatch batch) {
@@ -113,24 +141,22 @@ public class NavMesh {
 		sRender.end();
 	}
 
-	private static Array<Node> getValidNodes(Level level, EntityState runningState) {
-		Array<Node> ret = new Array<Node>();
+	private void createNodes() {
 		Rectangle boundingBox = PhysicsUtils.getAABB(runningState.getFixtures());
-
 		for (int row = 0; row < level.getHeight(); row++) {
 			for (int col = 0; col < level.getWidth(); col++) {
 				if (isValidNode(row, col, level, boundingBox)) {
 					Node node = new Node();
 					node.row = row + 1;
 					node.col = col;
-					ret.add(node);
+					nodes.add(node);
+					nodeMap.put(new Point(node.row, node.col), node);
 				}
 			}
 		}
-		return ret;
 	}
 
-	private static void setupNodeTypes(Array<Node> nodes) {
+	private void setupNodeTypes() {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
 			boolean tileOnRight = false;
@@ -147,10 +173,13 @@ public class NavMesh {
 				node.type = NodeType.LEFT_EDGE;
 			else
 				node.type = NodeType.SOLO;
+			
+			if(node.type != NodeType.MIDDLE)
+				edgeNodes.add(node);
 		}
 	}
 
-	private static void setupRunConnections(Array<Node> nodes, float runSpeed) {
+	private void setupRunConnections() {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
 			if (node.type == NodeType.LEFT_EDGE || node.type == NodeType.MIDDLE) {
@@ -162,15 +191,13 @@ public class NavMesh {
 		}
 	}
 
-	private static void setupFallConnections(Array<Node> nodes, Level level, float runSpeed) {
+	private void setupFallConnections() {
 		ArrayMap<Integer, Array<Node>> nodeCols = new ArrayMap<Integer, Array<Node>>();
-		Array<Node> edges = new Array<Node>();
 		for (Node node : nodes) {
 			if (!nodeCols.containsKey(node.col)) nodeCols.put(node.col, new Array<Node>());
 			nodeCols.get(node.col).add(node);
-			if (node.type != NodeType.MIDDLE) edges.add(node);
 		}
-		for (Node edgeNode : edges) {
+		for (Node edgeNode : edgeNodes) {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
 				if (edgeNode.col - 1 < 0 || !level.isAir(edgeNode.row, edgeNode.col - 1)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
@@ -184,7 +211,7 @@ public class NavMesh {
 				});
 				for (Node fallNode : fallToNodes) {
 					if (fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(runSpeed, edgeNode.row - fallNode.row)));
+					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
 					break;
 				}
 			}
@@ -199,38 +226,32 @@ public class NavMesh {
 				});
 				for (Node fallNode : fallToNodes) {
 					if (fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(runSpeed, edgeNode.row - fallNode.row)));
+					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
 					break;
 				}
 			}
 		}
 	}
 
-	private static void setupJumpConnections(Array<Node> nodes, Level level, float maxSpeed, float maxJump, EntityState jumpState) {
-		Rectangle boundingBox = PhysicsUtils.getAABB(jumpState.getFixtures());
-		ArrayMap<Point, Node> nodeMap = new ArrayMap<Point, Node>();
-		Array<Node> edgeNodes = new Array<Node>();
+	private void setupJumpConnections() {
+		Rectangle boundingBox = PhysicsUtils.getAABB(jumpingState.getFixtures());
 		int divisions = 3;
 
-		for (Node node : nodes) {
-			nodeMap.put(new Point(node.row, node.col), node);
-			if (node.type != NodeType.MIDDLE) edgeNodes.add(node);
-		}
 		int linksCreated = 0;
 		for (Node edgeNode : edgeNodes) {
 			for(int i = 1; i <= divisions; i++){
 				for(int j = 1; j <= divisions; j++){
 					float speed = maxSpeed / i;
-					float jumpForce = maxJump / j;
+					float jumpForce = maxJumpForce / j;
 					if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-						JumpData rightJump = getTrajectory(nodeMap, level, edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true);
+						JumpData rightJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true);
 						if (rightJump != null) {
 							edgeNode.addLink(new JumpLink(rightJump.toNode, rightJump.time, rightJump.trajectory, speed, jumpForce));
 							linksCreated++;
 						}
 					}
 					if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-						JumpData leftJump = getTrajectory(nodeMap, level, edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false);
+						JumpData leftJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false);
 						if (leftJump != null) {
 							edgeNode.addLink(new JumpLink(leftJump.toNode, leftJump.time, leftJump.trajectory, speed, jumpForce));
 							linksCreated++;
@@ -239,24 +260,24 @@ public class NavMesh {
 				}
 			}
 		}
-		System.out.println("Links created: " + linksCreated);
+		Gdx.app.debug("NavMesh", "Links created - " + linksCreated);
 	}
 
-	private static JumpData getTrajectory(ArrayMap<Point, Node> nodes, Level level, int row, int col, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
+	private JumpData getTrajectory(int row, int col, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
 		float interval = 0.0015f;
 		boolean finished = false;
 		Array<Point2f> points = new Array<Point2f>();
 		Node toNode = null;
 		float time = 0;
 		while (!finished) {
-			Point2f point = new Point2f(col + boundingBox.width * 0.5f + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+			Point2f point = new Point2f(col + 0.5f + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (!level.inBounds(point.x, point.y)) return null;
-			if(!isValidPoint(point.x, point.y, level, boundingBox)) return null;
+			if(!isValidPoint(point.x, point.y, boundingBox)) return null;
 			points.add(point);
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
-			Node node = nodes.get(new Point((int)point.y, (int)point.x));
+			Node node = nodeMap.get(new Point((int)point.y, (int)point.x));
 			if (node != null) {
 				toNode = node;
 				finished = true;
@@ -268,12 +289,12 @@ public class NavMesh {
 	// -distance = (1/2) * gravity * t^2
 	// -2distance / gravity = t ^ 2
 	// sqrt(-2distance / gravity) = t
-	private static float getFallingCost(float runSpeed, float distance){
+	private float getFallingCost(float distance){
 		float cost = 1.0f / runSpeed;
 		return cost + (float)Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
 	}
 	
-	private static boolean isValidPoint(float x, float y, Level level, Rectangle boundingBox){
+	private boolean isValidPoint(float x, float y, Rectangle boundingBox){
 		float hw = boundingBox.width * 0.5f;
 		float hh = boundingBox.height * 0.5f;
 		float minX = x - hw;
@@ -301,5 +322,25 @@ public class NavMesh {
 			if (!t.isAir()) return false;
 		}
 		return true;
+	}
+	
+	public Array<Node> getEdgeNodes(){
+		return edgeNodes;
+	}
+	
+	public Array<Node> getNodes(){
+		return nodes;
+	}
+	
+	public ArrayMap<Point, Node> getNodeMap(){
+		return nodeMap;
+	}
+	
+	public Entity getEntity(){
+		return entity;
+	}
+	
+	public Level getLevel(){
+		return level;
 	}
 }
