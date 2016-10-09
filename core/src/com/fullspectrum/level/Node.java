@@ -7,7 +7,7 @@ public class Node {
 	protected int row;
 	protected int col;
 	
-	protected NodeType type = NodeType.MIDDLE;
+	public NodeType type = NodeType.MIDDLE;
 	private Array<NavLink> links;
 	
 	public Node(){
@@ -20,7 +20,7 @@ public class Node {
 		SOLO,
 		MIDDLE
 	}
-
+	
 	public void addLink(NavLink link){
 		links.add(link);
 	}
@@ -29,8 +29,40 @@ public class Node {
 		return links;
 	}
 	
+	public int getRow(){
+		return row;
+	}
+	
+	public int getCol(){
+		return col;
+	}
+	
 	@Override
 	public String toString() {
 		return "Row: " + row + ", Col: " + col + ", Type: " + type;
 	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + col;
+		result = prime * result + row;
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Node other = (Node) obj;
+		if (col != other.col) return false;
+		if (row != other.row) return false;
+		if (type != other.type) return false;
+		return true;
+	}
+
+	
 }
