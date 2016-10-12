@@ -1,6 +1,5 @@
 package com.fullspectrum.input;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.controllers.Controller;
 import com.badlogic.gdx.controllers.ControllerListener;
@@ -25,8 +24,6 @@ public class GameInput implements InputProcessor, ControllerListener, Input {
 		currentInput = new ArrayMap<Actions, Float>();
 		previousInput = new ArrayMap<Actions, Float>();
 		initInputMaps();
-		Gdx.input.setInputProcessor(this);
-		Controllers.addListener(this);
 		if(Controllers.getControllers().size > 0){
 			this.controller = Controllers.getControllers().first();
 			profile.setContext("xbox_one");

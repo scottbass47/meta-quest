@@ -8,6 +8,7 @@ import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -17,8 +18,11 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
+import com.fullspectrum.input.RawInput;
 
 public class GdxGame extends Game {
 	// Rendering
@@ -30,20 +34,15 @@ public class GdxGame extends Game {
 	private BitmapFont font;
 	
 	// Input
+	private RawInput rawInput;
 	private GameInput input;
 	private InputProfile profile;
 
 	// Screens
 	private ArrayMap<ScreenState, Screen> screens;
 
-	// FPS Logging
+	// FPS
 	public final static int UPS = 60;
-//	private int fps = 0;
-//	private int drawFPS = fps;
-//	private long startTime = System.nanoTime();
-//	private boolean fpsOn = false;
-//	private FPSLogger fpsLogger;
-//	private boolean prevPressed = false;
 
 	@Override
 	public void create() {
@@ -53,12 +52,17 @@ public class GdxGame extends Game {
 		hudCamera = new OrthographicCamera();
 		hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
 		font = new BitmapFont();
-//		fpsLogger = new FPSLogger();
 		
-		// Setup Input
+		// Setup Game Input
 		profile = new InputProfile();
 		profile.load("input/input.xml");
 		input = new GameInput(profile);
+		
+		// Setup Raw Input
+		rawInput = new RawInput();
+		Gdx.input.setInputProcessor(rawInput);
+		Controllers.addListener(rawInput);
+		rawInput.registerGameInput(input);
 
 		// Initialize Screens
 		screens = new ArrayMap<ScreenState, Screen>();
@@ -84,37 +88,13 @@ public class GdxGame extends Game {
 		hudCamera.update();
 		batch.setProjectionMatrix(hudCamera.combined);
 
-//		batch.begin();
-//		fps++;
-//		if (fpsOn) {
-//			font.draw(batch, "" + drawFPS, 10, 710);
-//		}
-//		batch.end();
-//
-//		// Setup P to Toggle FPS
-//		if (Gdx.input.isKeyPressed(Keys.P)) {
-//			if (!prevPressed)
-//				fpsOn = !fpsOn;
-//			prevPressed = false;
-//			if (fpsOn) {
-//				startTime = System.nanoTime();
-//				fps = 0;
-//			}
-//		}
-//		prevPressed = Gdx.input.isKeyPressed(Keys.P);
-//
-//		// FPS and Controller
-//		if ((System.nanoTime() - startTime) / 1000000 > 1000) {
-//			if (fpsOn) {
-//				drawFPS = fps;
-//				fps = 0;
-//				fpsLogger.log();
-//			}
-////			System.out.printf("Calls: %d, Draw Calls: %d\n", GLProfiler.calls, GLProfiler.drawCalls);
-//			startTime = System.nanoTime();
-////			input.update();
-//		}
+		if(DebugInput.isToggled(DebugToggle.FPS)){
+			batch.begin();
+			font.draw(batch, "" + Gdx.graphics.getFramesPerSecond(), 10, 710);
+			batch.end();
+		}
 	}
+		
 
 	@Override
 	public void dispose() {

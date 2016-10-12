@@ -28,6 +28,8 @@ import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.fsm.PlayerStates;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
@@ -189,8 +191,8 @@ public class GameScreen extends AbstractScreen {
 		
 		level.render();
 		renderer.render(batch);
-//		playerMesh.render(batch);
-		pathFinding.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)) pathFinding.render(batch);
 		
 		frameBuffer.end();
 		
