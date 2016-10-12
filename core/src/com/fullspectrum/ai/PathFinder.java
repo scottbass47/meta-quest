@@ -4,10 +4,8 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.awt.Point;
 import java.util.Comparator;
-import java.util.PriorityQueue;
 import java.util.TreeSet;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -46,6 +44,10 @@ public class PathFinder {
 	
 	public PathFinder(NavMesh navMesh, Node start, Node goal){
 		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
+	}
+	
+	public void setGoal(Node goal){
+		this.goal = goal;
 	}
 	
 	public void render(SpriteBatch batch){
@@ -91,7 +93,7 @@ public class PathFinder {
 		sRender.end();
 	}
 	
-	private void calculatePath(){
+	public void calculatePath(){
 //		long startTime = System.nanoTime();
 		path.clear();
 		Array<Node> visitedNodes = new Array<Node>();
@@ -105,12 +107,12 @@ public class PathFinder {
 			uncheckedLinks.add(link);
 		}
 		while(uncheckedLinks.size() > 0){
-			System.out.println(uncheckedLinks);
+//			System.out.println(uncheckedLinks);
 			NavLink link = uncheckedLinks.pollFirst();
 			if(link.toNode.equals(goal)){
 				// Reached the goal, backtrack and create path
 				while(!link.fromNode.equals(start)){
-					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
+//					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
 					path.add(link);
 					link = link.getParent();
 				}

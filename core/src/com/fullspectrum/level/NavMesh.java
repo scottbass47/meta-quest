@@ -75,10 +75,6 @@ public class NavMesh {
 		setupRunConnections();
 		setupFallConnections();
 		setupJumpConnections();
-		
-		for(Node node : nodes){
-			System.out.println(node);
-		}
 	}
 
 	public static NavMesh createNavMesh(Entity entity, Level level, State runningState, State jumpingState) {
@@ -325,6 +321,14 @@ public class NavMesh {
 			if (!t.isAir()) return false;
 		}
 		return true;
+	}
+	
+	public Node getNodeAt(int row, int col){
+		return nodeMap.get(new Point(row, col));
+	}
+	
+	public Node getNodeAt(float x, float y){
+		return nodeMap.get(new Point((int)y, (int)x));
 	}
 	
 	public Array<Node> getEdgeNodes(){

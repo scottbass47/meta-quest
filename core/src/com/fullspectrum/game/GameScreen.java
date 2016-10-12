@@ -39,8 +39,10 @@ import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
+import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
+import com.fullspectrum.level.Node;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -163,6 +165,13 @@ public class GameScreen extends AbstractScreen {
 		if(input.isJustPressed(Actions.SELECT)){
 			changePlayer(!onPlayerOne);
 		}
+		
+		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
+		if(mouseNode != null && Mouse.isPressed()){
+			pathFinding.setGoal(mouseNode);
+			pathFinding.calculatePath();
+		}
 	}
 	
 	private void changePlayer(boolean one){
@@ -193,6 +202,7 @@ public class GameScreen extends AbstractScreen {
 		renderer.render(batch);
 		if(DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
 		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)) pathFinding.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		
 		frameBuffer.end();
 		
@@ -211,7 +221,6 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-//		b2dr.render(world, worldCamera.combined);
 		
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);

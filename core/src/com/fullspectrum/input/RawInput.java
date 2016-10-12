@@ -120,6 +120,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		Mouse.touchDown(screenX, screenY, button);
 		for(InputProcessor input : inputProcessors){
 			input.touchDown(screenX, screenY, pointer, button);
 		}
@@ -128,6 +129,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		Mouse.touchUp(screenX, screenY, button);
 		for(InputProcessor input : inputProcessors){
 			input.touchUp(screenX, screenY, pointer, button);
 		}
@@ -136,6 +138,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		Mouse.touchDragged(screenX, screenY);
 		for(InputProcessor input : inputProcessors){
 			input.touchDragged(screenX, screenY, pointer);
 		}
@@ -144,6 +147,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
+		Mouse.mouseMoved(screenX, screenY);
 		for(InputProcessor input : inputProcessors){
 			input.mouseMoved(screenX, screenY);
 		}

@@ -3,7 +3,7 @@ package com.fullspectrum.game;
 public class GameVars {
 
 	// Scale
-	public final static int UPSCALE = 2;
+	public final static int UPSCALE = 4;
 	public final static float PPM = 16;
 	public final static float PPM_INV = 1.0f / PPM;
 

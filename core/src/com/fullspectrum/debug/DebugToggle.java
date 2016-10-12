@@ -4,7 +4,9 @@ public enum DebugToggle {
 
 	FPS('p'),
 	SHOW_NAVMESH('l'),
-	SHOW_PATH('k');
+	SHOW_PATH('k'),
+	SHOW_HITBOXES('m'),
+	SHOW_COMMANDS(';');
 	
 	private final char character;
 	
