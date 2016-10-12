@@ -46,6 +46,10 @@ public class PathFinder {
 		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
 	}
 	
+	public void setStart(Node start){
+		this.start = start;
+	}
+	
 	public void setGoal(Node goal){
 		this.goal = goal;
 	}

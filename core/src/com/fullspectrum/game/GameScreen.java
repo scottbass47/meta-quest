@@ -148,8 +148,6 @@ public class GameScreen extends AbstractScreen {
 		engine.addEntity(cameraEntity);
 		
 		changePlayer(true);
-		GameVars.resize(1, worldCamera);
-		resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 	}
 	
 	public void resetFrameBuffer(int width, int height){
@@ -177,7 +175,10 @@ public class GameScreen extends AbstractScreen {
 		
 		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-		if(mouseNode != null && Mouse.isPressed()){
+		if(mouseNode != null){
+			if(Mouse.isPressed()){
+				pathFinding.setStart(mouseNode);
+			}
 			pathFinding.setGoal(mouseNode);
 			pathFinding.calculatePath();
 		}
