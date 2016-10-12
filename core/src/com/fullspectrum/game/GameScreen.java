@@ -28,6 +28,7 @@ import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
@@ -80,6 +81,7 @@ public class GameScreen extends AbstractScreen {
 	// Rendering
 	private FrameBuffer frameBuffer;
 	private ShaderProgram mellowShader;
+	private int previousZoom = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -142,11 +144,18 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMinY = 0f;
 		cameraComp.windowMaxX = 2f;
 		cameraComp.windowMaxY = 0f;
-		cameraComp.camera.zoom = 1f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
 		
 		changePlayer(true);
+		GameVars.resize(1, worldCamera);
+		resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+	}
+	
+	public void resetFrameBuffer(int width, int height){
+		frameBuffer.dispose();
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGB888, width, height, false);
+		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 	}
 
 	@Override
@@ -171,6 +180,12 @@ public class GameScreen extends AbstractScreen {
 		if(mouseNode != null && Mouse.isPressed()){
 			pathFinding.setGoal(mouseNode);
 			pathFinding.calculatePath();
+		}
+		
+		if(DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom){
+			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
+			GameVars.resize(1 << previousZoom, worldCamera);
+			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
 	}
 	

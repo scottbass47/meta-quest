@@ -44,7 +44,7 @@ public class DebugInput {
 		}
 		DebugCycle cycle = DebugCycle.getCycle(character);
 		if(cycle != null){
-			if(cycles.get(cycle) >= cycle.getNumCycles() + 1) cycles.put(cycle, 0);
+			if(cycles.get(cycle) >= cycle.getNumCycles() - 1) cycles.put(cycle, 0);
 			else cycles.put(cycle, cycles.get(cycle) + 1);
 			return;
 		}

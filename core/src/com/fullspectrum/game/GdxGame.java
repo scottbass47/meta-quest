@@ -1,9 +1,9 @@
 package com.fullspectrum.game;
 
-import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
-import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
+import static com.fullspectrum.game.GameVars.PPM_INV;
+import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -50,7 +50,8 @@ public class GdxGame extends Game {
 	public void create() {
 		batch = new SpriteBatch();
 		worldCamera = new OrthographicCamera();
-		worldViewport = new FitViewport(R_WORLD_WIDTH , R_WORLD_HEIGHT, worldCamera);
+		worldViewport = new FitViewport(SCREEN_WIDTH * PPM_INV, SCREEN_HEIGHT * PPM_INV, worldCamera);
+		worldCamera.zoom = 1.0f / UPSCALE;
 		hudCamera = new OrthographicCamera();
 		hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
 		font = new BitmapFont();

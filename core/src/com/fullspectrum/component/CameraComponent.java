@@ -28,7 +28,6 @@ public class CameraComponent implements Component{
 	public Entity toFollow;
 	
 	public CameraComponent(OrthographicCamera camera, Entity toFollow){
-		camera.zoom = 1f;
 		this.camera = camera;
 		this.toFollow = toFollow;
 	}
