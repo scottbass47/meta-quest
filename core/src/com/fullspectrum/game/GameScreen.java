@@ -24,7 +24,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
-import com.fullspectrum.ai.Dijkstra;
+import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
@@ -65,7 +65,7 @@ public class GameScreen extends AbstractScreen {
 	private Entity cameraEntity;
 	private boolean onPlayerOne = true;
 	private NavMesh playerMesh;
-	private Dijkstra pathFinding;
+	private PathFinder pathFinding;
 
 	// Tile Map
 	private Level level;
@@ -124,7 +124,8 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/TestMap2.tmx");
 		playerMesh = NavMesh.createNavMesh(playerOne, level, PlayerStates.RUNNING, PlayerStates.JUMPING);
 		
-		pathFinding = new Dijkstra(playerMesh, 8, 64, 28, 4);
+		pathFinding = new PathFinder(playerMesh, 8, 64, 28, 4);
+//		pathFinding = new PathFinder(playerMesh, 8, 64, 8, 62);
 		
 		// Setup Camera
 		cameraEntity = new Entity();

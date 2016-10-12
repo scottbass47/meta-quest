@@ -7,6 +7,7 @@ import java.util.Comparator;
 import java.util.PriorityQueue;
 import java.util.TreeSet;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -18,7 +19,7 @@ import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Point2f;
 
-public class Dijkstra {
+public class PathFinder {
 	
 	// Debug Render
 	private ShapeRenderer sRender;
@@ -30,7 +31,7 @@ public class Dijkstra {
 	private Node current;
 	private Array<NavLink> path;
 	
-	public Dijkstra(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
+	public PathFinder(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
 		sRender = new ShapeRenderer();
 		start = navMesh.getNodeMap().get(new Point(startRow, startCol));
 		goal = navMesh.getNodeMap().get(new Point(goalRow, goalCol));
@@ -43,7 +44,7 @@ public class Dijkstra {
 		calculatePath();
 	}
 	
-	public Dijkstra(NavMesh navMesh, Node start, Node goal){
+	public PathFinder(NavMesh navMesh, Node start, Node goal){
 		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
 	}
 	
@@ -91,6 +92,7 @@ public class Dijkstra {
 	}
 	
 	private void calculatePath(){
+//		long startTime = System.nanoTime();
 		path.clear();
 		Array<Node> visitedNodes = new Array<Node>();
 		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
@@ -105,9 +107,6 @@ public class Dijkstra {
 		while(uncheckedLinks.size() > 0){
 			System.out.println(uncheckedLinks);
 			NavLink link = uncheckedLinks.pollFirst();
-			if(link.toNode.getRow() == 10 && link.toNode.getCol() == 19){
-				System.out.println("break");
-			}
 			if(link.toNode.equals(goal)){
 				// Reached the goal, backtrack and create path
 				while(!link.fromNode.equals(start)){
@@ -117,6 +116,7 @@ public class Dijkstra {
 				}
 				path.add(link);
 				path.reverse();
+//				System.out.println("Time: " + ((System.nanoTime() - startTime) / 1000000000d));
 				return;
 			}
 			visitedNodes.add(link.fromNode);
@@ -130,6 +130,10 @@ public class Dijkstra {
 			}
 		}
 		
+	}
+	
+	public int getManhattanDistance(Node node1, Node node2){
+		return Math.abs(node1.getRow() - node2.getRow()) + Math.abs(node1.getCol() - node2.getCol());
 	}
 	
 }
