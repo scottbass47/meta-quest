@@ -1,0 +1,14 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody"
+  },
+  Default: {
+    "Fixtures": [
+        {
+          "shape": "Box",
+          "width": 22,
+          "height": 40
+        }
+    ]
+  }
+}

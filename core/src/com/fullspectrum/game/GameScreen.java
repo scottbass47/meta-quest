@@ -32,7 +32,8 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
-import com.fullspectrum.fsm.PlayerStates;
+import com.fullspectrum.entity.EntityStates;
+import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
@@ -128,7 +129,7 @@ public class GameScreen extends AbstractScreen {
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
 		level.loadMap("map/TestMap2.tmx");
-		playerMesh = NavMesh.createNavMesh(playerOne, level, PlayerStates.RUNNING, PlayerStates.JUMPING);
+		playerMesh = NavMesh.createNavMesh(playerOne, level, EntityStates.RUNNING, EntityStates.JUMPING);
 		
 		pathFinding = new PathFinder(playerMesh, 8, 64, 28, 4);
 //		pathFinding = new PathFinder(playerMesh, 8, 64, 8, 62);
@@ -271,6 +272,6 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.dispose();
 		mellowShader.dispose();
 		frameBuffer.dispose();
-		// player.dispose();
+		PlayerAssets.dispose();
 	}
 }

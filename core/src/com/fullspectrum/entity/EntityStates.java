@@ -1,7 +1,9 @@
-package com.fullspectrum.fsm;
+package com.fullspectrum.entity;
 
+import com.fullspectrum.fsm.State;
 
-public enum PlayerStates implements State{
+public enum EntityStates implements State{
+
 	IDLING,
 	RANDOM_IDLING,
 	RUNNING,
@@ -29,5 +31,5 @@ public enum PlayerStates implements State{
 	public String getName() {
 		return name();
 	}
-
+	
 }

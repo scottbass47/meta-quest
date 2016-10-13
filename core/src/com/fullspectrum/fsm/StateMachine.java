@@ -187,9 +187,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();
 			Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator();
-			if (entry.key.equals(PlayerStates.FALLING)) {
-				System.out.print("");
-			}
 			while (iterator.hasNext()) {
 				Entry<TransitionObject, State> transition = iterator.next();
 				String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";

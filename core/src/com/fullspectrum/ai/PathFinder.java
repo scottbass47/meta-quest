@@ -4,6 +4,8 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.awt.Point;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.TreeSet;
 
 import com.badlogic.gdx.graphics.Color;
@@ -100,11 +102,11 @@ public class PathFinder {
 	public void calculatePath(){
 //		long startTime = System.nanoTime();
 		path.clear();
-		Array<Node> visitedNodes = new Array<Node>();
+		Set<Node> visitedNodes = new HashSet<Node>();
 		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
 			@Override
 			public int compare(NavLink linkOne, NavLink linkTwo) {
-				return linkOne.cost > linkTwo.cost ? 1 : -11;
+				return linkOne.cost > linkTwo.cost ? 1 : -1;
 			}
 		});
 		for(NavLink link : start.getLinks()){
@@ -127,7 +129,7 @@ public class PathFinder {
 			}
 			visitedNodes.add(link.fromNode);
 			for(NavLink newLink : link.toNode.getLinks()){
-				if(visitedNodes.contains(newLink.toNode, false)) 
+				if(visitedNodes.contains(newLink.toNode)) 
 					continue;
 				if(newLink.getParent() == null || newLink.cost < newLink.getParent().cost){
 					newLink.setParent(link);

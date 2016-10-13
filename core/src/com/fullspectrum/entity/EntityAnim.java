@@ -1,8 +1,9 @@
-package com.fullspectrum.entity.player;
+package com.fullspectrum.entity;
 
 import com.fullspectrum.fsm.State;
 
-public enum PlayerAnim implements State{
+public enum EntityAnim implements State{
+
 	IDLE,
 	RANDOM_IDLE,
 	RUNNING,
@@ -25,4 +26,5 @@ public enum PlayerAnim implements State{
 	public String getName() {
 		return name();
 	}
+	
 }
