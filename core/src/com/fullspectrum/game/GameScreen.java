@@ -24,6 +24,7 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
+import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
@@ -54,8 +55,10 @@ import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.FacingSystem;
+import com.fullspectrum.systems.FollowingSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
+import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.VelocitySystem;
@@ -76,7 +79,7 @@ public class GameScreen extends AbstractScreen {
 	private Entity cameraEntity;
 	private boolean onPlayerOne = true;
 	private NavMesh playerMesh;
-	private PathFinder pathFinding;
+	private PathFinder pathFinder;
 
 	// Tile Map
 	private Level level;
@@ -112,6 +115,9 @@ public class GameScreen extends AbstractScreen {
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 		
+		engine.addSystem(new FollowingSystem());
+		engine.addSystem(new PathFollowingSystem());
+		
 		// Transition Systems
 		engine.addSystem(RandomTransition.getInstance());
 		engine.addSystem(AnimationFinishedTransition.getInstance());
@@ -136,19 +142,21 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
 		
-		playerOne = EntityFactory.createPlayer(input, world, 10.0f, 10.0f);
-		playerTwo = EntityFactory.createPlayer(input, world, 10.0f, 13.0f);
+		AIController controller = new AIController();
+		
+		playerOne = EntityFactory.createPlayer(input, world, 0, 13.0f);
 		engine.addEntity(playerOne);
-		engine.addEntity(playerTwo);
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
-		level.loadMap("map/TestMap2.tmx");
+		level.loadMap("map/ArenaMapv1.tmx");
 		playerMesh = NavMesh.createNavMesh(playerOne, level, EntityStates.RUNNING, EntityStates.JUMPING);
 		
-		pathFinding = new PathFinder(playerMesh, 8, 64, 28, 4);
+		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
 //		pathFinding = new PathFinder(playerMesh, 8, 64, 8, 62);
+		playerTwo = EntityFactory.createAIPlayer(controller, pathFinder, playerOne, world, 78, 13.0f);
+		engine.addEntity(playerTwo);
 		
 		// Setup Camera
 		cameraEntity = new Entity();
@@ -190,15 +198,15 @@ public class GameScreen extends AbstractScreen {
 			changePlayer(!onPlayerOne);
 		}
 		
-		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-		if(mouseNode != null){
-			if(Mouse.isPressed()){
-				pathFinding.setStart(mouseNode);
-			}
-			pathFinding.setGoal(mouseNode);
-			pathFinding.calculatePath();
-		}
+//		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+//		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
+//		if(mouseNode != null){
+//			if(Mouse.isPressed()){
+//				pathFinder.setStart(mouseNode);
+//			}
+//			pathFinder.setGoal(mouseNode);
+//			pathFinder.calculatePath();
+//		}
 		
 		if(DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom){
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
@@ -234,7 +242,7 @@ public class GameScreen extends AbstractScreen {
 		level.render();
 		renderer.render(batch);
 		if(DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)) pathFinding.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)) pathFinder.render(batch);
 		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		
 		frameBuffer.end();

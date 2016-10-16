@@ -26,5 +26,8 @@ public class Mappers {
 	public static final ComponentMapper<JumpComponent> jump = ComponentMapper.getFor(JumpComponent.class);
 	public static final ComponentMapper<CameraComponent> camera = ComponentMapper.getFor(CameraComponent.class);
 	public static final ComponentMapper<WorldComponent> world = ComponentMapper.getFor(WorldComponent.class);
+	public static final ComponentMapper<PathComponent> path = ComponentMapper.getFor(PathComponent.class);
+	public static final ComponentMapper<FollowComponent> follow = ComponentMapper.getFor(FollowComponent.class);
+	public static final ComponentMapper<AIControllerComponent> aiController = ComponentMapper.getFor(AIControllerComponent.class);
 	
 }

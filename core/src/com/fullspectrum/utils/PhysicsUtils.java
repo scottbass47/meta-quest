@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.CircleShape;
+import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
@@ -116,6 +117,39 @@ public class PhysicsUtils {
 	private static void loadFixture(JsonValue root, Body body){
 		FixtureDef fdef = loadFixture(root);
 		body.createFixture(fdef);
+	}
+	
+	public static Rectangle getAABB(Body body){
+		float maxX = 0, maxY = 0, minX = 0, minY = 0;
+		for(Fixture fixture : body.getFixtureList()){
+			Type type = fixture.getShape().getType();
+			switch(type){
+			case Circle:
+				CircleShape circleShape = (CircleShape)fixture.getShape();
+				Vector2 position = circleShape.getPosition();
+				float radius = circleShape.getRadius();
+				if(position.x - radius < minX) minX = position.x - radius;
+				if(position.y - radius < minY) minY = position.y - radius;
+				if(position.x + radius > maxX) maxX = position.x + radius;
+				if(position.y + radius > maxY) maxY = position.y + radius;
+				break;
+			case Polygon:
+				PolygonShape boxShape = (PolygonShape)fixture.getShape();
+				for(int i = 0; i < boxShape.getVertexCount(); i++){
+					Vector2 vertex = new Vector2();
+					boxShape.getVertex(i, vertex);
+					if(vertex.x < minX) minX = vertex.x;
+					if(vertex.y < minY) minY = vertex.y;
+					if(vertex.x > maxX) maxX = vertex.x;
+					if(vertex.y > maxY) maxY = vertex.y;
+				}
+				break;
+			default:
+				Gdx.app.error("ERROR", " - invalid shape type for calculating AABB.");
+				break;
+			}
+		}
+		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
 	public static Rectangle getAABB(EntityFixtures fixtures){

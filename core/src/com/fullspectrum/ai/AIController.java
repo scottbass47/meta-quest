@@ -14,6 +14,7 @@ public class AIController implements Input{
 		pressed = new ArrayMap<Actions, Boolean>();
 		justPressed = new ArrayMap<Actions, Boolean>();
 		actionValues = new ArrayMap<Actions, Float>();
+		releaseAll();
 	}
 	
 	public void press(Actions action){
@@ -39,6 +40,14 @@ public class AIController implements Input{
 		justPressed.put(action, false);
 		actionValues.put(action, 0.0f);
 	}
+	
+	public void releaseAll(){
+		for(Actions action : Actions.values()){
+			pressed.put(action, false);
+			justPressed.put(action, false);
+			actionValues.put(action, 0.0f);
+		}
+	}
 
 	@Override
 	public boolean isJustPressed(Actions action) {
@@ -52,7 +61,7 @@ public class AIController implements Input{
 
 	@Override
 	public Float getValue(Actions action) {
-		return pressed.get(action) || justPressed.get(action) ? 1.0f : 0.0f;
+		return actionValues.get(action);
 	}
 
 }

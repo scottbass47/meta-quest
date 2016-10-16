@@ -48,13 +48,6 @@ public class PathFinder {
 		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
 	}
 	
-	public void setStart(Node start){
-		this.start = start;
-	}
-	
-	public void setGoal(Node goal){
-		this.goal = goal;
-	}
 	
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
@@ -117,7 +110,7 @@ public class PathFinder {
 			NavLink link = uncheckedLinks.pollFirst();
 			if(link.toNode.equals(goal)){
 				// Reached the goal, backtrack and create path
-				while(!link.fromNode.equals(start)){
+ 				while(!link.fromNode.equals(start)){
 //					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
 					path.add(link);
 					link = link.getParent();
@@ -144,4 +137,43 @@ public class PathFinder {
 		return Math.abs(node1.getRow() - node2.getRow()) + Math.abs(node1.getCol() - node2.getCol());
 	}
 	
+	public void setStart(Node start){
+		this.start = start;
+	}
+	
+	public void setGoal(Node goal){
+		this.goal = goal;
+	}
+	
+	public Array<NavLink> getPath(){
+		return path;
+	}
+
+	public NavMesh getNavMesh(){
+		return navMesh;
+	}
+	
+	public boolean onPath(Node node){
+		for(NavLink link : path){
+			if(link.toNode.equals(node) || link.fromNode.equals(node)) return true;
+		}
+		return false;
+	}
+	
+	public NavLink getNextLink(Node node){
+		if(node == null) return null;
+		if(!node.equals(current)) current = node;
+		for(NavLink link : path){
+			if(link.fromNode.equals(node)) return link;
+		}
+		return null;
+	}
+	
+	public NavLink getCurrentLink(){
+		return getNextLink(current);
+	}
+	
+	public boolean atGoal(Node node){
+		return goal.equals(node);
+	}
 }

@@ -5,19 +5,19 @@ import com.badlogic.gdx.utils.Array;
 public class JumpLink extends NavLink{
 
 	public final Array<Point2f> trajectory;
-	public final float runSpeed;
-	public final float jumpForce;
+	public final float runMultiplier;
+	public final float jumpMultiplier;
 	
-	public JumpLink(Node fromNode, Node toNode, float cost, Array<Point2f> trajectory, float runSpeed, float jumpForce) {
+	public JumpLink(Node fromNode, Node toNode, float cost, Array<Point2f> trajectory, float runMultiplier, float jumpMultiplier) {
 		super(LinkType.JUMP, fromNode, toNode, cost);
 		this.trajectory = trajectory;
-		this.runSpeed = runSpeed;
-		this.jumpForce = jumpForce;
+		this.runMultiplier = runMultiplier;
+		this.jumpMultiplier = jumpMultiplier;
 	}
 
 	@Override
 	public NavLink increaseCost(float amount) {
-		JumpLink link = new JumpLink(fromNode, toNode, cost + amount, trajectory, runSpeed, jumpForce);
+		JumpLink link = new JumpLink(fromNode, toNode, cost + amount, trajectory, runMultiplier, jumpMultiplier);
 		link.fromLink = fromLink;
 		return link;
 	}

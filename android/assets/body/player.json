@@ -6,7 +6,7 @@
     "Fixtures": [
         {
           "shape": "Box",
-          "width": 22,
+          "width": 16,
           "height": 40
         }
     ]
@@ -15,7 +15,16 @@
       "Fixtures": [
         {
           "shape": "Box",
-          "width": 22,
+          "width": 16,
+          "height": 30
+        }
+    ]
+  },
+  Falling: {
+      "Fixtures": [
+        {
+          "shape": "Box",
+          "width": 16,
           "height": 30
         }
     ]

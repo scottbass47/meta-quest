@@ -31,21 +31,21 @@ public class NavMesh {
 	private Array<Node> nodes;
 	private ArrayMap<Point, Node> nodeMap;
 	private Array<Node> edgeNodes;
-	
+
 	// Debug Renderer
 	private ShapeRenderer sRender;
-	
+
 	// Data
 	private Entity entity;
 	private Level level;
-	
+
 	// Jump Stats
 	private float maxSpeed;
 	private float maxJumpForce;
-	
+
 	// Run Stats
 	private float runSpeed;
-	
+
 	// States
 	private EntityState runningState;
 	private EntityState jumpingState;
@@ -53,23 +53,23 @@ public class NavMesh {
 	private NavMesh(Entity entity, Level level, EntityStates running, EntityStates jumping) {
 		this.entity = entity;
 		this.level = level;
-		
+
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
-		
+
 		FSMComponent fsmComp = Mappers.fsm.get(entity);
-		
+
 		assert (fsmComp != null);
-		
+
 		runningState = fsmComp.fsm.getState(running);
 		jumpingState = fsmComp.fsm.getState(jumping);
-		
+
 		maxSpeed = jumpingState.getComponent(SpeedComponent.class).maxSpeed;
 		maxJumpForce = jumpingState.getComponent(JumpComponent.class).maxForce;
 		runSpeed = runningState.getComponent(SpeedComponent.class).maxSpeed;
-		
+
 		createNodes();
 		setupNodeTypes();
 		setupRunConnections();
@@ -172,9 +172,8 @@ public class NavMesh {
 				node.type = NodeType.LEFT_EDGE;
 			else
 				node.type = NodeType.SOLO;
-			
-			if(node.type != NodeType.MIDDLE)
-				edgeNodes.add(node);
+
+			if (node.type != NodeType.MIDDLE) edgeNodes.add(node);
 		}
 	}
 
@@ -200,18 +199,19 @@ public class NavMesh {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
 				if (edgeNode.col - 1 < 0 || !level.isAir(edgeNode.row, edgeNode.col - 1)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
-				}
-				Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
-				fallToNodes.sort(new Comparator<Node>() {
-					@Override
-					public int compare(Node o1, Node o2) {
-						return o1.row < o2.row ? 1 : -1;
+				} else {
+					Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
+					fallToNodes.sort(new Comparator<Node>() {
+						@Override
+						public int compare(Node o1, Node o2) {
+							return o1.row < o2.row ? 1 : -1;
+						}
+					});
+					for (Node fallNode : fallToNodes) {
+						if (fallNode.row > edgeNode.row) continue;
+						edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, edgeNode, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
+						break;
 					}
-				});
-				for (Node fallNode : fallToNodes) {
-					if (fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL, edgeNode, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
-					break;
 				}
 			}
 			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
@@ -238,31 +238,35 @@ public class NavMesh {
 
 		int linksCreated = 0;
 		for (Node edgeNode : edgeNodes) {
-			for(int i = 1; i <= divisions; i++){
-				for(int j = 1; j <= divisions; j++){
+			for (int i = 1; i <= divisions; i++) {
+				for (int j = 1; j <= divisions; j++) {
 					float speed = maxSpeed / i;
 					float jumpForce = maxJumpForce / j;
+					if (edgeNode.type == NodeType.SOLO) {
+						System.out.println();
+					}
 					if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-						JumpData rightJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true);
+						JumpData rightJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true, edgeNode.type);
 						if (rightJump != null) {
-							edgeNode.addLink(new JumpLink(edgeNode, rightJump.toNode, rightJump.time, rightJump.trajectory, speed, jumpForce));
+							edgeNode.addLink(new JumpLink(edgeNode, rightJump.toNode, rightJump.time, rightJump.trajectory, 1.0f / i, 1.0f / j));
 							linksCreated++;
 						}
 					}
 					if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-						JumpData leftJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false);
+						JumpData leftJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false, edgeNode.type);
 						if (leftJump != null) {
-							edgeNode.addLink(new JumpLink(edgeNode, leftJump.toNode, leftJump.time, leftJump.trajectory, speed, jumpForce));
+							edgeNode.addLink(new JumpLink(edgeNode, leftJump.toNode, leftJump.time, leftJump.trajectory, 1.0f / i, 1.0f / j));
 							linksCreated++;
 						}
 					}
 				}
 			}
 		}
+
 		Gdx.app.debug("NavMesh", "Links created - " + linksCreated);
 	}
 
-	private JumpData getTrajectory(int row, int col, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
+	private JumpData getTrajectory(int row, int col, float speed, float jumpForce, Rectangle boundingBox, boolean right, NodeType type) {
 		float interval = 0.0015f;
 		boolean finished = false;
 		Array<Point2f> points = new Array<Point2f>();
@@ -270,13 +274,23 @@ public class NavMesh {
 		float time = 0;
 		while (!finished) {
 			Point2f point = new Point2f(col + 0.5f + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+			Point2f maxPoint = new Point2f(col + 1 + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+			Point2f minPoint = new Point2f(col + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
-			if(!isValidPoint(point.x, point.y, boundingBox)) return null;
+			if (right) {
+				if (!isValidPoint(maxPoint.x, maxPoint.y, boundingBox)/* || !isValidPoint(point.x, point.y, boundingBox)*/) {
+					return null;
+				}
+			} else {
+				if (!isValidPoint(minPoint.x, minPoint.y, boundingBox)/* || !isValidPoint(point.x, point.y, boundingBox)*/) {
+					return null;
+				}
+			}
 			points.add(point);
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
-			Node node = nodeMap.get(new Point((int)point.y, (int)point.x));
+			Node node = nodeMap.get(new Point((int) point.y, (int) point.x));
 			if (node != null) {
 				toNode = node;
 				finished = true;
@@ -284,70 +298,70 @@ public class NavMesh {
 		}
 		return new JumpData(points, time, toNode);
 	}
-	
+
 	// -distance = (1/2) * gravity * t^2
 	// -2distance / gravity = t ^ 2
 	// sqrt(-2distance / gravity) = t
-	private float getFallingCost(float distance){
+	private float getFallingCost(float distance) {
 		float cost = 1.0f / runSpeed;
-		return cost + (float)Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
+		return cost + (float) Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
 	}
-	
-	private boolean isValidPoint(float x, float y, Rectangle boundingBox){
+
+	private boolean isValidPoint(float x, float y, Rectangle boundingBox) {
 		float hw = boundingBox.width * 0.5f;
 		float hh = boundingBox.height * 0.5f;
 		float minX = x - hw;
 		float minY = y - hh;
 		float maxX = x + hw;
 		float maxY = y + hh;
-		
-		for(float row = minY; row < maxY; row++){
-			for(float col = minX; col < maxX; col++){
-				if(!level.inBounds(col, row)) return true;
-				if(!level.isAir((int)row, (int)col)){
+
+		for (int row = (int) minY; row <= (int) maxY; row++) {
+			for (int col = (int) minX; col <= (int) maxX; col++) {
+				if (!level.inBounds(row, col)) return true;
+				if (!level.isAir((int) row, (int) col)) {
 					return false;
 				}
 			}
 		}
 		return true;
 	}
-	
+
 	private static boolean isValidNode(int row, int col, Level level, Rectangle boundingBox) {
 		if (row + 1 > level.getHeight() || !level.tileAt(row, col).isOpen(Side.NORTH)) return false;
 		int tilesTall = (int) (boundingBox.height + 1.0f);
 		for (int i = 1; i <= tilesTall; i++) {
-			if (!level.inBounds(row + i, (int)col)) return true;
+			if (!level.inBounds(row + i, (int) col)) return true;
 			Tile t = level.tileAt(row + i, col);
 			if (!t.isAir()) return false;
 		}
 		return true;
 	}
-	
-	public Node getNodeAt(int row, int col){
+
+	public Node getNodeAt(int row, int col) {
 		return nodeMap.get(new Point(row, col));
 	}
-	
-	public Node getNodeAt(float x, float y){
-		return nodeMap.get(new Point((int)y, (int)x));
+
+	public Node getNodeAt(float x, float y) {
+		return nodeMap.get(new Point((int) y, (int) x));
 	}
-	
-	public Array<Node> getEdgeNodes(){
+
+	public Array<Node> getEdgeNodes() {
 		return edgeNodes;
 	}
-	
-	public Array<Node> getNodes(){
+
+	public Array<Node> getNodes() {
 		return nodes;
 	}
-	
-	public ArrayMap<Point, Node> getNodeMap(){
+
+	public ArrayMap<Point, Node> getNodeMap() {
 		return nodeMap;
 	}
-	
-	public Entity getEntity(){
+
+	public Entity getEntity() {
 		return entity;
 	}
-	
-	public Level getLevel(){
+
+	public Level getLevel() {
 		return level;
 	}
 }
