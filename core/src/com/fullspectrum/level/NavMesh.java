@@ -278,11 +278,11 @@ public class NavMesh {
 			Point2f minPoint = new Point2f(col + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
 			if (right) {
-				if (!isValidPoint(maxPoint.x, maxPoint.y, boundingBox)/* || !isValidPoint(point.x, point.y, boundingBox)*/) {
+				if (!isValidPoint(maxPoint.x, maxPoint.y, boundingBox) || !isValidPoint(point.x, point.y, boundingBox)) {
 					return null;
 				}
 			} else {
-				if (!isValidPoint(minPoint.x, minPoint.y, boundingBox)/* || !isValidPoint(point.x, point.y, boundingBox)*/) {
+				if (!isValidPoint(minPoint.x, minPoint.y, boundingBox) || !isValidPoint(point.x, point.y, boundingBox)) {
 					return null;
 				}
 			}

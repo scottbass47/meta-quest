@@ -144,18 +144,18 @@ public class GameScreen extends AbstractScreen {
 		
 		AIController controller = new AIController();
 		
-		playerOne = EntityFactory.createPlayer(input, world, 0, 13.0f);
+		playerOne = EntityFactory.createPlayer(input, world, 10.0f, 10.f);
 		engine.addEntity(playerOne);
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
-		level.loadMap("map/ArenaMapv1.tmx");
+		level.loadMap("map/TestMap2.tmx");
 		playerMesh = NavMesh.createNavMesh(playerOne, level, EntityStates.RUNNING, EntityStates.JUMPING);
 		
-		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
-//		pathFinding = new PathFinder(playerMesh, 8, 64, 8, 62);
-		playerTwo = EntityFactory.createAIPlayer(controller, pathFinder, playerOne, world, 78, 13.0f);
+//		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
+		pathFinder = new PathFinder(playerMesh, 8, 64, 8, 62);
+		playerTwo = EntityFactory.createAIPlayer(controller, pathFinder, playerOne, world, 10.0f, 13.0f);
 		engine.addEntity(playerTwo);
 		
 		// Setup Camera
