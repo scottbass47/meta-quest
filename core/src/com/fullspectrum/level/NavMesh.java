@@ -18,8 +18,8 @@ import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
+import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.fsm.EntityState;
-import com.fullspectrum.fsm.State;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
@@ -50,7 +50,7 @@ public class NavMesh {
 	private EntityState runningState;
 	private EntityState jumpingState;
 
-	private NavMesh(Entity entity, Level level, State running, State jumping) {
+	private NavMesh(Entity entity, Level level, EntityStates running, EntityStates jumping) {
 		this.entity = entity;
 		this.level = level;
 		
@@ -66,9 +66,9 @@ public class NavMesh {
 		runningState = fsmComp.fsm.getState(running);
 		jumpingState = fsmComp.fsm.getState(jumping);
 		
-		maxSpeed = jumpingState.getComponent(SpeedComponent.class).speed;
-		maxJumpForce = jumpingState.getComponent(JumpComponent.class).force;
-		runSpeed = runningState.getComponent(SpeedComponent.class).speed;
+		maxSpeed = jumpingState.getComponent(SpeedComponent.class).maxSpeed;
+		maxJumpForce = jumpingState.getComponent(JumpComponent.class).maxForce;
+		runSpeed = runningState.getComponent(SpeedComponent.class).maxSpeed;
 		
 		createNodes();
 		setupNodeTypes();
@@ -77,7 +77,7 @@ public class NavMesh {
 		setupJumpConnections();
 	}
 
-	public static NavMesh createNavMesh(Entity entity, Level level, State runningState, State jumpingState) {
+	public static NavMesh createNavMesh(Entity entity, Level level, EntityStates runningState, EntityStates jumpingState) {
 		return new NavMesh(entity, level, runningState, jumpingState);
 	}
 

@@ -21,6 +21,8 @@ public class StateMachine<S extends State, E extends StateObject> {
 	protected S initialState;
 	protected Entity entity;
 	private StateCreator<E> creator;
+	private Class<S> stateClazz;
+	private Class<E> stateObjectClazz;
 
 	// Bits
 	private Builder builder = new Builder();
@@ -30,9 +32,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 	// Debug
 	private String debugName;
 
-	public StateMachine(Entity entity, StateCreator<E> creator) {
+	public StateMachine(Entity entity, StateCreator<E> creator, Class<S> stateClazz, Class<E> stateObjectClazz) {
 		this.entity = entity;
 		this.creator = creator;
+		this.stateClazz = stateClazz;
+		this.stateObjectClazz = stateObjectClazz;
 		substateMachines = new ArrayMap<E, StateMachine<? extends State, ? extends StateObject>>();
 		states = new ArrayMap<S, E>();
 	}
@@ -53,6 +57,15 @@ public class StateMachine<S extends State, E extends StateObject> {
 		return state;
 	}
 	
+	public void disableState(S state){
+		if(currentState == states.get(state)) return;
+		states.get(state).disable();
+	}
+	
+	public void enableState(S state){
+		states.get(state).enable();
+	}
+	
 	public void reset(){
 		currentState = states.get(initialState);
 	}
@@ -61,8 +74,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 		return currentState;
 	}
 	
-	public E getState(S state){
-		return states.get(state);
+	@SuppressWarnings("unchecked")
+	public E getState(State state){
+		if(!stateClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
+		return states.get((S)state);
 	}
 
 	public Entity getEntity(){
@@ -71,10 +86,13 @@ public class StateMachine<S extends State, E extends StateObject> {
 	
 	@SuppressWarnings("unchecked")
 	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine){
+		if(!stateObjectClazz.isInstance(state))
+			throw new IllegalArgumentException("Incorrect state type.");
 		substateMachines.put((E)state, machine);
 	}
 	
 	public void changeState(State identifier) {
+		if(!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
 		@SuppressWarnings("unchecked")
 		E newState = states.get((S)identifier);
 		if(newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
@@ -243,4 +261,5 @@ public class StateMachine<S extends State, E extends StateObject> {
 			return bits;
 		}
 	}
+
 }

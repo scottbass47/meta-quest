@@ -8,7 +8,7 @@ public class AnimationStateMachine extends StateMachine<State, StateObject>{
 	protected float time = 0.0f;
 
 	public AnimationStateMachine(Entity entity, StateCreator<StateObject> creator) {
-		super(entity, creator);
+		super(entity, creator, State.class, StateObject.class);
 	}
 	
 	@Override

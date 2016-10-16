@@ -17,8 +17,6 @@ public abstract class AbstractScreen extends ScreenAdapter {
 	protected GameInput input;
 	private ArrayMap<ScreenState, Screen> screens;
 	private float lag = 0;
-//	private int ups = 0;
-//	private float seconds = 0;
 	
 	public AbstractScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input){
 		this.worldCamera = worldCamera;
@@ -35,19 +33,12 @@ public abstract class AbstractScreen extends ScreenAdapter {
 	
 	@Override
 	public void render(float delta) {
-//		seconds += delta;
 		lag += delta;
 		while(lag > (1.0f / GdxGame.UPS)){
-//			ups++;
 			update(1.0f / GdxGame.UPS);
 			lag -= 1.0f / GdxGame.UPS;
 			input.update();
 		}
-//		if(seconds > 1.0f){
-//			System.out.println(ups);
-//			ups = 0;
-//			seconds -= 1.0f;
-//		}
 		render();
 	}
 	

@@ -18,6 +18,7 @@ public class StateObject{
 	private Array<TransitionTag> tags;
 	protected Entity entity;
 	protected StateMachine<? extends State, ? extends StateObject> machine;
+	private boolean enabled = true;
 
 	// Bits
 	protected Bits bits;
@@ -67,7 +68,7 @@ public class StateObject{
 		Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator();
 		while (iter.hasNext()) {
 			Entry<TransitionObject, State> entry = iter.next();
-			if (entry.key.transition.equals(transition)) {
+			if (entry.key.transition.equals(transition) && machine.getState(entry.value).isEnabled()) {
 				ret.add(entry.key);
 			}
 		}
@@ -78,7 +79,7 @@ public class StateObject{
 		Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator();
 		while (iter.hasNext()) {
 			Entry<TransitionObject, State> entry = iter.next();
-			if (entry.key.transition.equals(transition)) {
+			if (entry.key.transition.equals(transition) && machine.getState(entry.value).isEnabled()) {
 				return entry.key;
 			}
 		}
@@ -95,6 +96,18 @@ public class StateObject{
 
 	public Array<Transition> getTransitions() {
 		return transitions;
+	}
+	
+	public boolean isEnabled(){
+		return enabled;
+	}
+	
+	public void disable(){
+		enabled = false;
+	}
+	
+	public void enable(){
+		enabled = true;
 	}
 	
 	@Override

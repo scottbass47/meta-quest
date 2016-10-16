@@ -32,7 +32,7 @@ public class InputTransition extends TransitionSystem {
 				if (itd == null) continue;
 				if (checkInput(itd, inputComp.input)) {
 					itd.reset();
-					String debug = itd.pressed ? "Pressed" : "Released";
+//					String debug = itd.pressed ? "Pressed" : "Released";
 //					System.out.println(machine + "-> Input " + debug);
 					machine.changeState(machine.getCurrentState().getState(obj));
 					break;

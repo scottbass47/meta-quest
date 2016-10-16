@@ -8,23 +8,36 @@ public class AIController implements Input{
 	
 	private ArrayMap<Actions, Boolean> pressed;
 	private ArrayMap<Actions, Boolean> justPressed;
+	private ArrayMap<Actions, Float> actionValues;
 	
 	public AIController(){
 		pressed = new ArrayMap<Actions, Boolean>();
 		justPressed = new ArrayMap<Actions, Boolean>();
+		actionValues = new ArrayMap<Actions, Float>();
 	}
 	
 	public void press(Actions action){
-		pressed.put(action, true);
+		press(action, 1.0f);
 	}
 	
 	public void justPress(Actions action){
+		justPress(action, 1.0f);
+	}
+	
+	public void press(Actions action, float amount){
+		pressed.put(action, true);
+		actionValues.put(action, amount);
+	}
+	
+	public void justPress(Actions action, float amount){
 		justPressed.put(action, true);
+		actionValues.put(action, amount);
 	}
 	
 	public void release(Actions action){
 		pressed.put(action, false);
 		justPressed.put(action, false);
+		actionValues.put(action, 0.0f);
 	}
 
 	@Override

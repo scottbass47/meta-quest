@@ -130,6 +130,7 @@ public class EntityFactory {
 
 //		System.out.print(fsm.printTransitions());
 
+//		fsm.disableState(EntityStates.DIVING);
 		fsm.changeState(EntityStates.IDLING);
 
 		player.add(new FSMComponent(fsm));

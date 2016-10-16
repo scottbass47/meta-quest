@@ -21,7 +21,7 @@ public class VelocitySystem extends IteratingSystem{
 		SpeedComponent speedComp = Mappers.speed.get(entity);
 		VelocityComponent velocityComp = Mappers.velocity.get(entity);
 		
-		velocityComp.x = speedComp.speed * directionComp.direction.getDirection();
+		velocityComp.x = speedComp.maxSpeed * speedComp.multiplier * directionComp.direction.getDirection();
 	}
 	
 }

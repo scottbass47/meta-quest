@@ -12,16 +12,17 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.utils.PhysicsUtils;
 
-public class EntityStateMachine extends StateMachine<State, EntityState> {
+public class EntityStateMachine extends StateMachine<EntityStates, EntityState> {
 
 	// Physics
 	private String bodyPath;
 	
 	public EntityStateMachine(Entity entity, String bodyPath) {
-		super(entity, new EntityStateCreator());
-		this.states = new ArrayMap<State, EntityState>();
+		super(entity, new EntityStateCreator(), EntityStates.class, EntityState.class);
+		this.states = new ArrayMap<EntityStates, EntityState>();
 		this.bodyPath = bodyPath;
 		
 		// Setup Physics
@@ -33,7 +34,7 @@ public class EntityStateMachine extends StateMachine<State, EntityState> {
 	}
 	
 	@Override
-	public EntityState createState(State key) {
+	public EntityState createState(EntityStates key) {
 		EntityState state = super.createState(key);
 		state.fixtures = PhysicsUtils.getEntityFixtures(Gdx.files.internal(bodyPath), key);
 		return state;
@@ -41,18 +42,25 @@ public class EntityStateMachine extends StateMachine<State, EntityState> {
 	
 	@Override
 	public void changeState(State identifier) {
+		if(!(identifier instanceof EntityStates)) throw new IllegalArgumentException("Invalid input. Must be of type EntityStates.");
 		EntityState currState = currentState;
 		super.changeState(identifier);
-		EntityState newState = states.get(identifier);
+		EntityStates state = (EntityStates)identifier;
+		EntityState newState = states.get(state);
 		if (newState == currState) return;
 		if (currState != null) {
 			for (Component c : currState.getComponents()) {
 				entity.remove(c.getClass());
 			}
+			states.getKey(currState, false).getStateSystem().removeEntity(entity);
 		}
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
+		if(states.getKey(newState, false) == EntityStates.RUNNING){
+			System.out.println();
+		}
+		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){
 			changeBody(newState);
 			return;
