@@ -274,18 +274,18 @@ public class NavMesh {
 		float time = 0;
 		while (!finished) {
 			Point2f point = new Point2f(col + 0.5f + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
-			Point2f maxPoint = new Point2f(col + 1 + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
-			Point2f minPoint = new Point2f(col + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+//			Point2f maxPoint = new Point2f(col + 1 + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+//			Point2f minPoint = new Point2f(col + speed * time * (right ? 1.0f : -1.0f), row + boundingBox.height * 0.5f + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
-			if (right) {
-				if (!isValidPoint(maxPoint.x, maxPoint.y, boundingBox) || !isValidPoint(point.x, point.y, boundingBox)) {
+//			if (right) {
+				if (/*!isValidPoint(maxPoint.x, maxPoint.y, boundingBox) || */!isValidPoint(point.x, point.y, boundingBox)) {
 					return null;
 				}
-			} else {
-				if (!isValidPoint(minPoint.x, minPoint.y, boundingBox) || !isValidPoint(point.x, point.y, boundingBox)) {
-					return null;
-				}
-			}
+//			} else {
+//				if (/*!isValidPoint(minPoint.x, minPoint.y, boundingBox) || */!isValidPoint(point.x, point.y, boundingBox)) {
+//					return null;
+//				}
+//			}
 			points.add(point);
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
@@ -318,7 +318,7 @@ public class NavMesh {
 		for (int row = (int) minY; row <= (int) maxY; row++) {
 			for (int col = (int) minX; col <= (int) maxX; col++) {
 				if (!level.inBounds(row, col)) return true;
-				if (!level.isAir((int) row, (int) col)) {
+				if (!level.isAir(row, col)) {
 					return false;
 				}
 			}
