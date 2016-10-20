@@ -90,9 +90,31 @@ public class PathFollowingSystem extends IteratingSystem{
 			else{
 				controller.press(Actions.MOVE_RIGHT, jLink.runMultiplier);
 			}
+			float x = bodyComp.body.getPosition().x;
 			if(currentNode != null){
-				if(right && bodyComp.body.getPosition().x >= currentNode.getCol() + 0.5f ||
-					!right && bodyComp.body.getPosition().x < currentNode.getCol() + 0.5){
+//				boolean shouldJump = false;
+//				if(right){
+//					if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x < currentNode.getCol() + 0.6f){
+//						shouldJump = true;
+//					}
+//					else if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.6f){
+//						controller.releaseAll();
+//						controller.press(Actions.MOVE_LEFT);
+//					}
+//				}
+//				else{
+//					if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x > currentNode.getCol() + 0.4f){
+//						shouldJump = true;
+//					}
+//					else if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.4f){
+//						controller.releaseAll();
+//						controller.press(Actions.MOVE_RIGHT);
+//					}
+//				}
+//				if(shouldJump){
+//					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
+//				}
+				if(right && x >= currentNode.getCol() + 0.5f || !right && x <= currentNode.getCol() + 0.5f){
 					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
 				}
 			}
