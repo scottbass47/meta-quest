@@ -298,6 +298,8 @@ public class NavMesh {
 				float toX = node.col + 0.5f;
 				float toY = node.row + boundingBox.height * 0.5f;
 				
+				if((edgeNode.type == NodeType.RIGHT_EDGE && toX <= fromX) || (edgeNode.type == NodeType.LEFT_EDGE && toX >= fromX)) continue;
+			
 				if(toY - fromY > maxHeight) continue;
 				float tx = Math.abs((toX - fromX) / maxSpeed); // The shortest time it takes to get to this x position
 				float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxSpeed; // x-coordinate of highest point along arc
@@ -307,7 +309,11 @@ public class NavMesh {
 				if(Math.abs(toX - fromX) > maxDistance) continue;
 				toNodes.add(node);
 			}
+			for(Node toNode : toNodes){
+				
+			}
 		}
+		
 
 		Gdx.app.debug("NavMesh", "Links created - " + linksCreated);
 	}
