@@ -248,7 +248,7 @@ public class NavMesh {
 				float totalHeight = height - (GameVars.GRAVITY * 0.5f * tx * tx);
 				if(totalHeight > maxJumpHeight) continue;
 				float jumpForce = (float)Math.sqrt(-2 * GameVars.GRAVITY * totalHeight);
-				float ty = jumpForce / GameVars.GRAVITY;
+				float ty = -jumpForce / GameVars.GRAVITY; // vf = v0 + at (vf = 0 b/c top of jump)
 				edgeNode.addLink(new NavLink(LinkType.JUMP_OVER, new JumpOverData(jumpForce / maxJumpForce), jumpFrom, jumpTo, tx + ty));
 			}
 		}
