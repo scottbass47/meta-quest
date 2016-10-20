@@ -300,8 +300,9 @@ public class NavMesh {
 				
 				if(toY - fromY > maxHeight) continue;
 				float tx = Math.abs((toX - fromX) / maxSpeed); // The shortest time it takes to get to this x position
+				float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxSpeed; // x-coordinate of highest point along arc
 				float maxY = maxJumpForce * tx + 0.5f * GameVars.GRAVITY * tx * tx; // The maximum height you could be at a given time
-				if(maxY < toY) continue;
+				if(maxY < toY && toX > vertexX) continue;
 				
 				if(Math.abs(toX - fromX) > maxDistance) continue;
 				toNodes.add(node);
