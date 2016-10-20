@@ -2,7 +2,7 @@ package com.fullspectrum.level;
 
 import com.badlogic.gdx.utils.Array;
 
-public class JumpData {
+public class JumpData extends LinkData{
 
 	public final Array<Point2f> trajectory;
 	public final float time;

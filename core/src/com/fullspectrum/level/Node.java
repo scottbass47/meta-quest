@@ -1,6 +1,7 @@
 package com.fullspectrum.level;
 
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.level.NavLink.LinkType;
 
 public class Node {
 	
@@ -35,6 +36,21 @@ public class Node {
 	
 	public int getCol(){
 		return col;
+	}
+	
+	public boolean hasLinkType(LinkType type){
+		for(NavLink link : links){
+			if(link.type == type) return true;
+		}
+		return false;
+	}
+	
+	public Array<NavLink> getLinks(LinkType type){
+		Array<NavLink> ret = new Array<NavLink>();
+		for(NavLink link : links){
+			if(link.type == type) ret.add(link);
+		}
+		return ret;
 	}
 	
 	@Override
