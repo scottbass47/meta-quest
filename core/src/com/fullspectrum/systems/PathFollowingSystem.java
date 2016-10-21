@@ -11,7 +11,6 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.input.Actions;
-import com.fullspectrum.level.JumpLink;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -81,43 +80,44 @@ public class PathFollowingSystem extends IteratingSystem{
 			}
 			break;
 		case JUMP:
-			controller.releaseAll();
-			JumpLink jLink = (JumpLink) link;
-			boolean right = link.toNode.getCol() > link.fromNode.getCol();
-			if(!right){
-				controller.press(Actions.MOVE_LEFT, jLink.runMultiplier);
-			}
-			else{
-				controller.press(Actions.MOVE_RIGHT, jLink.runMultiplier);
-			}
-			float x = bodyComp.body.getPosition().x;
-			if(currentNode != null){
-//				boolean shouldJump = false;
-//				if(right){
-//					if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x < currentNode.getCol() + 0.6f){
-//						shouldJump = true;
-//					}
-//					else if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.6f){
-//						controller.releaseAll();
-//						controller.press(Actions.MOVE_LEFT);
-//					}
-//				}
-//				else{
-//					if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x > currentNode.getCol() + 0.4f){
-//						shouldJump = true;
-//					}
-//					else if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.4f){
-//						controller.releaseAll();
-//						controller.press(Actions.MOVE_RIGHT);
-//					}
-//				}
-//				if(shouldJump){
+			break;
+//			controller.releaseAll();
+//			JumpLink jLink = (JumpLink) link;
+//			boolean right = link.toNode.getCol() > link.fromNode.getCol();
+//			if(!right){
+//				controller.press(Actions.MOVE_LEFT, jLink.runMultiplier);
+//			}
+//			else{
+//				controller.press(Actions.MOVE_RIGHT, jLink.runMultiplier);
+//			}
+//			float x = bodyComp.body.getPosition().x;
+//			if(currentNode != null){
+////				boolean shouldJump = false;
+////				if(right){
+////					if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x < currentNode.getCol() + 0.6f){
+////						shouldJump = true;
+////					}
+////					else if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.6f){
+////						controller.releaseAll();
+////						controller.press(Actions.MOVE_LEFT);
+////					}
+////				}
+////				else{
+////					if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x > currentNode.getCol() + 0.4f){
+////						shouldJump = true;
+////					}
+////					else if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.4f){
+////						controller.releaseAll();
+////						controller.press(Actions.MOVE_RIGHT);
+////					}
+////				}
+////				if(shouldJump){
+////					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
+////				}
+//				if(right && x >= currentNode.getCol() + 0.5f || !right && x <= currentNode.getCol() + 0.5f){
 //					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
 //				}
-				if(right && x >= currentNode.getCol() + 0.5f || !right && x <= currentNode.getCol() + 0.5f){
-					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
-				}
-			}
+//			}
 		}
 	}
 	

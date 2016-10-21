@@ -13,7 +13,6 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.level.JumpLink;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -66,12 +65,13 @@ public class PathFinder {
 				sRender.line(link.fromNode.getCol() + 0.5f, link.fromNode.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
 				break;
 			case JUMP:
-				JumpLink jumpLink = (JumpLink) link;
-				for (int i = 0; i < jumpLink.trajectory.size - 1; i++) {
-					Point2f point1 = jumpLink.trajectory.get(i);
-					Point2f point2 = jumpLink.trajectory.get(i + 1);
-					sRender.line(point1.x, point1.y, point2.x, point2.y);
-				}
+				break;
+//				JumpLink jumpLink = (JumpLink) link;
+//				for (int i = 0; i < jumpLink.trajectory.size - 1; i++) {
+//					Point2f point1 = jumpLink.trajectory.get(i);
+//					Point2f point2 = jumpLink.trajectory.get(i + 1);
+//					sRender.line(point1.x, point1.y, point2.x, point2.y);
+//				}
 			default:
 				break;
 			}
