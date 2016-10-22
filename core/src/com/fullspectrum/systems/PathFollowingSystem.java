@@ -8,12 +8,16 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.input.Actions;
+import com.fullspectrum.level.JumpOverData;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
+import com.fullspectrum.level.TrajectoryData;
 
 public class PathFollowingSystem extends IteratingSystem{
 
@@ -37,9 +41,9 @@ public class PathFollowingSystem extends IteratingSystem{
 		// If you're not at a node, do an action based off of the last node you were at.
 		
 		Rectangle aabb = bodyComp.getAABB();
-		Node currentNode = navMesh.getNodeAt(bodyComp.body.getPosition().x, bodyComp.body.getPosition().y + aabb.y);
+		Node currentNode = navMesh.getNearestNode(bodyComp.body, 0.0f, aabb.y);
 		NavLink link = null;
-		if(currentNode == null || bodyComp.body.getLinearVelocity().y != 0){
+		if(currentNode == null){
 			link = pathFinder.getCurrentLink();
 		}
 		else{
@@ -57,21 +61,25 @@ public class PathFollowingSystem extends IteratingSystem{
 			return;
 		}
 		
+		boolean right = link.toNode.getCol() > link.fromNode.getCol();
+		boolean landed = bodyComp.body.getLinearVelocity().y == 0;
+		float x = bodyComp.body.getPosition().x;
+		
 		switch(link.type){
 		case RUN:
 			controller.releaseAll();
-			if(link.toNode.getCol() < link.fromNode.getCol()){
+			if(!right){
 				controller.press(Actions.MOVE_LEFT);
 			}
 			else{
 				controller.press(Actions.MOVE_RIGHT);
 			}
 			break;
-		case FALL:
+		case FALL_OVER:
 			controller.releaseAll();
 			// If you're not falling, then run
-			if(bodyComp.body.getLinearVelocity().y >= 0){
-				if(link.toNode.getCol() < link.fromNode.getCol()){
+			if(landed){
+				if(!right){
 					controller.press(Actions.MOVE_LEFT);
 				}
 				else{
@@ -79,45 +87,67 @@ public class PathFollowingSystem extends IteratingSystem{
 				}
 			}
 			break;
-		case JUMP:
+		case JUMP_OVER:
+			controller.releaseAll();
+			JumpOverData jData = (JumpOverData) link.data;
+			// If you're now falling, then run
+			if(bodyComp.body.getLinearVelocity().y < 0){
+				if(!right){
+					controller.press(Actions.MOVE_LEFT);
+				}
+				else{
+					controller.press(Actions.MOVE_RIGHT);
+				}
+			}else{
+				if(currentNode != null){
+					if (right && x <= currentNode.getCol() + 0.52f || !right && x >= currentNode.getCol() + 0.48f) {
+						controller.justPress(Actions.JUMP, jData.jumpMultiplier);
+					}
+					else{
+						if(right){
+							controller.press(Actions.MOVE_LEFT);
+						}
+						else{
+							controller.press(Actions.MOVE_RIGHT);
+						}
+					}
+				}
+			}
 			break;
-//			controller.releaseAll();
-//			JumpLink jLink = (JumpLink) link;
-//			boolean right = link.toNode.getCol() > link.fromNode.getCol();
-//			if(!right){
-//				controller.press(Actions.MOVE_LEFT, jLink.runMultiplier);
-//			}
-//			else{
-//				controller.press(Actions.MOVE_RIGHT, jLink.runMultiplier);
-//			}
-//			float x = bodyComp.body.getPosition().x;
-//			if(currentNode != null){
-////				boolean shouldJump = false;
-////				if(right){
-////					if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x < currentNode.getCol() + 0.6f){
-////						shouldJump = true;
-////					}
-////					else if(bodyComp.body.getPosition().x >= currentNode.getCol() + 0.6f){
-////						controller.releaseAll();
-////						controller.press(Actions.MOVE_LEFT);
-////					}
-////				}
-////				else{
-////					if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.5f && bodyComp.body.getPosition().x > currentNode.getCol() + 0.4f){
-////						shouldJump = true;
-////					}
-////					else if(bodyComp.body.getPosition().x <= currentNode.getCol() + 0.4f){
-////						controller.releaseAll();
-////						controller.press(Actions.MOVE_RIGHT);
-////					}
-////				}
-////				if(shouldJump){
-////					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
-////				}
-//				if(right && x >= currentNode.getCol() + 0.5f || !right && x <= currentNode.getCol() + 0.5f){
-//					controller.justPress(Actions.JUMP, jLink.jumpMultiplier);
-//				}
-//			}
+		case JUMP:
+			controller.releaseAll();
+			TrajectoryData tData = (TrajectoryData) link.data;
+			if(!right){
+				controller.press(Actions.MOVE_LEFT, tData.speed / navMesh.getMaxSpeed());
+			}
+			else{
+				controller.press(Actions.MOVE_RIGHT, tData.speed / navMesh.getMaxSpeed());
+			}
+			if(currentNode != null){
+				if(right && x >= currentNode.getCol() + 0.5f || !right && x <= currentNode.getCol() + 0.5f){
+					controller.justPress(Actions.JUMP, tData.jumpForce / navMesh.getMaxJumpForce());
+				}
+			}
+			break;
+		case FALL:
+			controller.releaseAll();
+			TrajectoryData fallData = (TrajectoryData)link.data;
+			if(!landed){
+				if(!right){
+					controller.press(Actions.MOVE_LEFT, fallData.speed / navMesh.getMaxSpeed());
+				}
+				else{
+					controller.press(Actions.MOVE_RIGHT, fallData.speed / navMesh.getMaxSpeed());
+				}
+			}else{
+				if(!right){
+					controller.press(Actions.MOVE_LEFT);
+				}
+				else{
+					controller.press(Actions.MOVE_RIGHT);
+				}
+			}
+			break;
 		}
 	}
 	

@@ -115,6 +115,7 @@ public class GameScreen extends AbstractScreen {
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 		
+		// AI Systems
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new PathFollowingSystem());
 		
@@ -197,6 +198,8 @@ public class GameScreen extends AbstractScreen {
 		if(input.isJustPressed(Actions.SELECT)){
 			changePlayer(!onPlayerOne);
 		}
+		
+//		System.out.println(Mappers.body.get(playerTwo).body.getPosition());
 		
 //		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 //		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);

@@ -44,7 +44,14 @@ public class InputTransition extends TransitionSystem {
 	private boolean checkInput(InputTransitionData itd, Input input) {
 		int counter = 0;
 		for (InputTrigger trigger : itd.triggers) {
-			boolean triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.getValue(trigger.action) > GameInput.ANALOG_THRESHOLD;
+			boolean triggered = false;
+			// If its a game input, it must be past the analog threshold to be considered an action
+			if(input instanceof GameInput){
+				triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.getValue(trigger.action) > GameInput.ANALOG_THRESHOLD;
+			}
+			else{
+				triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.isPressed(trigger.action);
+			}
 			triggered = (triggered && itd.pressed) || (!triggered && !itd.pressed);
 			if (triggered && itd.type == InputTransitionData.Type.ANY_ONE) return true;
 			if (triggered) counter++;

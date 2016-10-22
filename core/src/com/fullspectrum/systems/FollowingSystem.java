@@ -28,9 +28,14 @@ public class FollowingSystem extends IteratingSystem{
 		PathFinder pathFinder = pathComp.pathFinder;
 		NavMesh navMesh = pathFinder.getNavMesh();
 		
-		Node myNode = navMesh.getNodeAt(bodyComp.body.getPosition().x, bodyComp.body.getPosition().y + bodyComp.getAABB().y);
-		Node goalNode = navMesh.getNodeAt(otherBody.body.getPosition().x, otherBody.body.getPosition().y + bodyComp.getAABB().y);
+//		Node myNode = navMesh.getNodeAt(bodyComp.body.getPosition().x, bodyComp.body.getPosition().y + bodyComp.getAABB().y);
+//		Node goalNode = navMesh.getNodeAt(otherBody.body.getPosition().x, otherBody.body.getPosition().y + bodyComp.getAABB().y);
+		
+		Node myNode = navMesh.getNearestNode(bodyComp.body, 0.0f, bodyComp.getAABB().y);
+		Node goalNode = navMesh.getNearestNode(otherBody.body, 0.0f, bodyComp.getAABB().y);
+		
 		if(myNode == null || goalNode == null) return;
+		
 		if(pathFinder.atGoal(goalNode)) return;
 		pathFinder.setGoal(goalNode);
 		if(!pathFinder.onPath(myNode)){

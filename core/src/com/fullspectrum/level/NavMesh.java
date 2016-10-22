@@ -12,6 +12,8 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.FSMComponent;
@@ -92,10 +94,12 @@ public class NavMesh {
 			for (NavLink link : node.getLinks()) {
 				switch (link.type) {
 				case RUN:
+//					if(true) break;
 					sRender.setColor(Color.BLUE);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
 				case FALL:
+//					if(true) break;
 					sRender.setColor(Color.CHARTREUSE);
 //					sRender.line(node.col + 0.5f, node.row + 0.5f, node.col + 1.5f, node.row + 0.5f);
 					TrajectoryData fallData = (TrajectoryData) link.data;
@@ -106,6 +110,7 @@ public class NavMesh {
 					}
 					break;
 				case FALL_OVER:
+//					if(true) break;
 					sRender.setColor(Color.GOLD);
 					// sRender.line(node.col + 0.5f, node.row + 0.5f,
 					// link.toNode.col + 0.5f, node.row + 0.5f);
@@ -114,6 +119,7 @@ public class NavMesh {
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
 				case JUMP:
+//					if(true) break;
 					TrajectoryData jumpData = (TrajectoryData) link.data;
 					for (int i = 0; i < jumpData.trajectory.size - 1; i++) {
 						Color color = i < jumpData.trajectory.size / 2 ? Color.SALMON : Color.BLACK;
@@ -124,6 +130,7 @@ public class NavMesh {
 					}
 					break;
 				case JUMP_OVER:
+//					if(true) break;
 					sRender.setColor(Color.BROWN);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, node.col + 0.5f, link.toNode.row + 0.5f);
 					sRender.line(node.col + 0.5f, link.toNode.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
@@ -302,30 +309,26 @@ public class NavMesh {
 //		}
 		
 		for(Node edgeNode : edgeNodes){
-			if(edgeNode.col == 6) {
-				System.out.println("stop");
-			}
 			float fromX = edgeNode.col + 0.5f;
 			float fromY = edgeNode.row + boundingBox.height * 0.5f;
 			
 			float totalTime = (-maxJumpForce - (float)Math.sqrt(maxJumpForce * maxJumpForce - 2 * GameVars.GRAVITY * fromY)) / GameVars.GRAVITY;
 			float maxHeight = getMaxJumpHeight();
 			float maxDistance = totalTime * maxSpeed;
+			float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxSpeed; // x-coordinate of highest point along arc
 			
 			Array<Node> toNodes = new Array<Node>();
 			for(Node node : nodes){
 				float toX = node.col + 0.5f;
 				float toY = node.row + boundingBox.height * 0.5f;
 				
-				if((edgeNode.type == NodeType.RIGHT_EDGE && toX <= fromX) || (edgeNode.type == NodeType.LEFT_EDGE && toX >= fromX) || toX == fromX) continue;
+				if(Math.abs(toX - fromX) > maxDistance || toX == fromX) continue;
 			
 				if(toY - fromY > maxHeight) continue;
 				float tx = Math.abs((toX - fromX) / maxSpeed); // The shortest time it takes to get to this x position
-				float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxSpeed; // x-coordinate of highest point along arc
 				float maxY = maxJumpForce * tx + 0.5f * GameVars.GRAVITY * tx * tx; // The maximum height you could be at a given time
-				if(maxY < toY && toX > vertexX) continue;
+				if(maxY + fromY < toY && toX > vertexX) continue;
 				
-				if(Math.abs(toX - fromX) > maxDistance) continue;
 				toNodes.add(node);
 			}
 			for(Node toNode : toNodes){
@@ -339,41 +342,37 @@ public class NavMesh {
 				float t1 = (float)Math.sqrt((-2 * fromY) / GameVars.GRAVITY);
 				float maxFallDistance = maxSpeed * t1 + 1;
 				if(maxFallDistance < Math.abs(toX - fallX) || toY > fromY || (fallX >= toX && fallRight) || (fallX <= toX && !fallRight)) canFall = false;
+				boolean right = false;
+				boolean left = false;
 				if(canFall){
 					float t2 = (float)Math.sqrt((2 * (toY - fromY)) / GameVars.GRAVITY);
 					float speedNeeded = Math.abs((toX - fallX) / t2);
 					if(speedNeeded < maxSpeed){
 						float cost = 1.0f / maxSpeed + t2;
-						boolean success = true;
 						if(edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO){
-							TrajectoryData data = getTrajectory(fallX, fromY, speedNeeded, 0, boundingBox, true);
+							TrajectoryData data = getTrajectory(fallX, fromY, toX, toY, speedNeeded, 0, boundingBox, true);
 							if(data != null){
 								edgeNode.addLink(new NavLink(LinkType.FALL, data, edgeNode, toNode, cost));
 								linksCreated++;
 								if(edgeNode.type == NodeType.RIGHT_EDGE) continue;
-							}else{
-								success = false;
+								right = true;
 							}
 						}
 						if(edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO){
-							TrajectoryData data = getTrajectory(fallX, fromY, speedNeeded, 0, boundingBox, false);
+							TrajectoryData data = getTrajectory(fallX, fromY, toX, toY, speedNeeded, 0, boundingBox, false);
 							if(data != null){
 								edgeNode.addLink(new NavLink(LinkType.FALL, data, edgeNode, toNode, cost));
 								linksCreated++;
 								if(edgeNode.type == NodeType.LEFT_EDGE) continue;
-							}
-							else{
-								success = false;
+								left = true;
 							}
 						}
-						if(success) continue;
+						if(right && left) continue;
 					}
 				}
 					
 				// Jumping
 				int intervals = 10;
-				boolean right = false;
-				boolean left = false;
 				for(int i = 1; i <= intervals; i++){
 					if(right && left) break;
 					float jForce = i * (maxJumpForce / intervals);
@@ -384,9 +383,10 @@ public class NavMesh {
 					if(jHeight < toY - fromY) continue;
 					float t = (-jForce - (float)Math.sqrt(jForce * jForce - 2 * GameVars.GRAVITY * (fromY - toY))) / GameVars.GRAVITY; 
 					float speedNeeded = (float)Math.abs((toX - fromX) / t);
+					if(speedNeeded > maxSpeed) continue;
 					
 					if(edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO && !right){
-						TrajectoryData data = getTrajectory(fromX, fromY, speedNeeded, jForce, boundingBox, true);
+						TrajectoryData data = getTrajectory(fromX, fromY, toX, toY, speedNeeded, jForce, boundingBox, true);
 						if(data != null){
 							edgeNode.addLink(new NavLink(LinkType.JUMP, data, edgeNode, toNode, t));
 							linksCreated++;
@@ -395,7 +395,7 @@ public class NavMesh {
 						}
 					}
 					if(edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO && !left){
-						TrajectoryData data = getTrajectory(fromX, fromY, speedNeeded, jForce, boundingBox, false);
+						TrajectoryData data = getTrajectory(fromX, fromY, toX, toY, speedNeeded, jForce, boundingBox, false);
 						if(data != null){
 							edgeNode.addLink(new NavLink(LinkType.JUMP, data, edgeNode, toNode, t));
 							linksCreated++;
@@ -411,14 +411,15 @@ public class NavMesh {
 		Gdx.app.debug("NavMesh", "Links created - " + linksCreated);
 	}
 
-	private TrajectoryData getTrajectory(float x, float y, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
+	private TrajectoryData getTrajectory(float fromX, float fromY, float toX, float toY, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
 		float interval = 0.0015f;
+		Node targetNode = nodeMap.get(new Point((int)toY, (int)toX));
 		boolean finished = false;
 		Array<Point2f> points = new Array<Point2f>();
 		Node toNode = null;
 		float time = 0;
 		while (!finished) {
-			Point2f point = new Point2f(x + speed * time * (right ? 1.0f : -1.0f), y + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
+			Point2f point = new Point2f(fromX + speed * time * (right ? 1.0f : -1.0f), fromY + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
 			if (!isValidPoint(point.x, point.y, boundingBox)) {
 				return null;
@@ -428,7 +429,7 @@ public class NavMesh {
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
 			Node node = nodeMap.get(new Point((int) point.y, (int) point.x));
-			if (node != null) {
+			if (node != null && node.row == targetNode.row && node.col == targetNode.col) {
 				toNode = node;
 				finished = true;
 			}
@@ -489,6 +490,38 @@ public class NavMesh {
 	public Node getNodeAt(float x, float y) {
 		return nodeMap.get(new Point((int) y, (int) x));
 	}
+	
+	/**
+	 * If the body is not grounded, this function will always return null.
+	 * Otherwise, it will return the closest node to the body.
+	 * 
+	 * <br><br>Note: This method only checks one block to the right or left to find what node the body's on.
+	 * 
+	 * @param body
+	 * @return
+	 */
+	public Node getNearestNode(Body body){
+		return getNearestNode(body, 0.0f, 0.0f);
+	}
+	
+	public Node getNearestNode(Body body, float xOff, float yOff){
+		if(body.getLinearVelocity().y != 0) return null;
+		Vector2 position = body.getPosition();
+		float x = position.x + xOff;
+		float y = position.y + yOff;
+		Node node = getNodeAt(x, y);
+		if(node != null) return node;
+		int closestCol = (int)(x + 0.5f);
+		Node right = getNodeAt(x + 1.0f, y);
+		Node left = getNodeAt(x - 1.0f, y);
+		if(closestCol > x){
+			node = right != null ? right : left;
+		}
+		else{
+			node = left != null ? left : right;
+		}
+		return node;
+	}
 
 	public Array<Node> getEdgeNodes() {
 		return edgeNodes;
@@ -508,5 +541,13 @@ public class NavMesh {
 
 	public Level getLevel() {
 		return level;
+	}
+	
+	public float getMaxJumpForce(){
+		return maxJumpForce;
+	}
+	
+	public float getMaxSpeed(){
+		return maxSpeed;
 	}
 }

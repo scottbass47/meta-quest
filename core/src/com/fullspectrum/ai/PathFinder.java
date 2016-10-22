@@ -5,6 +5,7 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -13,10 +14,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Point2f;
+import com.fullspectrum.level.TrajectoryData;
 
 public class PathFinder {
 	
@@ -29,6 +33,7 @@ public class PathFinder {
 	private Node goal;
 	private Node current;
 	private Array<NavLink> path;
+	private ArrayMap<Node, PathData> pathDataMap;
 	
 	public PathFinder(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
 		sRender = new ShapeRenderer();
@@ -39,6 +44,10 @@ public class PathFinder {
 		current = start;
 		path = new Array<NavLink>();
 		this.navMesh = navMesh;
+		pathDataMap = new ArrayMap<Node, PathData>();
+		for(Node node : navMesh.getNodes()){
+			pathDataMap.put(node, new PathData(null, 1.0f));
+		}
 		
 		calculatePath();
 	}
@@ -53,25 +62,34 @@ public class PathFinder {
 		sRender.begin(ShapeType.Line);
 		sRender.setColor(Color.WHITE);
 		for(NavLink link : path){
+			Node node = link.fromNode;
 			switch (link.type) {
 			case RUN:
-				sRender.line(link.fromNode.getCol() + 0.5f, link.fromNode.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
+				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
 				break;
 			case FALL:
-				// sRender.line(node.col + 0.5f, node.row + 0.5f,
-				// link.toNode.col + 0.5f, node.row + 0.5f);
-				// sRender.line(link.toNode.col + 0.5f, node.row + 0.5f,
-				// link.toNode.col + 0.5f, link.toNode.row + 0.5f);
-				sRender.line(link.fromNode.getCol() + 0.5f, link.fromNode.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
+				TrajectoryData fallData = (TrajectoryData) link.data;
+				for (int i = 0; i < fallData.trajectory.size - 1; i++) {
+					Point2f point1 = fallData.trajectory.get(i);
+					Point2f point2 = fallData.trajectory.get(i + 1);
+					sRender.line(point1.x, point1.y, point2.x, point2.y);
+				}
+				break;
+			case FALL_OVER:
+				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
 				break;
 			case JUMP:
+				TrajectoryData jumpData = (TrajectoryData) link.data;
+				for (int i = 0; i < jumpData.trajectory.size - 1; i++) {
+					Point2f point1 = jumpData.trajectory.get(i);
+					Point2f point2 = jumpData.trajectory.get(i + 1);
+					sRender.line(point1.x, point1.y, point2.x, point2.y);
+				}
 				break;
-//				JumpLink jumpLink = (JumpLink) link;
-//				for (int i = 0; i < jumpLink.trajectory.size - 1; i++) {
-//					Point2f point1 = jumpLink.trajectory.get(i);
-//					Point2f point2 = jumpLink.trajectory.get(i + 1);
-//					sRender.line(point1.x, point1.y, point2.x, point2.y);
-//				}
+			case JUMP_OVER:
+				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, node.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
+				sRender.line(node.getCol() + 0.5f, link.toNode.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
+				break;
 			default:
 				break;
 			}
@@ -96,6 +114,9 @@ public class PathFinder {
 //		long startTime = System.nanoTime();
 		path.clear();
 		Set<Node> visitedNodes = new HashSet<Node>();
+		resetPath();
+		visitedNodes.add(start);
+		pathDataMap.get(start).setCost(0.0f);
 		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
 			@Override
 			public int compare(NavLink linkOne, NavLink linkTwo) {
@@ -110,27 +131,44 @@ public class PathFinder {
 			NavLink link = uncheckedLinks.pollFirst();
 			if(link.toNode.equals(goal)){
 				// Reached the goal, backtrack and create path
- 				while(!link.fromNode.equals(start)){
-//					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
-					path.add(link);
-					link = link.getParent();
+//   			while(!link.fromNode.equals(start)){
+////					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
+//					path.add(link);
+//					if(link.getParent() == null){
+//						System.out.println("NULL PARENT");
+//					}
+//					link = link.getParent();
+//				}
+//				path.add(link);
+//				path.reverse();
+				Node node = goal;
+				while(!node.equals(start)){
+					path.add(pathDataMap.get(node).getFromLink());
+					node = pathDataMap.get(node).getFromLink().fromNode;
 				}
-				path.add(link);
 				path.reverse();
 //				System.out.println("Time: " + ((System.nanoTime() - startTime) / 1000000000d));
 				return;
 			}
+			
 			visitedNodes.add(link.fromNode);
 			for(NavLink newLink : link.toNode.getLinks()){
 				if(visitedNodes.contains(newLink.toNode)) 
 					continue;
-				if(newLink.getParent() == null || newLink.cost < newLink.getParent().cost){
-					newLink.setParent(link);
+				if(newLink.cost < pathDataMap.get(newLink.toNode).getCost()){
+					pathDataMap.get(newLink.toNode).setCost(newLink.cost);
+					pathDataMap.get(newLink.toNode).setFromLink(newLink);
 				}
 				uncheckedLinks.add(newLink.increaseCost(link.cost));
 			}
 		}
 		
+	}
+	
+	private void resetPath(){
+		for(Entry<Node, PathData> node : pathDataMap.entries()){
+			pathDataMap.get(node.key).reset();
+		}
 	}
 	
 	public int getManhattanDistance(Node node1, Node node2){

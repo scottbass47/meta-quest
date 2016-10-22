@@ -57,9 +57,6 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
-		if(states.getKey(newState, false) == EntityStates.RUNNING){
-			System.out.println();
-		}
 		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){
 			changeBody(newState);
