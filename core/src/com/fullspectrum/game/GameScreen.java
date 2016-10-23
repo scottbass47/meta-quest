@@ -2,6 +2,7 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
+import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
@@ -19,6 +20,7 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
@@ -35,7 +37,6 @@ import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
-import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.system.DivingSystem;
 import com.fullspectrum.fsm.system.FallingSystem;
@@ -49,6 +50,7 @@ import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
+import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -149,24 +151,18 @@ public class GameScreen extends AbstractScreen {
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
-//		level.setPlayer(player);
 		level.loadMap("map/ArenaMapv1.tmx");
-		
-//		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
 
-		// Spawn Enemies
-		// Arena Map -> row - 11, col - 78
-		// Test Map 2 -> row - 8, col 40
-		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, 78, 12.5f);
-		playerMesh = NavMesh.createNavMesh(enemy, level, EntityStates.RUNNING, EntityStates.JUMPING);
-		PathFinder pathFinder = new PathFinder(playerMesh, 11, 78, 11, 78);
-		enemy.add(new PathComponent(pathFinder));
-		enemies.add(enemy);
-		engine.addEntity(enemy);
-		
+		// Setup Nav Mesh
+		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
+
+		// Spawn Player
 		Node playerSpawn = playerMesh.getRandomNode();
 		playerOne = EntityFactory.createPlayer(input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
 		engine.addEntity(playerOne);
+
+		// Spawn Enemy
+		spawnEnemy(playerMesh.getRandomNode());
 
 		// Setup Camera
 		cameraEntity = new Entity();
@@ -184,7 +180,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnEnemy(Node node){
-		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, node.getCol(), node.getRow() + 1.0f);
+		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(new PathComponent(pathFinder));
 		enemies.add(enemy);
@@ -214,17 +210,13 @@ public class GameScreen extends AbstractScreen {
 			changePlayer();
 		}
 		
-//		System.out.println(Mappers.body.get(playerOne).body.getPosition());
-		
-//		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-//		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-//		if(mouseNode != null){
-//			if(Mouse.isPressed()){
-//				pathFinder.setStart(mouseNode);
-//			}
-//			pathFinder.setGoal(mouseNode);
-//			pathFinder.calculatePath();
-//		}
+		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
+		if(mouseNode != null){
+			if(Mouse.isJustPressed()){
+				spawnEnemy(mouseNode);
+			}
+		}
 		
 		if(DebugInput.isJustPressed(DebugKeys.SPAWN)){
 			Node spawnNode = playerMesh.getRandomNode();

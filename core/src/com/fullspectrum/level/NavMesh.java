@@ -5,7 +5,6 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import java.awt.Point;
 import java.util.Comparator;
 
-import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -16,17 +15,10 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.component.FSMComponent;
-import com.fullspectrum.component.JumpComponent;
-import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.SpeedComponent;
-import com.fullspectrum.entity.EntityStates;
-import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
-import com.fullspectrum.utils.PhysicsUtils;
 
 public class NavMesh {
 
@@ -39,39 +31,40 @@ public class NavMesh {
 	private ShapeRenderer sRender;
 
 	// Data
-	private Entity entity;
+//	private Entity entity;
 	private Level level;
+	private Rectangle boundingBox;
 
 	// Jump Stats
-	private float maxSpeed;
+	private float maxAirSpeed;
 	private float maxJumpForce;
 
 	// Run Stats
-	private float runSpeed;
+	private float maxRunSpeed;
 
-	// States
-	private EntityState runningState;
-	private EntityState jumpingState;
-
-	private NavMesh(Entity entity, Level level, EntityStates running, EntityStates jumping) {
-		this.entity = entity;
+	private NavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed) {
+//		this.entity = entity;
 		this.level = level;
+		this.boundingBox = boundingBox;
+		this.maxAirSpeed = maxAirSpeed;
+		this.maxJumpForce = maxJumpForce;
+		this.maxRunSpeed = maxRunSpeed;
 
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
 
-		FSMComponent fsmComp = Mappers.fsm.get(entity);
+//		FSMComponent fsmComp = Mappers.fsm.get(entity);
 
-		assert (fsmComp != null);
-
-		runningState = fsmComp.fsm.getState(running);
-		jumpingState = fsmComp.fsm.getState(jumping);
-
-		maxSpeed = jumpingState.getComponent(SpeedComponent.class).maxSpeed;
-		maxJumpForce = jumpingState.getComponent(JumpComponent.class).maxForce;
-		runSpeed = runningState.getComponent(SpeedComponent.class).maxSpeed;
+//		assert (fsmComp != null);
+//
+//		runningState = fsmComp.fsm.getState(running);
+//		jumpingState = fsmComp.fsm.getState(jumping);
+//
+//		maxAirSpeed = jumpingState.getComponent(SpeedComponent.class).maxSpeed;
+//		maxJumpForce = jumpingState.getComponent(JumpComponent.class).maxForce;
+//		maxRunSpeed = runningState.getComponent(SpeedComponent.class).maxSpeed;
 
 		createNodes();
 		setupNodeTypes();
@@ -81,8 +74,8 @@ public class NavMesh {
 		setupJumpConnections();
 	}
 
-	public static NavMesh createNavMesh(Entity entity, Level level, EntityStates runningState, EntityStates jumpingState) {
-		return new NavMesh(entity, level, runningState, jumpingState);
+	public static NavMesh createNavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed) {
+		return new NavMesh(level, boundingBox, maxAirSpeed, maxJumpForce, maxRunSpeed);
 	}
 
 	public void render(SpriteBatch batch) {
@@ -166,7 +159,6 @@ public class NavMesh {
 	}
 
 	private void createNodes() {
-		Rectangle boundingBox = PhysicsUtils.getAABB(runningState.getFixtures());
 		for (int row = 0; row < level.getHeight(); row++) {
 			for (int col = 0; col < level.getWidth(); col++) {
 				if (isValidNode(row, col, level, boundingBox)) {
@@ -206,10 +198,10 @@ public class NavMesh {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
 			if (node.type == NodeType.LEFT_EDGE || node.type == NodeType.MIDDLE) {
-				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i + 1), 1.0f / runSpeed));
+				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i + 1), 1.0f / maxRunSpeed));
 			}
 			if (node.type == NodeType.RIGHT_EDGE || node.type == NodeType.MIDDLE) {
-				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i - 1), 1.0f / runSpeed));
+				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i - 1), 1.0f / maxRunSpeed));
 			}
 		}
 	}
@@ -267,7 +259,7 @@ public class NavMesh {
 				Node jumpFrom = fallLink.toNode;
 				
 				int height = jumpTo.row - jumpFrom.row;
-				float tx = 1.0f / maxSpeed;
+				float tx = 1.0f / maxAirSpeed;
 				float totalHeight = height - (GameVars.GRAVITY * 0.5f * tx * tx);
 				if(totalHeight > maxJumpHeight) continue;
 				float jumpForce = (float)Math.sqrt(-2 * GameVars.GRAVITY * totalHeight);
@@ -278,7 +270,6 @@ public class NavMesh {
 	}
 
 	private void setupJumpConnections() {
-		Rectangle boundingBox = PhysicsUtils.getAABB(jumpingState.getFixtures());
 		int linksCreated = 0;
 		
 		for(Node edgeNode : edgeNodes){
@@ -287,8 +278,8 @@ public class NavMesh {
 			
 			float totalTime = (-maxJumpForce - (float)Math.sqrt(maxJumpForce * maxJumpForce - 2 * GameVars.GRAVITY * fromY)) / GameVars.GRAVITY;
 			float maxHeight = getMaxJumpHeight();
-			float maxDistance = totalTime * maxSpeed;
-			float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxSpeed; // x-coordinate of highest point along arc
+			float maxDistance = totalTime * maxAirSpeed;
+			float vertexX = (-maxJumpForce / GameVars.GRAVITY) * maxAirSpeed; // x-coordinate of highest point along arc
 			
 			Array<Node> toNodes = new Array<Node>();
 			for(Node node : nodes){
@@ -298,7 +289,7 @@ public class NavMesh {
 				if(Math.abs(toX - fromX) > maxDistance || toX == fromX) continue;
 			
 				if(toY - fromY > maxHeight) continue;
-				float tx = Math.abs((toX - fromX) / maxSpeed); // The shortest time it takes to get to this x position
+				float tx = Math.abs((toX - fromX) / maxAirSpeed); // The shortest time it takes to get to this x position
 				float maxY = maxJumpForce * tx + 0.5f * GameVars.GRAVITY * tx * tx; // The maximum height you could be at a given time
 				if(maxY + fromY < toY && toX > vertexX + fromX) continue;
 				
@@ -313,15 +304,15 @@ public class NavMesh {
 				// Falling
 				boolean canFall = true;
 				float t1 = (float)Math.sqrt((-2 * fromY) / GameVars.GRAVITY);
-				float maxFallDistance = maxSpeed * t1 + 1;
+				float maxFallDistance = maxAirSpeed * t1 + 1;
 				if(maxFallDistance < Math.abs(toX - fallX) || toY > fromY || (fallX >= toX && fallRight) || (fallX <= toX && !fallRight)) canFall = false;
 				boolean right = false;
 				boolean left = false;
 				if(canFall){
 					float t2 = (float)Math.sqrt((2 * (toY - fromY)) / GameVars.GRAVITY);
 					float speedNeeded = Math.abs((toX - fallX) / t2);
-					if(speedNeeded < maxSpeed){
-						float cost = 1.0f / maxSpeed + t2;
+					if(speedNeeded < maxAirSpeed){
+						float cost = 1.0f / maxAirSpeed + t2;
 						if(edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO){
 							TrajectoryData data = getTrajectory(fallX, fromY, toX, toY, speedNeeded, 0, boundingBox, true);
 							if(data != null){
@@ -356,7 +347,7 @@ public class NavMesh {
 					if(jHeight < toY - fromY) continue;
 					float t = (-jForce - (float)Math.sqrt(jForce * jForce - 2 * GameVars.GRAVITY * (fromY - toY))) / GameVars.GRAVITY; 
 					float speedNeeded = (float)Math.abs((toX - fromX) / t);
-					if(speedNeeded > maxSpeed) continue;
+					if(speedNeeded > maxAirSpeed) continue;
 					
 					if(edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO && !right){
 						TrajectoryData data = getTrajectory(fromX, fromY, toX, toY, speedNeeded, jForce, boundingBox, true);
@@ -394,7 +385,7 @@ public class NavMesh {
 		while (!finished) {
 			Point2f point = new Point2f(fromX + speed * time * (right ? 1.0f : -1.0f), fromY + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
-			if (!isValidPoint(point.x, point.y, boundingBox)) {
+			if (!isValidPoint(point.x, point.y)) {
 				return null;
 			}
 			points.add(point);
@@ -414,11 +405,11 @@ public class NavMesh {
 	// -2distance / gravity = t ^ 2
 	// sqrt(-2distance / gravity) = t
 	private float getFallingCost(float distance) {
-		float cost = 1.0f / runSpeed;
+		float cost = 1.0f / maxRunSpeed;
 		return cost + (float) Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
 	}
 
-	private boolean isValidPoint(float x, float y, Rectangle boundingBox) {
+	private boolean isValidPoint(float x, float y) {
 		float hw = boundingBox.width * 0.5f;
 		float hh = boundingBox.height * 0.5f;
 		float minX = x - hw;
@@ -528,9 +519,9 @@ public class NavMesh {
 		return nodeMap;
 	}
 
-	public Entity getEntity() {
-		return entity;
-	}
+//	public Entity getEntity() {
+//		return entity;
+//	}
 
 	public Level getLevel() {
 		return level;
@@ -541,6 +532,6 @@ public class NavMesh {
 	}
 	
 	public float getMaxSpeed(){
-		return maxSpeed;
+		return maxAirSpeed;
 	}
 }
