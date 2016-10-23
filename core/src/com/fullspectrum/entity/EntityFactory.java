@@ -4,12 +4,12 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.component.AIControllerComponent;
+import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
-import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
@@ -18,9 +18,12 @@ import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.VelocityComponent;
+import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.enemy.GoblinAssets;
 import com.fullspectrum.entity.player.PlayerAssets;
+import com.fullspectrum.fsm.AIState;
+import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.transition.InputTransitionData;
@@ -56,53 +59,53 @@ public class EntityFactory {
 
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
-		EntityState runningState = fsm.createState(EntityStates.RUNNING)
+		fsm.createState(EntityStates.RUNNING)
 				.add(new SpeedComponent(8.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
-				.addAnimation(EntityAnim.RUNNING);
-		runningState.addTag(TransitionTag.GROUND_STATE);
+				.addAnimation(EntityAnim.RUNNING)
+				.addTag(TransitionTag.GROUND_STATE);
 
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 
-		EntityState idleState = fsm.createState(EntityStates.IDLING)
+		fsm.createState(EntityStates.IDLING)
 				.add(new SpeedComponent(0.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.addAnimation(EntityAnim.IDLE)
 				.addAnimation(EntityAnim.RANDOM_IDLE)
 				.addAnimTransition(EntityAnim.IDLE, Transition.RANDOM, rtd, EntityAnim.RANDOM_IDLE)
-				.addAnimTransition(EntityAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, EntityAnim.IDLE);
-		idleState.addTag(TransitionTag.GROUND_STATE);
+				.addAnimTransition(EntityAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, EntityAnim.IDLE)
+				.addTag(TransitionTag.GROUND_STATE);
 
-		EntityState fallingState = fsm.createState(EntityStates.FALLING)
+		fsm.createState(EntityStates.FALLING)
 				.add(new SpeedComponent(8.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.addAnimation(EntityAnim.JUMP_APEX)
 				.addAnimation(EntityAnim.FALLING)
-				.addAnimTransition(EntityAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, EntityAnim.FALLING);
-		fallingState.addTag(TransitionTag.AIR_STATE);
+				.addAnimTransition(EntityAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, EntityAnim.FALLING)
+				.addTag(TransitionTag.AIR_STATE);
 
-		EntityState divingState = fsm.createState(EntityStates.DIVING)
+		fsm.createState(EntityStates.DIVING)
 				.add(new SpeedComponent(8.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.add(new JumpComponent(-20.0f))
-				.addAnimation(EntityAnim.FALLING);
-		divingState.addTag(TransitionTag.AIR_STATE);
+				.addAnimation(EntityAnim.FALLING)
+				.addTag(TransitionTag.AIR_STATE);
 
-		EntityState jumpingState = fsm.createState(EntityStates.JUMPING)
+		fsm.createState(EntityStates.JUMPING)
 				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.add(new JumpComponent(20.0f))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
-				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE);
-		jumpingState.addTag(TransitionTag.AIR_STATE);
+				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
+				.addTag(TransitionTag.AIR_STATE);
 
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -150,7 +153,7 @@ public class EntityFactory {
 		player.add(new InputComponent(controller));
 		player.add(new AIControllerComponent(controller));
 //		player.add(new PathComponent(pathFinder));
-		player.add(new FollowComponent(toFollow));
+//		player.add(new FollowComponent(toFollow));
 		player.add(new FacingComponent());
 		player.add(new BodyComponent());
 		player.add(new WorldComponent(world));
@@ -241,11 +244,18 @@ public class EntityFactory {
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
 
 //		System.out.print(fsm.printTransitions());
-
+		
 //		fsm.disableState(EntityStates.DIVING);
 		fsm.changeState(EntityStates.IDLING);
-
+		
 		player.add(new FSMComponent(fsm));
+		
+		AIStateMachine aism = new AIStateMachine(player);
+		aism.createState(AIState.WANDERING)
+			.add(new WanderingComponent(20, 1.5f));
+		
+		aism.changeState(AIState.WANDERING);
+		player.add(new AIStateMachineComponent(aism));
 		return player;
 	}
 	

@@ -495,7 +495,27 @@ public class NavMesh {
 		}
 		return node;
 	}
-
+	
+	public Array<Node> getNodes(Node fromNode, int radius){
+		Array<Node> ret = new Array<Node>();
+		for(Node node : nodes){
+			// x^2 + y^2 = r^2
+			int xSqr = (fromNode.col - node.col) * (fromNode.col - node.col);
+			int ySqr = (fromNode.row - node.row) * (fromNode.row - node.row);
+			if(xSqr + ySqr < radius * radius) ret.add(node);
+		}
+		return ret;
+	}
+	
+	public Node getRandomNode(Node fromNode, int radius){
+		Array<Node> possibleNodes = getNodes(fromNode, radius);
+		return possibleNodes.get((int)(Math.random() * possibleNodes.size));
+	}
+	
+	public Node getRandomNode(){
+		return nodes.get((int)(Math.random() * nodes.size));
+	}
+	
 	public Array<Node> getEdgeNodes() {
 		return edgeNodes;
 	}

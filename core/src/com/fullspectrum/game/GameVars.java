@@ -23,6 +23,10 @@ public class GameVars {
 	// Physics
 	public final static float GRAVITY = -23.0f;
 	
+	// Collision Bits
+	public static final short TILE = 1 << 0;
+	public static final short ENTITY = 1 << 1;
+	
 	// Change Scale
 	public static void resize(int scale, OrthographicCamera worldCam){
 		worldCam.zoom = 1.0f / scale;

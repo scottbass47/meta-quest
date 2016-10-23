@@ -3,6 +3,7 @@ package com.fullspectrum.fsm;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.physics.EntityFixtures;
 
 public class EntityState extends StateObject{
@@ -62,8 +63,18 @@ public class EntityState extends StateObject{
 	/**
 	 * Convenient override to allow method chaining.
 	 */
+	@Override
 	public EntityState add(Component c) {
 		super.add(c);
+		return this;
+	}
+	
+	/**
+	 * Convenient override to allow method chaining.
+	 */
+	@Override
+	public EntityState addTag(TransitionTag tag) {
+		super.addTag(tag);
 		return this;
 	}
 }

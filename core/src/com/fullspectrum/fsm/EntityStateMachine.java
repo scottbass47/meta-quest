@@ -1,6 +1,5 @@
 package com.fullspectrum.fsm;
 
-import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
@@ -49,13 +48,7 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		EntityState newState = states.get(state);
 		if (newState == currState) return;
 		if (currState != null) {
-			for (Component c : currState.getComponents()) {
-				entity.remove(c.getClass());
-			}
 			states.getKey(currState, false).getStateSystem().removeEntity(entity);
-		}
-		for (Component c : newState.getComponents()) {
-			entity.add(c);
 		}
 		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){

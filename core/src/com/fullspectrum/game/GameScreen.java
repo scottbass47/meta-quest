@@ -22,16 +22,17 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
-import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityStates;
@@ -50,6 +51,7 @@ import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
+import com.fullspectrum.level.Node;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -61,6 +63,7 @@ import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.VelocitySystem;
+import com.fullspectrum.systems.WanderingSystem;
 
 public class GameScreen extends AbstractScreen {
 
@@ -74,11 +77,10 @@ public class GameScreen extends AbstractScreen {
 
 	// Player
 	private Entity playerOne;
-	private Entity playerTwo;
+	private Array<Entity> enemies;
 	private Entity cameraEntity;
-	private boolean onPlayerOne = true;
 	private NavMesh playerMesh;
-	private PathFinder pathFinder;
+	private int index = 0;
 
 	// Tile Map
 	private Level level;
@@ -96,6 +98,7 @@ public class GameScreen extends AbstractScreen {
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
+		enemies = new Array<Entity>();
 		
 		// Setup Shader
 		mellowShader = new ShaderProgram(
@@ -116,6 +119,7 @@ public class GameScreen extends AbstractScreen {
 		
 		// AI Systems
 		engine.addSystem(new FollowingSystem());
+		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());
 		
 		// Transition Systems
@@ -142,10 +146,6 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
 		
-		AIController controller = new AIController();
-		
-		playerOne = EntityFactory.createPlayer(input, world, 2.0f, 12.0f);
-		engine.addEntity(playerOne);
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
@@ -153,12 +153,21 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/ArenaMapv1.tmx");
 		
 //		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
-		playerTwo = EntityFactory.createAIPlayer(controller/*, pathFinder*/, playerOne, world, 78.0f, 12.0f);
-		playerMesh = NavMesh.createNavMesh(playerTwo, level, EntityStates.RUNNING, EntityStates.JUMPING);
-		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 77);
-		playerTwo.add(new PathComponent(pathFinder));
-		engine.addEntity(playerTwo);
+
+		// Spawn Enemies
+		// Arena Map -> row - 11, col - 78
+		// Test Map 2 -> row - 8, col 40
+		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, 78, 12.5f);
+		playerMesh = NavMesh.createNavMesh(enemy, level, EntityStates.RUNNING, EntityStates.JUMPING);
+		PathFinder pathFinder = new PathFinder(playerMesh, 11, 78, 11, 78);
+		enemy.add(new PathComponent(pathFinder));
+		enemies.add(enemy);
+		engine.addEntity(enemy);
 		
+		Node playerSpawn = playerMesh.getRandomNode();
+		playerOne = EntityFactory.createPlayer(input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+		engine.addEntity(playerOne);
+
 		// Setup Camera
 		cameraEntity = new Entity();
 		CameraComponent cameraComp = new CameraComponent(worldCamera, playerOne);
@@ -172,8 +181,14 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMaxY = 0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
-		
-		changePlayer(true);
+	}
+	
+	private void spawnEnemy(Node node){
+		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, node.getCol(), node.getRow() + 1.0f);
+		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
+		enemy.add(new PathComponent(pathFinder));
+		enemies.add(enemy);
+		engine.addEntity(enemy);
 	}
 	
 	public void resetFrameBuffer(int width, int height){
@@ -196,7 +211,7 @@ public class GameScreen extends AbstractScreen {
 		world.step(delta, 6, 2);
 		// level.update(delta);
 		if(input.isJustPressed(Actions.SELECT)){
-			changePlayer(!onPlayerOne);
+			changePlayer();
 		}
 		
 //		System.out.println(Mappers.body.get(playerOne).body.getPosition());
@@ -211,6 +226,11 @@ public class GameScreen extends AbstractScreen {
 //			pathFinder.calculatePath();
 //		}
 		
+		if(DebugInput.isJustPressed(DebugKeys.SPAWN)){
+			Node spawnNode = playerMesh.getRandomNode();
+			spawnEnemy(spawnNode);
+		}
+		
 		if(DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom){
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
 			GameVars.resize(1 << previousZoom, worldCamera);
@@ -218,14 +238,16 @@ public class GameScreen extends AbstractScreen {
 		}
 	}
 	
-	private void changePlayer(boolean one){
+	private void changePlayer(){
 		CameraComponent cameraComp = Mappers.camera.get(cameraEntity);
-		cameraComp.toFollow = one ? playerOne : playerTwo;
-		InputComponent oneInputComp = Mappers.input.get(playerOne);
-		InputComponent twoInputComp = Mappers.input.get(playerTwo);
-		oneInputComp.enabled = one;
-		twoInputComp.enabled = !one;
-		onPlayerOne = one;
+		index++;
+		if(index > enemies.size) index = 0;
+		if(index == 0){
+			cameraComp.toFollow = playerOne;
+		}
+		else{
+			cameraComp.toFollow = enemies.get(index - 1);
+		}
 	}
 
 	@Override
@@ -245,7 +267,11 @@ public class GameScreen extends AbstractScreen {
 		level.render();
 		renderer.render(batch);
 		if(DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)) pathFinder.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)){
+			for(Entity enemy : enemies){
+				Mappers.path.get(enemy).pathFinder.render(batch);
+			}
+		}
 		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		
 		frameBuffer.end();

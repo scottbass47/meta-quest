@@ -53,8 +53,8 @@ public class PathFollowingSystem extends IteratingSystem{
 		}
 		
 		AIController controller = controllerComp.controller;
-		// TEMPORARY
-		if(link == null || !Mappers.input.get(entity).enabled){
+		
+		if(link == null){
 			controller.releaseAll();
 			return;
 		}

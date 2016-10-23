@@ -21,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.fullspectrum.fsm.State;
+import com.fullspectrum.game.GameVars;
 import com.fullspectrum.physics.EntityFixtures;
 
 public class PhysicsUtils {
@@ -88,6 +89,8 @@ public class PhysicsUtils {
 		fdef.restitution = root.getFloat("restitution", 0.0f);
 		fdef.friction = root.getFloat("friction", 0.2f);
 		fdef.isSensor = root.getBoolean("isSensor", false);
+		fdef.filter.categoryBits = GameVars.ENTITY;
+		fdef.filter.maskBits = GameVars.TILE;
 		
 		float x = root.getFloat("xOff", 0.0f) * PPM_INV;
 		float y = root.getFloat("yOff", 0.0f) * PPM_INV;

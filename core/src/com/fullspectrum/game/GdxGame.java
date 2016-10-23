@@ -1,12 +1,13 @@
 package com.fullspectrum.game;
 
+import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.controllers.Controllers;
 import com.badlogic.gdx.graphics.GL20;
@@ -20,10 +21,10 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
-import com.fullspectrum.input.Mouse;
 import com.fullspectrum.input.RawInput;
 
 public class GdxGame extends Game {
@@ -100,8 +101,10 @@ public class GdxGame extends Game {
 			startY += 50;
 			int toggleX = 900;
 			int cycleX = 1100;
+			int keyX = 700;
 			font.draw(batch, "Toggles:", toggleX, startY);
 			font.draw(batch, "Cycles:", cycleX, startY);
+			font.draw(batch, "Keys:", keyX, startY);
 			int counter = 1;
 			for(DebugToggle toggle : DebugToggle.values()){
 				font.draw(batch, toggle.name() + " - '" + toggle.getCharacter() + "'", toggleX, startY - counter * 20);
@@ -112,9 +115,13 @@ public class GdxGame extends Game {
 				font.draw(batch, cycle.name() + " - '" + cycle.getCharacter() + "'", cycleX, startY - counter * 20);
 				counter++;
 			}
+			counter = 1;
+			for(DebugKeys key : DebugKeys.values()){
+				font.draw(batch, key.name() + " - '" + Keys.toString(key.getKey()) + "'", keyX, startY - counter * 20);
+				counter++;
+			}
 		}
 		batch.end();
-		Mouse.update();
 	}
 		
 

@@ -2,6 +2,7 @@ package com.fullspectrum.fsm;
 
 import java.util.Iterator;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -101,6 +102,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
+			for (Component c : currentState.getComponents()) {
+				entity.remove(c.getClass());
+			}
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
 			if(machine != null){
 				for(Transition t : machine.currentState.getTransitions()){
@@ -111,6 +115,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 		}
 		for (Transition t : newState.getTransitions()) {
 			t.getSystem().addStateMachine(this);
+		}
+		for (Component c : newState.getComponents()) {
+			entity.add(c);
 		}
 		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
 		if(machine != null){

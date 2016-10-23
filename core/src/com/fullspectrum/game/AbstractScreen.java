@@ -6,7 +6,9 @@ import com.badlogic.gdx.ScreenAdapter;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.input.GameInput;
+import com.fullspectrum.input.Mouse;
 
 public abstract class AbstractScreen extends ScreenAdapter {
 
@@ -38,6 +40,8 @@ public abstract class AbstractScreen extends ScreenAdapter {
 			update(1.0f / GdxGame.UPS);
 			lag -= 1.0f / GdxGame.UPS;
 			input.update();
+			Mouse.update();
+			DebugInput.update();
 		}
 		render();
 	}

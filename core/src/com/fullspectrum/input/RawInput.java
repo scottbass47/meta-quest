@@ -95,6 +95,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean keyDown(int keycode) {
+		DebugInput.keyDown(keycode);
 		for(InputProcessor input : inputProcessors){
 			input.keyDown(keycode);
 		}
@@ -103,6 +104,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean keyUp(int keycode) {
+		DebugInput.keyUp(keycode);
 		for(InputProcessor input : inputProcessors){
 			input.keyUp(keycode);
 		}

@@ -25,6 +25,7 @@ public class PathFinder {
 	
 	// Debug Render
 	private ShapeRenderer sRender;
+	private Color debugColor;
 
 	// Path
 	private NavMesh navMesh;
@@ -47,6 +48,7 @@ public class PathFinder {
 		for(Node node : navMesh.getNodes()){
 			pathDataMap.put(node, new PathData());
 		}
+		debugColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f);
 		calculatePath();
 	}
 	
@@ -57,7 +59,7 @@ public class PathFinder {
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
 		sRender.begin(ShapeType.Line);
-		sRender.setColor(Color.WHITE);
+		sRender.setColor(debugColor);
 		for(NavLink link : path){
 			Node node = link.fromNode;
 			switch (link.type) {
