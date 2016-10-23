@@ -413,7 +413,7 @@ public class NavMesh {
 
 	private TrajectoryData getTrajectory(float fromX, float fromY, float toX, float toY, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
 		float interval = 0.0015f;
-		Node targetNode = nodeMap.get(new Point((int)toY, (int)toX));
+		Node targetNode = nodeMap.get(new Point((int)(toY - boundingBox.height * 0.5f), (int)toX));
 		boolean finished = false;
 		Array<Point2f> points = new Array<Point2f>();
 		Node toNode = null;

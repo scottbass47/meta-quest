@@ -46,7 +46,7 @@ public class PathFinder {
 		this.navMesh = navMesh;
 		pathDataMap = new ArrayMap<Node, PathData>();
 		for(Node node : navMesh.getNodes()){
-			pathDataMap.put(node, new PathData(null, 1.0f));
+			pathDataMap.put(node, new PathData());
 		}
 		
 		calculatePath();
@@ -120,16 +120,22 @@ public class PathFinder {
 		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
 			@Override
 			public int compare(NavLink linkOne, NavLink linkTwo) {
-				return linkOne.cost > linkTwo.cost ? 1 : -1;
+//				return linkOne.cost > linkTwo.cost? 1 : -1;
+				return linkOne.cost + getManhattanDistance(linkOne.toNode, goal) > linkTwo.cost + getManhattanDistance(linkTwo.toNode, goal) ? 1 : -1;
 			}
 		});
 		for(NavLink link : start.getLinks()){
 			uncheckedLinks.add(link);
 		}
+		int linksChecked = 0;
 		while(uncheckedLinks.size() > 0){
+			linksChecked++;
 //			System.out.println(uncheckedLinks);
+			
 			NavLink link = uncheckedLinks.pollFirst();
 			if(link.toNode.equals(goal)){
+				System.out.println("Links Checked: " + linksChecked);
+				pathDataMap.put(goal, new PathData(link, link.cost));
 				// Reached the goal, backtrack and create path
 //   			while(!link.fromNode.equals(start)){
 ////					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
@@ -152,15 +158,23 @@ public class PathFinder {
 			}
 			
 			visitedNodes.add(link.fromNode);
+			if(visitedNodes.contains(link.toNode)) continue;
+			if(link.cost < pathDataMap.get(link.toNode).getCost()){
+				pathDataMap.get(link.toNode).setCost(link.cost);
+				pathDataMap.get(link.toNode).setFromLink(link);
+			}
 			for(NavLink newLink : link.toNode.getLinks()){
-				if(visitedNodes.contains(newLink.toNode)) 
-					continue;
-				if(newLink.cost < pathDataMap.get(newLink.toNode).getCost()){
-					pathDataMap.get(newLink.toNode).setCost(newLink.cost);
-					pathDataMap.get(newLink.toNode).setFromLink(newLink);
-				}
 				uncheckedLinks.add(newLink.increaseCost(link.cost));
 			}
+//			for(NavLink newLink : link.toNode.getLinks()){
+//				if(visitedNodes.contains(newLink.toNode)) 
+//					continue;
+//				if(newLink.cost < pathDataMap.get(newLink.toNode).getCost()){
+//					pathDataMap.get(newLink.toNode).setCost(newLink.cost);
+//					pathDataMap.get(newLink.toNode).setFromLink(newLink);
+//				}
+//				uncheckedLinks.add(newLink.increaseCost(link.cost));
+//			}
 		}
 		
 	}
