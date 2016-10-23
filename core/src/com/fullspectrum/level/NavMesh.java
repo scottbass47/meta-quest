@@ -279,34 +279,7 @@ public class NavMesh {
 
 	private void setupJumpConnections() {
 		Rectangle boundingBox = PhysicsUtils.getAABB(jumpingState.getFixtures());
-//		int divisions = 3;
-//
 		int linksCreated = 0;
-//		for (Node edgeNode : edgeNodes) {
-//			for (int i = 1; i <= divisions; i++) {
-//				for (int j = 1; j <= divisions; j++) {
-//					float speed = maxSpeed / i;
-//					float jumpForce = maxJumpForce / j;
-//					if (edgeNode.type == NodeType.SOLO) {
-//						System.out.println();
-//					}
-//					if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-//						JumpData rightJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, true, edgeNode.type);
-//						if (rightJump != null) {
-//							edgeNode.addLink(new JumpLink(edgeNode, rightJump.toNode, rightJump.time, rightJump.trajectory, 1.0f / i, 1.0f / j));
-//							linksCreated++;
-//						}
-//					}
-//					if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-//						JumpData leftJump = getTrajectory(edgeNode.row, edgeNode.col, speed, jumpForce, boundingBox, false, edgeNode.type);
-//						if (leftJump != null) {
-//							edgeNode.addLink(new JumpLink(edgeNode, leftJump.toNode, leftJump.time, leftJump.trajectory, 1.0f / i, 1.0f / j));
-//							linksCreated++;
-//						}
-//					}
-//				}
-//			}
-//		}
 		
 		for(Node edgeNode : edgeNodes){
 			float fromX = edgeNode.col + 0.5f;
@@ -327,7 +300,7 @@ public class NavMesh {
 				if(toY - fromY > maxHeight) continue;
 				float tx = Math.abs((toX - fromX) / maxSpeed); // The shortest time it takes to get to this x position
 				float maxY = maxJumpForce * tx + 0.5f * GameVars.GRAVITY * tx * tx; // The maximum height you could be at a given time
-				if(maxY + fromY < toY && toX > vertexX) continue;
+				if(maxY + fromY < toY && toX > vertexX + fromX) continue;
 				
 				toNodes.add(node);
 			}
@@ -428,7 +401,7 @@ public class NavMesh {
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
-			Node node = nodeMap.get(new Point((int) point.y, (int) point.x));
+			Node node = nodeMap.get(new Point((int)(point.y - boundingBox.height * 0.5f), (int) point.x));
 			if (node != null && node.row == targetNode.row && node.col == targetNode.col) {
 				toNode = node;
 				finished = true;

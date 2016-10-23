@@ -2,15 +2,11 @@ package com.fullspectrum.fsm;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.physics.EntityFixtures;
 
 public class EntityState extends StateObject{
 
-	// Data
-	private Array<Component> components;
-	
 	// Animations
 	protected AnimationStateMachine animations;
 	protected State initialAnim;
@@ -20,7 +16,6 @@ public class EntityState extends StateObject{
 	
 	protected EntityState(Entity entity, StateMachine<? extends State, ? extends StateObject> machine){
 		super(entity, machine);
-		components = new Array<Component>();
 		animations = new AnimationStateMachine(entity, new StateObjectCreator());
 		machine.addSubstateMachine(this, animations);
 		animations.setDebugName("Animation State Machine");
@@ -52,14 +47,6 @@ public class EntityState extends StateObject{
 		return fixtures;
 	}
 	
-	@SuppressWarnings("unchecked")
-	public <T extends Component> T getComponent(Class<T> clazz){
-		for(Component c : components){
-			if(c.getClass() == clazz) return (T) c;
-		}
-		return null;
-	}
-	
 	public State getCurrentAnimation(){
 		return animations.states.getKey(animations.currentState, false);
 	}
@@ -72,13 +59,11 @@ public class EntityState extends StateObject{
 		animations.time += time;
 	}
 	
-	public EntityState add(Component c){
-		components.add(c);
+	/**
+	 * Convenient override to allow method chaining.
+	 */
+	public EntityState add(Component c) {
+		super.add(c);
 		return this;
 	}
-	
-	public Array<Component> getComponents(){
-		return components;
-	}
-	
 }

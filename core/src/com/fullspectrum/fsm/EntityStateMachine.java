@@ -77,6 +77,7 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		for(FixtureDef fdef : state.fixtures.getFixtures()){
 			body.createFixture(fdef);
 		}
+		bodyComp.updateAABB();
 	}
 	
 	public float getAnimationTime(){

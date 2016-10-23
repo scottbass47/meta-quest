@@ -6,26 +6,8 @@
     "Fixtures": [
         {
           "shape": "Box",
-          "width": 16,
+          "width": 15,
           "height": 40
-        }
-    ]
-  },
-  Jumping: {
-    "Fixtures": [
-        {
-          "shape": "Box",
-          "width": 15,
-          "height": 30
-        }
-    ]
-  },
-  Falling: {
-    "Fixtures": [
-        {
-          "shape": "Box",
-          "width": 15,
-          "height": 30
         }
     ]
   }

@@ -2,6 +2,7 @@ package com.fullspectrum.fsm;
 
 import java.util.Iterator;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -16,6 +17,7 @@ public class StateObject{
 	private ArrayMap<TransitionObject, State> transitionMap;
 	private Array<Transition> transitions;
 	private Array<TransitionTag> tags;
+	private Array<Component> components;
 	protected Entity entity;
 	protected StateMachine<? extends State, ? extends StateObject> machine;
 	private boolean enabled = true;
@@ -34,6 +36,7 @@ public class StateObject{
 		transitions = new Array<Transition>();
 		tags = new Array<TransitionTag>();
 		bits = new Bits();
+		components = new Array<Component>();
 	}
 	
 	public void setEntity(Entity entity){
@@ -86,6 +89,23 @@ public class StateObject{
 		return null;
 	}
 
+	@SuppressWarnings("unchecked")
+	public <T extends Component> T getComponent(Class<T> clazz){
+		for(Component c : components){
+			if(c.getClass() == clazz) return (T) c;
+		}
+		return null;
+	}
+	
+	public StateObject add(Component c){
+		components.add(c);
+		return this;
+	}
+	
+	public Array<Component> getComponents(){
+		return components;
+	}
+	
 	public State getState(TransitionObject transition) {
 		return transitionMap.get(transition);
 	}

@@ -8,6 +8,7 @@ import com.fullspectrum.utils.PhysicsUtils;
 public class BodyComponent implements Component{
 
 	public Body body;
+	private Rectangle aabb;
 	
 	public BodyComponent(Body body){
 		this.body = body;
@@ -19,7 +20,11 @@ public class BodyComponent implements Component{
 	
 	// CACHE PHYSICS BODY
 	public Rectangle getAABB(){
-		return PhysicsUtils.getAABB(body);
+		return aabb;
+	}
+	
+	public void updateAABB(){
+		aabb = PhysicsUtils.getAABB(body);
 	}
 	
 }

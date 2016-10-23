@@ -3,7 +3,6 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
-import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
@@ -14,7 +13,6 @@ import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
-import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -89,7 +87,7 @@ public class EntityFactory {
 		fallingState.addTag(TransitionTag.AIR_STATE);
 
 		EntityState divingState = fsm.createState(EntityStates.DIVING)
-				.add(new SpeedComponent(5.0f))
+				.add(new SpeedComponent(8.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.add(new JumpComponent(-20.0f))
@@ -97,7 +95,7 @@ public class EntityFactory {
 		divingState.addTag(TransitionTag.AIR_STATE);
 
 		EntityState jumpingState = fsm.createState(EntityStates.JUMPING)
-				.add(new SpeedComponent(8.0f))
+				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.add(new JumpComponent(20.0f))
@@ -142,7 +140,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createAIPlayer(AIController controller, PathFinder pathFinder, Entity toFollow, World world, float x, float y) {
+	public static Entity createAIPlayer(AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
 		// Setup Player
 		Entity player = new Entity();
 		player.add(new PositionComponent(x, y));
@@ -151,7 +149,7 @@ public class EntityFactory {
 		player.add(new TextureComponent(PlayerAssets.animations.get(EntityAnim.IDLE).getKeyFrame(0)));
 		player.add(new InputComponent(controller));
 		player.add(new AIControllerComponent(controller));
-		player.add(new PathComponent(pathFinder));
+//		player.add(new PathComponent(pathFinder));
 		player.add(new FollowComponent(toFollow));
 		player.add(new FacingComponent());
 		player.add(new BodyComponent());
@@ -168,7 +166,7 @@ public class EntityFactory {
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
 		EntityState runningState = fsm.createState(EntityStates.RUNNING)
-				.add(new SpeedComponent(8.0f))
+				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.addAnimation(EntityAnim.RUNNING);
@@ -189,7 +187,7 @@ public class EntityFactory {
 		idleState.addTag(TransitionTag.GROUND_STATE);
 
 		EntityState fallingState = fsm.createState(EntityStates.FALLING)
-				.add(new SpeedComponent(8.0f))
+				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
 				.addAnimation(EntityAnim.JUMP_APEX)
@@ -206,10 +204,10 @@ public class EntityFactory {
 		divingState.addTag(TransitionTag.AIR_STATE);
 
 		EntityState jumpingState = fsm.createState(EntityStates.JUMPING)
-				.add(new SpeedComponent(8.0f))
+				.add(new SpeedComponent(5.0f))
 				.add(new DirectionComponent())
 				.add(new GroundMovementComponent())
-				.add(new JumpComponent(20.0f))
+				.add(new JumpComponent(17.5f))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE);

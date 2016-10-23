@@ -29,6 +29,7 @@ import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
@@ -47,10 +48,8 @@ import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
-import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
-import com.fullspectrum.level.Node;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -145,18 +144,19 @@ public class GameScreen extends AbstractScreen {
 		
 		AIController controller = new AIController();
 		
-		playerOne = EntityFactory.createPlayer(input, world, 10.0f, 10.f);
+		playerOne = EntityFactory.createPlayer(input, world, 2.0f, 12.0f);
 		engine.addEntity(playerOne);
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
 //		level.setPlayer(player);
-		level.loadMap("map/TestMap2.tmx");
-		playerMesh = NavMesh.createNavMesh(playerOne, level, EntityStates.RUNNING, EntityStates.JUMPING);
+		level.loadMap("map/ArenaMapv1.tmx");
 		
 //		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 0);
-		pathFinder = new PathFinder(playerMesh, 8, 64, 8, 62);
-		playerTwo = EntityFactory.createAIPlayer(controller, pathFinder, playerOne, world, 10.0f, 13.0f);
+		playerTwo = EntityFactory.createAIPlayer(controller/*, pathFinder*/, playerOne, world, 78.0f, 12.0f);
+		playerMesh = NavMesh.createNavMesh(playerTwo, level, EntityStates.RUNNING, EntityStates.JUMPING);
+		pathFinder = new PathFinder(playerMesh, 11, 78, 11, 77);
+		playerTwo.add(new PathComponent(pathFinder));
 		engine.addEntity(playerTwo);
 		
 		// Setup Camera
@@ -199,7 +199,7 @@ public class GameScreen extends AbstractScreen {
 			changePlayer(!onPlayerOne);
 		}
 		
-//		System.out.println(Mappers.body.get(playerTwo).body.getPosition());
+//		System.out.println(Mappers.body.get(playerOne).body.getPosition());
 		
 //		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 //		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);

@@ -5,7 +5,6 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -36,6 +35,7 @@ public class PathFinder {
 	private ArrayMap<Node, PathData> pathDataMap;
 	
 	public PathFinder(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
+		this.navMesh = navMesh;
 		sRender = new ShapeRenderer();
 		start = navMesh.getNodeMap().get(new Point(startRow, startCol));
 		goal = navMesh.getNodeMap().get(new Point(goalRow, goalCol));
@@ -43,19 +43,16 @@ public class PathFinder {
 		if(goal == null) throw new IllegalArgumentException("Goal node doesn't exist!");
 		current = start;
 		path = new Array<NavLink>();
-		this.navMesh = navMesh;
 		pathDataMap = new ArrayMap<Node, PathData>();
 		for(Node node : navMesh.getNodes()){
 			pathDataMap.put(node, new PathData());
 		}
-		
 		calculatePath();
 	}
 	
 	public PathFinder(NavMesh navMesh, Node start, Node goal){
 		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
 	}
-	
 	
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
@@ -121,32 +118,20 @@ public class PathFinder {
 			@Override
 			public int compare(NavLink linkOne, NavLink linkTwo) {
 //				return linkOne.cost > linkTwo.cost? 1 : -1;
-				return linkOne.cost + getManhattanDistance(linkOne.toNode, goal) > linkTwo.cost + getManhattanDistance(linkTwo.toNode, goal) ? 1 : -1;
+				return linkOne.cost + getManhattanDistance(linkOne.toNode, goal) / 100 > linkTwo.cost + getManhattanDistance(linkTwo.toNode, goal) / 100 ? 1 : -1;
 			}
 		});
 		for(NavLink link : start.getLinks()){
 			uncheckedLinks.add(link);
 		}
-		int linksChecked = 0;
+//		int linksChecked = 0;
 		while(uncheckedLinks.size() > 0){
-			linksChecked++;
 //			System.out.println(uncheckedLinks);
-			
 			NavLink link = uncheckedLinks.pollFirst();
 			if(link.toNode.equals(goal)){
-				System.out.println("Links Checked: " + linksChecked);
+//				System.out.println("Links Checked: " + linksChecked);
 				pathDataMap.put(goal, new PathData(link, link.cost));
 				// Reached the goal, backtrack and create path
-//   			while(!link.fromNode.equals(start)){
-////					System.out.println("From: " + link.fromNode + ", To: " + link.toNode);
-//					path.add(link);
-//					if(link.getParent() == null){
-//						System.out.println("NULL PARENT");
-//					}
-//					link = link.getParent();
-//				}
-//				path.add(link);
-//				path.reverse();
 				Node node = goal;
 				while(!node.equals(start)){
 					path.add(pathDataMap.get(node).getFromLink());
@@ -159,6 +144,7 @@ public class PathFinder {
 			
 			visitedNodes.add(link.fromNode);
 			if(visitedNodes.contains(link.toNode)) continue;
+//			linksChecked++;
 			if(link.cost < pathDataMap.get(link.toNode).getCost()){
 				pathDataMap.get(link.toNode).setCost(link.cost);
 				pathDataMap.get(link.toNode).setFromLink(link);
@@ -166,15 +152,6 @@ public class PathFinder {
 			for(NavLink newLink : link.toNode.getLinks()){
 				uncheckedLinks.add(newLink.increaseCost(link.cost));
 			}
-//			for(NavLink newLink : link.toNode.getLinks()){
-//				if(visitedNodes.contains(newLink.toNode)) 
-//					continue;
-//				if(newLink.cost < pathDataMap.get(newLink.toNode).getCost()){
-//					pathDataMap.get(newLink.toNode).setCost(newLink.cost);
-//					pathDataMap.get(newLink.toNode).setFromLink(newLink);
-//				}
-//				uncheckedLinks.add(newLink.increaseCost(link.cost));
-//			}
 		}
 		
 	}
