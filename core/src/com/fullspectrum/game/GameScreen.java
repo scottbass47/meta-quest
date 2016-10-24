@@ -112,7 +112,7 @@ public class GameScreen extends AbstractScreen {
 		}
 		
 		// Setup Frame Buffer
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGB888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 		
 		// Setup Ashley
@@ -150,10 +150,9 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
 		
-		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
-		level.loadMap("map/TestMap2.tmx");
+		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh
 		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
@@ -191,7 +190,7 @@ public class GameScreen extends AbstractScreen {
 	
 	public void resetFrameBuffer(int width, int height){
 		frameBuffer.dispose();
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGB888, width, height, false);
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 	}
 
@@ -252,7 +251,7 @@ public class GameScreen extends AbstractScreen {
 		// Render Buffer
 		frameBuffer.begin();
 		
-		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1);
+		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		worldCamera.update();
@@ -267,6 +266,7 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
+		RangeTransition.getInstance().render(batch);
 		
 		frameBuffer.end();
 		
