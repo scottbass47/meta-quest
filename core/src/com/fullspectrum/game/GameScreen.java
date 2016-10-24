@@ -48,6 +48,7 @@ import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
+import com.fullspectrum.fsm.transition.RangeTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
@@ -125,6 +126,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PathFollowingSystem());
 		
 		// Transition Systems
+		engine.addSystem(RangeTransition.getInstance());
 		engine.addSystem(RandomTransition.getInstance());
 		engine.addSystem(AnimationFinishedTransition.getInstance());
 		engine.addSystem(FallingTransition.getInstance());
@@ -151,7 +153,7 @@ public class GameScreen extends AbstractScreen {
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
-		level.loadMap("map/ArenaMapv1.tmx");
+		level.loadMap("map/TestMap2.tmx");
 
 		// Setup Nav Mesh
 		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
@@ -218,7 +220,7 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		
-		if(DebugInput.isJustPressed(DebugKeys.SPAWN)){
+		if(DebugInput.isPressed(DebugKeys.SPAWN)){
 			Node spawnNode = playerMesh.getRandomNode();
 			spawnEnemy(spawnNode);
 		}

@@ -10,12 +10,14 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
+import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
+import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
@@ -30,6 +32,7 @@ import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
+import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
@@ -152,6 +155,7 @@ public class EntityFactory {
 		player.add(new TextureComponent(PlayerAssets.animations.get(EntityAnim.IDLE).getKeyFrame(0)));
 		player.add(new InputComponent(controller));
 		player.add(new AIControllerComponent(controller));
+		player.add(new TargetComponent(toFollow));
 //		player.add(new PathComponent(pathFinder));
 //		player.add(new FollowComponent(toFollow));
 		player.add(new FacingComponent());
@@ -254,7 +258,27 @@ public class EntityFactory {
 		aism.createState(AIState.WANDERING)
 			.add(new WanderingComponent(20, 1.5f));
 		
+		aism.createState(AIState.FOLLOWING)
+			.add(new FollowComponent(toFollow));
+		
+		RangeTransitionData wanderingToFollow = new RangeTransitionData();
+		wanderingToFollow.target = toFollow;
+		wanderingToFollow.distance = 6.0f;
+		wanderingToFollow.inRange = true;
+		
+		RangeTransitionData followToWandering = new RangeTransitionData();
+		followToWandering.target = toFollow;
+		followToWandering.distance = 8.0f;
+		followToWandering.inRange = false;
+		
+		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
+		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
+		
 		aism.changeState(AIState.WANDERING);
+//		aism.disableState(AIState.FOLLOWING);
+		
+		System.out.println(aism.printTransitions());
+		
 		player.add(new AIStateMachineComponent(aism));
 		return player;
 	}
