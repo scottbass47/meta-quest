@@ -152,14 +152,14 @@ public class GameScreen extends AbstractScreen {
 		
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
-		level.loadMap("map/ArenaMapv1.tmx");
+		level.loadMap("map/TestMap2.tmx");
 
 		// Setup Nav Mesh
 		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
 
 		// Spawn Player
 		Node playerSpawn = playerMesh.getRandomNode();
-		playerOne = EntityFactory.createPlayer(input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+		playerOne = EntityFactory.createPlayer(level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
 		engine.addEntity(playerOne);
 
 		// Spawn Enemy
@@ -181,7 +181,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnEnemy(Node node){
-		Entity enemy = EntityFactory.createAIPlayer(new AIController()/*, pathFinder*/, playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
+		Entity enemy = EntityFactory.createAIPlayer(level, new AIController()/*, pathFinder*/, playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(new PathComponent(pathFinder));
 		enemies.add(enemy);
@@ -219,7 +219,7 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		
-		if(DebugInput.isPressed(DebugKeys.SPAWN)){
+		if(DebugInput.isJustPressed(DebugKeys.SPAWN)){
 			Node spawnNode = playerMesh.getRandomNode();
 			spawnEnemy(spawnNode);
 		}
@@ -229,6 +229,7 @@ public class GameScreen extends AbstractScreen {
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
+		
 	}
 	
 	private void changePlayer(){
@@ -266,7 +267,7 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
-		RangeTransition.getInstance().render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_RANGE)) RangeTransition.getInstance().render(batch);
 		
 		frameBuffer.end();
 		

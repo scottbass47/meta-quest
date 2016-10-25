@@ -14,6 +14,7 @@ import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
+import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -37,12 +38,14 @@ import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
+import com.fullspectrum.level.Level;
 
 public class EntityFactory {
 
-	public static Entity createPlayer(Input input, World world, float x, float y) {
+	public static Entity createPlayer(Level level, Input input, World world, float x, float y) {
 		// Setup Player
 		Entity player = new Entity();
+		player.add(new LevelComponent(level));
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent());
 		player.add(new RenderComponent());
@@ -146,9 +149,10 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createAIPlayer(AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
+	public static Entity createAIPlayer(Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
 		// Setup Player
 		Entity player = new Entity();
+		player.add(new LevelComponent(level));
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent());
 		player.add(new RenderComponent());
@@ -263,13 +267,15 @@ public class EntityFactory {
 		
 		RangeTransitionData wanderingToFollow = new RangeTransitionData();
 		wanderingToFollow.target = toFollow;
-		wanderingToFollow.distance = 6.0f;
+		wanderingToFollow.distance = 15.0f;
 		wanderingToFollow.inRange = true;
+		wanderingToFollow.rayTrace = true;
 		
 		RangeTransitionData followToWandering = new RangeTransitionData();
 		followToWandering.target = toFollow;
-		followToWandering.distance = 8.0f;
+		followToWandering.distance = 15.0f;
 		followToWandering.inRange = false;
+		followToWandering.rayTrace = false;
 		
 		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
@@ -277,15 +283,16 @@ public class EntityFactory {
 		aism.changeState(AIState.WANDERING);
 //		aism.disableState(AIState.FOLLOWING);
 		
-		System.out.println(aism.printTransitions());
+//		System.out.println(aism.printTransitions());
 		
 		player.add(new AIStateMachineComponent(aism));
 		return player;
 	}
 	
-	public static Entity createGoblin(AIController controller, World world, float x, float y) {
+	public static Entity createGoblin(Level level, AIController controller, World world, Entity toFollow, float x, float y) {
 		// Setup Player
 		Entity goblin = new Entity();
+		goblin.add(new LevelComponent(level));
 		goblin.add(new PositionComponent(x, y));
 		goblin.add(new VelocityComponent());
 		goblin.add(new RenderComponent());

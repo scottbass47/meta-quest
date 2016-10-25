@@ -6,7 +6,8 @@ public enum DebugToggle {
 	SHOW_NAVMESH('l'),
 	SHOW_PATH('k'),
 	SHOW_HITBOXES('m'),
-	SHOW_COMMANDS(';');
+	SHOW_COMMANDS(';'),
+	SHOW_RANGE('u');
 	
 	private final char character;
 	

@@ -189,7 +189,55 @@ public class Level {
 	}
 	
 	public boolean isAir(int row, int col){
+		if(!inBounds(row, col)) return false;
 		return mapTiles[row][col].isAir();
+	}
+	
+	public boolean performRayTrace(float x1, float y1, float x2, float y2){
+		int startCol = (int)x1;
+		int startRow = (int)y1;
+		int endCol = (int)x2;
+		int endRow = (int)y2;
+		
+		boolean alongX = Math.abs(startCol - endCol) > Math.abs(startRow - endRow); 
+
+		float slope = 0.0f;
+		if(alongX){
+			slope = (startRow - endRow) / (float)(startCol - endCol);
+		}else{
+			slope = (startCol - endCol) / (float)(startRow - endRow);
+		}
+		
+		// y2 - y1 = m(x2 - x1)
+		// startRow - y1 = m(startCol - x1)
+		// startRow - y1 = m(startCol - col)
+		// y1 = -m(startCol - col) + startRow
+		
+		if(alongX){
+			if(startCol < endCol){
+				for(int col = startCol; col <= endCol; col++){
+					if(!isAir((int)(-slope * (startCol - col) + startRow), col)) return false;
+				}
+			}
+			else{
+				for(int col = startCol; col >= endCol; col--){
+					if(!isAir((int)(-slope * (startCol - col) + startRow), col)) return false;
+				}
+			}
+		}
+		else{
+			if(startRow < endRow){
+				for(int row = startRow; row <= endRow; row++){
+					if(!isAir(row, (int)(-slope * (startRow - row) + startCol))) return false;
+				}
+			}
+			else{
+				for(int row = startRow; row >= endRow; row--){
+					if(!isAir(row, (int)(-slope * (startRow - row) + startCol))) return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	private int[] expandRow(int startCol, int row, int maxWidth, Boolean[][] tileExists){

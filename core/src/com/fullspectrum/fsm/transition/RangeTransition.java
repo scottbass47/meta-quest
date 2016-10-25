@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateMachine;
@@ -34,6 +35,7 @@ public class RangeTransition extends TransitionSystem {
 			Entity entity = machine.getEntity();
 
 			BodyComponent bodyComp = Mappers.body.get(entity);
+			LevelComponent levelComp = Mappers.level.get(entity);
 
 			for (TransitionObject obj : machine.getCurrentState().getData(Transition.RANGE)) {
 				RangeTransitionData rtd = (RangeTransitionData) obj.data;
@@ -49,8 +51,14 @@ public class RangeTransition extends TransitionSystem {
 				float y2 = b2.getPosition().y;
 				float distance = rtd.distance;
 				boolean inside = rtd.inRange;
-
+				
 				if (inRange(x1, y1, x2, y2, distance, inside)) {
+					if((rtd.rayTrace && levelComp.level.performRayTrace(x1, y1, x2, y2)) || !rtd.rayTrace){
+						machine.changeState(machine.getCurrentState().getState(obj));
+						break;
+					}
+				}
+				else if(!inside && !rtd.rayTrace && !levelComp.level.performRayTrace(x1, y1, x2, y2)){
 					machine.changeState(machine.getCurrentState().getState(obj));
 					break;
 				}
@@ -61,7 +69,7 @@ public class RangeTransition extends TransitionSystem {
 	private boolean inRange(float x1, float y1, float x2, float y2, float r, boolean inside) {
 		return inside ? (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) < r * r : (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2) > r * r;
 	}
-
+	
 	public void render(SpriteBatch batch) {
 		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		sRenderer.begin(ShapeType.Line);
@@ -69,6 +77,7 @@ public class RangeTransition extends TransitionSystem {
 			Entity entity = machine.getEntity();
 
 			BodyComponent bodyComp = Mappers.body.get(entity);
+			LevelComponent levelComp = Mappers.level.get(entity);
 
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.RANGE);
 			RangeTransitionData rtd = (RangeTransitionData) obj.data;
@@ -83,12 +92,19 @@ public class RangeTransition extends TransitionSystem {
 			float x2 = b2.getPosition().x;
 			float y2 = b2.getPosition().y;
 			
-			Color color = new Color(1, 0, 0, 0.5f);
+			Color color = new Color(1, 0, 0, 1);
 			if(inRange(x1, y1, x2, y2, rtd.distance, true)){
-				color = new Color(0, 1, 0, 0.5f);
+				color = new Color(0, 1, 0, 1);
 			}
 			sRenderer.setColor(color);
 			sRenderer.circle(x1, y1, rtd.distance, 32);
+			
+			color = new Color(1, 0, 0, 1);
+			if(levelComp.level.performRayTrace(x1, y1, x2, y2)){
+				color = new Color(0, 1, 0, 1);
+			}
+			sRenderer.setColor(color);
+			sRenderer.line(x1, y1, x2, y2);
 		}
 		sRenderer.end();
 	}
