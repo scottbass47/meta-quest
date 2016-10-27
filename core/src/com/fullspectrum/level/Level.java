@@ -199,6 +199,10 @@ public class Level {
 		int endCol = (int)x2;
 		int endRow = (int)y2;
 		
+		if(startCol == endCol && startRow == endRow){
+			return isAir(startRow, startCol);
+		}
+		
 		boolean alongX = Math.abs(startCol - endCol) > Math.abs(startRow - endRow); 
 
 		float slope = 0.0f;

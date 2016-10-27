@@ -39,7 +39,7 @@ public class PathFollowingSystem extends IteratingSystem{
 		// If you're not at a node, do an action based off of the last node you were at.
 		
 		Rectangle aabb = bodyComp.getAABB();
-		Node currentNode = navMesh.getNearestNode(bodyComp.body, 0.0f, aabb.y);
+		Node currentNode = navMesh.getNearestNode(bodyComp.body, 0.0f, aabb.y, true);
 		NavLink link = null;
 		if(currentNode == null){
 			link = pathFinder.getCurrentLink();

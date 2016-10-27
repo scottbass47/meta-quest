@@ -90,7 +90,7 @@ public class GameScreen extends AbstractScreen {
 
 	// Box2D
 	private World world;
-	
+
 	// Rendering
 	private FrameBuffer frameBuffer;
 	private ShaderProgram mellowShader;
@@ -102,29 +102,27 @@ public class GameScreen extends AbstractScreen {
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		enemies = new Array<Entity>();
-		
+
 		// Setup Shader
-		mellowShader = new ShaderProgram(
-				Gdx.files.internal("shaders/mellow.vsh"),
-				Gdx.files.internal("shaders/mellow.fsh"));
+		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
 		if (!mellowShader.isCompiled()) {
 			throw new GdxRuntimeException(mellowShader.getLog());
 		}
-		
+
 		// Setup Frame Buffer
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
-		
+
 		// Setup Ashley
 		engine = new Engine();
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
-		
+
 		// AI Systems
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());
-		
+
 		// Transition Systems
 		engine.addSystem(RangeTransition.getInstance());
 		engine.addSystem(RandomTransition.getInstance());
@@ -132,14 +130,14 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(FallingTransition.getInstance());
 		engine.addSystem(LandedTransition.getInstance());
 		engine.addSystem(InputTransition.getInstance());
-		
+
 		// State Systems
 		engine.addSystem(IdlingSystem.getInstance());
 		engine.addSystem(RunningSystem.getInstance());
 		engine.addSystem(JumpingSystem.getInstance());
 		engine.addSystem(FallingSystem.getInstance());
 		engine.addSystem(DivingSystem.getInstance());
-		
+
 		// Other Systems
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
@@ -149,10 +147,10 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
-		
+
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
-		level.loadMap("map/TestMap2.tmx");
+		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh
 		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
@@ -179,16 +177,16 @@ public class GameScreen extends AbstractScreen {
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
 	}
-	
-	private void spawnEnemy(Node node){
-		Entity enemy = EntityFactory.createAIPlayer(level, new AIController()/*, pathFinder*/, playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
+
+	private void spawnEnemy(Node node) {
+		Entity enemy = EntityFactory.createAIPlayer(level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(new PathComponent(pathFinder));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
-	
-	public void resetFrameBuffer(int width, int height){
+
+	public void resetFrameBuffer(int width, int height) {
 		frameBuffer.dispose();
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -206,40 +204,37 @@ public class GameScreen extends AbstractScreen {
 		engine.update(delta);
 
 		world.step(delta, 6, 2);
-		// level.update(delta);
-		if(input.isJustPressed(Actions.SELECT)){
+		if (input.isJustPressed(Actions.SELECT)) {
 			changePlayer();
 		}
-		
+
 		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-		if(mouseNode != null){
-			if(Mouse.isJustPressed()){
+		if (mouseNode != null) {
+			if (Mouse.isJustPressed()) {
 				spawnEnemy(mouseNode);
 			}
 		}
-		
-		if(DebugInput.isJustPressed(DebugKeys.SPAWN)){
+
+		if (DebugInput.isJustPressed(DebugKeys.SPAWN)) {
 			Node spawnNode = playerMesh.getRandomNode();
 			spawnEnemy(spawnNode);
 		}
-		
-		if(DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom){
+
+		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
-		
 	}
-	
-	private void changePlayer(){
+
+	private void changePlayer() {
 		CameraComponent cameraComp = Mappers.camera.get(cameraEntity);
 		index++;
-		if(index > enemies.size) index = 0;
-		if(index == 0){
+		if (index > enemies.size) index = 0;
+		if (index == 0) {
 			cameraComp.toFollow = playerOne;
-		}
-		else{
+		} else {
 			cameraComp.toFollow = enemies.get(index - 1);
 		}
 	}
@@ -251,31 +246,31 @@ public class GameScreen extends AbstractScreen {
 
 		// Render Buffer
 		frameBuffer.begin();
-		
+
 		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		
+
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
-		
+
 		level.render();
 		renderer.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_PATH)){
-			for(Entity enemy : enemies){
+		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
+		if (DebugInput.isToggled(DebugToggle.SHOW_PATH)) {
+			for (Entity enemy : enemies) {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
-		if(DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
-		if(DebugInput.isToggled(DebugToggle.SHOW_RANGE)) RangeTransition.getInstance().render(batch);
-		
+		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
+		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)) RangeTransition.getInstance().render(batch);
+
 		frameBuffer.end();
-		
+
 		HdpiUtils.glViewport(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH, SCREEN_HEIGHT);
 		HdpiUtils.glScissor(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH - UPSCALE, SCREEN_HEIGHT - UPSCALE);
 
 		CameraComponent camera = Mappers.camera.get(cameraEntity);
-		
+
 		batch.begin();
 		batch.setShader(mellowShader);
 		batch.setProjectionMatrix(hudCamera.combined);
@@ -286,7 +281,7 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
+
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);
 		// sRenderer.setColor(Color.RED);

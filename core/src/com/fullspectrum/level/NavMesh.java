@@ -465,11 +465,11 @@ public class NavMesh {
 	 * @return
 	 */
 	public Node getNearestNode(Body body){
-		return getNearestNode(body, 0.0f, 0.0f);
+		return getNearestNode(body, 0.0f, 0.0f, true);
 	}
 	
-	public Node getNearestNode(Body body, float xOff, float yOff){
-		if(body.getLinearVelocity().y != 0) return null;
+	public Node getNearestNode(Body body, float xOff, float yOff, boolean grounded){
+		if(body.getLinearVelocity().y != 0 && grounded) return null;
 		Vector2 position = body.getPosition();
 		float x = position.x + xOff;
 		float y = position.y + yOff;
@@ -485,6 +485,15 @@ public class NavMesh {
 			node = left != null ? left : right;
 		}
 		return node;
+	}
+	
+	public Node getShadowNode(Body body, float xOff, float yOff){
+		while(body.getPosition().y + yOff > 0){
+			Node next = getNearestNode(body, xOff, yOff, false);
+			if(next != null) return next;
+			yOff -= 1.0f;
+		}
+		return null;
 	}
 	
 	public Array<Node> getNodes(Node fromNode, int radius){

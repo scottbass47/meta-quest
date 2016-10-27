@@ -28,7 +28,7 @@ public class WanderingSystem extends IteratingSystem{
 		PathFinder path = pathComp.pathFinder;
 		NavMesh navMesh = path.getNavMesh();
 		Body body = bodyComp.body;
-		Node currentNode = navMesh.getNearestNode(body, 0.0f, bodyComp.getAABB().y);
+		Node currentNode = navMesh.getNearestNode(body, 0.0f, bodyComp.getAABB().y, true);
 		if(currentNode == null) return;
 		
 		if(wanderingComp.wandering){
