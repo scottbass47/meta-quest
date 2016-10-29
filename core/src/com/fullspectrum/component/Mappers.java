@@ -33,5 +33,6 @@ public class Mappers {
 	public static final ComponentMapper<WanderingComponent> wandering = ComponentMapper.getFor(WanderingComponent.class);
 	public static final ComponentMapper<TargetComponent> target = ComponentMapper.getFor(TargetComponent.class);
 	public static final ComponentMapper<LevelComponent> level = ComponentMapper.getFor(LevelComponent.class);
+	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
 	
 }

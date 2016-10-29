@@ -7,6 +7,7 @@ import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
@@ -46,6 +47,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new Entity();
 		player.add(new LevelComponent(level));
+		player.add(new CollisionComponent());
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent());
 		player.add(new RenderComponent());
@@ -153,6 +155,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new Entity();
 		player.add(new LevelComponent(level));
+		player.add(new CollisionComponent());
 		player.add(new PositionComponent(x, y));
 		player.add(new VelocityComponent());
 		player.add(new RenderComponent());
@@ -293,6 +296,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity goblin = new Entity();
 		goblin.add(new LevelComponent(level));
+		goblin.add(new CollisionComponent());
 		goblin.add(new PositionComponent(x, y));
 		goblin.add(new VelocityComponent());
 		goblin.add(new RenderComponent());
@@ -379,4 +383,6 @@ public class EntityFactory {
 		return goblin;
 	}
 
+	
+	
 }

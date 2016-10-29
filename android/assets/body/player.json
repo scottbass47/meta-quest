@@ -8,6 +8,14 @@
           "shape": "Box",
           "width": 15,
           "height": 40
+        },
+        {
+          "shape": "Box",
+          "width": 12,
+          "height": 8,
+          "yOff": -20,
+          "isSensor": "true",
+          "SensorType": "feet"
         }
     ]
   }

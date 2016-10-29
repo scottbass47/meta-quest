@@ -1,6 +1,7 @@
 package com.fullspectrum.fsm.system;
 
 
+
 public class DivingSystem extends StateSystem{
 
 	private static DivingSystem instance;

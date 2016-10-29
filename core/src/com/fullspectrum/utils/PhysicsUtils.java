@@ -5,6 +5,7 @@ import static com.badlogic.gdx.physics.box2d.BodyDef.BodyType.KinematicBody;
 import static com.badlogic.gdx.physics.box2d.BodyDef.BodyType.StaticBody;
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.math.Rectangle;
@@ -20,6 +21,7 @@ import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.physics.EntityFixtures;
@@ -44,17 +46,23 @@ public class PhysicsUtils {
 		}
 		
 		for(JsonValue json : value.get("Fixtures")){
-			eFixtures.add(loadFixture(json));
+			FixtureDef fdef = loadFixture(json);
+			Object data = null;
+			if(fdef.isSensor){
+				data = json.getString("SensorType");
+			}
+			eFixtures.add(fdef, data);
 		}
 		return eFixtures;
 	}
 	
-	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, boolean withFixtures){
+	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, Entity entity, boolean withFixtures){
 		String jsonString = file.readString();
 		JsonReader reader = new JsonReader();
 		JsonValue root = reader.parse(jsonString);
 		
 		Body body = loadBodyDef(root.get("BodyDef"), world, position);
+		body.setUserData(entity);
 		if(withFixtures) loadFixtures(root.get("Fixtures"), body);
 		return body;
 	}
@@ -88,9 +96,9 @@ public class PhysicsUtils {
 		fdef.density = root.getFloat("density", 0.0f);
 		fdef.restitution = root.getFloat("restitution", 0.0f);
 		fdef.friction = root.getFloat("friction", 0.2f);
-		fdef.isSensor = root.getBoolean("isSensor", false);
 		fdef.filter.categoryBits = GameVars.ENTITY;
 		fdef.filter.maskBits = GameVars.TILE;
+		fdef.isSensor = root.getBoolean("isSensor", false);
 		
 		float x = root.getFloat("xOff", 0.0f) * PPM_INV;
 		float y = root.getFloat("yOff", 0.0f) * PPM_INV;
@@ -119,12 +127,16 @@ public class PhysicsUtils {
 	
 	private static void loadFixture(JsonValue root, Body body){
 		FixtureDef fdef = loadFixture(root);
-		body.createFixture(fdef);
+		Fixture fixture = body.createFixture(fdef);
+		if(fixture.isSensor()){
+			fixture.setUserData(root.getString("SensorType"));
+		}
 	}
 	
 	public static Rectangle getAABB(Body body){
 		float maxX = 0, maxY = 0, minX = 0, minY = 0;
 		for(Fixture fixture : body.getFixtureList()){
+			if(fixture.isSensor()) continue;
 			Type type = fixture.getShape().getType();
 			switch(type){
 			case Circle:
@@ -157,11 +169,12 @@ public class PhysicsUtils {
 	
 	public static Rectangle getAABB(EntityFixtures fixtures){
 		float maxX = 0, maxY = 0, minX = 0, minY = 0;
-		for(FixtureDef fdef : fixtures.getFixtures()){
-			Type type = fdef.shape.getType();
+		for(Entry<FixtureDef, Object> fdef : fixtures.getFixtures()){
+			if(fdef.key.isSensor) continue;
+			Type type = fdef.key.shape.getType();
 			switch(type){
 			case Circle:
-				CircleShape circleShape = (CircleShape)fdef.shape;
+				CircleShape circleShape = (CircleShape)fdef.key.shape;
 				Vector2 position = circleShape.getPosition();
 				float radius = circleShape.getRadius();
 				if(position.x - radius < minX) minX = position.x - radius;
@@ -170,7 +183,7 @@ public class PhysicsUtils {
 				if(position.y + radius > maxY) maxY = position.y + radius;
 				break;
 			case Polygon:
-				PolygonShape boxShape = (PolygonShape)fdef.shape;
+				PolygonShape boxShape = (PolygonShape)fdef.key.shape;
 				for(int i = 0; i < boxShape.getVertexCount(); i++){
 					Vector2 vertex = new Vector2();
 					boxShape.getVertex(i, vertex);

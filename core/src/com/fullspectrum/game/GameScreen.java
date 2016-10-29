@@ -55,6 +55,7 @@ import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
+import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -64,6 +65,7 @@ import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
+import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
@@ -101,6 +103,7 @@ public class GameScreen extends AbstractScreen {
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
+		world.setContactListener(new WorldCollision());
 		enemies = new Array<Entity>();
 
 		// Setup Shader
@@ -147,6 +150,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
+		engine.addSystem(new RemovalSystem(world));
 
 		// Setup and Load Level
 		level = new Level(world, worldCamera, batch);
@@ -161,7 +165,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addEntity(playerOne);
 
 		// Spawn Enemy
-		spawnEnemy(playerMesh.getRandomNode());
+		//spawnEnemy(playerMesh.getRandomNode());
 
 		// Setup Camera
 		cameraEntity = new Entity();
@@ -202,6 +206,7 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
+		
 
 		world.step(delta, 6, 2);
 		if (input.isJustPressed(Actions.SELECT)) {

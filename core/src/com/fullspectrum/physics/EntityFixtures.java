@@ -1,23 +1,27 @@
 package com.fullspectrum.physics;
 
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 public class EntityFixtures {
 
-	private Array<FixtureDef> fixtures;
+	private ArrayMap<FixtureDef, Object> fixtures;
 	private String name;
 	
 	public EntityFixtures(){
-		fixtures = new Array<FixtureDef>();
+		fixtures = new ArrayMap<FixtureDef, Object>();
 	}
 	
-	public void add(FixtureDef fdef){
-		fixtures.add(fdef);
+	public void add(FixtureDef fdef, Object data){
+		fixtures.put(fdef, data);
 	}
 	
-	public Array<FixtureDef> getFixtures(){
+	public ArrayMap<FixtureDef, Object> getFixtures(){
 		return fixtures;
+	}
+	
+	public Object getData(FixtureDef fdef){
+		return fixtures.get(fdef);
 	}
 	
 	public void setName(String name){

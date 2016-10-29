@@ -7,6 +7,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
@@ -29,7 +30,7 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		WorldComponent worldComp = Mappers.world.get(entity);
 		assert bodyComp != null && posComp != null && worldComp != null : "Component can't be null.";
-		bodyComp.body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(bodyPath), worldComp.world, new Vector2(posComp.x, posComp.y), false);
+		bodyComp.body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(bodyPath), worldComp.world, new Vector2(posComp.x, posComp.y), entity, false);
 	}
 	
 	@Override
@@ -67,8 +68,11 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		for(Fixture fixture : body.getFixtureList()){
 			body.destroyFixture(fixture);
 		}
-		for(FixtureDef fdef : state.fixtures.getFixtures()){
-			body.createFixture(fdef);
+		for(Entry<FixtureDef, Object> fdef : state.fixtures.getFixtures().entries()){
+			Fixture fixture = body.createFixture(fdef.key);
+			if(fdef.key.isSensor){
+				fixture.setUserData(state.fixtures.getData(fdef.key));
+			}
 		}
 		bodyComp.updateAABB();
 	}

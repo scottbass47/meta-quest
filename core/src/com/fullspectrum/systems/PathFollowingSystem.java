@@ -8,6 +8,7 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.input.Actions;
@@ -30,6 +31,7 @@ public class PathFollowingSystem extends IteratingSystem{
 		AIControllerComponent controllerComp = Mappers.aiController.get(entity);
 		PathComponent pathComp = Mappers.path.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
+		CollisionComponent collisionComp = Mappers.collision.get(entity);
 		
 		PathFinder pathFinder = pathComp.pathFinder;
 		NavMesh navMesh = pathFinder.getNavMesh();
@@ -60,7 +62,7 @@ public class PathFollowingSystem extends IteratingSystem{
 		}
 		
 		boolean right = link.toNode.getCol() > link.fromNode.getCol();
-		boolean landed = bodyComp.body.getLinearVelocity().y == 0;
+		boolean landed = collisionComp.onGround();
 		float x = bodyComp.body.getPosition().x;
 		
 		switch(link.type){
