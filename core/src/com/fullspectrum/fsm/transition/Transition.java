@@ -37,6 +37,14 @@ public enum Transition {
 		public TransitionSystem getSystem() {
 			return RangeTransition.getInstance();
 		}
+	},
+	NULL(true){
+
+		@Override
+		public TransitionSystem getSystem() {
+			return NullTransition.getInstance();
+		};
+	
 	};
 
 	public final boolean allowMultiple;

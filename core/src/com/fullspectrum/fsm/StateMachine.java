@@ -8,12 +8,13 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
-public class StateMachine<S extends State, E extends StateObject> {
+public class StateMachine<S extends State, E extends StateObject>{
 
 	// State
 	protected ArrayMap<E, StateMachine<? extends State, ? extends StateObject>> substateMachines;
@@ -67,8 +68,37 @@ public class StateMachine<S extends State, E extends StateObject> {
 		states.get(state).enable();
 	}
 	
-	public void reset(){
+	public void resetMachine(){
 		currentState = states.get(initialState);
+	}
+	
+	public void reset(){
+		Iterator<Entry<S, E>> iter = states.iterator();
+		while(iter.hasNext()){
+			Entry<S, E> state = iter.next();
+			for(Component c : state.value.getComponents()){
+				Poolable pool = (Poolable)c;
+				pool.reset();
+			}
+		}
+		if (currentState != null) {
+			for (Transition t : currentState.getTransitions()) {
+				t.getSystem().removeStateMachine(this);
+			}
+			for (Component c : currentState.getComponents()) {
+				entity.remove(c.getClass());
+			}
+			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
+			if(machine != null){
+				for(Transition t : machine.currentState.getTransitions()){
+					t.getSystem().removeStateMachine(machine);
+				}
+				machine.resetMachine();
+			}
+		}
+		for(Entry<E, StateMachine<? extends State, ? extends StateObject>> entry : substateMachines){
+			entry.value.reset();
+		}
 	}
 
 	public E getCurrentState() {
@@ -110,7 +140,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 				for(Transition t : machine.currentState.getTransitions()){
 					t.getSystem().removeStateMachine(machine);
 				}
-				machine.reset();
+				machine.resetMachine();
 			}
 		}
 		for (Transition t : newState.getTransitions()) {

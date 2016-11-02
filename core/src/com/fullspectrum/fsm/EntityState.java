@@ -25,7 +25,7 @@ public class EntityState extends StateObject{
 	
 	public EntityState addAnimation(State anim){
 		animations.createState(anim);
-		animations.reset();
+		animations.resetMachine();
 		return this;
 	}
 	

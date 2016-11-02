@@ -1,5 +1,6 @@
 package com.fullspectrum.systems;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
@@ -20,10 +21,14 @@ public class RemovalSystem extends IteratingSystem{
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		getEngine().removeEntity(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		
-		if(bodyComp != null && bodyComp.body != null) world.destroyBody(bodyComp.body);
-		entity = null;
+		if(bodyComp != null && bodyComp.body != null){
+			world.destroyBody(bodyComp.body);
+		}
+		for(Component c : entity.getComponents()){
+			entity.remove(c.getClass());
+		}
+		getEngine().removeEntity(entity);
 	}
 }

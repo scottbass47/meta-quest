@@ -7,8 +7,8 @@ import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -47,6 +47,7 @@ import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.LandedTransition;
+import com.fullspectrum.fsm.transition.NullTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RangeTransition;
 import com.fullspectrum.input.Actions;
@@ -77,7 +78,7 @@ public class GameScreen extends AbstractScreen {
 	private Box2DDebugRenderer b2dr;
 
 	// Ashley
-	private Engine engine;
+	private PooledEngine engine;
 	private RenderingSystem renderer;
 
 	// Player
@@ -117,7 +118,7 @@ public class GameScreen extends AbstractScreen {
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
 		// Setup Ashley
-		engine = new Engine();
+		engine = new PooledEngine(16, 64, 64, 512);
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 
@@ -133,6 +134,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(FallingTransition.getInstance());
 		engine.addSystem(LandedTransition.getInstance());
 		engine.addSystem(InputTransition.getInstance());
+		engine.addSystem(NullTransition.getInstance());
 
 		// State Systems
 		engine.addSystem(IdlingSystem.getInstance());
@@ -161,15 +163,17 @@ public class GameScreen extends AbstractScreen {
 
 		// Spawn Player
 		Node playerSpawn = playerMesh.getRandomNode();
-		playerOne = EntityFactory.createPlayer(level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+		playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
 		engine.addEntity(playerOne);
 
 		// Spawn Enemy
 		//spawnEnemy(playerMesh.getRandomNode());
 
 		// Setup Camera
-		cameraEntity = new Entity();
-		CameraComponent cameraComp = new CameraComponent(worldCamera, playerOne);
+		cameraEntity = engine.createEntity();
+		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
+		cameraComp.camera = worldCamera;
+		cameraComp.toFollow = playerOne;
 		cameraComp.minX = 0f;
 		cameraComp.minY = 0f;
 		cameraComp.maxX = level.getWidth();
@@ -183,9 +187,9 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
-		enemy.add(new PathComponent(pathFinder));
+		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -206,7 +210,6 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
-		
 
 		world.step(delta, 6, 2);
 		if (input.isJustPressed(Actions.SELECT)) {

@@ -18,8 +18,8 @@ public class AnimationStateMachine extends StateMachine<State, StateObject>{
 	}
 	
 	@Override
-	public void reset() {
-		super.reset();
+	public void resetMachine() {
+		super.resetMachine();
 		time = 0;
 	}
 	
