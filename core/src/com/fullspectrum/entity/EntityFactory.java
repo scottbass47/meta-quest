@@ -10,6 +10,7 @@ import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
+import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FollowComponent;
@@ -45,6 +46,7 @@ public class EntityFactory {
 	public static Entity createPlayer(PooledEngine engine, Level level, Input input, World world, float x, float y) {
 		// Setup Player
 		Entity player = engine.createEntity();
+		player.add(engine.createComponent(EngineComponent.class).set(engine));
 		player.add(engine.createComponent(LevelComponent.class).set(level));
 		player.add(engine.createComponent(CollisionComponent.class));
 		player.add(engine.createComponent(PositionComponent.class).set(x, y));
@@ -153,6 +155,7 @@ public class EntityFactory {
 	public static Entity createAIPlayer(PooledEngine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
 		// Setup Player
 		Entity player = engine.createEntity();
+		player.add(engine.createComponent(EngineComponent.class).set(engine));
 		player.add(engine.createComponent(LevelComponent.class).set(level));
 		player.add(engine.createComponent(CollisionComponent.class));
 		player.add(engine.createComponent(PositionComponent.class).set(x, y));
@@ -280,7 +283,7 @@ public class EntityFactory {
 		
 		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
-		aism.addTransition(AIState.FOLLOWING, Transition.NULL, toFollow, AIState.WANDERING);
+		aism.addTransition(AIState.FOLLOWING, Transition.INVALID_ENTITY, toFollow, AIState.WANDERING);
 		
 		aism.changeState(AIState.WANDERING);
 //		aism.disableState(AIState.FOLLOWING);
@@ -294,6 +297,7 @@ public class EntityFactory {
 //	public static Entity createGoblin(PooledEngine engine, Level level, AIController controller, World world, Entity toFollow, float x, float y) {
 //		// Setup Player
 //		Entity goblin = engine.createEntity();
+	//goblin.add(engine.createComponent(EngineComponent.class).set(engine));
 //		goblin.add(new LevelComponent(level));
 //		goblin.add(new CollisionComponent());
 //		goblin.add(new PositionComponent(x, y));

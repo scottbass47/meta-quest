@@ -34,5 +34,6 @@ public class Mappers {
 	public static final ComponentMapper<TargetComponent> target = ComponentMapper.getFor(TargetComponent.class);
 	public static final ComponentMapper<LevelComponent> level = ComponentMapper.getFor(LevelComponent.class);
 	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
+	public static final ComponentMapper<EngineComponent> engine = ComponentMapper.getFor(EngineComponent.class);
 	
 }

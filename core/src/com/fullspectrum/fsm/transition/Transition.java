@@ -38,11 +38,11 @@ public enum Transition {
 			return RangeTransition.getInstance();
 		}
 	},
-	NULL(true){
+	INVALID_ENTITY(true){
 
 		@Override
 		public TransitionSystem getSystem() {
-			return NullTransition.getInstance();
+			return InvalidEntityTransition.getInstance();
 		};
 	
 	};

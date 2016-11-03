@@ -8,6 +8,7 @@ import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -37,6 +38,7 @@ import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.system.DivingSystem;
 import com.fullspectrum.fsm.system.FallingSystem;
@@ -47,7 +49,7 @@ import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.LandedTransition;
-import com.fullspectrum.fsm.transition.NullTransition;
+import com.fullspectrum.fsm.transition.InvalidEntityTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RangeTransition;
 import com.fullspectrum.input.Actions;
@@ -119,6 +121,18 @@ public class GameScreen extends AbstractScreen {
 
 		// Setup Ashley
 		engine = new PooledEngine(16, 64, 64, 512);
+		engine.addEntityListener(new EntityListener() {
+			@Override
+			public void entityRemoved(Entity entity) {
+				EntityUtils.setValid(entity, false);
+			}
+			
+			@Override
+			public void entityAdded(Entity entity) {
+				EntityUtils.setValid(entity, true);
+			}
+		});
+		
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 
@@ -134,7 +148,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(FallingTransition.getInstance());
 		engine.addSystem(LandedTransition.getInstance());
 		engine.addSystem(InputTransition.getInstance());
-		engine.addSystem(NullTransition.getInstance());
+		engine.addSystem(InvalidEntityTransition.getInstance());
 
 		// State Systems
 		engine.addSystem(IdlingSystem.getInstance());
@@ -164,8 +178,9 @@ public class GameScreen extends AbstractScreen {
 		// Spawn Player
 		Node playerSpawn = playerMesh.getRandomNode();
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+		System.out.println("Valid: " + EntityUtils.isValid(playerOne));
 		engine.addEntity(playerOne);
-
+		System.out.println("Valid: " + EntityUtils.isValid(playerOne));
 		// Spawn Enemy
 		//spawnEnemy(playerMesh.getRandomNode());
 
@@ -184,6 +199,7 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMaxY = 0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
+		
 	}
 
 	private void spawnEnemy(Node node) {
