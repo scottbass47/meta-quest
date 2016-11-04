@@ -61,6 +61,12 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		}
 	}
 	
+	@Override
+	public void reset() {
+		super.reset();
+		states.getKey(currentState, false).getStateSystem().removeEntity(entity);
+	}
+	
 	private void changeBody(EntityState state){
 //		Gdx.app.debug("Entity State Machine", "changing body.");
 		BodyComponent bodyComp = Mappers.body.get(entity);

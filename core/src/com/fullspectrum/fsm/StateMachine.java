@@ -93,12 +93,12 @@ public class StateMachine<S extends State, E extends StateObject>{
 				for(Transition t : machine.currentState.getTransitions()){
 					t.getSystem().removeStateMachine(machine);
 				}
-				machine.resetMachine();
+//				machine.resetMachine();
 			}
 		}
-		for(Entry<E, StateMachine<? extends State, ? extends StateObject>> entry : substateMachines){
-			entry.value.reset();
-		}
+//		for(Entry<E, StateMachine<? extends State, ? extends StateObject>> entry : substateMachines){
+//			entry.value.reset();
+//		}
 	}
 
 	public E getCurrentState() {

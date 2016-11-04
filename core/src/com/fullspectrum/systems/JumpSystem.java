@@ -10,7 +10,6 @@ import com.fullspectrum.component.Mappers;
 
 public class JumpSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public JumpSystem(){
 		super(Family.all(JumpComponent.class, BodyComponent.class).get());
 	}

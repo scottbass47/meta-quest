@@ -8,12 +8,12 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 
 public class FollowingSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public FollowingSystem(){
 		super(Family.all(FollowComponent.class, PathComponent.class, BodyComponent.class).get());
 	}
@@ -23,6 +23,7 @@ public class FollowingSystem extends IteratingSystem{
 		PathComponent pathComp = Mappers.path.get(entity);
 		FollowComponent followComp = Mappers.follow.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
+		if(followComp.toFollow == null || !EntityUtils.isValid(followComp.toFollow)) return;
 		BodyComponent otherBody = Mappers.body.get(followComp.toFollow);
 		
 		PathFinder pathFinder = pathComp.pathFinder;

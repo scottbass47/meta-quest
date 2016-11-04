@@ -12,7 +12,6 @@ import com.fullspectrum.component.TextureComponent;
 
 public class PositioningSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public PositioningSystem(){
 		super(Family.all(PositionComponent.class, TextureComponent.class, BodyComponent.class).get());
 	}

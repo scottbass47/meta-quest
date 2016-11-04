@@ -20,7 +20,6 @@ import com.fullspectrum.level.TrajectoryData;
 
 public class PathFollowingSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public PathFollowingSystem(){
 		super(Family.all(AIControllerComponent.class, PathComponent.class, BodyComponent.class).get());
 	}

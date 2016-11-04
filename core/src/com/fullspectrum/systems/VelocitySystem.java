@@ -10,7 +10,6 @@ import com.fullspectrum.component.VelocityComponent;
 
 public class VelocitySystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public VelocitySystem(){
 		super(Family.all(DirectionComponent.class, SpeedComponent.class, VelocityComponent.class).get());
 	}

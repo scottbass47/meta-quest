@@ -14,7 +14,6 @@ import com.fullspectrum.level.Node;
 
 public class WanderingSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public WanderingSystem(){
 		super(Family.all(BodyComponent.class, PathComponent.class, WanderingComponent.class).get());
 	}

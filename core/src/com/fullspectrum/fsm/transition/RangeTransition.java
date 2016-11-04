@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateObject;
@@ -39,7 +40,7 @@ public class RangeTransition extends TransitionSystem {
 
 			for (TransitionObject obj : machine.getCurrentState().getData(Transition.RANGE)) {
 				RangeTransitionData rtd = (RangeTransitionData) obj.data;
-				if (rtd == null || rtd.target == null) continue;
+				if (rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) continue;
 				BodyComponent otherBody = Mappers.body.get(rtd.target);
 
 				Body b1 = bodyComp.body;
@@ -81,7 +82,7 @@ public class RangeTransition extends TransitionSystem {
 
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.RANGE);
 			RangeTransitionData rtd = (RangeTransitionData) obj.data;
-			if (rtd == null || rtd.target == null) continue;
+			if (rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) continue;
 			BodyComponent otherBody = Mappers.body.get(rtd.target);
 
 			Body b1 = bodyComp.body;

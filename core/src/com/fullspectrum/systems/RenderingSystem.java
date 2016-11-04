@@ -18,7 +18,6 @@ public class RenderingSystem extends EntitySystem {
 
 	private ImmutableArray<Entity> entities;
 
-	@SuppressWarnings("unchecked")
 	@Override
 	public void addedToEngine(Engine engine) {
 		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, RenderComponent.class, TextureComponent.class).get());

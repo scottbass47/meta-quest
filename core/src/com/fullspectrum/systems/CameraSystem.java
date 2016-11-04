@@ -9,10 +9,10 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.entity.EntityUtils;
 
 public class CameraSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public CameraSystem(){
 		super(Family.all(CameraComponent.class).get());
 	}
@@ -20,6 +20,7 @@ public class CameraSystem extends IteratingSystem{
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		CameraComponent cameraComp = Mappers.camera.get(entity);
+		if(!EntityUtils.isValid(cameraComp.toFollow)) return;
 		Body body = Mappers.body.get(cameraComp.toFollow).body;
 		assert(body != null);
 		float dx = body.getPosition().x - cameraComp.x;

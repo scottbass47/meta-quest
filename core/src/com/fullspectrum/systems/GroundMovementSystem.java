@@ -11,7 +11,6 @@ import com.fullspectrum.component.VelocityComponent;
 
 public class GroundMovementSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public GroundMovementSystem(){
 		super(Family.all(GroundMovementComponent.class, BodyComponent.class, VelocityComponent.class).get());
 	}

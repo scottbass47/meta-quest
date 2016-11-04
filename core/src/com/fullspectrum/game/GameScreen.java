@@ -7,9 +7,11 @@ import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 import static com.fullspectrum.game.GameVars.UPSCALE;
 
+import java.util.Iterator;
+
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -48,8 +50,8 @@ import com.fullspectrum.fsm.system.RunningSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
-import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.InvalidEntityTransition;
+import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RangeTransition;
 import com.fullspectrum.input.Actions;
@@ -80,7 +82,7 @@ public class GameScreen extends AbstractScreen {
 	private Box2DDebugRenderer b2dr;
 
 	// Ashley
-	private PooledEngine engine;
+	private Engine engine;
 	private RenderingSystem renderer;
 
 	// Player
@@ -120,7 +122,8 @@ public class GameScreen extends AbstractScreen {
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
 		// Setup Ashley
-		engine = new PooledEngine(16, 64, 64, 512);
+//		engine = new PooledEngine(16, 64, 64, 512);
+		engine = new Engine();
 		engine.addEntityListener(new EntityListener() {
 			@Override
 			public void entityRemoved(Entity entity) {
@@ -178,9 +181,7 @@ public class GameScreen extends AbstractScreen {
 		// Spawn Player
 		Node playerSpawn = playerMesh.getRandomNode();
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
-		System.out.println("Valid: " + EntityUtils.isValid(playerOne));
 		engine.addEntity(playerOne);
-		System.out.println("Valid: " + EntityUtils.isValid(playerOne));
 		// Spawn Enemy
 		//spawnEnemy(playerMesh.getRandomNode());
 
@@ -249,6 +250,13 @@ public class GameScreen extends AbstractScreen {
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+		}
+		
+		// Remove Invalid Enemies
+		for(Iterator<Entity> iter = enemies.iterator(); iter.hasNext();){
+			if(!EntityUtils.isValid(iter.next())){
+				iter.remove();
+			}
 		}
 	}
 

@@ -11,7 +11,6 @@ import com.fullspectrum.component.TextureComponent;
 
 public class AnimationSystem extends IteratingSystem {
 
-	@SuppressWarnings("unchecked")
 	public AnimationSystem() {
 		super(Family.all(TextureComponent.class, AnimationComponent.class).one(FSMComponent.class, StateComponent.class).get());
 	}

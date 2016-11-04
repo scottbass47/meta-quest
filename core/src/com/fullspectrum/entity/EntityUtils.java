@@ -9,6 +9,7 @@ public class EntityUtils {
 	private EntityUtils(){}
 	
 	public static boolean isValid(Entity entity){
+		if(entity == null) return false;
 		return (entity.flags & VALID) == VALID;
 	}
 	

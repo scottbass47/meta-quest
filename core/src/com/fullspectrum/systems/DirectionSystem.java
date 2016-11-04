@@ -15,7 +15,6 @@ import com.fullspectrum.input.Input;
 
 public class DirectionSystem extends IteratingSystem {
 
-	@SuppressWarnings("unchecked")
 	public DirectionSystem() {
 		super(Family.all(InputComponent.class, DirectionComponent.class).get());
 	}

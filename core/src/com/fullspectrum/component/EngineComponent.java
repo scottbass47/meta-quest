@@ -1,13 +1,13 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.ashley.core.Engine;
 
 public class EngineComponent implements Component{
 
-	public PooledEngine engine;
+	public Engine engine;
 
-	public EngineComponent set(PooledEngine engine){
+	public EngineComponent set(Engine engine){
 		this.engine = engine;
 		return this;
 	}

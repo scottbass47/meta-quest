@@ -18,10 +18,10 @@ allprojects {
     version = '1.0'
     ext {
         appName = "platformer"
-        gdxVersion = '1.9.3'
+        gdxVersion = '1.9.4'
         roboVMVersion = '2.1.0'
         box2DLightsVersion = '1.4'
-        ashleyVersion = '1.7.0'
+        ashleyVersion = '1.7.3'
         aiVersion = '1.8.0'
     }
 
@@ -30,6 +30,10 @@ allprojects {
         mavenCentral()
         maven { url "https://oss.sonatype.org/content/repositories/snapshots/" }
         maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+    }
+
+    configurations.all {
+	resolutionStrategy.force 'com.badlogicgames.gdx:gdx-box2d:1.9.4'
     }
 }
 
@@ -68,7 +72,7 @@ project(":android") {
         compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-controllers-android:$gdxVersion"
-	compile "com.badlogicgames.ashley:ashley:1.7.0"
+	compile "com.badlogicgames.ashley:ashley:1.7.3"
     }
 }
 
@@ -88,7 +92,7 @@ project(":html") {
         compile "com.badlogicgames.gdx:gdx-controllers:$gdxVersion:sources"
         compile "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion"
         compile "com.badlogicgames.gdx:gdx-controllers-gwt:$gdxVersion:sources"
-	compile "com.badlogicgames.ashley:ashley:1.7.0:sources"
+	compile "com.badlogicgames.ashley:ashley:1.7.3:sources"
     }
 }
 
@@ -102,7 +106,7 @@ project(":core") {
         compile "com.badlogicgames.box2dlights:box2dlights:$box2DLightsVersion"
         compile "com.badlogicgames.gdx:gdx-controllers-lwjgl3:$gdxVersion"
 	compile "com.badlogicgames.gdx:gdx-backend-lwjgl3:$gdxVersion"
- 	compile "com.badlogicgames.ashley:ashley:1.7.0"
+ 	compile "com.badlogicgames.ashley:ashley:1.7.3"
     }
 }
 

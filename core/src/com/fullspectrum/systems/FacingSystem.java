@@ -9,7 +9,6 @@ import com.fullspectrum.component.VelocityComponent;
 
 public class FacingSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public FacingSystem(){
 		super(Family.all(FacingComponent.class, VelocityComponent.class).get());
 	}

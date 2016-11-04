@@ -1,7 +1,7 @@
 package com.fullspectrum.entity;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.component.AIControllerComponent;
@@ -43,7 +43,7 @@ import com.fullspectrum.level.Level;
 
 public class EntityFactory {
 
-	public static Entity createPlayer(PooledEngine engine, Level level, Input input, World world, float x, float y) {
+	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y) {
 		// Setup Player
 		Entity player = engine.createEntity();
 		player.add(engine.createComponent(EngineComponent.class).set(engine));
@@ -152,7 +152,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createAIPlayer(PooledEngine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
+	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
 		// Setup Player
 		Entity player = engine.createEntity();
 		player.add(engine.createComponent(EngineComponent.class).set(engine));
