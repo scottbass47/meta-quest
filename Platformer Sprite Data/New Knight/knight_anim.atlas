@@ -1,0 +1,166 @@
+knight_anim.png
+size: 31, 974
+format: RGBA8888
+filter: Linear,Linear
+repeat: none
+knight_falling
+  rotate: false
+  xy: 0, 0
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 1
+knight_falling
+  rotate: false
+  xy: 0, 41
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 2
+knight_falling
+  rotate: false
+  xy: 0, 82
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 3
+knight_idling
+  rotate: false
+  xy: 0, 123
+  size: 22, 40
+  orig: 22, 40
+  offset: 0, 0
+  index: 1
+knight_idling
+  rotate: false
+  xy: 0, 164
+  size: 22, 40
+  orig: 22, 40
+  offset: 0, 0
+  index: 2
+knight_idling
+  rotate: false
+  xy: 0, 205
+  size: 22, 40
+  orig: 22, 40
+  offset: 0, 0
+  index: 3
+knight_idling
+  rotate: false
+  xy: 0, 246
+  size: 22, 40
+  orig: 22, 40
+  offset: 0, 0
+  index: 4
+knight_jump
+  rotate: false
+  xy: 0, 287
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 1
+knight_jump
+  rotate: false
+  xy: 0, 328
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 2
+knight_jump
+  rotate: false
+  xy: 0, 369
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 3
+knight_jump_apex
+  rotate: false
+  xy: 0, 410
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 1
+knight_jump_apex
+  rotate: false
+  xy: 0, 451
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 2
+knight_rising
+  rotate: false
+  xy: 0, 492
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 1
+knight_rising
+  rotate: false
+  xy: 0, 533
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 2
+knight_rising
+  rotate: false
+  xy: 0, 574
+  size: 31, 40
+  orig: 31, 40
+  offset: 0, 0
+  index: 3
+knight_walking
+  rotate: false
+  xy: 0, 615
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 1
+knight_walking
+  rotate: false
+  xy: 0, 660
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 2
+knight_walking
+  rotate: false
+  xy: 0, 705
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 3
+knight_walking
+  rotate: false
+  xy: 0, 750
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 4
+knight_walking
+  rotate: false
+  xy: 0, 795
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 5
+knight_walking
+  rotate: false
+  xy: 0, 840
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 6
+knight_walking
+  rotate: false
+  xy: 0, 885
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 7
+knight_walking
+  rotate: false
+  xy: 0, 930
+  size: 22, 44
+  orig: 22, 44
+  offset: 0, 0
+  index: 8
