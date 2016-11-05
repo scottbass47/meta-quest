@@ -85,9 +85,9 @@ public class StateMachine<S extends State, E extends StateObject>{
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
-			for (Component c : currentState.getComponents()) {
-				entity.remove(c.getClass());
-			}
+//			for (Component c : currentState.getComponents()) {
+//				entity.remove(c.getClass());
+//			}
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
 			if(machine != null){
 				for(Transition t : machine.currentState.getTransitions()){

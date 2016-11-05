@@ -1,6 +1,7 @@
 package com.fullspectrum.entity;
 
 import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.system.AttackSystem;
 import com.fullspectrum.fsm.system.DivingSystem;
 import com.fullspectrum.fsm.system.FallingSystem;
 import com.fullspectrum.fsm.system.IdlingSystem;
@@ -38,6 +39,12 @@ public enum EntityStates implements State{
 		@Override
 		public StateSystem getStateSystem() {
 			return DivingSystem.getInstance();
+		}
+	},
+	ATTACK{
+		@Override
+		public StateSystem getStateSystem() {
+			return AttackSystem.getInstance();
 		}
 	};
 

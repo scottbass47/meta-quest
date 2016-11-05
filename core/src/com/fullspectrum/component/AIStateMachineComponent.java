@@ -18,4 +18,5 @@ public class AIStateMachineComponent implements Component, Poolable{
 		this.aism = aism;
 		return this;
 	}
+	
 }

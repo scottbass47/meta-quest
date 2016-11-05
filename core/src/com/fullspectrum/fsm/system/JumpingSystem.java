@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.input.Actions;
 
@@ -21,7 +20,6 @@ public class JumpingSystem extends StateSystem{
 	@Override
 	public void update(float deltaTime) {
 		for(Entity entity : entities){
-			entity.add(new RemoveComponent());
 			JumpComponent jumpComp = Mappers.jump.get(entity);
 			InputComponent inputComp = Mappers.input.get(entity);
 			SpeedComponent speedComp = Mappers.speed.get(entity);

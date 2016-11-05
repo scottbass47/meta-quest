@@ -10,7 +10,8 @@ public enum EntityAnim implements State{
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
 	FALLING,
-	JUMP_APEX;
+	JUMP_APEX,
+	OVERHEAD_ATTACK;
 
 	@Override
 	public int numStates() {

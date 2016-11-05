@@ -64,7 +64,8 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.FALLING, PlayerAssets.animations.get(EntityAnim.FALLING))
 			.addAnimation(EntityAnim.RANDOM_IDLE, PlayerAssets.animations.get(EntityAnim.RANDOM_IDLE))
 			.addAnimation(EntityAnim.RISE, PlayerAssets.animations.get(EntityAnim.RISE))
-			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX)));
+			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX))
+			.addAnimation(EntityAnim.OVERHEAD_ATTACK, PlayerAssets.animations.get(EntityAnim.OVERHEAD_ATTACK)));
 
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
@@ -102,19 +103,28 @@ public class EntityFactory {
 				.add(engine.createComponent(SpeedComponent.class).set(8.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(-20.0f))
-				.addAnimation(EntityAnim.FALLING)
+				.add(engine.createComponent(JumpComponent.class).set(-10.0f))
+				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.AIR_STATE);
 
 		fsm.createState(EntityStates.JUMPING)
-				.add(engine.createComponent(SpeedComponent.class).set(5.0f))
+				.add(engine.createComponent(SpeedComponent.class).set(8.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(20.0f))
+				.add(engine.createComponent(JumpComponent.class).set(20f))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
 				.addTag(TransitionTag.AIR_STATE);
+		
+		fsm.createState(EntityStates.ATTACK)
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(DirectionComponent.class))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
+				.addTag(TransitionTag.GROUND_STATE)
+				.addTag(TransitionTag.STATIC_STATE);
+		
 
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -133,17 +143,22 @@ public class EntityFactory {
 
 		InputTransitionData diveData = new InputTransitionData(Type.ALL, true);
 		diveData.triggers.add(new InputTrigger(Actions.MOVE_DOWN));
+		
+		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
+		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transition.INPUT, runningData, EntityStates.RUNNING);
-		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, EntityStates.JUMPING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
 		fsm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transition.INPUT, bothData, EntityStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-
-//		System.out.print(fsm.printTransitions());
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), Transition.INPUT, attackData, EntityStates.ATTACK);
+		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		System.out.print(fsm.printTransitions());
 
 //		fsm.disableState(EntityStates.DIVING);
 		fsm.changeState(EntityStates.IDLING);
