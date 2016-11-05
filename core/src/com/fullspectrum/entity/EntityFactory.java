@@ -11,6 +11,7 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AnimationComponent;
+import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
@@ -33,9 +34,11 @@ import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextureComponent;
+import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
@@ -67,7 +70,8 @@ public class EntityFactory {
 		player.add(engine.createComponent(InputComponent.class).set(input));
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
-		player.add(engine.createComponent(HealthComponent.class).set(Float.MAX_VALUE, Float.MAX_VALUE));
+		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY));
+		player.add(engine.createComponent(HealthComponent.class).set(1000, 1000));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(AnimationComponent.class)
 			.addAnimation(EntityAnim.IDLE, PlayerAssets.animations.get(EntityAnim.IDLE))
@@ -129,7 +133,7 @@ public class EntityFactory {
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
 				.addTag(TransitionTag.AIR_STATE);
 		
-		Entity sword = createSword(engine, world, player, x, y, 50);
+		Entity sword = createSword(engine, world, player, x, y, 25);
 //		engine.addEntity(sword);
 		
 		fsm.createState(EntityStates.ATTACK)
@@ -197,6 +201,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(InputComponent.class).set(controller));
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
+		player.add(engine.createComponent(TypeComponent.class).set(EntityType.ENEMY));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(HealthComponent.class).set(100, 100));
 		player.add(engine.createComponent(AnimationComponent.class)
@@ -206,7 +211,8 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.FALLING, PlayerAssets.animations.get(EntityAnim.FALLING))
 			.addAnimation(EntityAnim.RANDOM_IDLE, PlayerAssets.animations.get(EntityAnim.RANDOM_IDLE))
 			.addAnimation(EntityAnim.RISE, PlayerAssets.animations.get(EntityAnim.RISE))
-			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX)));
+			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX))
+			.addAnimation(EntityAnim.OVERHEAD_ATTACK, PlayerAssets.animations.get(EntityAnim.OVERHEAD_ATTACK)));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class).set(toFollow));
 
@@ -246,8 +252,8 @@ public class EntityFactory {
 				.add(engine.createComponent(SpeedComponent.class).set(5.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(-20.0f))
-				.addAnimation(EntityAnim.FALLING)
+				.add(engine.createComponent(JumpComponent.class).set(-10.0f))
+				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.AIR_STATE);
 
 		fsm.createState(EntityStates.JUMPING)
@@ -259,7 +265,20 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
 				.addTag(TransitionTag.AIR_STATE);
-
+		
+		Entity sword = createSword(engine, world, player, x, y, 25);
+//		engine.addEntity(sword);
+		
+		fsm.createState(EntityStates.ATTACK)
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(DirectionComponent.class))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(SwordComponent.class).set(sword))
+				.add(engine.createComponent(SwingComponent.class).set(150, 210, 0.6f))
+				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
+				.addTag(TransitionTag.GROUND_STATE)
+				.addTag(TransitionTag.STATIC_STATE);
+		
 
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -278,16 +297,20 @@ public class EntityFactory {
 
 		InputTransitionData diveData = new InputTransitionData(Type.ALL, true);
 		diveData.triggers.add(new InputTrigger(Actions.MOVE_DOWN));
+		
+		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
+		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transition.INPUT, runningData, EntityStates.RUNNING);
-		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.INPUT, jumpData, EntityStates.JUMPING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
 		fsm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transition.INPUT, bothData, EntityStates.IDLING);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), Transition.INPUT, attackData, EntityStates.ATTACK);
+		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 //		System.out.print(fsm.printTransitions());
 		
 //		fsm.disableState(EntityStates.DIVING);
@@ -302,6 +325,10 @@ public class EntityFactory {
 		aism.createState(AIState.FOLLOWING)
 			.add(engine.createComponent(FollowComponent.class).set(toFollow));
 		
+		aism.createState(AIState.ATTACKING)
+			.add(engine.createComponent(TargetComponent.class).set(toFollow))
+			.add(engine.createComponent(AttackComponent.class));
+		
 		RangeTransitionData wanderingToFollow = new RangeTransitionData();
 		wanderingToFollow.target = toFollow;
 		wanderingToFollow.distance = 15.0f;
@@ -314,9 +341,23 @@ public class EntityFactory {
 		followToWandering.inRange = false;
 		followToWandering.rayTrace = false;
 		
+		RangeTransitionData toAttack = new RangeTransitionData();
+		toAttack.target = toFollow;
+		toAttack.distance = 1.5f;
+		toAttack.inRange = true;
+		toAttack.rayTrace = true;
+		
+		RangeTransitionData fromAttack = new RangeTransitionData();
+		fromAttack.target = toFollow;
+		fromAttack.distance = 2.5f;
+		fromAttack.inRange = false;
+		fromAttack.rayTrace = false;
+		
 		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
-		aism.addTransition(AIState.FOLLOWING, Transition.INVALID_ENTITY, toFollow, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, toFollow, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), Transition.RANGE, toAttack, AIState.ATTACKING);
+		aism.addTransition(AIState.ATTACKING, Transition.RANGE, fromAttack, AIState.FOLLOWING);
 		
 		aism.changeState(AIState.WANDERING);
 //		aism.disableState(AIState.FOLLOWING);

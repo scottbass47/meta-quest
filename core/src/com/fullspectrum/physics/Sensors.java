@@ -6,6 +6,7 @@ import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwordStatsComponent;
+import com.fullspectrum.component.TypeComponent;
 
 public enum Sensors {
 
@@ -27,9 +28,13 @@ public enum Sensors {
 		public void beginCollision(Fixture me, Fixture other) {
 			Entity sword = (Entity)me.getBody().getUserData();
 			Entity otherEntity = (Entity)other.getBody().getUserData();
+			Entity swordWielder = Mappers.parent.get(sword).parent;
+			
+			if(Mappers.type.get(swordWielder).type == Mappers.type.get(otherEntity).type) return;
 			
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
 			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
+			
 			
 			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity, true) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
 				enemyHealth.health -= swordStats.damage;

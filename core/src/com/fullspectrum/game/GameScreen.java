@@ -15,14 +15,17 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -32,7 +35,9 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
+import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.debug.DebugCycle;
@@ -62,6 +67,7 @@ import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AnimationSystem;
+import com.fullspectrum.systems.AttackingSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -146,6 +152,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());
+		engine.addSystem(new AttackingSystem());
 
 		// Transition Systems
 		engine.addSystem(RangeTransition.getInstance());
@@ -299,6 +306,12 @@ public class GameScreen extends AbstractScreen {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
+		if(DebugInput.isToggled(DebugToggle.SHOW_HEALTH)){
+			renderHealth(batch, playerOne);
+			for(Entity enemy : enemies){
+				renderHealth(batch, enemy);
+			}
+		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)) RangeTransition.getInstance().render(batch);
 
@@ -340,6 +353,28 @@ public class GameScreen extends AbstractScreen {
 		// camera.camera.position.x + camera.windowMaxX,
 		// camera.camera.position.y + camera.windowMinY);
 		// sRenderer.end();
+	}
+	
+	private void renderHealth(SpriteBatch batch, Entity entity){
+		if(!EntityUtils.isValid(entity)) return;
+		HealthComponent healthComp = Mappers.heatlh.get(entity);
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		
+		float width = 1.0f;
+		float height = 0.2f;
+		float x = bodyComp.body.getPosition().x - width * 0.5f;
+		float y = bodyComp.body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.1f;
+		float border = 0.05f;
+		
+		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+		sRenderer.begin(ShapeType.Filled);
+		sRenderer.setColor(Color.BLACK);
+		sRenderer.rect(x, y, width, height);
+		sRenderer.setColor(Color.WHITE);
+		sRenderer.rect(x + border, y + border, width - border * 2, height - border * 2);
+		sRenderer.setColor(Color.RED);
+		sRenderer.rect(x + border, y + border, (width - border * 2) * (healthComp.health / healthComp.maxHealth), height - border * 2);
+		sRenderer.end();
 	}
 
 	@Override

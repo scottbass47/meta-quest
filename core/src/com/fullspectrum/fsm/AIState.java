@@ -4,7 +4,8 @@ package com.fullspectrum.fsm;
 public enum AIState implements State{
 	
 	WANDERING,
-	FOLLOWING;
+	FOLLOWING,
+	ATTACKING;
 
 	@Override
 	public int getIndex() {
