@@ -63,6 +63,7 @@ import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.CameraSystem;
+import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.FollowingSystem;
@@ -70,8 +71,10 @@ import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
+import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
+import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
 
@@ -169,6 +172,9 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
+		engine.addSystem(new RelativePositioningSystem());
+		engine.addSystem(new SwingingSystem());
+		engine.addSystem(new DeathSystem());
 		engine.addSystem(new RemovalSystem(world));
 
 		// Setup and Load Level

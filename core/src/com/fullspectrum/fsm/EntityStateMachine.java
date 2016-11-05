@@ -44,13 +44,15 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 	public void changeState(State identifier) {
 		if(!(identifier instanceof EntityStates)) throw new IllegalArgumentException("Invalid input. Must be of type EntityStates.");
 		EntityState currState = currentState;
-		super.changeState(identifier);
 		EntityStates state = (EntityStates)identifier;
 		EntityState newState = states.get(state);
 		if (newState == currState) return;
 		if (currState != null) {
+			states.getKey(currState, false).getStateSystem().onExit(entity);
 			states.getKey(currState, false).getStateSystem().removeEntity(entity);
 		}
+		super.changeState(identifier);
+		states.getKey(newState, false).getStateSystem().onEnter(entity);
 		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){
 			changeBody(newState);

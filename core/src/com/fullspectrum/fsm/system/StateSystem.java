@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.gdx.utils.Array;
 
-public class StateSystem extends EntitySystem{
+public abstract class StateSystem extends EntitySystem{
 
 	protected Array<Entity> entities;
 	
@@ -20,4 +20,6 @@ public class StateSystem extends EntitySystem{
 		entities.removeIndex(entities.indexOf(entity, false));
 	}
 	
+	public abstract void onEnter(Entity entity);
+	public abstract void onExit(Entity entity);
 }

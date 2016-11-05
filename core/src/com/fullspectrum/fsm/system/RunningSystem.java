@@ -24,5 +24,15 @@ public class RunningSystem extends StateSystem{
 			speedComp.multiplier = Math.abs(inputComp.input.getValue(Actions.MOVE_LEFT) - inputComp.input.getValue(Actions.MOVE_RIGHT));
 		}
 	}
+
+	@Override
+	public void onEnter(Entity entity) {
+		
+	}
+
+	@Override
+	public void onExit(Entity entity) {
+		
+	}
 	
 }

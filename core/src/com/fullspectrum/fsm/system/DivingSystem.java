@@ -1,5 +1,7 @@
 package com.fullspectrum.fsm.system;
 
+import com.badlogic.ashley.core.Entity;
+
 
 
 public class DivingSystem extends StateSystem{
@@ -13,6 +15,16 @@ public class DivingSystem extends StateSystem{
 	
 	@Override
 	public void update(float deltaTime) {
+		
+	}
+
+	@Override
+	public void onEnter(Entity entity) {
+		
+	}
+
+	@Override
+	public void onExit(Entity entity) {
 		
 	}
 	

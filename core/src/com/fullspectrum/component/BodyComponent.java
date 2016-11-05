@@ -19,6 +19,12 @@ public class BodyComponent implements Component, Poolable{
 	public void updateAABB(){
 		aabb = PhysicsUtils.getAABB(body);
 	}
+	
+	public BodyComponent set(Body body){
+		this.body = body;
+		updateAABB();
+		return this;
+	}
 
 	@Override
 	public void reset() {

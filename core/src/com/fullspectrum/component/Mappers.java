@@ -35,5 +35,10 @@ public class Mappers {
 	public static final ComponentMapper<LevelComponent> level = ComponentMapper.getFor(LevelComponent.class);
 	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
 	public static final ComponentMapper<EngineComponent> engine = ComponentMapper.getFor(EngineComponent.class);
-	
+	public static final ComponentMapper<OffsetComponent> offset = ComponentMapper.getFor(OffsetComponent.class);
+	public static final ComponentMapper<ParentComponent> parent = ComponentMapper.getFor(ParentComponent.class);
+	public static final ComponentMapper<SwordComponent> sword = ComponentMapper.getFor(SwordComponent.class);
+	public static final ComponentMapper<SwingComponent> swing = ComponentMapper.getFor(SwingComponent.class);
+	public static final ComponentMapper<HealthComponent> heatlh = ComponentMapper.getFor(HealthComponent.class);
+	public static final ComponentMapper<SwordStatsComponent> swordStats = ComponentMapper.getFor(SwordStatsComponent.class);
 }

@@ -1,5 +1,7 @@
 package com.fullspectrum.fsm.system;
 
+import com.badlogic.ashley.core.Entity;
+
 
 public class IdlingSystem extends StateSystem{
 
@@ -12,6 +14,16 @@ public class IdlingSystem extends StateSystem{
 	
 	@Override
 	public void update(float deltaTime) {
+		
+	}
+
+	@Override
+	public void onEnter(Entity entity) {
+		
+	}
+
+	@Override
+	public void onExit(Entity entity) {
 		
 	}
 	

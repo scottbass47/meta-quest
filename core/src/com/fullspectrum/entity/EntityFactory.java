@@ -1,7 +1,11 @@
 package com.fullspectrum.entity;
 
+import static com.fullspectrum.game.GameVars.*;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.component.AIControllerComponent;
@@ -15,12 +19,18 @@ import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.GroundMovementComponent;
+import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.LevelComponent;
+import com.fullspectrum.component.OffsetComponent;
+import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
+import com.fullspectrum.component.SwingComponent;
+import com.fullspectrum.component.SwordComponent;
+import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.VelocityComponent;
@@ -40,6 +50,7 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
 
@@ -56,6 +67,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(InputComponent.class).set(input));
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
+		player.add(engine.createComponent(HealthComponent.class).set(Float.MAX_VALUE, Float.MAX_VALUE));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(AnimationComponent.class)
 			.addAnimation(EntityAnim.IDLE, PlayerAssets.animations.get(EntityAnim.IDLE))
@@ -117,10 +129,15 @@ public class EntityFactory {
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
 				.addTag(TransitionTag.AIR_STATE);
 		
+		Entity sword = createSword(engine, world, player, x, y, 50);
+//		engine.addEntity(sword);
+		
 		fsm.createState(EntityStates.ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(SwordComponent.class).set(sword))
+				.add(engine.createComponent(SwingComponent.class).set(150, 210, 0.6f))
 				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.GROUND_STATE)
 				.addTag(TransitionTag.STATIC_STATE);
@@ -158,7 +175,7 @@ public class EntityFactory {
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), Transition.INPUT, attackData, EntityStates.ATTACK);
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		
-		System.out.print(fsm.printTransitions());
+//		System.out.print(fsm.printTransitions());
 
 //		fsm.disableState(EntityStates.DIVING);
 		fsm.changeState(EntityStates.IDLING);
@@ -181,6 +198,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
+		player.add(engine.createComponent(HealthComponent.class).set(100, 100));
 		player.add(engine.createComponent(AnimationComponent.class)
 			.addAnimation(EntityAnim.IDLE, PlayerAssets.animations.get(EntityAnim.IDLE))
 			.addAnimation(EntityAnim.RUNNING, PlayerAssets.animations.get(EntityAnim.RUNNING))
@@ -307,6 +325,19 @@ public class EntityFactory {
 		
 		player.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return player;
+	}
+	
+	public static Entity createSword(Engine engine, World world, Entity owner, float x, float y, int damage){
+		Entity sword = engine.createEntity();
+		
+		sword.add(engine.createComponent(BodyComponent.class)
+				.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/sword.json"), world, new Vector2(x, y), sword, true)));
+		sword.add(engine.createComponent(ParentComponent.class).set(owner));
+		sword.add(engine.createComponent(OffsetComponent.class).set(16.0f * PPM_INV, 0.0f * PPM_INV, true));
+		sword.add(engine.createComponent(SwordStatsComponent.class).set(damage));
+		sword.getComponent(BodyComponent.class).body.setActive(false);
+		
+		return sword;
 	}
 	
 //	public static Entity createGoblin(PooledEngine engine, Level level, AIController controller, World world, Entity toFollow, float x, float y) {

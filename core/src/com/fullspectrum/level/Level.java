@@ -95,7 +95,7 @@ public class Level {
 		fdef.shape = shape;
 		fdef.friction = 0.0f;
 		fdef.filter.categoryBits = GameVars.TILE;
-		fdef.filter.maskBits = GameVars.ENTITY;
+		fdef.filter.maskBits = GameVars.ENTITY | GameVars.SENSOR;
 
 		Array<Tile> tiles = new Array<Tile>();
 		mapTiles = new Tile[height][width];

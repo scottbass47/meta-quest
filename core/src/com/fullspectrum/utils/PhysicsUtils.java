@@ -97,8 +97,12 @@ public class PhysicsUtils {
 		fdef.restitution = root.getFloat("restitution", 0.0f);
 		fdef.friction = root.getFloat("friction", 0.2f);
 		fdef.filter.categoryBits = GameVars.ENTITY;
-		fdef.filter.maskBits = GameVars.TILE;
+		fdef.filter.maskBits = GameVars.TILE | GameVars.SENSOR;
 		fdef.isSensor = root.getBoolean("isSensor", false);
+		if(fdef.isSensor){
+			fdef.filter.categoryBits = GameVars.SENSOR;
+			fdef.filter.maskBits = GameVars.TILE | GameVars.ENTITY;
+		}
 		
 		float x = root.getFloat("xOff", 0.0f) * PPM_INV;
 		float y = root.getFloat("yOff", 0.0f) * PPM_INV;

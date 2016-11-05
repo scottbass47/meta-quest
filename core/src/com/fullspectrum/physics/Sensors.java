@@ -3,7 +3,9 @@ package com.fullspectrum.physics;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.SwordStatsComponent;
 
 public enum Sensors {
 
@@ -18,6 +20,30 @@ public enum Sensors {
 		public void endCollision(Fixture me, Fixture other) {
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
 			collisionComp.bottomContacts--;			
+		}
+	},
+	SWORD{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity sword = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
+			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
+			
+			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity, true) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
+				enemyHealth.health -= swordStats.damage;
+				swordStats.hitEntities.add(otherEntity);
+			}
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			Entity sword = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
+			swordStats.hitEntities.removeValue(otherEntity, true);
 		}
 	};
 	
