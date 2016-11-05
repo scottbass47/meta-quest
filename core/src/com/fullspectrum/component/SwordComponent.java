@@ -15,7 +15,7 @@ public class SwordComponent implements Component, Poolable{
 
 	@Override
 	public void reset(){
-		sword = null;
+		sword.add(new RemoveComponent());
 	}
 	
 }

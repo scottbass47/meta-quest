@@ -179,7 +179,7 @@ public class Level {
 			int height = endRow - startRow + 1;
 			shape.setAsBox(width * 0.5f, height * 0.5f);
 			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-			world.createBody(bdef).createFixture(fdef);
+			world.createBody(bdef).createFixture(fdef).setUserData("ground");
 			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
 	}

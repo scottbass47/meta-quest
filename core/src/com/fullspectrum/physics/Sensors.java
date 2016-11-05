@@ -6,19 +6,22 @@ import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwordStatsComponent;
-import com.fullspectrum.component.TypeComponent;
 
 public enum Sensors {
 
 	FEET {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
-			collisionComp.bottomContacts++;			
+			collisionComp.bottomContacts++;
 		}
 
 		@Override
 		public void endCollision(Fixture me, Fixture other) {
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
 			collisionComp.bottomContacts--;			
 		}
@@ -30,6 +33,7 @@ public enum Sensors {
 			Entity otherEntity = (Entity)other.getBody().getUserData();
 			Entity swordWielder = Mappers.parent.get(sword).parent;
 			
+			// Don't deal damage to an entity of the same type (e.g. no friendly fire)
 			if(Mappers.type.get(swordWielder).type == Mappers.type.get(otherEntity).type) return;
 			
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
