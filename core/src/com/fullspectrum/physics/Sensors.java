@@ -12,6 +12,7 @@ public enum Sensors {
 	FEET {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX, SHOULD ALLOW ENTITIES TO LAND ON OTHER THINGS OTHER THAN THE GROUND
 			String data = (String)other.getUserData();
 			if(data == null || !data.equals("ground")) return;
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
@@ -20,6 +21,7 @@ public enum Sensors {
 
 		@Override
 		public void endCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX, SHOULD ALLOW ENTITIES TO LAND ON OTHER THINGS OTHER THAN THE GROUND
 			String data = (String)other.getUserData();
 			if(data == null || !data.equals("ground")) return;
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
