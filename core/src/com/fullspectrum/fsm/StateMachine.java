@@ -129,6 +129,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		if(newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
 		if (currentState != null) {
+			currentState.onExit();
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
@@ -149,6 +150,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
+		newState.onEnter();
 		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
 		if(machine != null){
 			for(Transition t : machine.currentState.getTransitions()){

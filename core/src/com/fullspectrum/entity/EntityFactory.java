@@ -24,6 +24,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.LevelComponent;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
@@ -43,6 +44,7 @@ import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
@@ -120,7 +122,7 @@ public class EntityFactory {
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
 				.add(engine.createComponent(JumpComponent.class).set(-10.0f))
-				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
+				.addAnimation(EntityAnim.FALLING)
 				.addTag(TransitionTag.AIR_STATE);
 
 		fsm.createState(EntityStates.JUMPING)
@@ -144,7 +146,33 @@ public class EntityFactory {
 				.add(engine.createComponent(SwingComponent.class).set(150, 210, 0.6f))
 				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.GROUND_STATE)
-				.addTag(TransitionTag.STATIC_STATE);
+				.addTag(TransitionTag.STATIC_STATE)
+				.addChangeListener(new StateChangeListener(){
+					@Override
+					public void onEnter(Entity entity) {
+						SwingComponent swingComp = Mappers.swing.get(entity);
+						swingComp.time = 0;
+						
+						SwordComponent swordComp = Mappers.sword.get(entity);
+						SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
+						swordStats.hitEntities.clear();
+						
+						EngineComponent engineComp = Mappers.engine.get(entity);
+						engineComp.engine.addEntity(swordComp.sword);
+						
+//						Mappers.body.get(swordComp.sword).body.setActive(true);
+					}
+
+					@Override
+					public void onExit(Entity entity) {
+						SwordComponent swordComp = Mappers.sword.get(entity);
+						
+						EngineComponent engineComp = Mappers.engine.get(entity);
+						engineComp.engine.removeEntity(swordComp.sword);
+						
+						Mappers.body.get(swordComp.sword).body.setActive(false);
+					}
+				});
 		
 
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
@@ -277,7 +305,33 @@ public class EntityFactory {
 				.add(engine.createComponent(SwingComponent.class).set(150, 210, 0.6f))
 				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.GROUND_STATE)
-				.addTag(TransitionTag.STATIC_STATE);
+				.addTag(TransitionTag.STATIC_STATE)
+				.addChangeListener(new StateChangeListener(){
+					@Override
+					public void onEnter(Entity entity) {
+						SwingComponent swingComp = Mappers.swing.get(entity);
+						swingComp.time = 0;
+						
+						SwordComponent swordComp = Mappers.sword.get(entity);
+						SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
+						swordStats.hitEntities.clear();
+						
+						EngineComponent engineComp = Mappers.engine.get(entity);
+						engineComp.engine.addEntity(swordComp.sword);
+						
+//						Mappers.body.get(swordComp.sword).body.setActive(true);
+					}
+
+					@Override
+					public void onExit(Entity entity) {
+						SwordComponent swordComp = Mappers.sword.get(entity);
+						
+						EngineComponent engineComp = Mappers.engine.get(entity);
+						engineComp.engine.removeEntity(swordComp.sword);
+						
+						Mappers.body.get(swordComp.sword).body.setActive(false);
+					}
+				});
 		
 
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
@@ -371,6 +425,7 @@ public class EntityFactory {
 	public static Entity createSword(Engine engine, World world, Entity owner, float x, float y, int damage){
 		Entity sword = engine.createEntity();
 		
+		sword.add(engine.createComponent(EngineComponent.class).set(engine));
 		sword.add(engine.createComponent(BodyComponent.class)
 				.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/sword.json"), world, new Vector2(x, y), sword, true)));
 		sword.add(engine.createComponent(ParentComponent.class).set(owner));

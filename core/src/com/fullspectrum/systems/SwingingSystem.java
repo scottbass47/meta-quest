@@ -43,6 +43,9 @@ public class SwingingSystem extends IteratingSystem{
 		}
 		
 		Body swordBody = swordBodyComp.body;
+		if(!swordBody.isActive()) {
+			swordBody.setActive(true);
+		}
 		FacingComponent facingComp = Mappers.facing.get(entity);
 		
 		

@@ -13,7 +13,6 @@ import com.fullspectrum.entity.EntityUtils;
 
 public class RelativePositioningSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public RelativePositioningSystem(){
 		super(Family.all(ParentComponent.class, BodyComponent.class, OffsetComponent.class).get());
 	}

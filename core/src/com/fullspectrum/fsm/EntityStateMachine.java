@@ -46,13 +46,11 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		EntityState currState = currentState;
 		EntityStates state = (EntityStates)identifier;
 		EntityState newState = states.get(state);
+		super.changeState(identifier);
 		if (newState == currState) return;
 		if (currState != null) {
-			states.getKey(currState, false).getStateSystem().onExit(entity);
 			states.getKey(currState, false).getStateSystem().removeEntity(entity);
 		}
-		super.changeState(identifier);
-		states.getKey(newState, false).getStateSystem().onEnter(entity);
 		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){
 			changeBody(newState);

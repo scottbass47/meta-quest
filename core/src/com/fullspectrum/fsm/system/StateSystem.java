@@ -19,7 +19,4 @@ public abstract class StateSystem extends EntitySystem{
 	public void removeEntity(Entity entity){
 		entities.removeIndex(entities.indexOf(entity, false));
 	}
-	
-	public abstract void onEnter(Entity entity);
-	public abstract void onExit(Entity entity);
 }

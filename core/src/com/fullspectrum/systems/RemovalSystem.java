@@ -6,7 +6,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.RemoveComponent;

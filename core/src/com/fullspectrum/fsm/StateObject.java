@@ -12,12 +12,13 @@ import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
-public class StateObject{
+public class StateObject {
 	// Data
 	private ArrayMap<TransitionObject, State> transitionMap;
 	private Array<Transition> transitions;
 	private Array<TransitionTag> tags;
 	private Array<Component> components;
+	private Array<StateChangeListener> listeners;
 	protected Entity entity;
 	protected StateMachine<? extends State, ? extends StateObject> machine;
 	private boolean enabled = true;
@@ -25,7 +26,7 @@ public class StateObject{
 	// Bits
 	protected Bits bits;
 	protected int bitOffset;
-	
+
 	// Debug
 	protected String identifier;
 
@@ -37,13 +38,14 @@ public class StateObject{
 		tags = new Array<TransitionTag>();
 		bits = new Bits();
 		components = new Array<Component>();
+		listeners = new Array<StateChangeListener>();
 	}
-	
-	public void setEntity(Entity entity){
+
+	public void setEntity(Entity entity) {
 		this.entity = entity;
 	}
-	
-	public void setMachine(StateMachine<? extends State, ? extends StateObject> machine){
+
+	public void setMachine(StateMachine<? extends State, ? extends StateObject> machine) {
 		this.machine = machine;
 	}
 
@@ -90,22 +92,39 @@ public class StateObject{
 	}
 
 	@SuppressWarnings("unchecked")
-	public <T extends Component> T getComponent(Class<T> clazz){
-		for(Component c : components){
-			if(c.getClass() == clazz) return (T) c;
+	public <T extends Component> T getComponent(Class<T> clazz) {
+		for (Component c : components) {
+			if (c.getClass() == clazz) return (T) c;
 		}
 		return null;
 	}
+
+	public StateObject addChangeListener(StateChangeListener listener) {
+		listeners.add(listener);
+		return this;
+	}
+
+	public void onEnter() {
+		for (StateChangeListener listener : listeners) {
+			listener.onEnter(entity);
+		}
+	}
 	
-	public StateObject add(Component c){
+	public void onExit() {
+		for (StateChangeListener listener : listeners) {
+			listener.onExit(entity);
+		}
+	}
+
+	public StateObject add(Component c) {
 		components.add(c);
 		return this;
 	}
-	
-	public Array<Component> getComponents(){
+
+	public Array<Component> getComponents() {
 		return components;
 	}
-	
+
 	public State getState(TransitionObject transition) {
 		return transitionMap.get(transition);
 	}
@@ -117,19 +136,19 @@ public class StateObject{
 	public Array<Transition> getTransitions() {
 		return transitions;
 	}
-	
-	public boolean isEnabled(){
+
+	public boolean isEnabled() {
 		return enabled;
 	}
-	
-	public void disable(){
+
+	public void disable() {
 		enabled = false;
 	}
-	
-	public void enable(){
+
+	public void enable() {
 		enabled = true;
 	}
-	
+
 	@Override
 	public String toString() {
 		return identifier;

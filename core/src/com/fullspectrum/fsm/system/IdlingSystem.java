@@ -17,14 +17,4 @@ public class IdlingSystem extends StateSystem{
 		
 	}
 
-	@Override
-	public void onEnter(Entity entity) {
-		
-	}
-
-	@Override
-	public void onExit(Entity entity) {
-		
-	}
-	
 }

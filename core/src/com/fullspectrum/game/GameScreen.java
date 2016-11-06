@@ -15,11 +15,14 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
@@ -111,15 +114,26 @@ public class GameScreen extends AbstractScreen {
 	private FrameBuffer frameBuffer;
 	private ShaderProgram mellowShader;
 	private int previousZoom = 0;
+	private AssetManager assets;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
+		assets = new AssetManager();
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		world.setContactListener(new WorldCollision());
 		enemies = new Array<Entity>();
-
+		
+		// Load Assets
+		TextureParameter texParam = new TextureParameter();
+		texParam.minFilter = TextureFilter.Nearest;
+//		assets.load("hud/healthbar_empty.png", Texture.class, texParam);
+//		assets.load("hud/healthbar_full.png", Texture.class, texParam);
+//		assets.load("hud/staminabar_empty.png", Texture.class, texParam);
+//		assets.load("hud/staminabar_full.png", Texture.class, texParam);
+//		assets.finishLoading();
+		
 		// Setup Shader
 		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
 		if (!mellowShader.isCompiled()) {
@@ -332,6 +346,9 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+		
+		batch.setProjectionMatrix(hudCamera.combined);
+//		renderHUD(batch, playerOne);
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);
@@ -355,6 +372,24 @@ public class GameScreen extends AbstractScreen {
 		// sRenderer.end();
 	}
 	
+	private void renderHUD(SpriteBatch batch, Entity entity){
+		if(!EntityUtils.isValid(entity)) return;
+		HealthComponent healthComp = Mappers.heatlh.get(entity);
+
+		Texture healthEmpty = assets.get("hud/healthbar_empty.png", Texture.class);
+		Texture healthFull = assets.get("hud/healthbar_full.png", Texture.class);
+		Texture staminaEmpty = assets.get("hud/staminabar_empty.png", Texture.class);
+		Texture staminaFull = assets.get("hud/staminabar_full.png", Texture.class);
+		
+		float scale = 4.0f;
+		float healthWidth = healthEmpty.getWidth();
+		float healthHeight = healthEmpty.getHeight();
+		
+		batch.begin();
+//		batch.draw(healthEmpty, x, y, originX, originY, width, height, scaleX, scaleY, rotation, srcX, srcY, srcWidth, srcHeight, flipX, flipY);
+		
+	}
+	
 	private void renderHealth(SpriteBatch batch, Entity entity){
 		if(!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
@@ -364,16 +399,15 @@ public class GameScreen extends AbstractScreen {
 		float height = 0.2f;
 		float x = bodyComp.body.getPosition().x - width * 0.5f;
 		float y = bodyComp.body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.1f;
-		float border = 0.05f;
 		
 		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		sRenderer.begin(ShapeType.Filled);
-		sRenderer.setColor(Color.BLACK);
-		sRenderer.rect(x, y, width, height);
+//		sRenderer.setColor(Color.BLACK);
+//		sRenderer.rect(x, y, width, height);
 		sRenderer.setColor(Color.WHITE);
-		sRenderer.rect(x + border, y + border, width - border * 2, height - border * 2);
-		sRenderer.setColor(Color.RED);
-		sRenderer.rect(x + border, y + border, (width - border * 2) * (healthComp.health / healthComp.maxHealth), height - border * 2);
+		sRenderer.rect(x, y, width, height);
+		sRenderer.setColor(Color.valueOf("e43b44"));
+		sRenderer.rect(x, y, width * (healthComp.health / healthComp.maxHealth), height);
 		sRenderer.end();
 	}
 
