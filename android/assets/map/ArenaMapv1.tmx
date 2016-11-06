@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="40" tilewidth="16" tileheight="16" nextobjectid="1">
  <tileset firstgid="1" name="Grassy_Tileset" tilewidth="16" tileheight="16" tilecount="8" columns="8">
-  <image source="grassy_tileset.png" trans="ff00ff" width="128" height="16"/>
+  <image source="level_tileset.png" trans="ff00ff" width="32" height="16"/>
   <tile id="2" probability="0.01"/>
   <tile id="3" probability="0.01"/>
   <tile id="4" probability="0.01"/>
