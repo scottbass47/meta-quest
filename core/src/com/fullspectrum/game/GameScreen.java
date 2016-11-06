@@ -52,11 +52,6 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityUtils;
-import com.fullspectrum.fsm.system.DivingSystem;
-import com.fullspectrum.fsm.system.FallingSystem;
-import com.fullspectrum.fsm.system.IdlingSystem;
-import com.fullspectrum.fsm.system.JumpingSystem;
-import com.fullspectrum.fsm.system.RunningSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
@@ -176,13 +171,6 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(LandedTransition.getInstance());
 		engine.addSystem(InputTransition.getInstance());
 		engine.addSystem(InvalidEntityTransition.getInstance());
-
-		// State Systems
-		engine.addSystem(IdlingSystem.getInstance());
-		engine.addSystem(RunningSystem.getInstance());
-		engine.addSystem(JumpingSystem.getInstance());
-		engine.addSystem(FallingSystem.getInstance());
-		engine.addSystem(DivingSystem.getInstance());
 
 		// Other Systems
 		engine.addSystem(new AnimationSystem());

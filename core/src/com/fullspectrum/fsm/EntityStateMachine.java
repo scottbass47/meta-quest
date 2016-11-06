@@ -48,10 +48,6 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		EntityState newState = states.get(state);
 		super.changeState(identifier);
 		if (newState == currState) return;
-		if (currState != null) {
-			states.getKey(currState, false).getStateSystem().removeEntity(entity);
-		}
-		states.getKey(newState, false).getStateSystem().addEntity(entity);
 		if(currState == null){
 			changeBody(newState);
 			return;
@@ -64,7 +60,6 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 	@Override
 	public void reset() {
 		super.reset();
-		states.getKey(currentState, false).getStateSystem().removeEntity(entity);
 	}
 	
 	private void changeBody(EntityState state){

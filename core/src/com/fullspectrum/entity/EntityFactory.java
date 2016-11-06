@@ -140,7 +140,20 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
-				.addTag(TransitionTag.AIR_STATE);
+				.addTag(TransitionTag.AIR_STATE)
+				.addChangeListener(new StateChangeListener(){
+					@Override
+					public void onEnter(Entity entity) {
+						JumpComponent jumpComp = Mappers.jump.get(entity);
+						InputComponent inputComp = Mappers.input.get(entity);						
+						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
+					}
+
+					@Override
+					public void onExit(Entity entity) {
+					}
+					
+				});
 		
 		Entity sword = createSword(engine, world, player, x, y, 25);
 //		engine.addEntity(sword);
@@ -299,7 +312,20 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
-				.addTag(TransitionTag.AIR_STATE);
+				.addTag(TransitionTag.AIR_STATE)
+				.addChangeListener(new StateChangeListener(){
+					@Override
+					public void onEnter(Entity entity) {
+						JumpComponent jumpComp = Mappers.jump.get(entity);
+						InputComponent inputComp = Mappers.input.get(entity);						
+						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
+					}
+
+					@Override
+					public void onExit(Entity entity) {
+					}
+					
+				});
 		
 		Entity sword = createSword(engine, world, player, x, y, 25);
 //		engine.addEntity(sword);

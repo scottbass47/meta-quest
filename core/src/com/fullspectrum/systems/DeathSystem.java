@@ -9,7 +9,6 @@ import com.fullspectrum.component.RemoveComponent;
 
 public class DeathSystem extends IteratingSystem{
 
-	@SuppressWarnings("unchecked")
 	public DeathSystem(){
 		super(Family.all(HealthComponent.class).get());
 	}
