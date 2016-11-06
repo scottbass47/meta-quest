@@ -59,6 +59,7 @@ import com.fullspectrum.fsm.transition.InvalidEntityTransition;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RangeTransition;
+import com.fullspectrum.fsm.transition.TimeTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
@@ -68,6 +69,7 @@ import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
+import com.fullspectrum.systems.BlinkSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
@@ -166,6 +168,7 @@ public class GameScreen extends AbstractScreen {
 		// Transition Systems
 		engine.addSystem(RangeTransition.getInstance());
 		engine.addSystem(RandomTransition.getInstance());
+		engine.addSystem(TimeTransition.getInstance());
 		engine.addSystem(AnimationFinishedTransition.getInstance());
 		engine.addSystem(FallingTransition.getInstance());
 		engine.addSystem(LandedTransition.getInstance());
@@ -183,6 +186,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new CameraSystem());
 		engine.addSystem(new RelativePositioningSystem());
 		engine.addSystem(new SwingingSystem());
+		engine.addSystem(new BlinkSystem());
 		engine.addSystem(new DeathSystem());
 		engine.addSystem(new RemovalSystem(world));
 

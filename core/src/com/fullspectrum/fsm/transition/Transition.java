@@ -39,12 +39,16 @@ public enum Transition {
 		}
 	},
 	INVALID_ENTITY(true){
-
 		@Override
 		public TransitionSystem getSystem() {
 			return InvalidEntityTransition.getInstance();
 		};
-	
+	},
+	TIME(false){
+		@Override
+		public TransitionSystem getSystem() {
+			return TimeTransition.getInstance();
+		}
 	};
 
 	public final boolean allowMultiple;

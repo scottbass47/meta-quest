@@ -9,7 +9,9 @@ public enum EntityStates implements State{
 	JUMPING,
 	FALLING,
 	DIVING,
-	ATTACK;
+	ATTACK,
+	DYING,
+	CLEAN_UP;
 	
 	@Override
 	public int getIndex() {

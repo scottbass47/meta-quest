@@ -1,7 +1,5 @@
 package com.fullspectrum.physics;
 
-import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
@@ -14,12 +12,6 @@ public class WorldCollision implements ContactListener {
 	public void beginContact(Contact contact) {
 		Fixture f1 = contact.getFixtureA();
 		Fixture f2 = contact.getFixtureB();
-
-		Body b1 = f1.getBody();
-		Body b2 = f2.getBody();
-
-		Entity e1 = (Entity) b1.getUserData();
-		Entity e2 = (Entity) b2.getUserData();
 
 		if (f1.isSensor() && f1.getUserData() != null) {
 			Sensors sensor = Sensors.get((String) f1.getUserData());
@@ -51,12 +43,6 @@ public class WorldCollision implements ContactListener {
 		Fixture f1 = contact.getFixtureA();
 		Fixture f2 = contact.getFixtureB();
 
-		Body b1 = f1.getBody();
-		Body b2 = f2.getBody();
-
-		Entity e1 = (Entity) b1.getUserData();
-		Entity e2 = (Entity) b2.getUserData();
-
 		if (f1.isSensor() && f1.getUserData() != null) {
 			Sensors sensor = Sensors.get((String) f1.getUserData());
 			sensor.endCollision(f1, f2);
@@ -87,12 +73,6 @@ public class WorldCollision implements ContactListener {
 		Fixture f1 = contact.getFixtureA();
 		Fixture f2 = contact.getFixtureB();
 
-		Body b1 = f1.getBody();
-		Body b2 = f2.getBody();
-
-		Entity e1 = (Entity) b1.getUserData();
-		Entity e2 = (Entity) b2.getUserData();
-
 		if (!f1.isSensor() && f1.getUserData() != null) {
 			Collisions collision = Collisions.get((String) f1.getUserData());
 			if (collision != null) {
@@ -112,12 +92,6 @@ public class WorldCollision implements ContactListener {
 	public void postSolve(Contact contact, ContactImpulse impulse) {
 		Fixture f1 = contact.getFixtureA();
 		Fixture f2 = contact.getFixtureB();
-
-		Body b1 = f1.getBody();
-		Body b2 = f2.getBody();
-
-		Entity e1 = (Entity) b1.getUserData();
-		Entity e2 = (Entity) b2.getUserData();
 
 		if (!f1.isSensor() && f1.getUserData() != null) {
 			Collisions collision = Collisions.get((String) f1.getUserData());

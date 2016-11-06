@@ -14,6 +14,7 @@ import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
+import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
@@ -31,6 +32,7 @@ import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.SwingComponent;
@@ -52,6 +54,7 @@ import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
+import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
@@ -497,7 +500,21 @@ public class EntityFactory {
 		EntityStateMachine fsm = new EntityStateMachine(coin, "body/coin.json");
 		fsm.createState(EntityStates.IDLING)
 			.addAnimation(EntityAnim.COIN_ROTATE);
+		
+		fsm.createState(EntityStates.DYING)
+			.add(engine.createComponent(BlinkComponent.class).addBlink(2.0f, 0.4f).addBlink(2.0f, 0.2f).addBlink(1.0f, 0.1f))
+			.addAnimation(EntityAnim.COIN_ROTATE);
+		
+		fsm.createState(EntityStates.CLEAN_UP)
+			.add(engine.createComponent(RemoveComponent.class))
+			.addAnimation(EntityAnim.COIN_ROTATE);
 			
+		TimeTransitionData timeToBlink = new TimeTransitionData(10.0f);
+		TimeTransitionData timeToDisappear = new TimeTransitionData(5.0f);
+		
+		fsm.addTransition(EntityStates.IDLING, Transition.TIME, timeToBlink, EntityStates.DYING);
+		fsm.addTransition(EntityStates.DYING, Transition.TIME, timeToDisappear, EntityStates.CLEAN_UP);
+		
 		fsm.changeState(EntityStates.IDLING);
 		coin.add(engine.createComponent(FSMComponent.class).set(fsm));
 		return coin;
