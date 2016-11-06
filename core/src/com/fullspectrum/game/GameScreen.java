@@ -15,15 +15,13 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.assets.AssetManager;
-import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
@@ -38,6 +36,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.HealthComponent;
@@ -114,11 +113,11 @@ public class GameScreen extends AbstractScreen {
 	private FrameBuffer frameBuffer;
 	private ShaderProgram mellowShader;
 	private int previousZoom = 0;
-	private AssetManager assets;
+	private Assets assets;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
-		assets = new AssetManager();
+		assets = Assets.getInstance();
 		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
@@ -126,13 +125,7 @@ public class GameScreen extends AbstractScreen {
 		enemies = new Array<Entity>();
 		
 		// Load Assets
-		TextureParameter texParam = new TextureParameter();
-		texParam.minFilter = TextureFilter.Nearest;
-//		assets.load("hud/healthbar_empty.png", Texture.class, texParam);
-//		assets.load("hud/healthbar_full.png", Texture.class, texParam);
-//		assets.load("hud/staminabar_empty.png", Texture.class, texParam);
-//		assets.load("hud/staminabar_full.png", Texture.class, texParam);
-//		assets.finishLoading();
+		assets.loadHUD();
 		
 		// Setup Shader
 		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -348,7 +341,7 @@ public class GameScreen extends AbstractScreen {
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 		
 		batch.setProjectionMatrix(hudCamera.combined);
-//		renderHUD(batch, playerOne);
+		renderHUD(batch, playerOne);
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);
@@ -376,18 +369,38 @@ public class GameScreen extends AbstractScreen {
 		if(!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
 
-		Texture healthEmpty = assets.get("hud/healthbar_empty.png", Texture.class);
-		Texture healthFull = assets.get("hud/healthbar_full.png", Texture.class);
-		Texture staminaEmpty = assets.get("hud/staminabar_empty.png", Texture.class);
-		Texture staminaFull = assets.get("hud/staminabar_full.png", Texture.class);
+		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
+		TextureRegion healthFull = assets.getHUDElement(Assets.healthBarFull);
+		TextureRegion staminaEmpty = assets.getHUDElement(Assets.staminaBarEmpty);
+		TextureRegion staminaFull = assets.getHUDElement(Assets.staminaBarFull);
 		
+		// Health
 		float scale = 4.0f;
-		float healthWidth = healthEmpty.getWidth();
-		float healthHeight = healthEmpty.getHeight();
+		float healthEmptyWidth = healthEmpty.getRegionWidth();
+		float healthEmptyHeight = healthEmpty.getRegionHeight();
+		float healthY = 100;
+		
+		int healthSrcX = healthFull.getRegionX();
+		int healthSrcY = healthFull.getRegionY();
+		
+		int healthBarWidth = (int)(healthEmptyWidth * (healthComp.health / healthComp.maxHealth));
+		
+		// Stamina
+		float staminaEmptyWidth = staminaEmpty.getRegionWidth();
+		float staminaEmptyHeight = staminaEmpty.getRegionHeight();
+		float staminaY = healthY - staminaEmptyHeight * scale + 2.0f * scale;
+		
+		int staminaSrcX = staminaFull.getRegionX();
+		int staminaSrcY = staminaFull.getRegionY();
+		
+		int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health / healthComp.maxHealth));
 		
 		batch.begin();
-//		batch.draw(healthEmpty, x, y, originX, originY, width, height, scaleX, scaleY, rotation, srcX, srcY, srcWidth, srcHeight, flipX, flipY);
-		
+		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
+		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int)(healthEmptyHeight), false, false);
+		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
+		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int)(staminaEmptyHeight), false, false);
+		batch.end();
 	}
 	
 	private void renderHealth(SpriteBatch batch, Entity entity){

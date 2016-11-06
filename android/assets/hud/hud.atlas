@@ -1,0 +1,33 @@
+hud.png
+size: 344, 8
+format: RGBA8888
+filter: Nearest,Nearest
+repeat: none
+healthbar_empty
+  rotate: false
+  xy: 0, 0
+  size: 100, 8
+  orig: 100, 8
+  offset: 0, 0
+  index: -1
+healthbar_full
+  rotate: false
+  xy: 102, 0
+  size: 100, 8
+  orig: 100, 8
+  offset: 0, 0
+  index: -1
+staminabar_empty
+  rotate: false
+  xy: 204, 0
+  size: 69, 8
+  orig: 69, 8
+  offset: 0, 0
+  index: -1
+staminabar_full
+  rotate: false
+  xy: 275, 0
+  size: 69, 8
+  orig: 69, 8
+  offset: 0, 0
+  index: -1
