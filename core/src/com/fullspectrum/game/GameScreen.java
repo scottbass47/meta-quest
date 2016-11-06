@@ -48,7 +48,6 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityUtils;
-import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.system.DivingSystem;
 import com.fullspectrum.fsm.system.FallingSystem;
 import com.fullspectrum.fsm.system.IdlingSystem;
@@ -126,6 +125,7 @@ public class GameScreen extends AbstractScreen {
 		
 		// Load Assets
 		assets.loadHUD();
+		assets.loadSprites();
 		
 		// Setup Shader
 		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -393,7 +393,8 @@ public class GameScreen extends AbstractScreen {
 		int staminaSrcX = staminaFull.getRegionX();
 		int staminaSrcY = staminaFull.getRegionY();
 		
-		int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health / healthComp.maxHealth));
+//		int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health / healthComp.maxHealth));
+		int staminaBarWidth = (int)staminaEmptyWidth;
 		
 		batch.begin();
 		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
@@ -435,6 +436,5 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.dispose();
 		mellowShader.dispose();
 		frameBuffer.dispose();
-		PlayerAssets.dispose();
 	}
 }

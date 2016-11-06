@@ -1,6 +1,6 @@
 package com.fullspectrum.entity;
 
-import static com.fullspectrum.game.GameVars.*;
+import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
+import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AnimationComponent;
@@ -36,11 +37,10 @@ import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WorldComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
-import com.fullspectrum.entity.player.PlayerAssets;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.EntityStateMachine;
@@ -59,6 +59,10 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
 
+	private static Assets assets = Assets.getInstance();
+	
+	private EntityFactory(){}
+	
 	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y) {
 		// Setup Player
 		Entity player = engine.createEntity();
@@ -68,7 +72,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(PositionComponent.class).set(x, y));
 		player.add(engine.createComponent(VelocityComponent.class));
 		player.add(engine.createComponent(RenderComponent.class));
-		player.add(engine.createComponent(TextureComponent.class).set(PlayerAssets.animations.get(EntityAnim.IDLE).getKeyFrame(0)));
+		player.add(engine.createComponent(TextureComponent.class).set(assets.getSpriteAnimation(Assets.KNIGHT_IDLE).getKeyFrame(0)));
 		player.add(engine.createComponent(InputComponent.class).set(input));
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
@@ -76,14 +80,14 @@ public class EntityFactory {
 		player.add(engine.createComponent(HealthComponent.class).set(1000, 1000));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(AnimationComponent.class)
-			.addAnimation(EntityAnim.IDLE, PlayerAssets.animations.get(EntityAnim.IDLE))
-			.addAnimation(EntityAnim.RUNNING, PlayerAssets.animations.get(EntityAnim.RUNNING))
-			.addAnimation(EntityAnim.JUMP, PlayerAssets.animations.get(EntityAnim.JUMP))
-			.addAnimation(EntityAnim.FALLING, PlayerAssets.animations.get(EntityAnim.FALLING))
-			.addAnimation(EntityAnim.RANDOM_IDLE, PlayerAssets.animations.get(EntityAnim.RANDOM_IDLE))
-			.addAnimation(EntityAnim.RISE, PlayerAssets.animations.get(EntityAnim.RISE))
-			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX))
-			.addAnimation(EntityAnim.OVERHEAD_ATTACK, PlayerAssets.animations.get(EntityAnim.OVERHEAD_ATTACK)));
+			.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
+			.addAnimation(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK))
+			.addAnimation(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP))
+			.addAnimation(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL))
+			.addAnimation(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
+			.addAnimation(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE))
+			.addAnimation(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX))
+			.addAnimation(EntityAnim.OVERHEAD_ATTACK, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD)));
 
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
@@ -225,7 +229,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(PositionComponent.class).set(x, y));
 		player.add(engine.createComponent(VelocityComponent.class));
 		player.add(engine.createComponent(RenderComponent.class));
-		player.add(engine.createComponent(TextureComponent.class).set(PlayerAssets.animations.get(EntityAnim.IDLE).getKeyFrame(0)));
+		player.add(engine.createComponent(TextureComponent.class).set(assets.getSpriteAnimation(Assets.KNIGHT_IDLE).getKeyFrame(0)));
 		player.add(engine.createComponent(InputComponent.class).set(controller));
 		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
@@ -233,14 +237,14 @@ public class EntityFactory {
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(HealthComponent.class).set(100, 100));
 		player.add(engine.createComponent(AnimationComponent.class)
-			.addAnimation(EntityAnim.IDLE, PlayerAssets.animations.get(EntityAnim.IDLE))
-			.addAnimation(EntityAnim.RUNNING, PlayerAssets.animations.get(EntityAnim.RUNNING))
-			.addAnimation(EntityAnim.JUMP, PlayerAssets.animations.get(EntityAnim.JUMP))
-			.addAnimation(EntityAnim.FALLING, PlayerAssets.animations.get(EntityAnim.FALLING))
-			.addAnimation(EntityAnim.RANDOM_IDLE, PlayerAssets.animations.get(EntityAnim.RANDOM_IDLE))
-			.addAnimation(EntityAnim.RISE, PlayerAssets.animations.get(EntityAnim.RISE))
-			.addAnimation(EntityAnim.JUMP_APEX, PlayerAssets.animations.get(EntityAnim.JUMP_APEX))
-			.addAnimation(EntityAnim.OVERHEAD_ATTACK, PlayerAssets.animations.get(EntityAnim.OVERHEAD_ATTACK)));
+				.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
+				.addAnimation(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK))
+				.addAnimation(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP))
+				.addAnimation(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL))
+				.addAnimation(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
+				.addAnimation(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE))
+				.addAnimation(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX))
+				.addAnimation(EntityAnim.OVERHEAD_ATTACK, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD)));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class).set(toFollow));
 

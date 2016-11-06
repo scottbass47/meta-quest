@@ -3,6 +3,8 @@ package com.fullspectrum.assets;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -22,6 +24,18 @@ public class Assets {
 	public static final String staminaBarEmpty = "staminabar_empty";
 	public static final String staminaBarFull = "staminabar_full";
 	
+	// Sprites
+	public static final String SPRITES = "sprites/entity_assets.atlas";
+	public static final String KNIGHT_IDLE = "knight_idle";
+	public static final String KNIGHT_WALK = "knight_walk";
+	public static final String KNIGHT_RISE = "knight_rise";
+	public static final String KNIGHT_JUMP = "knight_jump";
+	public static final String KNIGHT_FALL = "knight_fall";
+	public static final String KNIGHT_APEX = "knight_apex";
+	public static final String KNIGHT_ATTACK_OVERHEAD = "knight_attack_overhead";
+	
+	public static final float ANIM_SPEED = 0.1f;
+	
 	private Assets() {
 		manager = new AssetManager();
 		texParam = new TextureParameter();
@@ -40,12 +54,25 @@ public class Assets {
 		manager.finishLoading();
 	}
 	
+	public void loadSprites(){
+		manager.load(SPRITES, TextureAtlas.class);
+		manager.finishLoading();
+	}
+	
 	public TextureRegion getHUDElement(String asset){
 		return getRegion(HUD, asset);
 	}
 	
 	public TextureRegion getRegion(String atlas, String asset){
 		return manager.get(atlas,TextureAtlas.class).findRegion(asset);
+	}
+	
+	public Animation getSpriteAnimation(String asset){
+		return getAnimation(SPRITES, asset);
+	}
+	
+	public Animation getAnimation(String atlas, String asset){
+		return new Animation(ANIM_SPEED, manager.get(atlas,TextureAtlas.class).findRegions(asset), PlayMode.LOOP);
 	}
 	
 }
