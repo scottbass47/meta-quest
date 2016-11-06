@@ -5,6 +5,7 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
@@ -26,6 +27,7 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
@@ -75,6 +77,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(TextureComponent.class).set(assets.getSpriteAnimation(Assets.KNIGHT_IDLE).getKeyFrame(0)));
 		player.add(engine.createComponent(InputComponent.class).set(input));
 		player.add(engine.createComponent(FacingComponent.class));
+		player.add(engine.createComponent(MoneyComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
 		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY));
 		player.add(engine.createComponent(HealthComponent.class).set(1000, 1000));
@@ -438,6 +441,40 @@ public class EntityFactory {
 		sword.getComponent(BodyComponent.class).body.setActive(false);
 		
 		return sword;
+	}
+	
+	public static Entity createCoin(Engine engine, World world, float x, float y, int amount){
+		Entity coin = engine.createEntity();
+		
+		Animation animation = null;
+		if(amount <= 10){
+			animation = assets.getSpriteAnimation(Assets.silverCoin);
+		}else if(amount <= 30){
+			animation = assets.getSpriteAnimation(Assets.goldCoin);
+		}
+		else{
+			animation = assets.getSpriteAnimation(Assets.blueCoin);
+		}
+		
+		coin.add(engine.createComponent(EngineComponent.class).set(engine));
+		coin.add(engine.createComponent(BodyComponent.class));
+		coin.add(engine.createComponent(RenderComponent.class));
+		coin.add(engine.createComponent(PositionComponent.class).set(x, y));
+		coin.add(engine.createComponent(VelocityComponent.class));
+		coin.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
+		coin.add(engine.createComponent(WorldComponent.class).set(world));
+		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
+		coin.add(engine.createComponent(TextureComponent.class).set(animation.getKeyFrame(0)));
+		coin.add(engine.createComponent(AnimationComponent.class)
+				.addAnimation(EntityAnim.COIN_ROTATE, animation));
+		
+		EntityStateMachine fsm = new EntityStateMachine(coin, "body/coin.json");
+		fsm.createState(EntityStates.IDLING)
+			.addAnimation(EntityAnim.COIN_ROTATE);
+			
+		fsm.changeState(EntityStates.IDLING);
+		coin.add(engine.createComponent(FSMComponent.class).set(fsm));
+		return coin;
 	}
 	
 //	public static Entity createGoblin(PooledEngine engine, Level level, AIController controller, World world, Entity toFollow, float x, float y) {

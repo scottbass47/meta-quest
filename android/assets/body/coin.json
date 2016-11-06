@@ -1,0 +1,16 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody"
+  },
+  Default:{
+  	"Fixtures": [
+      {
+        "shape": "Box",
+        "width": 10,
+        "height": 12,
+        "CollisionType": "coin",
+        "Category": "item"
+      }
+  	]
+  }
+}

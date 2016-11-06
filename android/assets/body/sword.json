@@ -8,7 +8,8 @@
         "width": 20,
         "height": 4,
         "isSensor": "true",
-        "SensorType": "sword"
+        "SensorType": "sword",
+        "Category": "sensor"
       }
   ]
 }

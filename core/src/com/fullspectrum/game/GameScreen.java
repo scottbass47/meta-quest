@@ -20,6 +20,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -27,6 +29,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -41,6 +44,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
@@ -113,6 +117,7 @@ public class GameScreen extends AbstractScreen {
 	private ShaderProgram mellowShader;
 	private int previousZoom = 0;
 	private Assets assets;
+	private BitmapFont font = new BitmapFont();
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -126,6 +131,8 @@ public class GameScreen extends AbstractScreen {
 		// Load Assets
 		assets.loadHUD();
 		assets.loadSprites();
+		font.getRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+		font.getData().setScale(2.0f);
 		
 		// Setup Shader
 		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -220,6 +227,13 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMaxY = 0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
+		
+		// Spawn Coins
+		for(Node node : playerMesh.getNodes()){
+			int amount = MathUtils.random(1, 100);
+			Entity coin = EntityFactory.createCoin(engine, world, node.getCol() + 0.5f, node.getRow() + 1.0f, amount);
+			engine.addEntity(coin);
+		}
 		
 	}
 
@@ -368,11 +382,13 @@ public class GameScreen extends AbstractScreen {
 	private void renderHUD(SpriteBatch batch, Entity entity){
 		if(!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
+		MoneyComponent moneyComp = Mappers.money.get(entity);
 
 		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
 		TextureRegion healthFull = assets.getHUDElement(Assets.healthBarFull);
 		TextureRegion staminaEmpty = assets.getHUDElement(Assets.staminaBarEmpty);
 		TextureRegion staminaFull = assets.getHUDElement(Assets.staminaBarFull);
+		TextureRegion coin = assets.getSpriteAnimation(Assets.goldCoin).getKeyFrame(0);
 		
 		// Health
 		float scale = 4.0f;
@@ -396,11 +412,17 @@ public class GameScreen extends AbstractScreen {
 //		int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health / healthComp.maxHealth));
 		int staminaBarWidth = (int)staminaEmptyWidth;
 		
+		float coinY = staminaY - coin.getRegionHeight() * scale - 4;
+		float coinWidth = coin.getRegionWidth();
+		float coinHeight = coin.getRegionHeight();
+		
 		batch.begin();
 		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
 		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int)(healthEmptyHeight), false, false);
 		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
 		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int)(staminaEmptyHeight), false, false);
+		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
+		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 15);
 		batch.end();
 	}
 	

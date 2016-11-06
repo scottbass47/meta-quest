@@ -1,207 +1,375 @@
 entity_assets.png
-size: 493, 94
+size: 64, 857
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-knight_apex
+drop_coin_blue
+  rotate: false
+  xy: 9, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 1
+drop_coin_blue
+  rotate: false
+  xy: 18, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 2
+drop_coin_blue
+  rotate: false
+  xy: 0, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 3
+drop_coin_blue
+  rotate: false
+  xy: 45, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_blue
+  rotate: false
+  xy: 54, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 5
+drop_coin_blue
+  rotate: false
+  xy: 54, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 6
+drop_coin_blue
+  rotate: false
+  xy: 0, 39
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_blue
+  rotate: false
+  xy: 18, 39
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 8
+drop_coin_gold
+  rotate: false
+  xy: 9, 39
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 1
+drop_coin_gold
+  rotate: false
+  xy: 45, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 2
+drop_coin_gold
+  rotate: false
+  xy: 36, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 3
+drop_coin_gold
+  rotate: false
+  xy: 27, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_gold
+  rotate: false
+  xy: 9, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 5
+drop_coin_gold
+  rotate: false
+  xy: 27, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 6
+drop_coin_gold
+  rotate: false
+  xy: 36, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_gold
+  rotate: false
+  xy: 18, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 8
+drop_coin_silver
   rotate: false
   xy: 0, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 1
+drop_coin_silver
+  rotate: false
+  xy: 45, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 2
+drop_coin_silver
+  rotate: false
+  xy: 0, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 3
+drop_coin_silver
+  rotate: false
+  xy: 18, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_silver
+  rotate: false
+  xy: 27, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 5
+drop_coin_silver
+  rotate: false
+  xy: 9, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 6
+drop_coin_silver
+  rotate: false
+  xy: 36, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_silver
+  rotate: false
+  xy: 54, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 8
+knight_apex
+  rotate: false
+  xy: 0, 291
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_apex
   rotate: false
-  xy: 33, 0
+  xy: 33, 291
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_attack_overhead
   rotate: false
-  xy: 66, 0
+  xy: 0, 559
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 1
 knight_attack_overhead
   rotate: false
-  xy: 121, 0
+  xy: 0, 609
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 2
 knight_attack_overhead
   rotate: false
-  xy: 176, 0
+  xy: 0, 659
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 3
 knight_attack_overhead
   rotate: false
-  xy: 231, 0
+  xy: 0, 709
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 4
 knight_attack_overhead
   rotate: false
-  xy: 286, 0
+  xy: 0, 759
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 5
 knight_attack_overhead
   rotate: false
-  xy: 341, 0
+  xy: 0, 809
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 6
 knight_fall
   rotate: false
-  xy: 396, 0
+  xy: 33, 333
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_fall
   rotate: false
-  xy: 429, 0
+  xy: 0, 333
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_fall
   rotate: false
-  xy: 462, 0
+  xy: 33, 249
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_idle
   rotate: false
-  xy: 0, 50
+  xy: 25, 81
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 1
 knight_idle
   rotate: false
-  xy: 25, 50
+  xy: 0, 81
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 2
 knight_idle
   rotate: false
-  xy: 50, 50
+  xy: 27, 39
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 3
 knight_idle
   rotate: false
-  xy: 75, 50
+  xy: 0, 123
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 4
 knight_jump
   rotate: false
-  xy: 100, 50
+  xy: 25, 123
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_jump
   rotate: false
-  xy: 133, 50
+  xy: 33, 207
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_jump
   rotate: false
-  xy: 166, 50
+  xy: 0, 249
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_rise
   rotate: false
-  xy: 199, 50
+  xy: 0, 207
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_rise
   rotate: false
-  xy: 232, 50
+  xy: 0, 165
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_rise
   rotate: false
-  xy: 265, 50
+  xy: 33, 165
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_walk
   rotate: false
-  xy: 298, 50
+  xy: 24, 513
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 1
 knight_walk
   rotate: false
-  xy: 322, 50
+  xy: 0, 375
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 2
 knight_walk
   rotate: false
-  xy: 346, 50
+  xy: 24, 375
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 3
 knight_walk
   rotate: false
-  xy: 370, 50
+  xy: 0, 467
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 4
 knight_walk
   rotate: false
-  xy: 394, 50
+  xy: 24, 421
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 5
 knight_walk
   rotate: false
-  xy: 418, 50
+  xy: 24, 467
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 6
 knight_walk
   rotate: false
-  xy: 442, 50
+  xy: 0, 421
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 7
 knight_walk
   rotate: false
-  xy: 466, 50
+  xy: 0, 513
   size: 22, 44
   orig: 22, 44
   offset: 0, 0

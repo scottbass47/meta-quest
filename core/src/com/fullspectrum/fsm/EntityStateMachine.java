@@ -76,9 +76,7 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		}
 		for(Entry<FixtureDef, Object> fdef : state.fixtures.getFixtures().entries()){
 			Fixture fixture = body.createFixture(fdef.key);
-			if(fdef.key.isSensor){
-				fixture.setUserData(state.fixtures.getData(fdef.key));
-			}
+			fixture.setUserData(state.fixtures.getData(fdef.key));
 		}
 		bodyComp.updateAABB();
 	}

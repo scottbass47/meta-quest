@@ -5,6 +5,7 @@ import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
@@ -34,6 +35,14 @@ public class Assets {
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_ATTACK_OVERHEAD = "knight_attack_overhead";
 	
+	// Coins
+	public static final String silverCoin = "drop_coin_silver";
+	public static final String goldCoin = "drop_coin_gold";
+	public static final String blueCoin = "drop_coin_blue";
+	
+	// Font
+	public static final String FONT = "font/";
+	
 	public static final float ANIM_SPEED = 0.1f;
 	
 	private Assets() {
@@ -59,6 +68,10 @@ public class Assets {
 		manager.finishLoading();
 	}
 	
+	public void loadFont(){
+		
+	}
+	
 	public TextureRegion getHUDElement(String asset){
 		return getRegion(HUD, asset);
 	}
@@ -73,6 +86,10 @@ public class Assets {
 	
 	public Animation getAnimation(String atlas, String asset){
 		return new Animation(ANIM_SPEED, manager.get(atlas,TextureAtlas.class).findRegions(asset), PlayMode.LOOP);
+	}
+	
+	public BitmapFont getFont(String asset){
+		return manager.get(asset, BitmapFont.class);
 	}
 	
 }

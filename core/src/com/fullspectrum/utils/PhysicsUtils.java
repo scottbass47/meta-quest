@@ -23,7 +23,7 @@ import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.fsm.State;
-import com.fullspectrum.game.GameVars;
+import com.fullspectrum.physics.CollisionBits;
 import com.fullspectrum.physics.EntityFixtures;
 
 public class PhysicsUtils {
@@ -50,6 +50,10 @@ public class PhysicsUtils {
 			Object data = null;
 			if(fdef.isSensor){
 				data = json.getString("SensorType");
+			}else{
+				if(json.has("CollisionType")){
+					data = json.getString("CollisionType");
+				}
 			}
 			eFixtures.add(fdef, data);
 		}
@@ -96,13 +100,9 @@ public class PhysicsUtils {
 		fdef.density = root.getFloat("density", 0.0f);
 		fdef.restitution = root.getFloat("restitution", 0.0f);
 		fdef.friction = root.getFloat("friction", 0.2f);
-		fdef.filter.categoryBits = GameVars.ENTITY;
-		fdef.filter.maskBits = GameVars.TILE | GameVars.SENSOR;
+		fdef.filter.categoryBits = root.has("Category") ? CollisionBits.getValue(root.getString("Category")).getBit() : -1;
+		fdef.filter.maskBits = root.has("Category") ? CollisionBits.getOtherBits(CollisionBits.getValue(root.getString("Category"))) : -1;
 		fdef.isSensor = root.getBoolean("isSensor", false);
-		if(fdef.isSensor){
-			fdef.filter.categoryBits = GameVars.SENSOR;
-			fdef.filter.maskBits = GameVars.TILE | GameVars.ENTITY;
-		}
 		
 		float x = root.getFloat("xOff", 0.0f) * PPM_INV;
 		float y = root.getFloat("yOff", 0.0f) * PPM_INV;
@@ -134,6 +134,10 @@ public class PhysicsUtils {
 		Fixture fixture = body.createFixture(fdef);
 		if(fixture.isSensor()){
 			fixture.setUserData(root.getString("SensorType"));
+		}else{
+			if(root.has("CollisionType")){
+				fixture.setUserData(root.getString("CollisionType"));
+			}
 		}
 	}
 	

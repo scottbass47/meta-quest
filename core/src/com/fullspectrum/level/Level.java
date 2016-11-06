@@ -20,8 +20,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.Tile.Side;
+import com.fullspectrum.physics.CollisionBits;
 
 public class Level {
 
@@ -94,8 +94,8 @@ public class Level {
 		FixtureDef fdef = new FixtureDef();
 		fdef.shape = shape;
 		fdef.friction = 0.0f;
-		fdef.filter.categoryBits = GameVars.TILE;
-		fdef.filter.maskBits = GameVars.ENTITY | GameVars.SENSOR;
+		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
+		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
 
 		Array<Tile> tiles = new Array<Tile>();
 		mapTiles = new Tile[height][width];
