@@ -226,7 +226,6 @@ public class GameScreen extends AbstractScreen {
 			Entity coin = EntityFactory.createCoin(engine, world, node.getCol() + 0.5f, node.getRow() + 1.0f, amount);
 			engine.addEntity(coin);
 		}
-		
 	}
 
 	private void spawnEnemy(Node node) {
@@ -277,6 +276,15 @@ public class GameScreen extends AbstractScreen {
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
+		
+//		int row = MathUtils.random(0, level.getHeight());
+//		int col = MathUtils.random(0, level.getWidth());
+//		while(!level.isAir(row, col)){
+//			row = MathUtils.random(0, level.getHeight());
+//			col = MathUtils.random(0, level.getWidth());
+//		}
+//		Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
+//		engine.addEntity(coin);
 		
 		// Remove Invalid Enemies
 		for(Iterator<Entity> iter = enemies.iterator(); iter.hasNext();){

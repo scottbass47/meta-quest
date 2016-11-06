@@ -39,6 +39,7 @@ public class Assets {
 	public static final String silverCoin = "drop_coin_silver";
 	public static final String goldCoin = "drop_coin_gold";
 	public static final String blueCoin = "drop_coin_blue";
+	public static final String disappearCoin = "drop_coin_disappear";
 	
 	// Font
 	public static final String FONT = "font/";

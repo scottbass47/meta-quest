@@ -1,375 +1,410 @@
 entity_assets.png
-size: 64, 857
+size: 64, 901
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 drop_coin_blue
   rotate: false
-  xy: 9, 26
+  xy: 45, 26
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
   index: 1
-drop_coin_blue
-  rotate: false
-  xy: 18, 26
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 2
-drop_coin_blue
-  rotate: false
-  xy: 0, 26
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 3
-drop_coin_blue
-  rotate: false
-  xy: 45, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 4
-drop_coin_blue
-  rotate: false
-  xy: 54, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 5
-drop_coin_blue
-  rotate: false
-  xy: 54, 26
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 6
 drop_coin_blue
   rotate: false
   xy: 0, 39
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
-  index: 7
-drop_coin_blue
-  rotate: false
-  xy: 18, 39
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 8
-drop_coin_gold
-  rotate: false
-  xy: 9, 39
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 1
-drop_coin_gold
-  rotate: false
-  xy: 45, 26
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
   index: 2
-drop_coin_gold
+drop_coin_blue
   rotate: false
   xy: 36, 26
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
   index: 3
-drop_coin_gold
+drop_coin_blue
+  rotate: false
+  xy: 54, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_blue
   rotate: false
   xy: 27, 26
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
+  index: 5
+drop_coin_blue
+  rotate: false
+  xy: 9, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 6
+drop_coin_blue
+  rotate: false
+  xy: 18, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_blue
+  rotate: false
+  xy: 9, 39
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 8
+drop_coin_disappear
+  rotate: false
+  xy: 22, 61
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: 1
+drop_coin_disappear
+  rotate: false
+  xy: 0, 83
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: 2
+drop_coin_disappear
+  rotate: false
+  xy: 44, 61
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: 3
+drop_coin_disappear
+  rotate: false
+  xy: 0, 61
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
   index: 4
+drop_coin_disappear
+  rotate: false
+  xy: 27, 39
+  size: 20, 20
+  orig: 20, 20
+  offset: 0, 0
+  index: 5
+drop_coin_gold
+  rotate: false
+  xy: 18, 39
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 1
 drop_coin_gold
   rotate: false
   xy: 9, 0
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
-  index: 5
-drop_coin_gold
-  rotate: false
-  xy: 27, 0
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 6
+  index: 2
 drop_coin_gold
   rotate: false
   xy: 36, 0
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
-  index: 7
+  index: 3
+drop_coin_gold
+  rotate: false
+  xy: 27, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_gold
+  rotate: false
+  xy: 45, 0
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 5
 drop_coin_gold
   rotate: false
   xy: 18, 0
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
-  index: 8
-drop_coin_silver
+  index: 6
+drop_coin_gold
+  rotate: false
+  xy: 0, 26
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_gold
   rotate: false
   xy: 0, 0
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
-  index: 1
-drop_coin_silver
-  rotate: false
-  xy: 45, 0
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 2
-drop_coin_silver
-  rotate: false
-  xy: 0, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 3
-drop_coin_silver
-  rotate: false
-  xy: 18, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 4
-drop_coin_silver
-  rotate: false
-  xy: 27, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 5
-drop_coin_silver
-  rotate: false
-  xy: 9, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 6
-drop_coin_silver
-  rotate: false
-  xy: 36, 13
-  size: 7, 11
-  orig: 7, 11
-  offset: 0, 0
-  index: 7
+  index: 8
 drop_coin_silver
   rotate: false
   xy: 54, 0
   size: 7, 11
   orig: 7, 11
   offset: 0, 0
+  index: 1
+drop_coin_silver
+  rotate: false
+  xy: 18, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 2
+drop_coin_silver
+  rotate: false
+  xy: 45, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 3
+drop_coin_silver
+  rotate: false
+  xy: 36, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 4
+drop_coin_silver
+  rotate: false
+  xy: 54, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 5
+drop_coin_silver
+  rotate: false
+  xy: 27, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 6
+drop_coin_silver
+  rotate: false
+  xy: 9, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
+  index: 7
+drop_coin_silver
+  rotate: false
+  xy: 0, 13
+  size: 7, 11
+  orig: 7, 11
+  offset: 0, 0
   index: 8
 knight_apex
   rotate: false
-  xy: 0, 291
+  xy: 33, 293
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_apex
   rotate: false
-  xy: 33, 291
+  xy: 0, 335
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_attack_overhead
   rotate: false
-  xy: 0, 559
+  xy: 0, 803
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 1
 knight_attack_overhead
   rotate: false
-  xy: 0, 609
+  xy: 0, 753
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 2
 knight_attack_overhead
   rotate: false
-  xy: 0, 659
+  xy: 0, 703
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 3
 knight_attack_overhead
   rotate: false
-  xy: 0, 709
+  xy: 0, 653
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 4
 knight_attack_overhead
   rotate: false
-  xy: 0, 759
+  xy: 0, 603
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 5
 knight_attack_overhead
   rotate: false
-  xy: 0, 809
+  xy: 0, 853
   size: 53, 48
   orig: 53, 48
   offset: 0, 0
   index: 6
 knight_fall
   rotate: false
-  xy: 33, 333
+  xy: 0, 377
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_fall
   rotate: false
-  xy: 0, 333
+  xy: 33, 377
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_fall
   rotate: false
-  xy: 33, 249
+  xy: 33, 335
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_idle
   rotate: false
-  xy: 25, 81
+  xy: 33, 209
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 1
 knight_idle
   rotate: false
-  xy: 0, 81
+  xy: 25, 125
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 2
 knight_idle
   rotate: false
-  xy: 27, 39
+  xy: 0, 125
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 3
 knight_idle
   rotate: false
-  xy: 0, 123
+  xy: 22, 83
   size: 23, 40
   orig: 23, 40
   offset: 0, 0
   index: 4
 knight_jump
   rotate: false
-  xy: 25, 123
+  xy: 0, 167
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_jump
   rotate: false
-  xy: 33, 207
+  xy: 33, 167
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_jump
   rotate: false
-  xy: 0, 249
+  xy: 33, 251
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_rise
   rotate: false
-  xy: 0, 207
+  xy: 0, 293
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 1
 knight_rise
   rotate: false
-  xy: 0, 165
+  xy: 0, 251
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 2
 knight_rise
   rotate: false
-  xy: 33, 165
+  xy: 0, 209
   size: 31, 40
   orig: 31, 40
   offset: 0, 0
   index: 3
 knight_walk
   rotate: false
-  xy: 24, 513
+  xy: 0, 557
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 1
 knight_walk
   rotate: false
-  xy: 0, 375
+  xy: 24, 419
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 2
 knight_walk
   rotate: false
-  xy: 24, 375
+  xy: 0, 419
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 3
 knight_walk
   rotate: false
-  xy: 0, 467
+  xy: 0, 465
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 4
 knight_walk
   rotate: false
-  xy: 24, 421
+  xy: 24, 511
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 5
 knight_walk
   rotate: false
-  xy: 24, 467
+  xy: 24, 465
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 6
 knight_walk
   rotate: false
-  xy: 0, 421
+  xy: 0, 511
   size: 22, 44
   orig: 22, 44
   offset: 0, 0
   index: 7
 knight_walk
   rotate: false
-  xy: 0, 513
+  xy: 24, 557
   size: 22, 44
   orig: 22, 44
   offset: 0, 0

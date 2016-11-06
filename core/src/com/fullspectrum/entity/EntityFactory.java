@@ -495,7 +495,8 @@ public class EntityFactory {
 		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
 		coin.add(engine.createComponent(TextureComponent.class).set(animation.getKeyFrame(0)));
 		coin.add(engine.createComponent(AnimationComponent.class)
-				.addAnimation(EntityAnim.COIN_ROTATE, animation));
+				.addAnimation(EntityAnim.COIN_ROTATE, animation)
+				.addAnimation(EntityAnim.COIN_DISAPPEAR, assets.getSpriteAnimation(Assets.disappearCoin)));
 		
 		EntityStateMachine fsm = new EntityStateMachine(coin, "body/coin.json");
 		fsm.createState(EntityStates.IDLING)
@@ -503,17 +504,39 @@ public class EntityFactory {
 		
 		fsm.createState(EntityStates.DYING)
 			.add(engine.createComponent(BlinkComponent.class).addBlink(2.0f, 0.4f).addBlink(2.0f, 0.2f).addBlink(1.0f, 0.1f))
-			.addAnimation(EntityAnim.COIN_ROTATE);
+			.addAnimation(EntityAnim.COIN_ROTATE)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(Entity entity) {
+				}
+
+				@Override
+				public void onExit(Entity entity) {
+					if(entity.getComponent(RenderComponent.class) == null){
+						entity.add(new RenderComponent());
+					}
+				}
+			});
 		
 		fsm.createState(EntityStates.CLEAN_UP)
-			.add(engine.createComponent(RemoveComponent.class))
-			.addAnimation(EntityAnim.COIN_ROTATE);
+			.addAnimation(EntityAnim.COIN_DISAPPEAR)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(Entity entity) {
+				}
+				
+				@Override
+				public void onExit(Entity entity) {
+					entity.add(new RemoveComponent());
+				}
+			});
 			
 		TimeTransitionData timeToBlink = new TimeTransitionData(10.0f);
 		TimeTransitionData timeToDisappear = new TimeTransitionData(5.0f);
 		
 		fsm.addTransition(EntityStates.IDLING, Transition.TIME, timeToBlink, EntityStates.DYING);
 		fsm.addTransition(EntityStates.DYING, Transition.TIME, timeToDisappear, EntityStates.CLEAN_UP);
+		fsm.addTransition(EntityStates.CLEAN_UP, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		fsm.changeState(EntityStates.IDLING);
 		coin.add(engine.createComponent(FSMComponent.class).set(fsm));
