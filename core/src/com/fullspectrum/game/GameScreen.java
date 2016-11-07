@@ -42,7 +42,6 @@ import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
-import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -74,6 +73,8 @@ import com.fullspectrum.systems.BlinkSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
+import com.fullspectrum.systems.DropMovementSystem;
+import com.fullspectrum.systems.DropSpawnSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.FollowingSystem;
 import com.fullspectrum.systems.ForceSystem;
@@ -181,12 +182,14 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(InvalidEntityTransition.getInstance());
 
 		// Other Systems
+		engine.addSystem(new DropSpawnSystem());
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
 		engine.addSystem(new ForceSystem());
 		engine.addSystem(new DirectionSystem());
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new GroundMovementSystem());
+		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
@@ -235,13 +238,13 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f);
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
-
+	
 	public void resetFrameBuffer(int width, int height) {
 		frameBuffer.dispose();
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, width, height, false);
@@ -271,6 +274,9 @@ public class GameScreen extends AbstractScreen {
 			if (Mouse.isJustPressed()) {
 				spawnEnemy(mouseNode);
 			}
+		} else if(level.isAir(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
+			Entity coin = EntityFactory.createCoin(engine, world, mousePos.x, mousePos.y, MathUtils.random(-5, 5), 0, MathUtils.random(1, 100));
+			engine.addEntity(coin);
 		}
 
 		if (DebugInput.isJustPressed(DebugKeys.SPAWN)) {
@@ -285,16 +291,16 @@ public class GameScreen extends AbstractScreen {
 		}
 
 		// Random Coin Spawning
-		if (ups % 6 == 0) {
-			int row = MathUtils.random(0, level.getHeight());
-			int col = MathUtils.random(0, level.getWidth());
-			while (!level.isAir(row, col)) {
-				row = MathUtils.random(0, level.getHeight());
-				col = MathUtils.random(0, level.getWidth());
-			}
-			Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), /*MathUtils.random(-1000, 1000)*/0, 0, MathUtils.random(1, 100));
-			engine.addEntity(coin);
-		}
+//		if (ups % 6 == 0) {
+//			int row = MathUtils.random(0, level.getHeight());
+//			int col = MathUtils.random(0, level.getWidth());
+//			while (!level.isAir(row, col)) {
+//				row = MathUtils.random(0, level.getHeight());
+//				col = MathUtils.random(0, level.getWidth());
+//			}
+//			Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), /*MathUtils.random(-1000, 1000)*/0, 0, MathUtils.random(1, 100));
+//			engine.addEntity(coin);
+//		}
 
 		// Remove Invalid Enemies
 		for (Iterator<Entity> iter = enemies.iterator(); iter.hasNext();) {

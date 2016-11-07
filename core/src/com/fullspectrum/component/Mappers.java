@@ -23,6 +23,7 @@ public class Mappers {
 	public static final ComponentMapper<SpeedComponent> speed =  ComponentMapper.getFor(SpeedComponent.class);
 	public static final ComponentMapper<VelocityComponent> velocity =  ComponentMapper.getFor(VelocityComponent.class);
 	public static final ComponentMapper<GroundMovementComponent> groundMovement = ComponentMapper.getFor(GroundMovementComponent.class);
+	public static final ComponentMapper<DropMovementComponent> dropMovement = ComponentMapper.getFor(DropMovementComponent.class);
 	public static final ComponentMapper<JumpComponent> jump = ComponentMapper.getFor(JumpComponent.class);
 	public static final ComponentMapper<CameraComponent> camera = ComponentMapper.getFor(CameraComponent.class);
 	public static final ComponentMapper<WorldComponent> world = ComponentMapper.getFor(WorldComponent.class);
@@ -46,4 +47,5 @@ public class Mappers {
 	public static final ComponentMapper<MoneyComponent> money = ComponentMapper.getFor(MoneyComponent.class);
 	public static final ComponentMapper<BlinkComponent> blink = ComponentMapper.getFor(BlinkComponent.class);
 	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);
+	public static final ComponentMapper<CoinSpawnComponent> coinSpawn = ComponentMapper.getFor(CoinSpawnComponent.class);
 }

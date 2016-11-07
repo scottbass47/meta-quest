@@ -193,6 +193,10 @@ public class Level {
 		return mapTiles[row][col].isAir();
 	}
 	
+	public boolean isAir(float x, float y){
+		return isAir((int)y, (int)x);
+	}
+	
 	public boolean performRayTrace(float x1, float y1, float x2, float y2){
 		int startCol = (int)x1;
 		int startRow = (int)y1;

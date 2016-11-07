@@ -18,6 +18,7 @@ import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
+import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
@@ -159,7 +160,7 @@ public class EntityFactory {
 					
 				});
 		
-		Entity sword = createSword(engine, world, player, x, y, 25);
+		Entity sword = createSword(engine, world, player, x, y, 100);
 //		engine.addEntity(sword);
 		
 		fsm.createState(EntityStates.ATTACK)
@@ -240,7 +241,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y) {
+	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y, int value) {
 		// Setup Player
 		Entity player = engine.createEntity();
 		player.add(engine.createComponent(EngineComponent.class).set(engine));
@@ -256,6 +257,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(TypeComponent.class).set(EntityType.ENEMY));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(HealthComponent.class).set(100, 100));
+		player.add(engine.createComponent(MoneyComponent.class).set(value));
 		player.add(engine.createComponent(AnimationComponent.class)
 				.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
 				.addAnimation(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK))
@@ -477,13 +479,18 @@ public class EntityFactory {
 		Entity coin = engine.createEntity();
 		
 		Animation animation = null;
-		if(amount <= 10){
-			animation = assets.getSpriteAnimation(Assets.silverCoin);
-		}else if(amount <= 30){
-			animation = assets.getSpriteAnimation(Assets.goldCoin);
-		}
-		else{
+		CoinType coinType = CoinType.getCoin(amount);
+		switch(coinType){
+		case BLUE:
 			animation = assets.getSpriteAnimation(Assets.blueCoin);
+			break;
+		case GOLD:
+			animation = assets.getSpriteAnimation(Assets.goldCoin);
+			break;
+		case SILVER:
+			animation = assets.getSpriteAnimation(Assets.silverCoin);
+			break;
+		
 		}
 		
 		coin.add(engine.createComponent(EngineComponent.class).set(engine));
@@ -502,6 +509,7 @@ public class EntityFactory {
 		
 		EntityStateMachine fsm = new EntityStateMachine(coin, "body/coin.json");
 		fsm.createState(EntityStates.IDLING)
+			.add(engine.createComponent(DropMovementComponent.class))
 			.addAnimation(EntityAnim.COIN_ROTATE);
 		
 		fsm.createState(EntityStates.DYING)
