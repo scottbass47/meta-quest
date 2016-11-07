@@ -42,10 +42,10 @@ public enum Collisions {
 			Entity entity = (Entity)other.getBody().getUserData();
 			if(entity == null || !EntityUtils.isValid(entity)) return;
 			
-			TypeComponent typeComp = Mappers.type.get(entity);
+//			TypeComponent typeComp = Mappers.type.get(entity);
 			
 			// Only entities that are type friendly can pick up currency
-			if(typeComp == null || typeComp.type == EntityType.FRIENDLY)return;
+//			if(typeComp == null || typeComp.type == EntityType.FRIENDLY)return;
 			contact.setEnabled(false);
 		}
 

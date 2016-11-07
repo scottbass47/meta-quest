@@ -29,7 +29,6 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -116,6 +115,9 @@ public class GameScreen extends AbstractScreen {
 	private Assets assets;
 	private BitmapFont font = new BitmapFont();
 
+	// Coin Stuff
+//	private int ups = 0;
+
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		assets = Assets.getInstance();
@@ -124,13 +126,13 @@ public class GameScreen extends AbstractScreen {
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		world.setContactListener(new WorldCollision());
 		enemies = new Array<Entity>();
-		
+
 		// Load Assets
 		assets.loadHUD();
 		assets.loadSprites();
 		font.getRegion().getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 		font.getData().setScale(2.0f);
-		
+
 		// Setup Shader
 		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
 		if (!mellowShader.isCompiled()) {
@@ -142,20 +144,20 @@ public class GameScreen extends AbstractScreen {
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
 		// Setup Ashley
-//		engine = new PooledEngine(16, 64, 64, 512);
+		// engine = new PooledEngine(16, 64, 64, 512);
 		engine = new Engine();
 		engine.addEntityListener(new EntityListener() {
 			@Override
 			public void entityRemoved(Entity entity) {
 				EntityUtils.setValid(entity, false);
 			}
-			
+
 			@Override
 			public void entityAdded(Entity entity) {
 				EntityUtils.setValid(entity, true);
 			}
 		});
-		
+
 		renderer = new RenderingSystem();
 		engine.addSystem(renderer);
 
@@ -202,7 +204,7 @@ public class GameScreen extends AbstractScreen {
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
 		engine.addEntity(playerOne);
 		// Spawn Enemy
-		//spawnEnemy(playerMesh.getRandomNode());
+		// spawnEnemy(playerMesh.getRandomNode());
 
 		// Setup Camera
 		cameraEntity = engine.createEntity();
@@ -219,13 +221,13 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMaxY = 0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
-		
+
 		// Spawn Coins
-		for(Node node : playerMesh.getNodes()){
-			int amount = MathUtils.random(1, 100);
-			Entity coin = EntityFactory.createCoin(engine, world, node.getCol() + 0.5f, node.getRow() + 1.0f, amount);
-			engine.addEntity(coin);
-		}
+//		for (Node node : playerMesh.getNodes()) {
+//			int amount = MathUtils.random(1, 100);
+//			Entity coin = EntityFactory.createCoin(engine, world, node.getCol() + 0.5f, node.getRow() + 1.0f, amount);
+//			engine.addEntity(coin);
+//		}
 	}
 
 	private void spawnEnemy(Node node) {
@@ -249,6 +251,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
+		//ups++;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -276,19 +279,23 @@ public class GameScreen extends AbstractScreen {
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
-		
-//		int row = MathUtils.random(0, level.getHeight());
-//		int col = MathUtils.random(0, level.getWidth());
-//		while(!level.isAir(row, col)){
-//			row = MathUtils.random(0, level.getHeight());
-//			col = MathUtils.random(0, level.getWidth());
+
+//		if (ups % 1 == 0) {
+//			for (int i = 0; i < 5; i++) {
+//				int row = MathUtils.random(0, level.getHeight());
+//				int col = MathUtils.random(0, level.getWidth());
+//				while (!level.isAir(row, col)) {
+//					row = MathUtils.random(0, level.getHeight());
+//					col = MathUtils.random(0, level.getWidth());
+//				}
+//				Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
+//				engine.addEntity(coin);
+//			}
 //		}
-//		Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
-//		engine.addEntity(coin);
-		
+
 		// Remove Invalid Enemies
-		for(Iterator<Entity> iter = enemies.iterator(); iter.hasNext();){
-			if(!EntityUtils.isValid(iter.next())){
+		for (Iterator<Entity> iter = enemies.iterator(); iter.hasNext();) {
+			if (!EntityUtils.isValid(iter.next())) {
 				iter.remove();
 			}
 		}
@@ -300,7 +307,8 @@ public class GameScreen extends AbstractScreen {
 		if (index > enemies.size) index = 0;
 		if (index == 0) {
 			cameraComp.toFollow = playerOne;
-		} else {
+		}
+		else {
 			cameraComp.toFollow = enemies.get(index - 1);
 		}
 	}
@@ -327,9 +335,9 @@ public class GameScreen extends AbstractScreen {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
-		if(DebugInput.isToggled(DebugToggle.SHOW_HEALTH)){
+		if (DebugInput.isToggled(DebugToggle.SHOW_HEALTH)) {
 			renderHealth(batch, playerOne);
-			for(Entity enemy : enemies){
+			for (Entity enemy : enemies) {
 				renderHealth(batch, enemy);
 			}
 		}
@@ -353,7 +361,7 @@ public class GameScreen extends AbstractScreen {
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
-		
+
 		batch.setProjectionMatrix(hudCamera.combined);
 		renderHUD(batch, playerOne);
 
@@ -378,9 +386,9 @@ public class GameScreen extends AbstractScreen {
 		// camera.camera.position.y + camera.windowMinY);
 		// sRenderer.end();
 	}
-	
-	private void renderHUD(SpriteBatch batch, Entity entity){
-		if(!EntityUtils.isValid(entity)) return;
+
+	private void renderHUD(SpriteBatch batch, Entity entity) {
+		if (!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 
@@ -389,57 +397,58 @@ public class GameScreen extends AbstractScreen {
 		TextureRegion staminaEmpty = assets.getHUDElement(Assets.staminaBarEmpty);
 		TextureRegion staminaFull = assets.getHUDElement(Assets.staminaBarFull);
 		TextureRegion coin = assets.getSpriteAnimation(Assets.goldCoin).getKeyFrame(0);
-		
+
 		// Health
 		float scale = 4.0f;
 		float healthEmptyWidth = healthEmpty.getRegionWidth();
 		float healthEmptyHeight = healthEmpty.getRegionHeight();
 		float healthY = 100;
-		
+
 		int healthSrcX = healthFull.getRegionX();
 		int healthSrcY = healthFull.getRegionY();
-		
-		int healthBarWidth = (int)(healthEmptyWidth * (healthComp.health / healthComp.maxHealth));
-		
+
+		int healthBarWidth = (int) (healthEmptyWidth * (healthComp.health / healthComp.maxHealth));
+
 		// Stamina
 		float staminaEmptyWidth = staminaEmpty.getRegionWidth();
 		float staminaEmptyHeight = staminaEmpty.getRegionHeight();
 		float staminaY = healthY - staminaEmptyHeight * scale + 2.0f * scale;
-		
+
 		int staminaSrcX = staminaFull.getRegionX();
 		int staminaSrcY = staminaFull.getRegionY();
-		
-//		int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health / healthComp.maxHealth));
-		int staminaBarWidth = (int)staminaEmptyWidth;
-		
+
+		// int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health /
+		// healthComp.maxHealth));
+		int staminaBarWidth = (int) staminaEmptyWidth;
+
 		float coinY = staminaY - coin.getRegionHeight() * scale - 4;
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
-		
+
 		batch.begin();
 		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
-		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int)(healthEmptyHeight), false, false);
+		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
 		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
-		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int)(staminaEmptyHeight), false, false);
-		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
-		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 15);
+		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int) (staminaEmptyHeight), false, false);
+//		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
+//		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 15);
 		batch.end();
 	}
-	
-	private void renderHealth(SpriteBatch batch, Entity entity){
-		if(!EntityUtils.isValid(entity)) return;
+
+	private void renderHealth(SpriteBatch batch, Entity entity) {
+		if (!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
-		
+
 		float width = 1.0f;
 		float height = 0.2f;
 		float x = bodyComp.body.getPosition().x - width * 0.5f;
 		float y = bodyComp.body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.1f;
-		
+
 		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		sRenderer.begin(ShapeType.Filled);
-//		sRenderer.setColor(Color.BLACK);
-//		sRenderer.rect(x, y, width, height);
+		// sRenderer.setColor(Color.BLACK);
+		// sRenderer.rect(x, y, width, height);
 		sRenderer.setColor(Color.WHITE);
 		sRenderer.rect(x, y, width, height);
 		sRenderer.setColor(Color.valueOf("e43b44"));

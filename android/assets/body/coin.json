@@ -2,12 +2,13 @@
   "BodyDef": {
     "type": "DynamicBody"
   },
-  Default:{
+  "Default":{
   	"Fixtures": [
       {
         "shape": "Box",
-        "width": 10,
-        "height": 12,
+        "width": 4,
+        "height": 4,
+        "restitution": 0.5,
         "CollisionType": "coin",
         "Category": "item"
       }
