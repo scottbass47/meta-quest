@@ -320,7 +320,7 @@ public class GameScreen extends AbstractScreen {
 		// Render Buffer
 		frameBuffer.begin();
 
-		Gdx.gl.glClearColor(0.4f, 0.4f, 0.8f, 1.0f);
+		Gdx.gl.glClearColor(0.0745f, 0.125f, 0.270f, 1.0f);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		worldCamera.update();
@@ -420,7 +420,7 @@ public class GameScreen extends AbstractScreen {
 		// healthComp.maxHealth));
 		int staminaBarWidth = (int) staminaEmptyWidth;
 
-		float coinY = staminaY - coin.getRegionHeight() * scale - 8;
+		float coinY = staminaY - coin.getRegionHeight() * scale - 4 * scale;
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
 
