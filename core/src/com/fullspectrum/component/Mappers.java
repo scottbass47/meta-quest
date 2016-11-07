@@ -45,4 +45,5 @@ public class Mappers {
 	public static final ComponentMapper<AttackComponent> attack = ComponentMapper.getFor(AttackComponent.class);
 	public static final ComponentMapper<MoneyComponent> money = ComponentMapper.getFor(MoneyComponent.class);
 	public static final ComponentMapper<BlinkComponent> blink = ComponentMapper.getFor(BlinkComponent.class);
+	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);
 }

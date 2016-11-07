@@ -22,6 +22,7 @@ import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FollowComponent;
+import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
@@ -83,7 +84,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(MoneyComponent.class));
 		player.add(engine.createComponent(BodyComponent.class));
 		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY));
-		player.add(engine.createComponent(HealthComponent.class).set(1000, 1000));
+		player.add(engine.createComponent(HealthComponent.class).set(2500, 2500));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(AnimationComponent.class)
 			.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
@@ -472,7 +473,7 @@ public class EntityFactory {
 		return sword;
 	}
 	
-	public static Entity createCoin(Engine engine, World world, float x, float y, int amount){
+	public static Entity createCoin(Engine engine, World world, float x, float y, float fx, float fy, int amount){
 		Entity coin = engine.createEntity();
 		
 		Animation animation = null;
@@ -487,6 +488,7 @@ public class EntityFactory {
 		
 		coin.add(engine.createComponent(EngineComponent.class).set(engine));
 		coin.add(engine.createComponent(BodyComponent.class));
+		coin.add(engine.createComponent(ForceComponent.class).set(fx, fy));
 		coin.add(engine.createComponent(RenderComponent.class));
 		coin.add(engine.createComponent(PositionComponent.class).set(x, y));
 		coin.add(engine.createComponent(VelocityComponent.class));

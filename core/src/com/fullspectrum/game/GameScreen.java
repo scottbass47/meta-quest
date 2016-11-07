@@ -42,6 +42,7 @@ import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
+import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -75,6 +76,7 @@ import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.FollowingSystem;
+import com.fullspectrum.systems.ForceSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
@@ -96,7 +98,7 @@ public class GameScreen extends AbstractScreen {
 	private Engine engine;
 	private RenderingSystem renderer;
 
-	// Player
+	// Playerii
 	private Entity playerOne;
 	private Array<Entity> enemies;
 	private Entity cameraEntity;
@@ -181,6 +183,7 @@ public class GameScreen extends AbstractScreen {
 		// Other Systems
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
+		engine.addSystem(new ForceSystem());
 		engine.addSystem(new DirectionSystem());
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new GroundMovementSystem());
@@ -281,6 +284,7 @@ public class GameScreen extends AbstractScreen {
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
 
+		// Random Coin Spawning
 		if (ups % 6 == 0) {
 			int row = MathUtils.random(0, level.getHeight());
 			int col = MathUtils.random(0, level.getWidth());
@@ -288,7 +292,7 @@ public class GameScreen extends AbstractScreen {
 				row = MathUtils.random(0, level.getHeight());
 				col = MathUtils.random(0, level.getWidth());
 			}
-			Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
+			Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), /*MathUtils.random(-1000, 1000)*/0, 0, MathUtils.random(1, 100));
 			engine.addEntity(coin);
 		}
 
@@ -298,6 +302,15 @@ public class GameScreen extends AbstractScreen {
 				iter.remove();
 			}
 		}
+		
+		// Respawn Player
+//		if(!EntityUtils.isValid(playerOne)){
+//			Node playerSpawn = playerMesh.getRandomNode();
+//			playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+//			engine.addEntity(playerOne);
+//			index = -1;
+//			changePlayer();
+//		}
 	}
 
 	private void changePlayer() {
