@@ -29,6 +29,7 @@ import com.badlogic.gdx.graphics.glutils.HdpiUtils;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
@@ -116,7 +117,7 @@ public class GameScreen extends AbstractScreen {
 	private BitmapFont font = new BitmapFont();
 
 	// Coin Stuff
-//	private int ups = 0;
+	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -251,7 +252,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-		//ups++;
+		ups++;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -280,18 +281,16 @@ public class GameScreen extends AbstractScreen {
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
 
-//		if (ups % 1 == 0) {
-//			for (int i = 0; i < 5; i++) {
-//				int row = MathUtils.random(0, level.getHeight());
-//				int col = MathUtils.random(0, level.getWidth());
-//				while (!level.isAir(row, col)) {
-//					row = MathUtils.random(0, level.getHeight());
-//					col = MathUtils.random(0, level.getWidth());
-//				}
-//				Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
-//				engine.addEntity(coin);
-//			}
-//		}
+		if (ups % 6 == 0) {
+			int row = MathUtils.random(0, level.getHeight());
+			int col = MathUtils.random(0, level.getWidth());
+			while (!level.isAir(row, col)) {
+				row = MathUtils.random(0, level.getHeight());
+				col = MathUtils.random(0, level.getWidth());
+			}
+			Entity coin = EntityFactory.createCoin(engine, world, col + MathUtils.random(0, 1.0f), row + MathUtils.random(0.5f, 1.5f), MathUtils.random(1, 100));
+			engine.addEntity(coin);
+		}
 
 		// Remove Invalid Enemies
 		for (Iterator<Entity> iter = enemies.iterator(); iter.hasNext();) {
@@ -421,7 +420,7 @@ public class GameScreen extends AbstractScreen {
 		// healthComp.maxHealth));
 		int staminaBarWidth = (int) staminaEmptyWidth;
 
-		float coinY = staminaY - coin.getRegionHeight() * scale - 4;
+		float coinY = staminaY - coin.getRegionHeight() * scale - 8;
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
 
@@ -430,8 +429,8 @@ public class GameScreen extends AbstractScreen {
 		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
 		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
 		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int) (staminaEmptyHeight), false, false);
-//		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
-//		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 15);
+		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
+		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 15);
 		batch.end();
 	}
 
