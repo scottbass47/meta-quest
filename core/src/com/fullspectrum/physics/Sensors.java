@@ -2,12 +2,12 @@ package com.fullspectrum.physics;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.fullspectrum.component.DropSpawnComponent;
-import com.fullspectrum.component.DropSpawnComponent.DropType;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwordStatsComponent;
+import com.fullspectrum.entity.DropType;
 
 public enum Sensors {
 

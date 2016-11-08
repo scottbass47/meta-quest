@@ -48,4 +48,6 @@ public class Mappers {
 	public static final ComponentMapper<BlinkComponent> blink = ComponentMapper.getFor(BlinkComponent.class);
 	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);
 	public static final ComponentMapper<DropSpawnComponent> dropSpawn = ComponentMapper.getFor(DropSpawnComponent.class);
+	public static final ComponentMapper<DropTypeComponent> dropType = ComponentMapper.getFor(DropTypeComponent.class);
+	public static final ComponentMapper<StaminaComponent> stamina = ComponentMapper.getFor(StaminaComponent.class);
 }

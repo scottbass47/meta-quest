@@ -12,8 +12,8 @@ public enum EntityAnim implements State{
 	FALLING,
 	JUMP_APEX,
 	OVERHEAD_ATTACK,
-	COIN_ROTATE,
-	COIN_DISAPPEAR;
+	DROP_IDLE,
+	DROP_DISAPPEAR;
 
 	@Override
 	public int numStates() {

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
@@ -19,6 +20,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropMovementComponent;
+import com.fullspectrum.component.DropTypeComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
@@ -37,6 +39,7 @@ import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
+import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
@@ -86,6 +89,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(BodyComponent.class));
 		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY));
 		player.add(engine.createComponent(HealthComponent.class).set(2500, 2500));
+		player.add(engine.createComponent(StaminaComponent.class).set(100, 100, 25, 0.3f));
 		player.add(engine.createComponent(WorldComponent.class).set(world));
 		player.add(engine.createComponent(AnimationComponent.class)
 			.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
@@ -175,6 +179,7 @@ public class EntityFactory {
 				.addChangeListener(new StateChangeListener(){
 					@Override
 					public void onEnter(Entity entity) {
+						// Setup Sword Swing
 						SwingComponent swingComp = Mappers.swing.get(entity);
 						swingComp.time = 0;
 						
@@ -184,6 +189,12 @@ public class EntityFactory {
 						
 						EngineComponent engineComp = Mappers.engine.get(entity);
 						engineComp.engine.addEntity(swordComp.sword);
+						
+						// Lower Stamina
+						StaminaComponent staminaComp = Mappers.stamina.get(entity);
+						staminaComp.locked = true;
+						staminaComp.timeElapsed = 0;
+						staminaComp.stamina = MathUtils.clamp(staminaComp.stamina - 25, 0, staminaComp.maxStamina);
 						
 //						Mappers.body.get(swordComp.sword).body.setActive(true);
 					}
@@ -196,6 +207,9 @@ public class EntityFactory {
 						engineComp.engine.removeEntity(swordComp.sword);
 						
 						Mappers.body.get(swordComp.sword).body.setActive(false);
+						
+						StaminaComponent staminaComp = Mappers.stamina.get(entity);
+						staminaComp.locked = false;
 					}
 				});
 		
@@ -336,11 +350,12 @@ public class EntityFactory {
 		Entity sword = createSword(engine, world, player, x, y, 25);
 //		engine.addEntity(sword);
 		
+		player.add(engine.createComponent(SwordComponent.class).set(sword));
+		
 		fsm.createState(EntityStates.ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(SwordComponent.class).set(sword))
 				.add(engine.createComponent(SwingComponent.class).set(150, 210, 0.6f))
 				.addAnimation(EntityAnim.OVERHEAD_ATTACK)
 				.addTag(TransitionTag.GROUND_STATE)
@@ -476,8 +491,6 @@ public class EntityFactory {
 	}
 	
 	public static Entity createCoin(Engine engine, World world, float x, float y, float fx, float fy, int amount){
-		Entity coin = engine.createEntity();
-		
 		Animation animation = null;
 		CoinType coinType = CoinType.getCoin(amount);
 		switch(coinType){
@@ -490,31 +503,38 @@ public class EntityFactory {
 		case SILVER:
 			animation = assets.getSpriteAnimation(Assets.silverCoin);
 			break;
-		
 		}
-		
-		coin.add(engine.createComponent(EngineComponent.class).set(engine));
-		coin.add(engine.createComponent(BodyComponent.class));
-		coin.add(engine.createComponent(ForceComponent.class).set(fx, fy));
-		coin.add(engine.createComponent(RenderComponent.class));
-		coin.add(engine.createComponent(PositionComponent.class).set(x, y));
-		coin.add(engine.createComponent(VelocityComponent.class));
-		coin.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
-		coin.add(engine.createComponent(WorldComponent.class).set(world));
+		Entity coin = createDrop(engine, world, x, y, fx, fy, "body/coin.json", animation, assets.getSpriteAnimation(Assets.disappearCoin), DropType.COIN);
 		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
-		coin.add(engine.createComponent(TextureComponent.class).set(animation.getKeyFrame(0)));
-		coin.add(engine.createComponent(AnimationComponent.class)
-				.addAnimation(EntityAnim.COIN_ROTATE, animation)
-				.addAnimation(EntityAnim.COIN_DISAPPEAR, assets.getSpriteAnimation(Assets.disappearCoin)));
+		return coin;
+	}
+	
+	private static Entity createDrop(Engine engine, World world, float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
+		Entity drop = engine.createEntity();
 		
-		EntityStateMachine fsm = new EntityStateMachine(coin, "body/coin.json");
+		drop.add(engine.createComponent(EngineComponent.class).set(engine));
+		drop.add(engine.createComponent(BodyComponent.class));
+		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
+		drop.add(engine.createComponent(RenderComponent.class));
+		drop.add(engine.createComponent(PositionComponent.class).set(x, y));
+		drop.add(engine.createComponent(VelocityComponent.class));
+		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
+		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
+		drop.add(engine.createComponent(WorldComponent.class).set(world));
+		drop.add(engine.createComponent(TextureComponent.class).set(dropIdle.getKeyFrame(0)));
+		drop.add(engine.createComponent(AnimationComponent.class)
+				.addAnimation(EntityAnim.DROP_IDLE, dropIdle)
+				.addAnimation(EntityAnim.DROP_DISAPPEAR, dropDisappear));
+		
+		
+		EntityStateMachine fsm = new EntityStateMachine(drop, physicsBody);
 		fsm.createState(EntityStates.IDLING)
 			.add(engine.createComponent(DropMovementComponent.class))
-			.addAnimation(EntityAnim.COIN_ROTATE);
+			.addAnimation(EntityAnim.DROP_IDLE);
 		
 		fsm.createState(EntityStates.DYING)
 			.add(engine.createComponent(BlinkComponent.class).addBlink(2.0f, 0.4f).addBlink(2.0f, 0.2f).addBlink(1.0f, 0.1f))
-			.addAnimation(EntityAnim.COIN_ROTATE)
+			.addAnimation(EntityAnim.DROP_IDLE)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(Entity entity) {
@@ -529,7 +549,7 @@ public class EntityFactory {
 			});
 		
 		fsm.createState(EntityStates.CLEAN_UP)
-			.addAnimation(EntityAnim.COIN_DISAPPEAR)
+			.addAnimation(EntityAnim.DROP_DISAPPEAR)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(Entity entity) {
@@ -549,8 +569,8 @@ public class EntityFactory {
 		fsm.addTransition(EntityStates.CLEAN_UP, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		fsm.changeState(EntityStates.IDLING);
-		coin.add(engine.createComponent(FSMComponent.class).set(fsm));
-		return coin;
+		drop.add(engine.createComponent(FSMComponent.class).set(fsm));
+		return drop;
 	}
 	
 //	public static Entity createGoblin(PooledEngine engine, Level level, AIController controller, World world, Entity toFollow, float x, float y) {

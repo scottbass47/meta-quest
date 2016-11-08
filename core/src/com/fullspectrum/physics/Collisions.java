@@ -13,7 +13,7 @@ import com.fullspectrum.entity.EntityUtils;
 
 public enum Collisions {
 
-	COIN {
+	DROP {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
 			Entity entity = (Entity)other.getBody().getUserData();
@@ -29,6 +29,7 @@ public enum Collisions {
 			MoneyComponent coinAmount = Mappers.money.get(coin);
 			
 			moneyComp.money += coinAmount.money;
+			coinAmount.money = 0;
 			coin.add(new RemoveComponent());
 		}
 

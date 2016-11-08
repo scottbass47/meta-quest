@@ -45,6 +45,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
@@ -84,6 +85,7 @@ import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
+import com.fullspectrum.systems.StaminaSystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
@@ -192,6 +194,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
+		engine.addSystem(new StaminaSystem());
 		engine.addSystem(new RelativePositioningSystem());
 		engine.addSystem(new SwingingSystem());
 		engine.addSystem(new BlinkSystem());
@@ -407,6 +410,7 @@ public class GameScreen extends AbstractScreen {
 	private void renderHUD(SpriteBatch batch, Entity entity) {
 		if (!EntityUtils.isValid(entity)) return;
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
+		StaminaComponent staminaComp = Mappers.stamina.get(entity);
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 
 		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
@@ -436,7 +440,7 @@ public class GameScreen extends AbstractScreen {
 
 		// int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health /
 		// healthComp.maxHealth));
-		int staminaBarWidth = (int) staminaEmptyWidth;
+		int staminaBarWidth = (int)(staminaEmptyWidth * (staminaComp.stamina / staminaComp.maxStamina));
 
 		float coinY = staminaY - coin.getRegionHeight() * scale - 4 * scale;
 		float coinWidth = coin.getRegionWidth();
