@@ -2,7 +2,8 @@ package com.fullspectrum.physics;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.fullspectrum.component.CoinSpawnComponent;
+import com.fullspectrum.component.DropSpawnComponent;
+import com.fullspectrum.component.DropSpawnComponent.DropType;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
@@ -48,7 +49,7 @@ public enum Sensors {
 				swordStats.hitEntities.add(otherEntity);
 				
 				if(enemyHealth.health <= 0){
-					otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(CoinSpawnComponent.class));
+					otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
 				}
 			}
 		}
