@@ -20,6 +20,7 @@ public class DropMovementSystem extends IteratingSystem{
 		Body body = bodyComp.body;
 		
 		body.setLinearDamping(0.65f);
+		body.setGravityScale(0.75f);
 		if(Math.abs(body.getLinearVelocity().x) < 1.0f){
 			body.setLinearVelocity(0, body.getLinearVelocity().y);
 		}

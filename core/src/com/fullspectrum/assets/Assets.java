@@ -42,7 +42,8 @@ public class Assets {
 	public static final String disappearCoin = "drop_coin_disappear";
 	
 	// Font
-	public static final String FONT = "font/";
+	public static final String font24 = "font/test24.fnt";
+	public static final String font28 = "font/test28.fnt";
 	
 	public static final float ANIM_SPEED = 0.1f;
 	
@@ -70,7 +71,9 @@ public class Assets {
 	}
 	
 	public void loadFont(){
-		
+		manager.load(font24, BitmapFont.class);
+		manager.load(font28, BitmapFont.class);
+		manager.finishLoading();
 	}
 	
 	public TextureRegion getHUDElement(String asset){
