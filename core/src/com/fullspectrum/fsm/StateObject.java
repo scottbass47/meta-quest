@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -15,7 +16,8 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 public class StateObject {
 	// Data
 	private ArrayMap<TransitionObject, State> transitionMap;
-	private Array<Transition> transitions;
+	private ArrayMap<MultiTransition, State> multiTransitionMap;
+	private ObjectSet<Transition> transitions;
 	private Array<TransitionTag> tags;
 	private Array<Component> components;
 	private Array<StateChangeListener> listeners;
@@ -34,7 +36,8 @@ public class StateObject {
 		setEntity(entity);
 		setMachine(machine);
 		transitionMap = new ArrayMap<TransitionObject, State>();
-		transitions = new Array<Transition>();
+		multiTransitionMap = new ArrayMap<MultiTransition, State>();
+		transitions = new ObjectSet<Transition>();
 		tags = new Array<TransitionTag>();
 		bits = new Bits();
 		components = new Array<Component>();
@@ -63,6 +66,13 @@ public class StateObject {
 		transitionMap.put(obj, toState);
 		transitions.add(transition);
 	}
+	
+	protected void addMultiTransition(MultiTransition multiTransition, State toState) {
+		// Assert that the transition being added is unique if it doesn't allow
+		// multiple transitions of its type
+		multiTransitionMap.put(multiTransition, toState);
+		transitions.addAll(multiTransition.transitions);
+	}
 
 	public Array<TransitionTag> getTags() {
 		return tags;
@@ -70,22 +80,32 @@ public class StateObject {
 
 	public Array<TransitionObject> getData(Transition transition) {
 		Array<TransitionObject> ret = new Array<TransitionObject>();
-		Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator();
-		while (iter.hasNext()) {
+		for (Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator(); iter.hasNext();) {
 			Entry<TransitionObject, State> entry = iter.next();
 			if (entry.key.transition.equals(transition) && machine.getState(entry.value).isEnabled()) {
 				ret.add(entry.key);
+			}
+		}
+		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
+			Entry<MultiTransition, State> entry = iter.next();
+			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
+				ret.add(entry.key.getTransitionObject(transition));
 			}
 		}
 		return ret;
 	}
 
 	public TransitionObject getFirstData(Transition transition) {
-		Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator();
-		while (iter.hasNext()) {
+		for(Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator(); iter.hasNext();) {
 			Entry<TransitionObject, State> entry = iter.next();
 			if (entry.key.transition.equals(transition) && machine.getState(entry.value).isEnabled()) {
 				return entry.key;
+			}
+		}
+		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
+			Entry<MultiTransition, State> entry = iter.next();
+			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
+				return entry.key.getTransitionObject(transition);
 			}
 		}
 		return null;
@@ -133,7 +153,7 @@ public class StateObject {
 		return transitionMap;
 	}
 
-	public Array<Transition> getTransitions() {
+	public ObjectSet<Transition> getTransitions() {
 		return transitions;
 	}
 

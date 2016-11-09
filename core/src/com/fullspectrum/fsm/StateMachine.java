@@ -167,6 +167,11 @@ public class StateMachine<S extends State, E extends StateObject>{
 	public void addTransition(S fromState, Transition transition, Object data, S toState) {
 		states.get(fromState).addTransition(transition, data, toState);
 	}
+	
+	public void addMultiTransition(S fromState, MultiTransition multiTransition, S toState){
+		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
+		states.get(fromState).addMultiTransition(multiTransition, toState);
+	}
 
 	public void addTransition(TransitionTag fromTag, Transition transition, S toState) {
 		addTransition(fromTag, transition, null, toState);
@@ -176,8 +181,18 @@ public class StateMachine<S extends State, E extends StateObject>{
 		Iterator<Entry<S, E>> iter = states.iterator();
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();
-			if (entry.value.getTags().contains(fromTag, true)) {
+			if(entry.value.bits.get(fromTag.getIndex() + bitOffset)){
 				addTransition(entry.key, transition, data, toState);
+			}
+		}
+	}
+	
+	public void addMultTransition(TransitionTag fromTag, MultiTransition multiTransition, S toState) {
+		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
+		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
+			Entry<S, E> entry = iter.next();
+			if(entry.value.bits.get(fromTag.getIndex() + bitOffset)){
+				addMultiTransition(entry.key, multiTransition, toState);
 			}
 		}
 	}
@@ -201,6 +216,23 @@ public class StateMachine<S extends State, E extends StateObject>{
 				continue;
 			}
 			addTransition(entry.key, transition, data, toState);
+		}
+	}
+	
+	public void addMultiTransition(Builder builder, MultiTransition multiTransition, S toState) {
+		for(Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
+			Entry<S, E> entry = iter.next();
+			E state = entry.value;
+			if (!state.bits.containsAll(builder.all)) {
+				continue;
+			}
+			if (!builder.one.isEmpty() && !builder.one.intersects(state.bits)) {
+				continue;
+			}
+			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
+				continue;
+			}
+			addMultiTransition(entry.key, multiTransition, toState);
 		}
 	}
 	
