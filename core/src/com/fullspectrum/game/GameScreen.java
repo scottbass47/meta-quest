@@ -240,7 +240,7 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(1000, 5000));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);

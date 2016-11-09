@@ -49,7 +49,7 @@ public enum Sensors {
 				enemyHealth.health -= swordStats.damage;
 				swordStats.hitEntities.add(otherEntity);
 				
-				if(enemyHealth.health <= 0 && Mappers.type.get(otherEntity).type == EntityType.ENEMY){
+				if(enemyHealth.health <= 0/* && Mappers.type.get(otherEntity).type == EntityType.ENEMY*/){
 					otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
 				}
 			}
