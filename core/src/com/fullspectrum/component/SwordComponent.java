@@ -3,6 +3,7 @@ package com.fullspectrum.component;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.fullspectrum.entity.EntityManager;
 
 public class SwordComponent implements Component, Poolable{
 
@@ -15,7 +16,7 @@ public class SwordComponent implements Component, Poolable{
 
 	@Override
 	public void reset(){
-		sword.add(new RemoveComponent());
+		EntityManager.cleanUp(sword);
 	}
 	
 }

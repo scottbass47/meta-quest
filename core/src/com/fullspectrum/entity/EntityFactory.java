@@ -480,6 +480,7 @@ public class EntityFactory {
 		Entity sword = engine.createEntity();
 		
 		sword.add(engine.createComponent(EngineComponent.class).set(engine));
+		sword.add(engine.createComponent(WorldComponent.class).set(world));
 		sword.add(engine.createComponent(BodyComponent.class)
 				.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/sword.json"), world, new Vector2(x, y), sword, true)));
 		sword.add(engine.createComponent(ParentComponent.class).set(owner));
