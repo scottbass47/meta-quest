@@ -32,13 +32,13 @@ public class DropFactory {
 		int numCoins = MIN_COIN_DROPS;
 		Array<Integer> coins = new Array<Integer>();
 		for(int i = 0; i < numCoins; i++){
-			float averageCoinValue = (float)amount / (float)numCoins;
+			float averageCoinValue = (float)amount / (float)(numCoins - i);
 			if(averageCoinValue > max) {
 				numCoins++;
 				i--;
 				continue;
 			}
-			if(i == numCoins){
+			if(i == numCoins - 1){
 				coins.add(amount);
 				break;
 			}
@@ -46,7 +46,6 @@ public class DropFactory {
 			coins.add(value);
 			amount -= value;
 		}
-		
 		float range = 15.0f;
 		float interval = range / coins.size;
 		for(int i = 0; i < coins.size; i++){

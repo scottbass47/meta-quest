@@ -100,7 +100,7 @@ public class GameScreen extends AbstractScreen {
 	private Engine engine;
 	private RenderingSystem renderer;
 
-	// Playerii
+	// Player
 	private Entity playerOne;
 	private Array<Entity> enemies;
 	private Entity cameraEntity;
@@ -115,7 +115,9 @@ public class GameScreen extends AbstractScreen {
 
 	// Rendering
 	private FrameBuffer frameBuffer;
+//	private FrameBuffer mainBuffer;
 	private ShaderProgram mellowShader;
+//	private ShaderProgram vignetteShader;
 	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
@@ -143,10 +145,19 @@ public class GameScreen extends AbstractScreen {
 		if (!mellowShader.isCompiled()) {
 			throw new GdxRuntimeException(mellowShader.getLog());
 		}
+//		vignetteShader = new ShaderProgram(Gdx.files.internal("shaders/vignette.vsh"), Gdx.files.internal("shaders/vignette.fsh"));
+//		if (!vignetteShader.isCompiled()) {
+//			throw new GdxRuntimeException(vignetteShader.getLog());
+//		}
+//		vignetteShader.begin();
+//		vignetteShader.setUniformf("u_resolution", 1280, 720);
+//		vignetteShader.end();
 
 		// Setup Frame Buffer
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
+//		mainBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, SCREEN_WIDTH, SCREEN_HEIGHT, false);
+//		mainBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 
 		// Setup Ashley
 		// engine = new PooledEngine(16, 64, 64, 512);
@@ -240,7 +251,7 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(1000, 5000));
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
@@ -371,6 +382,7 @@ public class GameScreen extends AbstractScreen {
 
 		CameraComponent camera = Mappers.camera.get(cameraEntity);
 
+//		mainBuffer.begin();
 		batch.begin();
 		batch.setShader(mellowShader);
 		batch.setProjectionMatrix(hudCamera.combined);
@@ -378,6 +390,14 @@ public class GameScreen extends AbstractScreen {
 		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
 		batch.draw(frameBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
 		batch.end();
+//		batch.setShader(vignetteShader);
+//		mainBuffer.end();
+		
+//		batch.begin();
+//		batch.setShader(vignetteShader);
+//		batch.setProjectionMatrix(hudCamera.combined);
+//		batch.draw(mainBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
+//		batch.end();
 
 		batch.setShader(null);
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
