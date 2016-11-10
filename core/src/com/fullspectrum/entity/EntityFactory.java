@@ -53,12 +53,14 @@ import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.MultiTransition;
 import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
+import com.fullspectrum.fsm.transition.StaminaTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -157,11 +159,9 @@ public class EntityFactory {
 						InputComponent inputComp = Mappers.input.get(entity);						
 						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
 					}
-
 					@Override
 					public void onExit(Entity entity) {
 					}
-					
 				});
 		
 		Entity sword = createSword(engine, world, player, x, y, 100);
@@ -234,7 +234,13 @@ public class EntityFactory {
 		
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
-
+		
+		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
+		
+		MultiTransition attackTransition = new MultiTransition();
+		attackTransition.addTransition(Transition.INPUT, attackData);
+		attackTransition.addTransition(Transition.STAMINA, attackStamina);
+		
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
@@ -243,7 +249,7 @@ public class EntityFactory {
 		fsm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), Transition.INPUT, attackData, EntityStates.ATTACK);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), attackTransition, EntityStates.ATTACK);
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 //		System.out.print(fsm.printTransitions());
@@ -408,6 +414,12 @@ public class EntityFactory {
 		
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
+		
+		TimeTransitionData attackCooldown = new TimeTransitionData(1f);
+		
+		MultiTransition attackTransition = new MultiTransition();
+		attackTransition.addTransition(Transition.INPUT, attackData);
+		attackTransition.addTransition(Transition.TIME, attackCooldown);
 
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
@@ -417,7 +429,7 @@ public class EntityFactory {
 		fsm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), Transition.INPUT, attackData, EntityStates.ATTACK);
+		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), attackTransition, EntityStates.ATTACK);
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 //		System.out.print(fsm.printTransitions());
 		

@@ -52,6 +52,7 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityUtils;
+import com.fullspectrum.fsm.StateResetSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
@@ -59,6 +60,7 @@ import com.fullspectrum.fsm.transition.InvalidEntityTransition;
 import com.fullspectrum.fsm.transition.LandedTransition;
 import com.fullspectrum.fsm.transition.RandomTransition;
 import com.fullspectrum.fsm.transition.RangeTransition;
+import com.fullspectrum.fsm.transition.StaminaTransition;
 import com.fullspectrum.fsm.transition.TimeTransition;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
@@ -192,6 +194,8 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(LandedTransition.getInstance());
 		engine.addSystem(InputTransition.getInstance());
 		engine.addSystem(InvalidEntityTransition.getInstance());
+		engine.addSystem(StaminaTransition.getInstance());
+		engine.addSystem(StateResetSystem.getInstance());
 
 		// Other Systems
 		engine.addSystem(new DropSpawnSystem());

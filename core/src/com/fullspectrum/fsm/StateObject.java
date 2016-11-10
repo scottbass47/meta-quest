@@ -149,6 +149,10 @@ public class StateObject {
 	public State getState(TransitionObject transition) {
 		return transitionMap.get(transition);
 	}
+	
+	public State getState(MultiTransition multiTransition) {
+		return multiTransitionMap.get(multiTransition);
+	}
 
 	public ArrayMap<TransitionObject, State> getTransitionMap() {
 		return transitionMap;

@@ -49,6 +49,12 @@ public enum Transition {
 		public TransitionSystem getSystem() {
 			return TimeTransition.getInstance();
 		}
+	},
+	STAMINA(true){
+		@Override
+		public TransitionSystem getSystem() {
+			return StaminaTransition.getInstance();
+		}
 	};
 
 	public final boolean allowMultiple;

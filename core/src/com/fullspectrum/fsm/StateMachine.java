@@ -136,11 +136,13 @@ public class StateMachine<S extends State, E extends StateObject>{
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
+			StateResetSystem.getInstance().removeStateMachine(this);
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
 			if(machine != null){
 				for(Transition t : machine.currentState.getTransitions()){
 					t.getSystem().removeStateMachine(machine);
 				}
+				StateResetSystem.getInstance().removeStateMachine(machine);
 				machine.resetMachine();
 			}
 		}
@@ -151,11 +153,13 @@ public class StateMachine<S extends State, E extends StateObject>{
 			entity.add(c);
 		}
 		newState.onEnter();
+		StateResetSystem.getInstance().addStateMachine(this);
 		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
 		if(machine != null){
 			for(Transition t : machine.currentState.getTransitions()){
 				t.getSystem().addStateMachine(machine);
 			}
+			StateResetSystem.getInstance().addStateMachine(machine);
 		}
 		currentState = newState;
 	}
@@ -164,12 +168,25 @@ public class StateMachine<S extends State, E extends StateObject>{
 		if(currentState.getState(obj) != null){
 			changeState(currentState.getState(obj));
 		}
-//		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
-//		for(MultiTransition multi : multiTransitions){
-//			if(multi.transitionObjects.contains(obj, false)){
-//				
-//			}
-//		}
+		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
+		for(MultiTransition multi : multiTransitions){
+			if(multi.transitionObjects.contains(obj, false)){
+				multi.set(obj, true);
+				if(multi.shouldTransition()){
+					multi.resetMap();
+					changeState(currentState.getState(multi));
+					return;
+				}
+				break;
+			}
+		}
+	}
+	
+	protected void resetMultiTransitions(){
+		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
+		for(MultiTransition multi : multiTransitions){
+			multi.resetMap();
+		}
 	}
 
 	public void addTransition(S fromState, Transition transition, S toState) {
@@ -180,7 +197,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		states.get(fromState).addTransition(transition, data, toState);
 	}
 	
-	public void addMultiTransition(S fromState, MultiTransition multiTransition, S toState){
+	public void addTransition(S fromState, MultiTransition multiTransition, S toState){
 		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		states.get(fromState).addMultiTransition(multiTransition, toState);
 	}
@@ -199,12 +216,12 @@ public class StateMachine<S extends State, E extends StateObject>{
 		}
 	}
 	
-	public void addMultTransition(TransitionTag fromTag, MultiTransition multiTransition, S toState) {
+	public void addTransition(TransitionTag fromTag, MultiTransition multiTransition, S toState) {
 		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
 			Entry<S, E> entry = iter.next();
 			if(entry.value.bits.get(fromTag.getIndex() + bitOffset)){
-				addMultiTransition(entry.key, multiTransition, toState);
+				addTransition(entry.key, multiTransition, toState);
 			}
 		}
 	}
@@ -231,7 +248,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		}
 	}
 	
-	public void addMultiTransition(Builder builder, MultiTransition multiTransition, S toState) {
+	public void addTransition(Builder builder, MultiTransition multiTransition, S toState) {
 		for(Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
 			Entry<S, E> entry = iter.next();
 			E state = entry.value;
@@ -244,7 +261,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
 				continue;
 			}
-			addMultiTransition(entry.key, multiTransition, toState);
+			addTransition(entry.key, multiTransition, toState);
 		}
 	}
 	
