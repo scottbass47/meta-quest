@@ -10,7 +10,6 @@ public class StaminaTransitionData implements TransitionData{
 	
 	@Override
 	public void reset() {
-		staminaNeeded = 0.0f;
 	}
 
 }

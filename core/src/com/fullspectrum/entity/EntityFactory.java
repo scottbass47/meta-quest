@@ -58,6 +58,7 @@ import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
+import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.StaminaTransitionData;
@@ -415,7 +416,7 @@ public class EntityFactory {
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
-		TimeTransitionData attackCooldown = new TimeTransitionData(1f);
+		TimeTransitionData attackCooldown = new TimeTransitionData(0.5f);
 		
 		MultiTransition attackTransition = new MultiTransition();
 		attackTransition.addTransition(Transition.INPUT, attackData);
@@ -473,9 +474,11 @@ public class EntityFactory {
 		fromAttack.inRange = false;
 		fromAttack.rayTrace = false;
 		
+		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+		
 		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, toFollow, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, invalidEntity, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), Transition.RANGE, toAttack, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, Transition.RANGE, fromAttack, AIState.FOLLOWING);
 		

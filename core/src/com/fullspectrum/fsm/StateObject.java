@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
@@ -59,7 +60,7 @@ public class StateObject {
 		return this;
 	}
 
-	protected void addTransition(Transition transition, Object data, State toState) {
+	protected void addTransition(Transition transition, TransitionData data, State toState) {
 		TransitionObject obj = new TransitionObject(transition, data);
 		// Assert that the transition being added is unique if it doesn't allow
 		// multiple transitions of its type
@@ -156,6 +157,15 @@ public class StateObject {
 
 	public ArrayMap<TransitionObject, State> getTransitionMap() {
 		return transitionMap;
+	}
+	
+	public Array<TransitionObject> getTranstionObjects(){
+		Array<TransitionObject> ret = new Array<TransitionObject>();
+		for(Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator(); iter.hasNext();){
+			Entry<TransitionObject, State> entry = iter.next();
+			ret.add(entry.key);
+		}
+		return ret;
 	}
 	
 	public Array<MultiTransition> getMultiTransitions(){

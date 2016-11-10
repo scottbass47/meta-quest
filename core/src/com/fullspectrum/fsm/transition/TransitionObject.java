@@ -3,9 +3,9 @@ package com.fullspectrum.fsm.transition;
 public class TransitionObject {
 
 	public Transition transition;
-	public Object data;
+	public TransitionData data;
 	
-	public TransitionObject(Transition t, Object data){
+	public TransitionObject(Transition t, TransitionData data){
 		this.transition = t;
 		this.data = data;
 	}

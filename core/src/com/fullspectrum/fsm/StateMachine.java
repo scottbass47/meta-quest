@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
@@ -133,6 +134,18 @@ public class StateMachine<S extends State, E extends StateObject>{
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
+			for(TransitionObject obj : currentState.getTranstionObjects()){
+				if(obj.data != null){
+					obj.data.reset();
+				}
+			}
+			for(MultiTransition multi : currentState.getMultiTransitions()){
+				for(TransitionObject obj : multi.transitionObjects){
+					if(obj.data != null){
+						obj.data.reset();
+					}
+				}
+			}
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
@@ -193,7 +206,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		states.get(fromState).addTransition(transition, null, toState);
 	}
 
-	public void addTransition(S fromState, Transition transition, Object data, S toState) {
+	public void addTransition(S fromState, Transition transition, TransitionData data, S toState) {
 		states.get(fromState).addTransition(transition, data, toState);
 	}
 	
@@ -206,7 +219,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		addTransition(fromTag, transition, null, toState);
 	}
 
-	public void addTransition(TransitionTag fromTag, Transition transition, Object data, S toState) {
+	public void addTransition(TransitionTag fromTag, Transition transition, TransitionData data, S toState) {
 		Iterator<Entry<S, E>> iter = states.iterator();
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();
@@ -230,7 +243,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		addTransition(builder, transition, null, toState);
 	}
 
-	public void addTransition(Builder builder, Transition transition, Object data, S toState) {
+	public void addTransition(Builder builder, Transition transition, TransitionData data, S toState) {
 		Iterator<Entry<S, E>> iter = states.iterator();
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();

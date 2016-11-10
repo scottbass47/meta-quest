@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 
 public class MultiTransition {
@@ -21,7 +22,7 @@ public class MultiTransition {
 		map = new ArrayMap<TransitionObject, Boolean>();
 	}
 	
-	public MultiTransition addTransition(Transition transition, Object data){
+	public MultiTransition addTransition(Transition transition, TransitionData data){
 		if(transitions.contains(transition)) return null;
 		TransitionObject obj = new TransitionObject(transition, data);
 		transitionObjects.add(obj);

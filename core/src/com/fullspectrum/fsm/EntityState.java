@@ -3,6 +3,7 @@ package com.fullspectrum.fsm;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.physics.EntityFixtures;
 
@@ -29,7 +30,7 @@ public class EntityState extends StateObject{
 		return this;
 	}
 	
-	public EntityState addAnimTransition(State fromState, Transition transition, Object data, State toState){
+	public EntityState addAnimTransition(State fromState, Transition transition, TransitionData data, State toState){
 		animations.addTransition(fromState, transition, data, toState);
 		return this;
 	}
