@@ -26,7 +26,7 @@ public class TimeTransition extends TransitionSystem {
 			ttd.timePassed += deltaTime;
 			if (ttd.timePassed > ttd.time) {
 				ttd.reset();
-				machine.changeState(machine.getCurrentState().getState(obj));
+				machine.changeState(obj);
 
 			}
 		}

@@ -14,6 +14,7 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
 public class StateObject {
+	
 	// Data
 	private ArrayMap<TransitionObject, State> transitionMap;
 	private ArrayMap<MultiTransition, State> multiTransitionMap;
@@ -151,6 +152,15 @@ public class StateObject {
 
 	public ArrayMap<TransitionObject, State> getTransitionMap() {
 		return transitionMap;
+	}
+	
+	public Array<MultiTransition> getMultiTransitions(){
+		Array<MultiTransition> ret = new Array<MultiTransition>();
+		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
+			Entry<MultiTransition, State> entry = iter.next();
+			ret.add(entry.key);
+		}
+		return ret;
 	}
 
 	public ObjectSet<Transition> getTransitions() {

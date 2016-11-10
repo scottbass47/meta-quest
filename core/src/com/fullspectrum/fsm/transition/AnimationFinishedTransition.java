@@ -31,7 +31,7 @@ public class AnimationFinishedTransition extends TransitionSystem{
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.ANIMATION_FINISHED);
 			if(fsm.getAnimationTime() >= animComp.animations.get(fsm.getAnimation()).getAnimationDuration() - 0.1f){
 //				System.out.println(machine + "-> Animation Finished");
-				machine.changeState(machine.getCurrentState().getState(obj));
+				machine.changeState(obj);
 			}
 		}
 	}

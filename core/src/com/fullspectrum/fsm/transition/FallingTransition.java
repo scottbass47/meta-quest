@@ -29,7 +29,7 @@ public class FallingTransition extends TransitionSystem	{
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.FALLING);
 			if(bodyComp.body.getLinearVelocity().y < 0 && !collisionComp.onGround()){
 //				System.out.println(machine + "-> Falling");
-				machine.changeState(machine.getCurrentState().getState(obj));
+				machine.changeState(obj);
 			}
 		}
 	}

@@ -28,7 +28,7 @@ public class LandedTransition extends TransitionSystem {
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.LANDED);
 			if(collisionComp.onGround()){
 //				System.out.println(machine + "-> Landed");
-				machine.changeState(machine.getCurrentState().getState(obj));
+				machine.changeState(obj);
 			}
 		}
 	}

@@ -25,7 +25,7 @@ public class InvalidEntityTransition extends TransitionSystem	{
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.INVALID_ENTITY);
 			if(obj.data == null || !EntityUtils.isValid((Entity)obj.data)){
 //				System.out.println(machine + "-> Falling");
-				machine.changeState(machine.getCurrentState().getState(obj));
+				machine.changeState(obj);
 			}
 		}
 	}

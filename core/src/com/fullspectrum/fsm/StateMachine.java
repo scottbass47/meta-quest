@@ -159,6 +159,18 @@ public class StateMachine<S extends State, E extends StateObject>{
 		}
 		currentState = newState;
 	}
+	
+	public void changeState(TransitionObject obj){
+		if(currentState.getState(obj) != null){
+			changeState(currentState.getState(obj));
+		}
+//		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
+//		for(MultiTransition multi : multiTransitions){
+//			if(multi.transitionObjects.contains(obj, false)){
+//				
+//			}
+//		}
+	}
 
 	public void addTransition(S fromState, Transition transition, S toState) {
 		states.get(fromState).addTransition(transition, null, toState);
@@ -332,5 +344,4 @@ public class StateMachine<S extends State, E extends StateObject>{
 			return bits;
 		}
 	}
-
 }

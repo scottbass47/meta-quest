@@ -34,7 +34,7 @@ public class InputTransition extends TransitionSystem {
 					itd.reset();
 //					String debug = itd.pressed ? "Pressed" : "Released";
 //					System.out.println(machine + "-> Input " + debug);
-					machine.changeState(machine.getCurrentState().getState(obj));
+					machine.changeState(obj);
 					break;
 				}
 			}
