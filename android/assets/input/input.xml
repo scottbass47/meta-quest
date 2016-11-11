@@ -9,7 +9,7 @@
 	        <action name="JUMP"><key code="Space"/></action>
 	            
 	        <!-- Action Controls -->
-	        <action name="ATTACK"><key code="Z"/></action>
+	        <action name="ATTACK"><key code="F"/></action>
 	        <action name="BLOCK"><key code="X"/></action>
 	        <action name="MOVEMENT"><key code="C"/></action>
 	        <action name="CHARGE"><key code="V"/></action>

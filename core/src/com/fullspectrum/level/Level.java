@@ -58,7 +58,8 @@ public class Level {
 	public void loadMap(String path) {
 		map = loader.load(path);
 		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
-		setupTilePhysics();
+		setupGround();
+//		setupLadders();
 		setupSpawnPoints();
 	}
 	
@@ -88,7 +89,7 @@ public class Level {
 		return inBounds((int)y, (int)x);
 	}
 	
-	private void setupTilePhysics() {
+	private void setupGround() {
 		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
 		width = layer.getWidth();
 		height = layer.getHeight();
