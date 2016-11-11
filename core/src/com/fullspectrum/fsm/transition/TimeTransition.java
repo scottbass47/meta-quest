@@ -21,11 +21,10 @@ public class TimeTransition extends TransitionSystem {
 			TransitionObject obj = machine.getCurrentState().getFirstData(Transition.TIME);
 			TimeTransitionData ttd = (TimeTransitionData) obj.data;
 			if (ttd == null) {
-				ttd = new TimeTransitionData(1.0f);
+				return;
 			}
 			ttd.timePassed += deltaTime;
 			if (ttd.timePassed > ttd.time) {
-				ttd.reset();
 				machine.changeState(obj);
 
 			}
