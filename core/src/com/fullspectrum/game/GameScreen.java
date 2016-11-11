@@ -224,17 +224,21 @@ public class GameScreen extends AbstractScreen {
 		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
 
 		// Spawn Player
-		Node playerSpawn = playerMesh.getRandomNode();
-		playerOne = EntityFactory.createPlayer(engine, level, input, world, playerSpawn.getCol() + 0.5f, playerSpawn.getRow() + 1.5f);
+		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
 		engine.addEntity(playerOne);
-		// Spawn Enemy
-		// spawnEnemy(playerMesh.getRandomNode());
+		
+		// Init Camera Position
+		worldCamera.position.x = level.getPlayerSpawnPoint().x;
+		worldCamera.position.y = level.getPlayerSpawnPoint().y;
+		worldCamera.update();
 
 		// Setup Camera
 		cameraEntity = engine.createEntity();
 		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
 		cameraComp.camera = worldCamera;
 		cameraComp.toFollow = playerOne;
+		cameraComp.x = worldCamera.position.x;
+		cameraComp.y = worldCamera.position.y;
 		cameraComp.minX = 0f;
 		cameraComp.minY = 0f;
 		cameraComp.maxX = level.getWidth();
@@ -245,13 +249,6 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMaxY = 0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
-
-		// Spawn Coins
-//		for (Node node : playerMesh.getNodes()) {
-//			int amount = MathUtils.random(1, 100);
-//			Entity coin = EntityFactory.createCoin(engine, world, node.getCol() + 0.5f, node.getRow() + 1.0f, amount);
-//			engine.addEntity(coin);
-//		}
 	}
 
 	private void spawnEnemy(Node node) {

@@ -9,11 +9,14 @@ import java.util.Iterator;
 
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.maps.MapObject;
+import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -41,6 +44,9 @@ public class Level {
 
 	// Rendering
 	private SpriteBatch batch;
+	
+	// Spawns
+	private Vector2 playerSpawn;
 
 	public Level(World world, OrthographicCamera cam, SpriteBatch batch) {
 		this.world = world;
@@ -53,6 +59,7 @@ public class Level {
 		map = loader.load(path);
 		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
 		setupTilePhysics();
+		setupSpawnPoints();
 	}
 	
 	public int getWidth(){
@@ -184,6 +191,19 @@ public class Level {
 		}
 	}
 	
+	private void setupSpawnPoints(){
+		MapObjects objects = map.getLayers().get("spawns").getObjects();
+		for(MapObject o : objects){
+			if(o.getName().equals("player_spawn")){
+				float x = (float)o.getProperties().get("x");
+				float y = (float)o.getProperties().get("y");
+				float width = (float)o.getProperties().get("width");
+				float height = (float)o.getProperties().get("height");
+				playerSpawn = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
+			}
+		}
+	}
+	
 	public Tile tileAt(int row, int col){
 		return mapTiles[row][col];
 	}
@@ -195,6 +215,10 @@ public class Level {
 	
 	public boolean isAir(float x, float y){
 		return isAir((int)y, (int)x);
+	}
+	
+	public Vector2 getPlayerSpawnPoint(){
+		return playerSpawn;
 	}
 	
 	public boolean performRayTrace(float x1, float y1, float x2, float y2){

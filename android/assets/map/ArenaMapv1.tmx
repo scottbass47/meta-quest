@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="40" tilewidth="16" tileheight="16" nextobjectid="1">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="40" tilewidth="16" tileheight="16" nextobjectid="5">
  <tileset firstgid="1" name="Grassy_Tileset" tilewidth="16" tileheight="16" tilecount="6" columns="2">
   <image source="level_tileset.png" trans="ff00ff" width="32" height="16"/>
   <tile id="2" probability="0.01"/>
@@ -51,4 +51,7 @@
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
 </data>
  </layer>
+ <objectgroup name="spawns">
+  <object id="1" name="player_spawn" x="639.5" y="539.5" width="1" height="1"/>
+ </objectgroup>
 </map>

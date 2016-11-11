@@ -9,7 +9,7 @@ public class DesktopLauncher {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.useVsync(false);
 		config.setWindowedMode(1280, 720);
-		config.setResizable(true);
+		config.setResizable(false);
 		config.setDecorated(true);
 		new Lwjgl3Application(new GdxGame(), config);
 	}
