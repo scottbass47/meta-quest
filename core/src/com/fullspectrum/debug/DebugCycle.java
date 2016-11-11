@@ -2,7 +2,8 @@ package com.fullspectrum.debug;
 
 public enum DebugCycle {
 
-	ZOOM('o', 3);
+	ZOOM('o', 3),
+	SLOW('y', 3);
 	
 	private final char character;
 	private final int cycles;
