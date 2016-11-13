@@ -1,5 +1,5 @@
 entity_assets.png
-size: 118, 500
+size: 118, 750
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
@@ -260,5 +260,131 @@ knight_walk
   xy: 82, 452
   size: 22, 44
   orig: 22, 44
+  offset: 0, 0
+  index: 8
+temp_player_apex
+  rotate: false
+  xy: 4, 500
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 1
+temp_player_apex
+  rotate: false
+  xy: 41, 500
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 2
+temp_player_fall
+  rotate: false
+  xy: 78, 500
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 1
+temp_player_idle
+  rotate: false
+  xy: 4, 538
+  size: 17, 38
+  orig: 17, 38
+  offset: 0, 0
+  index: 1
+temp_player_idle
+  rotate: false
+  xy: 25, 538
+  size: 17, 38
+  orig: 17, 38
+  offset: 0, 0
+  index: 2
+temp_player_idle
+  rotate: false
+  xy: 46, 538
+  size: 17, 38
+  orig: 17, 38
+  offset: 0, 0
+  index: 3
+temp_player_idle
+  rotate: false
+  xy: 67, 538
+  size: 17, 38
+  orig: 17, 38
+  offset: 0, 0
+  index: 4
+temp_player_jump
+  rotate: false
+  xy: 4, 580
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 1
+temp_player_jump
+  rotate: false
+  xy: 41, 580
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 2
+temp_player_rise
+  rotate: false
+  xy: 78, 580
+  size: 33, 34
+  orig: 33, 34
+  offset: 0, 0
+  index: 1
+temp_player_run
+  rotate: false
+  xy: 4, 618
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 1
+temp_player_run
+  rotate: false
+  xy: 41, 618
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 2
+temp_player_run
+  rotate: false
+  xy: 78, 618
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 3
+temp_player_run
+  rotate: false
+  xy: 4, 662
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 4
+temp_player_run
+  rotate: false
+  xy: 41, 662
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 5
+temp_player_run
+  rotate: false
+  xy: 78, 662
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 6
+temp_player_run
+  rotate: false
+  xy: 4, 706
+  size: 33, 40
+  orig: 33, 40
+  offset: 0, 0
+  index: 7
+temp_player_run
+  rotate: false
+  xy: 41, 706
+  size: 33, 40
+  orig: 33, 40
   offset: 0, 0
   index: 8

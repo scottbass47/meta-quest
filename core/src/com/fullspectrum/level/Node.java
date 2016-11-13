@@ -7,6 +7,7 @@ public class Node {
 	
 	protected int row;
 	protected int col;
+	protected Tile tile;
 	
 	public NodeType type = NodeType.MIDDLE;
 	private Array<NavLink> links;
@@ -19,7 +20,8 @@ public class Node {
 		LEFT_EDGE,
 		RIGHT_EDGE,
 		SOLO,
-		MIDDLE
+		MIDDLE,
+		LADDER
 	}
 	
 	public void addLink(NavLink link){
@@ -36,6 +38,10 @@ public class Node {
 	
 	public int getCol(){
 		return col;
+	}
+	
+	public Tile getTile(){
+		return tile;
 	}
 	
 	public boolean hasLinkType(LinkType type){

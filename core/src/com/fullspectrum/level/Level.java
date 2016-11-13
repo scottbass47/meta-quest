@@ -164,25 +164,25 @@ public class Level {
 			int col = tile.getCol();
 			if (row > 0) {
 				Tile t = mapTiles[row - 1][col];
-				if (t.getType() == tile.getType()) {
+				if (!t.isSolid()) {
 					tile.addSide(Side.SOUTH);
 				}
 			}
 			if (row < height - 1) {
 				Tile t = mapTiles[row + 1][col];
-				if (t.getType() == tile.getType()) {
+				if (!t.isSolid()) {
 					tile.addSide(Side.NORTH);
 				}
 			}
 			if (col > 0) {
 				Tile t = mapTiles[row][col - 1];
-				if (t.getType() == tile.getType()) {
+				if (!t.isSolid()) {
 					tile.addSide(Side.WEST);
 				}
 			}
 			if (col < width - 1) {
 				Tile t = mapTiles[row][col + 1];
-				if (t.getType() == tile.getType()) {
+				if (!t.isSolid()) {
 					tile.addSide(Side.EAST);
 				}
 			}
@@ -322,7 +322,7 @@ public class Level {
 		int endRow = (int) y2;
 
 		if (startCol == endCol && startRow == endRow) {
-			return isSolid(startRow, startCol);
+			return !isSolid(startRow, startCol);
 		}
 
 		boolean alongX = Math.abs(startCol - endCol) > Math.abs(startRow - endRow);
@@ -342,21 +342,21 @@ public class Level {
 		if (alongX) {
 			if (startCol < endCol) {
 				for (int col = startCol; col <= endCol; col++) {
-					if (!isSolid((int) (-slope * (startCol - col) + startRow), col)) return false;
+					if (isSolid((int) (-slope * (startCol - col) + startRow), col)) return false;
 				}
 			} else {
 				for (int col = startCol; col >= endCol; col--) {
-					if (!isSolid((int) (-slope * (startCol - col) + startRow), col)) return false;
+					if (isSolid((int) (-slope * (startCol - col) + startRow), col)) return false;
 				}
 			}
 		} else {
 			if (startRow < endRow) {
 				for (int row = startRow; row <= endRow; row++) {
-					if (!isSolid(row, (int) (-slope * (startRow - row) + startCol))) return false;
+					if (isSolid(row, (int) (-slope * (startRow - row) + startCol))) return false;
 				}
 			} else {
 				for (int row = startRow; row >= endRow; row--) {
-					if (!isSolid(row, (int) (-slope * (startRow - row) + startCol))) return false;
+					if (isSolid(row, (int) (-slope * (startRow - row) + startCol))) return false;
 				}
 			}
 		}

@@ -19,6 +19,7 @@ import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
+import com.fullspectrum.level.Tile.TileType;
 
 public class NavMesh {
 
@@ -148,6 +149,9 @@ public class NavMesh {
 			case SOLO:
 				sRender.setColor(Color.FOREST);
 				break;
+			case LADDER:
+				sRender.setColor(Color.PURPLE);
+				break;
 			}
 			float x1 = node.col;
 			float y1 = node.row;
@@ -161,10 +165,11 @@ public class NavMesh {
 	private void createNodes() {
 		for (int row = 0; row < level.getHeight(); row++) {
 			for (int col = 0; col < level.getWidth(); col++) {
-				if (isValidNode(row, col, level, boundingBox)) {
+				if (isValidNode(row, col, level, boundingBox) || (row + 1 < level.getHeight() && level.isLadder(row + 1, col))) {
 					Node node = new Node();
 					node.row = row + 1;
 					node.col = col;
+					node.tile = level.tileAt(row + 1, col);
 					nodes.add(node);
 					nodeMap.put(new Point(node.row, node.col), node);
 				}
@@ -178,10 +183,12 @@ public class NavMesh {
 			boolean tileOnRight = false;
 			boolean tileOnLeft = false;
 
-			tileOnLeft = i - 1 >= 0 && (nodes.get(i - 1).row == node.row && nodes.get(i - 1).col + 1 == node.col);
-			tileOnRight = i + 1 <= nodes.size - 1 && (nodes.get(i + 1).row == node.row && nodes.get(i + 1).col - 1 == node.col);
-
-			if (tileOnLeft && tileOnRight)
+			tileOnLeft = i - 1 >= 0 && (nodes.get(i - 1).row == node.row && nodes.get(i - 1).col + 1 == node.col) && level.isSolid(nodes.get(i - 1).getRow() - 1, nodes.get(i - 1).getCol());
+			tileOnRight = i + 1 <= nodes.size - 1 && (nodes.get(i + 1).row == node.row && nodes.get(i + 1).col - 1 == node.col) && level.isSolid(nodes.get(i + 1).getRow() - 1, nodes.get(i + 1).getCol());
+			
+			if(node.getTile().getType() == TileType.LADDER)
+				node.type = NodeType.LADDER;
+			else if (tileOnLeft && tileOnRight)
 				node.type = NodeType.MIDDLE;
 			else if (tileOnLeft)
 				node.type = NodeType.RIGHT_EDGE;
@@ -190,7 +197,7 @@ public class NavMesh {
 			else
 				node.type = NodeType.SOLO;
 
-			if (node.type != NodeType.MIDDLE) edgeNodes.add(node);
+			if (node.type != NodeType.MIDDLE && node.type != NodeType.LADDER) edgeNodes.add(node);
 		}
 	}
 
@@ -214,7 +221,7 @@ public class NavMesh {
 		}
 		for (Node edgeNode : edgeNodes) {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col - 1 < 0 || !level.isSolid(edgeNode.row, edgeNode.col - 1)) {
+				if (edgeNode.col - 1 < 0 || level.isSolid(edgeNode.row, edgeNode.col - 1)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
 				} else {
 					Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
@@ -232,7 +239,7 @@ public class NavMesh {
 				}
 			}
 			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col + 1 > level.getWidth() - 1 || !level.isSolid(edgeNode.row, edgeNode.col + 1)) continue;
+				if (edgeNode.col + 1 > level.getWidth() - 1 || level.isSolid(edgeNode.row, edgeNode.col + 1)) continue;
 				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
 				fallToNodes.sort(new Comparator<Node>() {
 					@Override
@@ -420,7 +427,7 @@ public class NavMesh {
 		for (int row = (int) minY; row <= (int) maxY; row++) {
 			for (int col = (int) minX; col <= (int) maxX; col++) {
 				if (!level.inBounds(row, col)) return true;
-				if (!level.isSolid(row, col)) {
+				if (level.isSolid(row, col)) {
 					return false;
 				}
 			}
@@ -434,7 +441,7 @@ public class NavMesh {
 		for (int i = 1; i <= tilesTall; i++) {
 			if (!level.inBounds(row + i, (int) col)) return true;
 			Tile t = level.tileAt(row + i, col);
-			if (!t.isSolid()) return false;
+			if (t.isSolid()) return false;
 		}
 		return true;
 	}

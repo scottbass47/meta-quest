@@ -27,6 +27,8 @@ public class Assets {
 	
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
+	
+	// Knight
 	public static final String KNIGHT_IDLE = "knight_idle";
 	public static final String KNIGHT_WALK = "knight_walk";
 	public static final String KNIGHT_RISE = "knight_rise";
@@ -34,6 +36,14 @@ public class Assets {
 	public static final String KNIGHT_FALL = "knight_fall";
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_ATTACK_OVERHEAD = "knight_attack_overhead";
+	
+	// Shadow Player
+	public static final String SHADOW_IDLE = "temp_player_idle";
+	public static final String SHADOW_RUN = "temp_player_run";
+	public static final String SHADOW_RISE = "temp_player_rise";
+	public static final String SHADOW_JUMP = "temp_player_jump";
+	public static final String SHADOW_FALL = "temp_player_fall";
+	public static final String SHADOW_APEX = "temp_player_apex";
 	
 	// Coins
 	public static final String silverCoin = "drop_coin_silver";
