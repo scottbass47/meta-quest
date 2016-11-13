@@ -214,7 +214,7 @@ public class NavMesh {
 		}
 		for (Node edgeNode : edgeNodes) {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col - 1 < 0 || !level.isAir(edgeNode.row, edgeNode.col - 1)) {
+				if (edgeNode.col - 1 < 0 || !level.isSolid(edgeNode.row, edgeNode.col - 1)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
 				} else {
 					Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
@@ -232,7 +232,7 @@ public class NavMesh {
 				}
 			}
 			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col + 1 > level.getWidth() - 1 || !level.isAir(edgeNode.row, edgeNode.col + 1)) continue;
+				if (edgeNode.col + 1 > level.getWidth() - 1 || !level.isSolid(edgeNode.row, edgeNode.col + 1)) continue;
 				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
 				fallToNodes.sort(new Comparator<Node>() {
 					@Override
@@ -420,7 +420,7 @@ public class NavMesh {
 		for (int row = (int) minY; row <= (int) maxY; row++) {
 			for (int col = (int) minX; col <= (int) maxX; col++) {
 				if (!level.inBounds(row, col)) return true;
-				if (!level.isAir(row, col)) {
+				if (!level.isSolid(row, col)) {
 					return false;
 				}
 			}
@@ -434,7 +434,7 @@ public class NavMesh {
 		for (int i = 1; i <= tilesTall; i++) {
 			if (!level.inBounds(row + i, (int) col)) return true;
 			Tile t = level.tileAt(row + i, col);
-			if (!t.isAir()) return false;
+			if (!t.isSolid()) return false;
 		}
 		return true;
 	}

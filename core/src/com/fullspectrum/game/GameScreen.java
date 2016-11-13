@@ -54,6 +54,7 @@ import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateResetSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
+import com.fullspectrum.fsm.transition.CollisionTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.InvalidEntityTransition;
@@ -82,6 +83,7 @@ import com.fullspectrum.systems.FollowingSystem;
 import com.fullspectrum.systems.ForceSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
+import com.fullspectrum.systems.LadderMovementSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
@@ -195,6 +197,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(InputTransition.getInstance());
 		engine.addSystem(InvalidEntityTransition.getInstance());
 		engine.addSystem(StaminaTransition.getInstance());
+		engine.addSystem(CollisionTransition.getInstance());
 		engine.addSystem(StateResetSystem.getInstance());
 
 		// Other Systems
@@ -206,6 +209,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new DropMovementSystem());
+		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
@@ -288,7 +292,7 @@ public class GameScreen extends AbstractScreen {
 			if (Mouse.isJustPressed()) {
 				spawnEnemy(mouseNode);
 			}
-		} else if(level.isAir(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
+		} else if(level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
 			Entity coin = EntityFactory.createCoin(engine, world, mousePos.x, mousePos.y, MathUtils.random(-5, 5), 0, MathUtils.random(1, 100));
 			engine.addEntity(coin);
 		}

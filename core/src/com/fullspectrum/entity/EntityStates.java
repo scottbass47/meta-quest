@@ -11,6 +11,7 @@ public enum EntityStates implements State{
 	DIVING,
 	ATTACK,
 	DYING,
+	CLIMBING,
 	CLEAN_UP;
 	
 	@Override

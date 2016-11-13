@@ -55,6 +55,12 @@ public enum Transition {
 		public TransitionSystem getSystem() {
 			return StaminaTransition.getInstance();
 		}
+	},
+	COLLISION(true){
+		@Override
+		public TransitionSystem getSystem() {
+			return CollisionTransition.getInstance();
+		}
 	};
 
 	public final boolean allowMultiple;

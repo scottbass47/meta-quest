@@ -7,12 +7,14 @@ public class Tile {
 	private final int row;
 	private final int col;
 	private Array<Side> sidesOpen;
-	private final boolean isAir;
+//	private final boolean isAir;
+	private final TileType type;
 	
-	public Tile(int row, int col, boolean isAir){
+	public Tile(int row, int col, /*boolean isAir,*/ TileType type){
 		this.row = row;
 		this.col = col;
-		this.isAir = isAir;
+//		this.isAir = isAir;
+		this.type = type;
 		sidesOpen = new Array<Side>();
 	}
 	
@@ -40,6 +42,10 @@ public class Tile {
 	
 	public boolean isOpen(Side side){
 		return sidesOpen.contains(side, false);
+	}
+	
+	public TileType getType(){
+		return type;
 	}
 	
 	@Override
@@ -73,8 +79,8 @@ public class Tile {
 		return sidesOpen.size > 0;
 	}
 	
-	public boolean isAir(){
-		return isAir;
+	public boolean isSolid(){
+		return type.isSolid;
 	}
 	
 	public enum Side{
@@ -82,5 +88,28 @@ public class Tile {
 		EAST,
 		SOUTH,
 		WEST
+	}
+	
+	public enum TileType{
+		AIR(false),
+		GROUND(true),
+		LADDER(false);
+		
+		private final boolean isSolid;
+
+		private TileType(boolean isSolid){
+			this.isSolid = isSolid;
+		}
+		
+		public boolean isSolid(){
+			return isSolid;
+		}
+		
+		public static TileType getType(String name){
+			for(TileType type : values()){
+				if(type.name().equalsIgnoreCase(name)) return type;
+			}
+			return null;
+		}
 	}
 }

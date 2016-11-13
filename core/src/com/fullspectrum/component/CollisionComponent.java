@@ -9,6 +9,7 @@ public class CollisionComponent implements Component, Poolable {
 	public int topContacts = 0;
 	public int rightContacts = 0;
 	public int leftContacts = 0;
+	public int ladderContacts = 0;
 
 	public boolean onGround() {
 		return bottomContacts > 0;
@@ -25,6 +26,10 @@ public class CollisionComponent implements Component, Poolable {
 	public boolean onLeftWall() {
 		return leftContacts > 0;
 	}
+	
+	public boolean onLadder(){
+		return ladderContacts > 0;
+	}
 
 	@Override
 	public void reset() {
@@ -32,5 +37,6 @@ public class CollisionComponent implements Component, Poolable {
 		topContacts = 0;
 		rightContacts = 0;
 		leftContacts = 0;
+		ladderContacts = 0;
 	}
 }

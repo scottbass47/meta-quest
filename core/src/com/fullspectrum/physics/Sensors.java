@@ -8,6 +8,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.entity.DropType;
+import com.fullspectrum.entity.EntityUtils;
 
 public enum Sensors {
 
@@ -61,6 +62,29 @@ public enum Sensors {
 			
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
 			swordStats.hitEntities.removeValue(otherEntity, true);
+		}
+	},
+	LADDER{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)other.getBody().getUserData();
+			if(entity == null || !EntityUtils.isValid(entity)) return;
+			
+			CollisionComponent collisionComp = Mappers.collision.get(entity);
+			if(collisionComp == null) return;
+			
+			collisionComp.ladderContacts++;
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)other.getBody().getUserData();
+			if(entity == null || !EntityUtils.isValid(entity)) return;
+			
+			CollisionComponent collisionComp = Mappers.collision.get(entity);
+			if(collisionComp == null) return;
+			
+			collisionComp.ladderContacts--;
 		}
 	};
 	
