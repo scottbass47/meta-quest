@@ -44,6 +44,7 @@ public class Assets {
 	public static final String SHADOW_JUMP = "temp_player_jump";
 	public static final String SHADOW_FALL = "temp_player_fall";
 	public static final String SHADOW_APEX = "temp_player_apex";
+	public static final String SHADOW_PUNCH = "temp_player_punch";
 	
 	// Coins
 	public static final String silverCoin = "drop_coin_silver";

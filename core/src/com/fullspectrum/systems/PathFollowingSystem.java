@@ -40,7 +40,7 @@ public class PathFollowingSystem extends IteratingSystem{
 		// If you're not at a node, do an action based off of the last node you were at.
 		
 		Rectangle aabb = bodyComp.getAABB();
-		Node currentNode = navMesh.getNearestNode(bodyComp.body, 0.0f, aabb.y, true);
+		Node currentNode = navMesh.getNearestNode(bodyComp.body, 0.0f, aabb.y, false);
 		NavLink link = null;
 		if(currentNode == null){
 			link = pathFinder.getCurrentLink();
@@ -61,6 +61,7 @@ public class PathFollowingSystem extends IteratingSystem{
 		}
 		
 		boolean right = link.toNode.getCol() > link.fromNode.getCol();
+		boolean up = link.toNode.getRow() > link.fromNode.getRow();
 		boolean landed = collisionComp.onGround();
 		float x = bodyComp.body.getPosition().x;
 		
@@ -146,6 +147,16 @@ public class PathFollowingSystem extends IteratingSystem{
 					controller.press(Actions.MOVE_RIGHT);
 				}
 			}
+			break;
+		case CLIMB:
+			controller.releaseAll();
+			if(up){
+				controller.press(Actions.MOVE_UP);
+			}else{
+				controller.press(Actions.MOVE_DOWN);
+			}
+			break;
+		default:
 			break;
 		}
 	}

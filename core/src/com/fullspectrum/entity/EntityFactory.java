@@ -105,11 +105,11 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE))
 			.addAnimation(EntityAnim.RISE, assets.getSpriteAnimation(Assets.SHADOW_RISE))
 			.addAnimation(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.SHADOW_APEX))
-			.addAnimation(EntityAnim.OVERHEAD_ATTACK, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD)));
+			.addAnimation(EntityAnim.OVERHEAD_ATTACK, assets.getSpriteAnimation(Assets.SHADOW_PUNCH)));
 
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
-		float PLAYER_SPEED = 12.0f;
+		float PLAYER_SPEED = 8.0f;
 		fsm.createState(EntityStates.RUNNING)
 				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
 				.add(engine.createComponent(DirectionComponent.class))
@@ -152,7 +152,7 @@ public class EntityFactory {
 				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(12f))
+				.add(engine.createComponent(JumpComponent.class).set(14f))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
@@ -387,6 +387,21 @@ public class EntityFactory {
 					
 				});
 		
+		fsm.createState(EntityStates.CLIMBING)
+			.add(engine.createComponent(LadderComponent.class).set(5.0f, 5.0f))
+			.addAnimation(EntityAnim.IDLE)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(Entity entity) {
+					Mappers.body.get(entity).body.setGravityScale(0.0f);
+				}
+	
+				@Override
+				public void onExit(Entity entity) {
+					Mappers.body.get(entity).body.setGravityScale(1.0f);
+				}
+			});
+		
 		Entity sword = createSword(engine, world, player, x, y, 25);
 //		engine.addEntity(sword);
 		
@@ -454,6 +469,18 @@ public class EntityFactory {
 		MultiTransition attackTransition = new MultiTransition();
 		attackTransition.addTransition(Transition.INPUT, attackData);
 		attackTransition.addTransition(Transition.TIME, attackCooldown);
+		
+		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
+		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
+		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_DOWN, false));
+		
+		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
+		
+		MultiTransition ladderTransition = new MultiTransition();
+		ladderTransition.addTransition(Transition.INPUT, ladderInputData);
+		ladderTransition.addTransition(Transition.COLLISION, ladderCollisionData);
+		
+		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 
 		fsm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
@@ -465,6 +492,8 @@ public class EntityFactory {
 		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
 		fsm.addTransition(fsm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.ATTACK), attackTransition, EntityStates.ATTACK);
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		fsm.addTransition(fsm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
+		fsm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 //		System.out.print(fsm.printTransitions());
 		
 //		fsm.disableState(EntityStates.DIVING);

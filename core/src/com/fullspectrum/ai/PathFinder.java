@@ -64,6 +64,7 @@ public class PathFinder {
 			Node node = link.fromNode;
 			switch (link.type) {
 			case RUN:
+			case CLIMB:
 				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
 				break;
 			case FALL:

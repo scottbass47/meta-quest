@@ -225,7 +225,7 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh
-		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f);
+		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f, 5.0f);
 
 		// Spawn Player
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);

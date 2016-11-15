@@ -28,7 +28,8 @@ public class NavLink {
 		JUMP_OVER,
 		FALL,
 		FALL_OVER,
-		RUN
+		RUN,
+		CLIMB
 	}
 	
 	public boolean isDirRight(){

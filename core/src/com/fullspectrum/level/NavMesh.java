@@ -32,7 +32,6 @@ public class NavMesh {
 	private ShapeRenderer sRender;
 
 	// Data
-//	private Entity entity;
 	private Level level;
 	private Rectangle boundingBox;
 
@@ -42,30 +41,22 @@ public class NavMesh {
 
 	// Run Stats
 	private float maxRunSpeed;
+	
+	// Climb Stats
+	private float climbSpeed;
 
-	private NavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed) {
-//		this.entity = entity;
+	private NavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed, float climbSpeed) {
 		this.level = level;
 		this.boundingBox = boundingBox;
 		this.maxAirSpeed = maxAirSpeed;
 		this.maxJumpForce = maxJumpForce;
 		this.maxRunSpeed = maxRunSpeed;
+		this.climbSpeed = climbSpeed;
 
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
-
-//		FSMComponent fsmComp = Mappers.fsm.get(entity);
-
-//		assert (fsmComp != null);
-//
-//		runningState = fsmComp.fsm.getState(running);
-//		jumpingState = fsmComp.fsm.getState(jumping);
-//
-//		maxAirSpeed = jumpingState.getComponent(SpeedComponent.class).maxSpeed;
-//		maxJumpForce = jumpingState.getComponent(JumpComponent.class).maxForce;
-//		maxRunSpeed = runningState.getComponent(SpeedComponent.class).maxSpeed;
 
 		createNodes();
 		setupNodeTypes();
@@ -73,10 +64,11 @@ public class NavMesh {
 		setupFallAndOverConnections();
 		setupJumpAndOverConnections();
 		setupJumpConnections();
+		setupLadderConnections();
 	}
 
-	public static NavMesh createNavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed) {
-		return new NavMesh(level, boundingBox, maxAirSpeed, maxJumpForce, maxRunSpeed);
+	public static NavMesh createNavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed, float climbSpeed) {
+		return new NavMesh(level, boundingBox, maxAirSpeed, maxJumpForce, maxRunSpeed, climbSpeed);
 	}
 
 	public void render(SpriteBatch batch) {
@@ -88,14 +80,11 @@ public class NavMesh {
 			for (NavLink link : node.getLinks()) {
 				switch (link.type) {
 				case RUN:
-//					if(true) break;
 					sRender.setColor(Color.BLUE);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
 				case FALL:
-//					if(true) break;
 					sRender.setColor(Color.CHARTREUSE);
-//					sRender.line(node.col + 0.5f, node.row + 0.5f, node.col + 1.5f, node.row + 0.5f);
 					TrajectoryData fallData = (TrajectoryData) link.data;
 					for (int i = 0; i < fallData.trajectory.size - 1; i++) {
 						Point2f point1 = fallData.trajectory.get(i);
@@ -104,16 +93,10 @@ public class NavMesh {
 					}
 					break;
 				case FALL_OVER:
-//					if(true) break;
 					sRender.setColor(Color.GOLD);
-					// sRender.line(node.col + 0.5f, node.row + 0.5f,
-					// link.toNode.col + 0.5f, node.row + 0.5f);
-					// sRender.line(link.toNode.col + 0.5f, node.row + 0.5f,
-					// link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
 				case JUMP:
-//					if(true) break;
 					TrajectoryData jumpData = (TrajectoryData) link.data;
 					for (int i = 0; i < jumpData.trajectory.size - 1; i++) {
 						Color color = i < jumpData.trajectory.size / 2 ? Color.SALMON : Color.BLACK;
@@ -124,11 +107,13 @@ public class NavMesh {
 					}
 					break;
 				case JUMP_OVER:
-//					if(true) break;
 					sRender.setColor(Color.BROWN);
 					sRender.line(node.col + 0.5f, node.row + 0.5f, node.col + 0.5f, link.toNode.row + 0.5f);
 					sRender.line(node.col + 0.5f, link.toNode.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 					break;
+				case CLIMB:
+					sRender.setColor(Color.MAROON);
+					sRender.line(node.col + 0.5f, node.row + 0.5f, link.toNode.col + 0.5f, link.toNode.row + 0.5f);
 				default:
 					break;
 				}
@@ -183,8 +168,8 @@ public class NavMesh {
 			boolean tileOnRight = false;
 			boolean tileOnLeft = false;
 
-			tileOnLeft = i - 1 >= 0 && (nodes.get(i - 1).row == node.row && nodes.get(i - 1).col + 1 == node.col) && level.isSolid(nodes.get(i - 1).getRow() - 1, nodes.get(i - 1).getCol());
-			tileOnRight = i + 1 <= nodes.size - 1 && (nodes.get(i + 1).row == node.row && nodes.get(i + 1).col - 1 == node.col) && level.isSolid(nodes.get(i + 1).getRow() - 1, nodes.get(i + 1).getCol());
+			tileOnLeft = getAdjacentNode(node, Direction.LEFT) != null && isSolidNode(getAdjacentNode(node, Direction.LEFT));
+			tileOnRight = getAdjacentNode(node, Direction.RIGHT) != null && isSolidNode(getAdjacentNode(node, Direction.RIGHT));
 			
 			if(node.getTile().getType() == TileType.LADDER)
 				node.type = NodeType.LADDER;
@@ -204,11 +189,11 @@ public class NavMesh {
 	private void setupRunConnections() {
 		for (int i = 0; i < nodes.size; i++) {
 			Node node = nodes.get(i);
-			if (node.type == NodeType.LEFT_EDGE || node.type == NodeType.MIDDLE) {
-				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i + 1), 1.0f / maxRunSpeed));
+			if (node.type == NodeType.LEFT_EDGE || node.type == NodeType.MIDDLE || ((node.type == NodeType.RIGHT_EDGE || node.type == NodeType.SOLO) && compareAdjacentNode(node, Direction.RIGHT, NodeType.LADDER))) {
+				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, getAdjacentNode(node, Direction.RIGHT), 1.0f / maxRunSpeed));
 			}
-			if (node.type == NodeType.RIGHT_EDGE || node.type == NodeType.MIDDLE) {
-				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, nodes.get(i - 1), 1.0f / maxRunSpeed));
+			if (node.type == NodeType.RIGHT_EDGE || node.type == NodeType.MIDDLE || ((node.type == NodeType.LEFT_EDGE || node.type == NodeType.SOLO) && compareAdjacentNode(node, Direction.LEFT, NodeType.LADDER))) {
+				node.addLink(new NavLink(NavLink.LinkType.RUN, null, node, getAdjacentNode(node, Direction.LEFT), 1.0f / maxRunSpeed));
 			}
 		}
 	}
@@ -216,12 +201,13 @@ public class NavMesh {
 	private void setupFallAndOverConnections() {
 		ArrayMap<Integer, Array<Node>> nodeCols = new ArrayMap<Integer, Array<Node>>();
 		for (Node node : nodes) {
+			if(isLadderNode(node) && !isSolidNode(node)) continue;
 			if (!nodeCols.containsKey(node.col)) nodeCols.put(node.col, new Array<Node>());
 			nodeCols.get(node.col).add(node);
 		}
 		for (Node edgeNode : edgeNodes) {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col - 1 < 0 || level.isSolid(edgeNode.row, edgeNode.col - 1)) {
+				if (edgeNode.col - 1 < 0 || level.isSolid(edgeNode.row, edgeNode.col - 1) || compareAdjacentNode(edgeNode, Direction.LEFT, NodeType.LADDER)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
 				} else {
 					Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
@@ -239,7 +225,7 @@ public class NavMesh {
 				}
 			}
 			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col + 1 > level.getWidth() - 1 || level.isSolid(edgeNode.row, edgeNode.col + 1)) continue;
+				if (edgeNode.col + 1 > level.getWidth() - 1 || level.isSolid(edgeNode.row, edgeNode.col + 1) || compareAdjacentNode(edgeNode, Direction.RIGHT, NodeType.LADDER)) continue;
 				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
 				fallToNodes.sort(new Comparator<Node>() {
 					@Override
@@ -290,6 +276,7 @@ public class NavMesh {
 			
 			Array<Node> toNodes = new Array<Node>();
 			for(Node node : nodes){
+				if(isLadderNode(node)) continue;
 				float toX = node.col + 0.5f;
 				float toY = node.row + boundingBox.height * 0.5f;
 				
@@ -407,6 +394,28 @@ public class NavMesh {
 		}
 		return new TrajectoryData(points, time, toNode, speed, jumpForce);
 	}
+	
+	private void setupLadderConnections(){
+		for(Node node : nodes){
+			if(!isLadderNode(node))continue;
+			Node top = getAdjacentNode(node, Direction.UP);
+			Node bottom = getAdjacentNode(node, Direction.DOWN);
+			Node left = getAdjacentNode(node, Direction.LEFT);
+			Node right = getAdjacentNode(node, Direction.RIGHT);
+			if(top != null){
+				node.addLink(new NavLink(LinkType.CLIMB, null, node, top, 1.0f / climbSpeed));
+			}
+			if(bottom != null){
+				node.addLink(new NavLink(LinkType.CLIMB, null, node, bottom, 1.0f / climbSpeed));
+			}
+			if(left != null){
+				node.addLink(new NavLink(LinkType.RUN, null, node, left, 1.0f / maxRunSpeed));
+			}
+			if(right != null){
+				node.addLink(new NavLink(LinkType.RUN, null, node, right, 1.0f / maxRunSpeed));
+			}
+		}
+	}
 
 	// -distance = (1/2) * gravity * t^2
 	// -2distance / gravity = t ^ 2
@@ -460,6 +469,41 @@ public class NavMesh {
 
 	public Node getNodeAt(float x, float y) {
 		return nodeMap.get(new Point((int) y, (int) x));
+	}
+	
+	public boolean compareAdjacentNode(Node node, Direction direction, NodeType type){
+		Node adjacent = getAdjacentNode(node, direction);
+		if(adjacent == null) return false;
+		return type == adjacent.type;
+	}
+	
+	public Node getAdjacentNode(Node node, Direction direction){
+		int row = node.row;
+		int col = node.col;
+		switch(direction){
+		case DOWN:
+			row--;
+			break;
+		case LEFT:
+			col--;
+			break;
+		case RIGHT:
+			col++;
+			break;
+		case UP:
+			row++;
+			break;
+		}
+		return nodeMap.get(new Point(row, col));
+	}
+	
+	public boolean isSolidNode(Node node){
+		if(node.row - 1 < 0) return false;
+		return level.isSolid(node.row - 1, node.col);
+	}
+	
+	public boolean isLadderNode(Node node){
+		return node.type == NodeType.LADDER;
 	}
 	
 	/**
@@ -549,5 +593,12 @@ public class NavMesh {
 	
 	public float getMaxSpeed(){
 		return maxAirSpeed;
+	}
+	
+	public enum Direction{
+		RIGHT,
+		LEFT,
+		UP,
+		DOWN
 	}
 }
