@@ -4,7 +4,8 @@ import com.badlogic.gdx.Input.Keys;
 
 public enum DebugKeys {
 
-	SPAWN(Keys.I);
+	SPAWN(Keys.I),
+	SHOOT(Keys.G);
 	
 	private final int key;
 	
