@@ -192,9 +192,26 @@ public class PathFinder {
 		return false;
 	}
 	
+	
+	/**
+	 * Returns the next link in the path and advances the current link to that link.
+	 * 
+	 * @param node
+	 * @return
+	 */
 	public NavLink getNextLink(Node node){
+		return getNextLink(node, true);
+	}
+	
+	/**
+	 * Returns the next link in the path and advances the current link to that link if advance is true.
+	 * 
+	 * @param node
+	 * @return
+	 */
+	public NavLink getNextLink(Node node, boolean advance){
 		if(node == null) return null;
-		if(!node.equals(current)) current = node;
+		if(!node.equals(current) && advance) current = node;
 		for(NavLink link : path){
 			if(link.fromNode.equals(node)) return link;
 		}

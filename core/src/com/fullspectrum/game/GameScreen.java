@@ -395,6 +395,7 @@ public class GameScreen extends AbstractScreen {
 		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
 		batch.draw(frameBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
 		batch.end();
+		
 //		batch.setShader(vignetteShader);
 //		mainBuffer.end();
 		
@@ -408,6 +409,15 @@ public class GameScreen extends AbstractScreen {
 		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		batch.setProjectionMatrix(hudCamera.combined);
+		if(DebugInput.isToggled(DebugToggle.SHOW_MAP_COORDS)){
+			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+			Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
+			if(mouseNode != null){
+				batch.begin();
+				font.draw(batch, mouseNode.getRow() + ", " + mouseNode.getCol(), 10, 40);
+				batch.end();
+			}
+		}
 		renderHUD(batch, playerOne);
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);

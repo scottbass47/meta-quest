@@ -13,7 +13,9 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.JumpOverData;
+import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavLink;
+import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.TrajectoryData;
@@ -150,6 +152,19 @@ public class PathFollowingSystem extends IteratingSystem{
 			break;
 		case CLIMB:
 			controller.releaseAll();
+			Node nextNode = link.fromNode;
+			Level level = navMesh.getLevel();
+			while(pathFinder.getNextLink(nextNode, false) != null && pathFinder.getNextLink(nextNode, false).type == LinkType.CLIMB){
+				nextNode = pathFinder.getNextLink(nextNode, false).toNode;
+				if(level.isSolid(nextNode.getRow(), nextNode.getCol() + 1) && x + bodyComp.getAABB().width * 0.5f > nextNode.getCol() + 1.0f){
+					controller.press(Actions.MOVE_LEFT);
+					break;
+				}
+				if(level.isSolid(nextNode.getRow(), nextNode.getCol() - 1) && x - bodyComp.getAABB().width * 0.5f < nextNode.getCol()){
+					controller.press(Actions.MOVE_RIGHT);
+					break;
+				}
+			}
 			if(up){
 				controller.press(Actions.MOVE_UP);
 			}else{

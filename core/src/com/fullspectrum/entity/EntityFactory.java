@@ -285,6 +285,7 @@ public class EntityFactory {
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		fsm.addTransition(fsm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		fsm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
+		fsm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 		
 //		System.out.print(fsm.printTransitions());
 
@@ -494,6 +495,7 @@ public class EntityFactory {
 		fsm.addTransition(EntityStates.ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		fsm.addTransition(fsm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		fsm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
+		fsm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 //		System.out.print(fsm.printTransitions());
 		
 //		fsm.disableState(EntityStates.DIVING);
