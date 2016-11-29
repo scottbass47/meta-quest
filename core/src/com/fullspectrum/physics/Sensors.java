@@ -109,6 +109,11 @@ public enum Sensors {
 			
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
 			enemyHealth.health -= bulletStatsComp.damage;
+		
+			if(enemyHealth.health <= 0/* && Mappers.type.get(otherEntity).type == EntityType.ENEMY*/){
+				otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
+			}
+			
 			entity.add(new RemoveComponent());
 		}
 
