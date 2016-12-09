@@ -2,10 +2,12 @@ package com.fullspectrum.physics;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityUtils;
@@ -85,6 +87,39 @@ public enum Sensors {
 			if(collisionComp == null) return;
 			
 			collisionComp.ladderContacts--;
+		}
+	},
+	BULLET{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			if(otherEntity == null && !other.isSensor()){
+				entity.add(new RemoveComponent());
+				return;
+			}else if(other.isSensor()){
+				return;
+			}
+			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
+			if(enemyHealth == null) return;
+			
+			// No damage dealt to entities of same type
+			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type) return;
+			
+			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
+			enemyHealth.health -= bulletStatsComp.damage;
+		
+			if(enemyHealth.health <= 0/* && Mappers.type.get(otherEntity).type == EntityType.ENEMY*/){
+				otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
+			}
+			
+			entity.add(new RemoveComponent());
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			
 		}
 	};
 	

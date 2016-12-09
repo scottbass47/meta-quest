@@ -30,7 +30,6 @@ public class StateMachine<S extends State, E extends StateObject>{
 	// Bits
 	private Builder builder = new Builder();
 	private int bitOffset;
-	private boolean firstState = false;
 	
 	// Debug
 	private String debugName;
@@ -47,9 +46,8 @@ public class StateMachine<S extends State, E extends StateObject>{
 	public E createState(S key) {
 		// State identifiers must also be taggable
 		assert (key instanceof Tag);
-		if (!firstState) {
+		if (initialState == null) {
 			initialState = key;
-			firstState = true;
 			bitOffset = key.numStates();
 		}
 		E state = creator.getInstance(entity, this);
@@ -94,7 +92,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 				for(Transition t : machine.currentState.getTransitions()){
 					t.getSystem().removeStateMachine(machine);
 				}
-//				machine.resetMachine();
+				machine.resetMachine();
 			}
 		}
 //		for(Entry<E, StateMachine<? extends State, ? extends StateObject>> entry : substateMachines){
@@ -172,6 +170,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 			for(Transition t : machine.currentState.getTransitions()){
 				t.getSystem().addStateMachine(machine);
 			}
+			machine.changeState(machine.initialState);
 			StateResetSystem.getInstance().addStateMachine(machine);
 		}
 		currentState = newState;

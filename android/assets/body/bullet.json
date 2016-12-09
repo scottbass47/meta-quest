@@ -1,0 +1,17 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody",
+    "gravityScale": 0,
+    "bullet": "true"
+  },
+  "Fixtures": [
+     {
+       "shape": "Box",
+       "width": 4,
+       "height": 4,
+       "isSensor": "true",
+       "SensorType": "bullet",
+       "Category": "item"
+     }
+  ]
+}

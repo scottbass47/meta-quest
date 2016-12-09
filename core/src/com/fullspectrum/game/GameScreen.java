@@ -50,6 +50,7 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.entity.BulletFactory;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateResetSystem;
@@ -127,7 +128,7 @@ public class GameScreen extends AbstractScreen {
 	private BitmapFont font;
 
 	// Coin Stuff
-//	private int ups = 0;
+	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -276,7 +277,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-//		ups++;
+		ups++;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -306,6 +307,10 @@ public class GameScreen extends AbstractScreen {
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
 			GameVars.resize(1 << previousZoom, worldCamera);
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+		}
+		
+		if(DebugInput.isPressed(DebugKeys.SHOOT) && ups % 5 == 0){
+			BulletFactory.spawnBullet(playerOne, 5.0f, 0.0f, 20.0f, 25.0f);
 		}
 
 		// Random Coin Spawning

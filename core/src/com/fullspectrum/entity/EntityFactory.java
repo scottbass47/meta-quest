@@ -8,6 +8,7 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.assets.Assets;
@@ -17,6 +18,7 @@ import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropMovementComponent;
@@ -57,8 +59,8 @@ import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.MultiTransition;
 import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
-import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
+import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.InvalidEntityData;
@@ -110,12 +112,6 @@ public class EntityFactory {
 		EntityStateMachine fsm = new EntityStateMachine(player, "body/player.json");
 		fsm.setDebugName("Entity State Machine");
 		float PLAYER_SPEED = 8.0f;
-		fsm.createState(EntityStates.RUNNING)
-				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
-				.add(engine.createComponent(DirectionComponent.class))
-				.add(engine.createComponent(GroundMovementComponent.class))
-				.addAnimation(EntityAnim.RUNNING)
-				.addTag(TransitionTag.GROUND_STATE);
 
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
@@ -131,6 +127,13 @@ public class EntityFactory {
 				.addAnimTransition(EntityAnim.RANDOM_IDLE, Transition.ANIMATION_FINISHED, EntityAnim.IDLE)
 				.addTag(TransitionTag.GROUND_STATE);
 
+		fsm.createState(EntityStates.RUNNING)
+				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
+				.add(engine.createComponent(DirectionComponent.class))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.addAnimation(EntityAnim.RUNNING)
+				.addTag(TransitionTag.GROUND_STATE);
+		
 		fsm.createState(EntityStates.FALLING)
 				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
 				.add(engine.createComponent(DirectionComponent.class))
@@ -139,14 +142,6 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.FALLING)
 				.addAnimTransition(EntityAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, EntityAnim.FALLING)
 				.addTag(TransitionTag.AIR_STATE);
-
-//		fsm.createState(EntityStates.DIVING)
-//				.add(engine.createComponent(SpeedComponent.class).set(8.0f))
-//				.add(engine.createComponent(DirectionComponent.class))
-//				.add(engine.createComponent(GroundMovementComponent.class))
-//				.add(engine.createComponent(JumpComponent.class).set(-10.0f))
-//				.addAnimation(EntityAnim.FALLING)
-//				.addTag(TransitionTag.AIR_STATE);
 
 		fsm.createState(EntityStates.JUMPING)
 				.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
@@ -651,6 +646,23 @@ public class EntityFactory {
 		fsm.changeState(EntityStates.IDLING);
 		drop.add(engine.createComponent(FSMComponent.class).set(fsm));
 		return drop;
+	}
+	
+	public static Entity createBullet(Engine engine, World world, float speed, float angle, float x, float  y, float damage, boolean isArc, boolean friendly){
+		Entity bullet = engine.createEntity();
+		bullet.add(engine.createComponent(EngineComponent.class).set(engine));
+		bullet.add(engine.createComponent(WorldComponent.class).set(world));
+		bullet.add(engine.createComponent(PositionComponent.class).set(x, y));
+		bullet.add(engine.createComponent(TypeComponent.class).set(friendly ? EntityType.FRIENDLY : EntityType.ENEMY));
+		bullet.add(engine.createComponent(VelocityComponent.class));
+		bullet.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
+		bullet.add(engine.createComponent(BulletStatsComponent.class).set(damage));
+		
+		Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/bullet.json"), world, new Vector2(x, y), bullet, true);
+		if(isArc) body.setGravityScale(1.0f);
+		bullet.add(engine.createComponent(BodyComponent.class).set(body));
+		
+		return bullet;
 	}
 	
 //	public static Entity createGoblin(PooledEngine engine, Level level, AIController controller, World world, Entity toFollow, float x, float y) {
