@@ -15,13 +15,17 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 
-public class NavMesh {
+public class NavMesh implements KryoSerializable{
 
 	// Nodes
 	private Array<Node> nodes;
@@ -68,6 +72,9 @@ public class NavMesh {
 	}
 
 	public static NavMesh createNavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed, float climbSpeed) {
+		if(Gdx.files.local("enemy.mesh").exists()){
+			
+		}
 		return new NavMesh(level, boundingBox, maxAirSpeed, maxJumpForce, maxRunSpeed, climbSpeed);
 	}
 
@@ -600,5 +607,15 @@ public class NavMesh {
 		LEFT,
 		UP,
 		DOWN
+	}
+
+	@Override
+	public void write(Kryo kryo, Output output) {
+		
+	}
+
+	@Override
+	public void read(Kryo kryo, Input input) {
+		
 	}
 }
