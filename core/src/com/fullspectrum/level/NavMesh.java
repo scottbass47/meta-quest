@@ -3,6 +3,9 @@ package com.fullspectrum.level;
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.awt.Point;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.util.Comparator;
 
 import com.badlogic.gdx.Gdx;
@@ -16,17 +19,21 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.esotericsoftware.kryo.Kryo;
-import com.esotericsoftware.kryo.KryoSerializable;
+import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 
-public class NavMesh implements KryoSerializable{
+public class NavMesh{
 
+	// Version
+	private static final int VERSION = 1;
+	
 	// Nodes
 	private Array<Node> nodes;
 	private ArrayMap<Point, Node> nodeMap;
@@ -49,19 +56,30 @@ public class NavMesh implements KryoSerializable{
 	// Climb Stats
 	private float climbSpeed;
 
-	private NavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed, float climbSpeed) {
+	private NavMesh(Level level, EntityStats stats) {
 		this.level = level;
-		this.boundingBox = boundingBox;
-		this.maxAirSpeed = maxAirSpeed;
-		this.maxJumpForce = maxJumpForce;
-		this.maxRunSpeed = maxRunSpeed;
-		this.climbSpeed = climbSpeed;
+		this.boundingBox = stats.getHitBox();
+		this.maxAirSpeed = stats.getAirSpeed();
+		this.maxJumpForce = stats.getJumpForce();
+		this.maxRunSpeed = stats.getRunSpeed();
+		this.climbSpeed = stats.getClimbSpeed();
 
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
 
+		calculate();
+	}
+	
+	private NavMesh(){
+		nodes = new Array<Node>();
+		nodeMap = new ArrayMap<Point, Node>();
+		edgeNodes = new Array<Node>();
+		sRender = new ShapeRenderer();
+	}
+	
+	private void calculate(){
 		createNodes();
 		setupNodeTypes();
 		setupRunConnections();
@@ -71,11 +89,40 @@ public class NavMesh implements KryoSerializable{
 		setupLadderConnections();
 	}
 
-	public static NavMesh createNavMesh(Level level, Rectangle boundingBox, float maxAirSpeed, float maxJumpForce, float maxRunSpeed, float climbSpeed) {
+	public static NavMesh createNavMesh(Level level, EntityStats stats) {
+		final Level levelCopy = level;
+		Kryo kryo = new Kryo();
 		if(Gdx.files.local("enemy.mesh").exists()){
-			
+			try {
+				Input input = new Input(new FileInputStream(Gdx.files.local("enemy.mesh").path()));
+				int version = input.readInt();
+				int levelHash = input.readInt();
+				int statsHash = input.readInt();
+				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode()){
+					NavMesh mesh = kryo.readObject(input, NavMesh.class);
+					mesh.level = levelCopy;
+					for(Node n : mesh.nodes){
+						n.tile = levelCopy.tileAt(n.row, n.col);
+					}
+					return mesh;
+				}
+				input.close();
+			} catch (FileNotFoundException e) {
+				e.printStackTrace();
+			}
 		}
-		return new NavMesh(level, boundingBox, maxAirSpeed, maxJumpForce, maxRunSpeed, climbSpeed);
+		NavMesh mesh = new NavMesh(level, stats);
+		try {
+			Output output = new Output(new FileOutputStream(Gdx.files.local("enemy.mesh").path()));
+			output.writeInt(VERSION);
+			output.writeInt(level.hashCode());
+			output.writeInt(stats.hashCode());
+			kryo.writeObject(output, mesh);
+			output.close();
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		}
+		return mesh;
 	}
 
 	public void render(SpriteBatch batch) {
@@ -608,14 +655,29 @@ public class NavMesh implements KryoSerializable{
 		UP,
 		DOWN
 	}
+	
+	public static class NavMeshSerializer extends Serializer<NavMesh>{
+		@Override
+		public void write(Kryo kryo, Output output, NavMesh object) {
+			output.writeInt(object.nodes.size);
+			for(Node n : object.nodes){
+				kryo.writeObject(output, n);
+			}
+		}
 
-	@Override
-	public void write(Kryo kryo, Output output) {
-		
-	}
-
-	@Override
-	public void read(Kryo kryo, Input input) {
-		
+		@Override
+		public NavMesh read(Kryo kryo, Input input, Class<NavMesh> type) {
+			NavMesh mesh = new NavMesh();
+			int size = input.readInt();
+			for(int i = 0; i < size; i++){
+				Node node = kryo.readObject(input, Node.class);
+				mesh.nodes.add(node);
+				mesh.nodeMap.put(new Point(node.col, node.row), node);
+				if(node.type == NodeType.LEFT_EDGE || node.type == NodeType.SOLO || node.type == NodeType.RIGHT_EDGE) {
+					mesh.edgeNodes.add(node);
+				}
+			}
+			return mesh;
+		}
 	}
 }

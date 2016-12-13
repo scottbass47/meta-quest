@@ -7,13 +7,11 @@ public class Tile {
 	private final int row;
 	private final int col;
 	private Array<Side> sidesOpen;
-//	private final boolean isAir;
 	private final TileType type;
 	
-	public Tile(int row, int col, /*boolean isAir,*/ TileType type){
+	public Tile(int row, int col, TileType type){
 		this.row = row;
 		this.col = col;
-//		this.isAir = isAir;
 		this.type = type;
 		sidesOpen = new Array<Side>();
 	}

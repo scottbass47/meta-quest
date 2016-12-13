@@ -4,6 +4,7 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
 import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -37,6 +38,8 @@ public class Level {
 	private TmxMapLoader loader;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private int width;
+	
+
 	private int height;
 	private Tile[][] mapTiles;
 	private Array<Tile> ladders;
@@ -472,5 +475,31 @@ public class Level {
 				iter.remove();
 			}
 		}
+	}
+	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + height;
+		for(Tile[] row : mapTiles){
+			for(Tile t : row){
+				result = prime * result + t.hashCode();
+			}
+		}
+		result = prime * result + width;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Level other = (Level) obj;
+		if (height != other.height) return false;
+		if (!Arrays.deepEquals(mapTiles, other.mapTiles)) return false;
+		if (width != other.width) return false;
+		return true;
 	}
 }

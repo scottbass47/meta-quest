@@ -1,9 +1,13 @@
 package com.fullspectrum.level;
 
 import com.badlogic.gdx.utils.Array;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.level.NavLink.LinkType;
 
-public class Node {
+public class Node{
 	
 	protected int row;
 	protected int col;
@@ -85,6 +89,35 @@ public class Node {
 		if (type != other.type) return false;
 		return true;
 	}
-
 	
+	public static NodeSerializer getSerializer(){
+		return new NodeSerializer();
+	}
+	
+	public static class NodeSerializer extends Serializer<Node>{
+		@Override
+		public void write(Kryo kryo, Output output, Node object) {
+			output.writeInt(object.row);
+			output.writeInt(object.col);
+			output.writeString(object.type.name());
+			output.writeInt(object.links.size);
+			for(NavLink link : object.links){
+				kryo.writeClassAndObject(output, link);
+			}
+		}
+
+		@Override
+		public Node read(Kryo kryo, Input input, Class<Node> type) {
+			Node node = new Node();
+			node.row = input.readInt();
+			node.col = input.readInt();
+			node.type = NodeType.valueOf(input.readString());
+			int size = input.readInt();
+			for(int i = 0; i < size; i++){
+				node.links.add(kryo.readObject(input, NavLink.class));
+			}
+			return node;
+		}
+	}
+
 }

@@ -52,6 +52,8 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.BulletFactory;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityStats;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateResetSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
@@ -226,7 +228,14 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh
-		playerMesh = NavMesh.createNavMesh(level, new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV), 5.0f, 17.5f, 5.0f, 5.0f);
+		EntityStats goblinStats = new EntityStats.Builder(EntityType.GOBLIN)
+					.setAirSpeed(5.0f)
+					.setRunSpeed(5.0f)
+					.setClimbSpeed(5.0f)
+					.setJumpForce(17.5f)
+					.setHitBox(new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV))
+					.build();
+		playerMesh = NavMesh.createNavMesh(level, goblinStats);
 
 		// Spawn Player
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
