@@ -51,6 +51,8 @@ public class Tile {
 		return "Row: " + row + ", Col: " + col + ", Surrounded: " + (isSurrounded() ? "true" : "false");
 	}
 
+	
+	
 	@Override
 	public int hashCode() {
 		final int prime = 31;
@@ -58,6 +60,7 @@ public class Tile {
 		result = prime * result + col;
 		result = prime * result + row;
 		result = prime * result + (isSurrounded() ? 1231 : 1237);
+		result = prime * result + ((type == null) ? 0 : type.name().hashCode());
 		return result;
 	}
 
@@ -69,10 +72,14 @@ public class Tile {
 		Tile other = (Tile) obj;
 		if (col != other.col) return false;
 		if (row != other.row) return false;
-		if (isSurrounded() != other.isSurrounded()) return false;
+		if (sidesOpen == null) {
+			if (other.sidesOpen != null) return false;
+		}
+		else if (!sidesOpen.equals(other.sidesOpen)) return false;
+		if (type != other.type) return false;
 		return true;
 	}
-	
+
 	public boolean isSurrounded(){
 		return sidesOpen.size > 0;
 	}

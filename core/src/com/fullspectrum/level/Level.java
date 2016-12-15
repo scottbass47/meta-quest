@@ -43,6 +43,7 @@ public class Level {
 	private int height;
 	private Tile[][] mapTiles;
 	private Array<Tile> ladders;
+	private final String name;
 
 	// Camera
 	private OrthographicCamera cam;
@@ -53,7 +54,8 @@ public class Level {
 	// Spawns
 	private Vector2 playerSpawn;
 
-	public Level(World world, OrthographicCamera cam, SpriteBatch batch) {
+	public Level(String name, World world, OrthographicCamera cam, SpriteBatch batch) {
+		this.name = name;
 		this.world = world;
 		this.cam = cam;
 		this.batch = batch;
@@ -77,6 +79,10 @@ public class Level {
 		return height;
 	}
 
+	public String getName(){
+		return name;
+	}
+	
 	public void update(float delta) {
 		cam.position.x = R_WORLD_WIDTH * 0.5f;
 		cam.position.y = R_WORLD_HEIGHT * 0.5f;

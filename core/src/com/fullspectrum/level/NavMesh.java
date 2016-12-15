@@ -45,6 +45,7 @@ public class NavMesh{
 	// Data
 	private Level level;
 	private Rectangle boundingBox;
+	private EntityStats stats;
 
 	// Jump Stats
 	private float maxAirSpeed;
@@ -57,22 +58,23 @@ public class NavMesh{
 	private float climbSpeed;
 
 	private NavMesh(Level level, EntityStats stats) {
+		init(level, stats);
+		calculate();
+	}
+	
+	private NavMesh(EntityStats stats){
+		init(null, stats);	
+	}
+	
+	private void init(Level level, EntityStats stats){
 		this.level = level;
+		this.stats = stats;
 		this.boundingBox = stats.getHitBox();
 		this.maxAirSpeed = stats.getAirSpeed();
 		this.maxJumpForce = stats.getJumpForce();
 		this.maxRunSpeed = stats.getRunSpeed();
 		this.climbSpeed = stats.getClimbSpeed();
 
-		nodes = new Array<Node>();
-		nodeMap = new ArrayMap<Point, Node>();
-		edgeNodes = new Array<Node>();
-		sRender = new ShapeRenderer();
-
-		calculate();
-	}
-	
-	private NavMesh(){
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
@@ -90,16 +92,25 @@ public class NavMesh{
 	}
 
 	public static NavMesh createNavMesh(Level level, EntityStats stats) {
+		String fileName = stats.getType().name().toLowerCase() + "-" + level.getName() + ".mesh";
 		final Level levelCopy = level;
 		Kryo kryo = new Kryo();
-		if(Gdx.files.local("enemy.mesh").exists()){
+		kryo.setReferences(false);
+		kryo.register(NavMesh.class, getSerializer(), 10);
+		kryo.register(Node.class, Node.getSerializer(), 11);
+		kryo.register(NavLink.class, NavLink.getSerializer(), 12);
+		kryo.register(TrajectoryData.class, TrajectoryData.getSerializer(), 13);
+		kryo.register(JumpOverData.class, JumpOverData.getSerializer(), 14);
+		kryo.register(EntityStats.class, EntityStats.getSerializer(), 15);
+		if(Gdx.files.local(fileName).exists()){
 			try {
-				Input input = new Input(new FileInputStream(Gdx.files.local("enemy.mesh").path()));
+				Input input = new Input(new FileInputStream(Gdx.files.local(fileName).path()));
 				int version = input.readInt();
 				int levelHash = input.readInt();
 				int statsHash = input.readInt();
 				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode()){
 					NavMesh mesh = kryo.readObject(input, NavMesh.class);
+					input.close();
 					mesh.level = levelCopy;
 					for(Node n : mesh.nodes){
 						n.tile = levelCopy.tileAt(n.row, n.col);
@@ -113,7 +124,7 @@ public class NavMesh{
 		}
 		NavMesh mesh = new NavMesh(level, stats);
 		try {
-			Output output = new Output(new FileOutputStream(Gdx.files.local("enemy.mesh").path()));
+			Output output = new Output(new FileOutputStream(Gdx.files.local(fileName).path()));
 			output.writeInt(VERSION);
 			output.writeInt(level.hashCode());
 			output.writeInt(stats.hashCode());
@@ -656,25 +667,50 @@ public class NavMesh{
 		DOWN
 	}
 	
+	public static NavMeshSerializer getSerializer(){
+		return new NavMeshSerializer();
+	}
+	
 	public static class NavMeshSerializer extends Serializer<NavMesh>{
 		@Override
 		public void write(Kryo kryo, Output output, NavMesh object) {
-			output.writeInt(object.nodes.size);
+			kryo.writeObject(output, object.stats);
+			output.writeShort((short)object.nodes.size);
 			for(Node n : object.nodes){
+				System.out.println("Node: " + n + ", Position: " + output.position());
 				kryo.writeObject(output, n);
+				output.writeByte((byte)n.getLinks().size);
+				for(NavLink link : n.getLinks()){
+					kryo.writeObject(output, link);
+				}
 			}
 		}
 
 		@Override
 		public NavMesh read(Kryo kryo, Input input, Class<NavMesh> type) {
-			NavMesh mesh = new NavMesh();
-			int size = input.readInt();
+			NavMesh mesh = new NavMesh(kryo.readObject(input, EntityStats.class));
+			int size = input.readShort();
 			for(int i = 0; i < size; i++){
 				Node node = kryo.readObject(input, Node.class);
 				mesh.nodes.add(node);
-				mesh.nodeMap.put(new Point(node.col, node.row), node);
+				mesh.nodeMap.put(new Point(node.row, node.col), node);
 				if(node.type == NodeType.LEFT_EDGE || node.type == NodeType.SOLO || node.type == NodeType.RIGHT_EDGE) {
 					mesh.edgeNodes.add(node);
+				}
+				byte numLinks = input.readByte();
+				for(int j = 0; j < numLinks; j++){
+					NavLink link = kryo.readObject(input, NavLink.class);
+					node.addLink(link);
+					link.fromNode = node;
+				}
+			}
+			for(Node n : mesh.nodes){
+				for(NavLink link : n.getLinks()){
+					link.toNode = mesh.nodeMap.get(new Point(link.toRow, link.toCol));
+					if(link.data instanceof TrajectoryData){
+						TrajectoryData data = (TrajectoryData) link.data;
+						data.toNode = mesh.nodeMap.get(new Point(data.toRow, data.toCol));
+					}
 				}
 			}
 			return mesh;

@@ -97,25 +97,17 @@ public class Node{
 	public static class NodeSerializer extends Serializer<Node>{
 		@Override
 		public void write(Kryo kryo, Output output, Node object) {
-			output.writeInt(object.row);
-			output.writeInt(object.col);
+			output.writeShort((short)object.row);
+			output.writeShort((short)object.col);
 			output.writeString(object.type.name());
-			output.writeInt(object.links.size);
-			for(NavLink link : object.links){
-				kryo.writeClassAndObject(output, link);
-			}
 		}
 
 		@Override
 		public Node read(Kryo kryo, Input input, Class<Node> type) {
 			Node node = new Node();
-			node.row = input.readInt();
-			node.col = input.readInt();
+			node.row = input.readShort();
+			node.col = input.readShort();
 			node.type = NodeType.valueOf(input.readString());
-			int size = input.readInt();
-			for(int i = 0; i < size; i++){
-				node.links.add(kryo.readObject(input, NavLink.class));
-			}
 			return node;
 		}
 	}

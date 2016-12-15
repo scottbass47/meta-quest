@@ -224,7 +224,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new RemovalSystem(world));
 
 		// Setup and Load Level
-		level = new Level(world, worldCamera, batch);
+		level = new Level("arena", world, worldCamera, batch);
 		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh

@@ -57,7 +57,7 @@ public class EntityStats {
 		result = prime * result + ((hitBox == null) ? 0 : hitBox.hashCode());
 		result = prime * result + Float.floatToIntBits(jumpForce);
 		result = prime * result + Float.floatToIntBits(runSpeed);
-		result = prime * result + ((type == null) ? 0 : type.hashCode());
+		result = prime * result + ((type == null) ? 0 : type.name().hashCode());
 		return result;
 	}
 
