@@ -99,7 +99,7 @@ public class Node{
 		public void write(Kryo kryo, Output output, Node object) {
 			output.writeShort((short)object.row);
 			output.writeShort((short)object.col);
-			output.writeString(object.type.name());
+			output.writeByte(object.type.ordinal());
 		}
 
 		@Override
@@ -107,7 +107,7 @@ public class Node{
 			Node node = new Node();
 			node.row = input.readShort();
 			node.col = input.readShort();
-			node.type = NodeType.valueOf(input.readString());
+			node.type = NodeType.values()[input.readByte()];
 			return node;
 		}
 	}

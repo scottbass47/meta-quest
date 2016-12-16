@@ -7,10 +7,10 @@ import com.esotericsoftware.kryo.io.Output;
 
 public class JumpOverData extends LinkData{
 
-	public final float jumpMultiplier;
+	public final float jumpForce;
 	
-	public JumpOverData(float jumpMultiplier){
-		this.jumpMultiplier = jumpMultiplier;
+	public JumpOverData(float jumpForce){
+		this.jumpForce = jumpForce;
 	}
 	
 	public static JumpOverDataSerializer getSerializer(){
@@ -20,7 +20,7 @@ public class JumpOverData extends LinkData{
 	public static class JumpOverDataSerializer extends Serializer<JumpOverData>{
 		@Override
 		public void write(Kryo kryo, Output output, JumpOverData object) {
-			output.writeFloat(object.jumpMultiplier);
+			output.writeFloat(object.jumpForce);
 		}
 
 		@Override

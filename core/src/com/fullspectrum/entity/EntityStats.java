@@ -91,7 +91,7 @@ public class EntityStats {
 			output.writeFloat(object.airSpeed);
 			output.writeFloat(object.hitBox.width);
 			output.writeFloat(object.hitBox.height);
-			output.writeString(object.type.name());
+			output.writeByte(object.type.ordinal());
 		}
 
 		@Override
@@ -103,7 +103,7 @@ public class EntityStats {
 			float width = input.readFloat();
 			float height = input.readFloat();
 			Rectangle hitBox = new Rectangle(0, 0, width, height);
-			EntityType eType = EntityType.valueOf(input.readString());
+			EntityType eType = EntityType.values()[input.readByte()];
 			return new EntityStats(runSpeed, jumpForce, climbSpeed, airSpeed, hitBox, eType);
 		}
 	}

@@ -28,11 +28,13 @@ import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
+import com.fullspectrum.utils.RenderUtils;
+import com.fullspectrum.utils.StringUtils;
 
 public class NavMesh{
 
 	// Version
-	private static final int VERSION = 1;
+	private static final int VERSION = 2;
 	
 	// Nodes
 	private Array<Node> nodes;
@@ -92,7 +94,7 @@ public class NavMesh{
 	}
 
 	public static NavMesh createNavMesh(Level level, EntityStats stats) {
-		String fileName = stats.getType().name().toLowerCase() + "-" + level.getName() + ".mesh";
+		String fileName = stats.getType().name().toLowerCase() + "-" + level.getName() + ".nav";
 		final Level levelCopy = level;
 		Kryo kryo = new Kryo();
 		kryo.setReferences(false);
@@ -110,6 +112,7 @@ public class NavMesh{
 				int statsHash = input.readInt();
 				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode()){
 					NavMesh mesh = kryo.readObject(input, NavMesh.class);
+					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getType().name()) + " mesh for level " + StringUtils.toTitleCase(level.getName()));
 					input.close();
 					mesh.level = levelCopy;
 					for(Node n : mesh.nodes){
@@ -122,6 +125,7 @@ public class NavMesh{
 				e.printStackTrace();
 			}
 		}
+		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getType().name()) + " mesh for level " + StringUtils.toTitleCase(level.getName()) + "...");
 		NavMesh mesh = new NavMesh(level, stats);
 		try {
 			Output output = new Output(new FileOutputStream(Gdx.files.local(fileName).path()));
@@ -151,11 +155,7 @@ public class NavMesh{
 				case FALL:
 					sRender.setColor(Color.CHARTREUSE);
 					TrajectoryData fallData = (TrajectoryData) link.data;
-					for (int i = 0; i < fallData.trajectory.size - 1; i++) {
-						Point2f point1 = fallData.trajectory.get(i);
-						Point2f point2 = fallData.trajectory.get(i + 1);
-						sRender.line(point1.x, point1.y, point2.x, point2.y);
-					}
+					RenderUtils.renderTrajectory(sRender, node.col + 0.5f, node.row + 0.5f, link.isDirRight(), fallData.time, fallData.jumpForce, fallData.speed, 50);
 					break;
 				case FALL_OVER:
 					sRender.setColor(Color.GOLD);
@@ -163,13 +163,8 @@ public class NavMesh{
 					break;
 				case JUMP:
 					TrajectoryData jumpData = (TrajectoryData) link.data;
-					for (int i = 0; i < jumpData.trajectory.size - 1; i++) {
-						Color color = i < jumpData.trajectory.size / 2 ? Color.SALMON : Color.BLACK;
-						Point2f point1 = jumpData.trajectory.get(i);
-						Point2f point2 = jumpData.trajectory.get(i + 1);
-						sRender.setColor(color);
-						sRender.line(point1.x, point1.y, point2.x, point2.y);
-					}
+					sRender.setColor(Color.BLACK);
+					RenderUtils.renderTrajectory(sRender, node.col + 0.5f, node.row + 0.5f, link.isDirRight(), jumpData.time, jumpData.jumpForce, jumpData.speed, 50);
 					break;
 				case JUMP_OVER:
 					sRender.setColor(Color.BROWN);
@@ -211,7 +206,7 @@ public class NavMesh{
 		}
 		sRender.end();
 	}
-
+	
 	private void createNodes() {
 		for (int row = 0; row < level.getHeight(); row++) {
 			for (int col = 0; col < level.getWidth(); col++) {
@@ -322,7 +317,7 @@ public class NavMesh{
 				if(totalHeight > maxJumpHeight) continue;
 				float jumpForce = (float)Math.sqrt(-2 * GameVars.GRAVITY * totalHeight);
 				float ty = -jumpForce / GameVars.GRAVITY; // vf = v0 + at (vf = 0 b/c top of jump)
-				jumpFrom.addLink(new NavLink(LinkType.JUMP_OVER, new JumpOverData(jumpForce / maxJumpForce), jumpFrom, jumpTo, tx + ty));
+				jumpFrom.addLink(new NavLink(LinkType.JUMP_OVER, new JumpOverData(jumpForce), jumpFrom, jumpTo, tx + ty));
 			}
 		}
 	}
@@ -438,7 +433,6 @@ public class NavMesh{
 		float interval = 0.0015f;
 		Node targetNode = nodeMap.get(new Point((int)(toY - boundingBox.height * 0.5f), (int)toX));
 		boolean finished = false;
-		Array<Point2f> points = new Array<Point2f>();
 		Node toNode = null;
 		float time = 0;
 		while (!finished) {
@@ -447,7 +441,6 @@ public class NavMesh{
 			if (!isValidPoint(point.x, point.y)) {
 				return null;
 			}
-			points.add(point);
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
@@ -457,7 +450,7 @@ public class NavMesh{
 				finished = true;
 			}
 		}
-		return new TrajectoryData(points, time, toNode, speed, jumpForce);
+		return new TrajectoryData(time, toNode, speed, jumpForce);
 	}
 	
 	private void setupLadderConnections(){
@@ -677,7 +670,6 @@ public class NavMesh{
 			kryo.writeObject(output, object.stats);
 			output.writeShort((short)object.nodes.size);
 			for(Node n : object.nodes){
-				System.out.println("Node: " + n + ", Position: " + output.position());
 				kryo.writeObject(output, n);
 				output.writeByte((byte)n.getLinks().size);
 				for(NavLink link : n.getLinks()){

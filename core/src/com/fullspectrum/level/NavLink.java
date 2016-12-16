@@ -51,30 +51,30 @@ public class NavLink {
 	public static class NavLinkSerializer extends Serializer<NavLink> {
 		@Override
 		public void write(Kryo kryo, Output output, NavLink object) {
-			output.writeString(object.type.name());
+			output.writeByte(object.type.ordinal());
 			output.writeShort((short)object.toNode.row);
 			output.writeShort((short)object.toNode.col);
 			output.writeFloat(object.cost);
 			if (object.data == null) {
-				output.writeString(LinkDataType.NULL.name());
+				output.writeByte(LinkDataType.NULL.ordinal());
 			}
 			else if (object.data instanceof JumpOverData) {
-				output.writeString(LinkDataType.JUMP_OVER.name());
+				output.writeByte(LinkDataType.JUMP_OVER.ordinal());
 				kryo.writeObject(output, object.data);
 			}
 			else if (object.data instanceof TrajectoryData) {
-				output.writeString(LinkDataType.TRAJECTORY.name());
+				output.writeByte(LinkDataType.TRAJECTORY.ordinal());
 				kryo.writeObject(output, object.data);
 			}
 		}
 
 		@Override
 		public NavLink read(Kryo kryo, Input input, Class<NavLink> type) {
-			LinkType linkType = LinkType.valueOf(input.readString());
+			LinkType linkType = LinkType.values()[input.readByte()];
 			int toRow = input.readShort();
 			int toCol = input.readShort();
 			float cost = input.readFloat();
-			LinkDataType dataType = LinkDataType.valueOf(input.readString());
+			LinkDataType dataType = LinkDataType.values()[input.readByte()];
 			LinkData data = null;
 			switch(dataType){
 			case JUMP_OVER:

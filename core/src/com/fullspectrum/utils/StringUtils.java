@@ -12,6 +12,8 @@ public class StringUtils {
 	        } else if (nextTitleCase) {
 	            c = Character.toTitleCase(c);
 	            nextTitleCase = false;
+	        }else{
+	        	c = Character.toLowerCase(c);
 	        }
 	        titleCase.append(c);
 	    }

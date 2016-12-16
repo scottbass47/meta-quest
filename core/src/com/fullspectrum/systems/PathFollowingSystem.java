@@ -103,7 +103,7 @@ public class PathFollowingSystem extends IteratingSystem{
 			}else{
 				if(currentNode != null){
 					if (right && x <= currentNode.getCol() + 0.52f || !right && x >= currentNode.getCol() + 0.48f) {
-						controller.justPress(Actions.JUMP, jData.jumpMultiplier);
+						controller.justPress(Actions.JUMP, jData.jumpForce / navMesh.getMaxJumpForce());
 					}
 					else{
 						if(right){

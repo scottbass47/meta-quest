@@ -18,8 +18,8 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
-import com.fullspectrum.level.Point2f;
 import com.fullspectrum.level.TrajectoryData;
+import com.fullspectrum.utils.RenderUtils;
 
 public class PathFinder {
 	
@@ -69,22 +69,14 @@ public class PathFinder {
 				break;
 			case FALL:
 				TrajectoryData fallData = (TrajectoryData) link.data;
-				for (int i = 0; i < fallData.trajectory.size - 1; i++) {
-					Point2f point1 = fallData.trajectory.get(i);
-					Point2f point2 = fallData.trajectory.get(i + 1);
-					sRender.line(point1.x, point1.y, point2.x, point2.y);
-				}
+				RenderUtils.renderTrajectory(sRender, node.getCol() + 0.5f, node.getRow() + 0.5f, link.isDirRight(), fallData.time, fallData.jumpForce, fallData.speed, 50);
 				break;
 			case FALL_OVER:
 				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, link.toNode.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
 				break;
 			case JUMP:
 				TrajectoryData jumpData = (TrajectoryData) link.data;
-				for (int i = 0; i < jumpData.trajectory.size - 1; i++) {
-					Point2f point1 = jumpData.trajectory.get(i);
-					Point2f point2 = jumpData.trajectory.get(i + 1);
-					sRender.line(point1.x, point1.y, point2.x, point2.y);
-				}
+				RenderUtils.renderTrajectory(sRender, node.getCol() + 0.5f, node.getRow() + 0.5f, link.isDirRight(), jumpData.time, jumpData.jumpForce, jumpData.speed, 50);
 				break;
 			case JUMP_OVER:
 				sRender.line(node.getCol() + 0.5f, node.getRow() + 0.5f, node.getCol() + 0.5f, link.toNode.getRow() + 0.5f);
