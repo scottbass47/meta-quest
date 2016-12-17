@@ -52,6 +52,7 @@ public class Mappers {
 	public static final ComponentMapper<DropTypeComponent> dropType = ComponentMapper.getFor(DropTypeComponent.class);
 	public static final ComponentMapper<StaminaComponent> stamina = ComponentMapper.getFor(StaminaComponent.class);
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
+	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 
 }
 

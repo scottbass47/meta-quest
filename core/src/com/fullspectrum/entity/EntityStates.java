@@ -9,7 +9,7 @@ public enum EntityStates implements State{
 	JUMPING,
 	FALLING,
 	DIVING,
-	ATTACK,
+	SWING_ATTACK,
 	DYING,
 	CLIMBING,
 	CLEAN_UP;

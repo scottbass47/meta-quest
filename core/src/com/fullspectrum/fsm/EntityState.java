@@ -78,4 +78,13 @@ public class EntityState extends StateObject{
 		super.addTag(tag);
 		return this;
 	}
+	
+	/**
+	 * Convenient override to allow method chaining.
+	 */
+	@Override
+	public EntityState addChangeListener(StateChangeListener listener) {
+		super.addChangeListener(listener);
+		return this;
+	}
 }

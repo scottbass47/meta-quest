@@ -11,7 +11,8 @@ public enum EntityAnim implements State{
 	RISE, // Rise refers to the still frame once in the air 
 	FALLING,
 	JUMP_APEX,
-	OVERHEAD_ATTACK,
+	CLIMBING,
+	SWING,
 	DROP_IDLE,
 	DROP_DISAPPEAR;
 
