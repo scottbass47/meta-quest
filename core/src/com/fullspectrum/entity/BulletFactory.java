@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FacingComponent;
+import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.WorldComponent;
@@ -27,6 +28,7 @@ public class BulletFactory {
 		EngineComponent engineComp = Mappers.engine.get(entity);
 		WorldComponent worldComp = Mappers.world.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
+		LevelComponent levelComp = Mappers.level.get(entity);
 
 		Vector2 pos = bodyComp.body.getPosition();
 		xOff = GameVars.PPM_INV * xOff;
@@ -37,6 +39,6 @@ public class BulletFactory {
 		
 		boolean friendly = Mappers.type.get(entity).type == EntityType.FRIENDLY;
 		
-		engineComp.engine.addEntity(EntityFactory.createBullet(engineComp.engine, worldComp.world, speed, angle, x , y, damage, false, friendly));
+		engineComp.engine.addEntity(EntityFactory.createBullet(engineComp.engine, worldComp.world, levelComp.level, speed, angle, x , y, damage, false, friendly));
 	}
 }

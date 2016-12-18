@@ -303,7 +303,7 @@ public class GameScreen extends AbstractScreen {
 				spawnEnemy(mouseNode);
 			}
 		} else if(level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
-			Entity coin = EntityFactory.createCoin(engine, world, mousePos.x, mousePos.y, MathUtils.random(-5, 5), 0, MathUtils.random(1, 100));
+			Entity coin = EntityFactory.createCoin(engine, world, level, mousePos.x, mousePos.y, MathUtils.random(-5, 5), 0, MathUtils.random(1, 100));
 			engine.addEntity(coin);
 		}
 

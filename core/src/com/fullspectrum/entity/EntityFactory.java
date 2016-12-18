@@ -7,10 +7,12 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
@@ -51,6 +53,7 @@ import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.MultiTransition;
+import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
@@ -76,34 +79,28 @@ public class EntityFactory {
 	private EntityFactory(){}
 	
 	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y) {
+		// Setup Animations
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.SHADOW_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.SHADOW_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.SHADOW_FALL));
+		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.SHADOW_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.SHADOW_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
+		
 		// Setup Player
-		Entity player = engine.createEntity();
+		Entity player = new EntityBuilder(engine, world, level)
+				.animation(animMap)
+				.mob(input, EntityType.FRIENDLY, 2500f)
+				.physics(null, x, y, true)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
+				.build();
 		player.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)));
-		player.add(engine.createComponent(EngineComponent.class).set(engine));
-		player.add(engine.createComponent(LevelComponent.class).set(level));
-		player.add(engine.createComponent(CollisionComponent.class)); 
-		player.add(engine.createComponent(PositionComponent.class).set(x, y));
-		player.add(engine.createComponent(VelocityComponent.class));
-		player.add(engine.createComponent(RenderComponent.class));
-		player.add(engine.createComponent(TextureComponent.class).set(assets.getSpriteAnimation(Assets.SHADOW_IDLE).getKeyFrame(0)));
-		player.add(engine.createComponent(InputComponent.class).set(input));
-		player.add(engine.createComponent(FacingComponent.class));
 		player.add(engine.createComponent(MoneyComponent.class));
-		player.add(engine.createComponent(BodyComponent.class));
-		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY));
-		player.add(engine.createComponent(HealthComponent.class).set(2500, 2500));
 		player.add(engine.createComponent(StaminaComponent.class).set(100, 100, 25, 0.3f));
-		player.add(engine.createComponent(WorldComponent.class).set(world));
-		player.add(engine.createComponent(AnimationComponent.class)
-			.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE))
-			.addAnimation(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.SHADOW_RUN))
-			.addAnimation(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.SHADOW_JUMP))
-			.addAnimation(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.SHADOW_FALL))
-			.addAnimation(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE))
-			.addAnimation(EntityAnim.RISE, assets.getSpriteAnimation(Assets.SHADOW_RISE))
-			.addAnimation(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.SHADOW_APEX))
-			.addAnimation(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE))
-			.addAnimation(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH)));
 
 		float PLAYER_SPEED = 8.0f;
 
@@ -111,7 +108,7 @@ public class EntityFactory {
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 		
-		Entity sword = createSword(engine, world, player, x, y, 100);
+		Entity sword = createSword(engine, world, level, player, x, y, 100);
 		
 		EntityStateMachine fsm = new StateFactory.EntityStateBuilder(engine, player, "body/player.json")
 			.idle()
@@ -185,35 +182,30 @@ public class EntityFactory {
 	}
 	
 	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y, int value) {
+		// Setup Animations
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
+		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD));
+		
 		// Setup Player
-		Entity player = engine.createEntity();
-		player.add(engine.createComponent(EngineComponent.class).set(engine));
-		player.add(engine.createComponent(LevelComponent.class).set(level));
-		player.add(engine.createComponent(CollisionComponent.class));
-		player.add(engine.createComponent(PositionComponent.class).set(x, y));
-		player.add(engine.createComponent(VelocityComponent.class));
-		player.add(engine.createComponent(RenderComponent.class));
-		player.add(engine.createComponent(TextureComponent.class).set(assets.getSpriteAnimation(Assets.KNIGHT_IDLE).getKeyFrame(0)));
-		player.add(engine.createComponent(InputComponent.class).set(controller));
-		player.add(engine.createComponent(FacingComponent.class));
-		player.add(engine.createComponent(BodyComponent.class));
-		player.add(engine.createComponent(TypeComponent.class).set(EntityType.ENEMY));
-		player.add(engine.createComponent(WorldComponent.class).set(world));
-		player.add(engine.createComponent(HealthComponent.class).set(100, 100));
+		Entity player = new EntityBuilder(engine, world, level)
+				.animation(animMap)
+				.mob(controller, EntityType.ENEMY, 100f)
+				.physics(null, x, y, true)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
+				.build();
 		player.add(engine.createComponent(MoneyComponent.class).set(value));
-		player.add(engine.createComponent(AnimationComponent.class)
-				.addAnimation(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
-				.addAnimation(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK))
-				.addAnimation(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP))
-				.addAnimation(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL))
-				.addAnimation(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE))
-				.addAnimation(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE))
-				.addAnimation(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX))
-				.addAnimation(EntityAnim.SWING, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD)));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class).set(toFollow));
 
-		Entity sword = createSword(engine, world, player, x, y, 25);
+		Entity sword = createSword(engine, world, level, player, x, y, 25);
 		
 		EntityStateMachine fsm = new StateFactory.EntityStateBuilder(engine, player, "body/player.json")
 			.idle()
@@ -327,22 +319,22 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createSword(Engine engine, World world, Entity owner, float x, float y, int damage){
-		Entity sword = engine.createEntity();
-		
-		sword.add(engine.createComponent(EngineComponent.class).set(engine));
-		sword.add(engine.createComponent(WorldComponent.class).set(world));
-		sword.add(engine.createComponent(BodyComponent.class)
-				.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/sword.json"), world, new Vector2(x, y), sword, true)));
+	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
+//		Entity sword = initPhysicsEntity(engine, world, level, null, x, y);
+		Entity sword = new EntityBuilder(engine, world, level)
+				.physics(null, x, y, false)
+				.build();
+		Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/sword.json"), world, new Vector2(x, y), sword, true);
 		sword.add(engine.createComponent(ParentComponent.class).set(owner));
 		sword.add(engine.createComponent(OffsetComponent.class).set(16.0f * PPM_INV, 0.0f * PPM_INV, true));
 		sword.add(engine.createComponent(SwordStatsComponent.class).set(damage));
+		sword.getComponent(BodyComponent.class).set(body);
 		sword.getComponent(BodyComponent.class).body.setActive(false);
 		
 		return sword;
 	}
 	
-	public static Entity createCoin(Engine engine, World world, float x, float y, float fx, float fy, int amount){
+	public static Entity createCoin(Engine engine, World world, Level level, float x, float y, float fx, float fy, int amount){
 		Animation animation = null;
 		CoinType coinType = CoinType.getCoin(amount);
 		switch(coinType){
@@ -356,28 +348,25 @@ public class EntityFactory {
 			animation = assets.getSpriteAnimation(Assets.silverCoin);
 			break;
 		}
-		Entity coin = createDrop(engine, world, x, y, fx, fy, "body/coin.json", animation, assets.getSpriteAnimation(Assets.disappearCoin), DropType.COIN);
+		Entity coin = createDrop(engine, world, level, x, y, fx, fy, "body/coin.json", animation, assets.getSpriteAnimation(Assets.disappearCoin), DropType.COIN);
 		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
 		return coin;
 	}
 	
-	private static Entity createDrop(Engine engine, World world, float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
-		Entity drop = engine.createEntity();
+	private static Entity createDrop(Engine engine, World world, Level level, float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
+		animMap.put(EntityAnim.DROP_DISAPPEAR, dropDisappear);
 		
-		drop.add(engine.createComponent(EngineComponent.class).set(engine));
-		drop.add(engine.createComponent(BodyComponent.class));
+		Entity drop = new EntityBuilder(engine, world, level)
+				.animation(animMap)
+				.physics(null, x, y, false)
+				.render(dropIdle.getKeyFrame(0), false)
+				.build();
+		
 		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
-		drop.add(engine.createComponent(RenderComponent.class));
-		drop.add(engine.createComponent(PositionComponent.class).set(x, y));
-		drop.add(engine.createComponent(VelocityComponent.class));
 		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
 		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
-		drop.add(engine.createComponent(WorldComponent.class).set(world));
-		drop.add(engine.createComponent(TextureComponent.class).set(dropIdle.getKeyFrame(0)));
-		drop.add(engine.createComponent(AnimationComponent.class)
-				.addAnimation(EntityAnim.DROP_IDLE, dropIdle)
-				.addAnimation(EntityAnim.DROP_DISAPPEAR, dropDisappear));
-		
 		
 		EntityStateMachine fsm = new EntityStateMachine(drop, physicsBody);
 		fsm.createState(EntityStates.IDLING)
@@ -425,20 +414,98 @@ public class EntityFactory {
 		return drop;
 	}
 	
-	public static Entity createBullet(Engine engine, World world, float speed, float angle, float x, float  y, float damage, boolean isArc, boolean friendly){
-		Entity bullet = engine.createEntity();
-		bullet.add(engine.createComponent(EngineComponent.class).set(engine));
-		bullet.add(engine.createComponent(WorldComponent.class).set(world));
-		bullet.add(engine.createComponent(PositionComponent.class).set(x, y));
+	public static Entity createBullet(Engine engine, World world, Level level, float speed, float angle, float x, float  y, float damage, boolean isArc, boolean friendly){
+		Entity bullet = new EntityBuilder(engine, world, level)
+				.physics(null, x, y, false)
+				.build();
 		bullet.add(engine.createComponent(TypeComponent.class).set(friendly ? EntityType.FRIENDLY : EntityType.ENEMY));
-		bullet.add(engine.createComponent(VelocityComponent.class));
 		bullet.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
 		bullet.add(engine.createComponent(BulletStatsComponent.class).set(damage));
 		
 		Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/bullet.json"), world, new Vector2(x, y), bullet, true);
 		if(isArc) body.setGravityScale(1.0f);
-		bullet.add(engine.createComponent(BodyComponent.class).set(body));
+		bullet.getComponent(BodyComponent.class).set(body);
 		
 		return bullet;
+	}
+	
+	private static class EntityBuilder{
+		private Engine engine;
+		private Entity entity;
+		
+		/**
+		 * Setups base entity with Engine, World and Level components.
+		 * @param engine
+		 * @param world
+		 * @param level
+		 */
+		public EntityBuilder(Engine engine, World world, Level level){
+			this.engine = engine;
+			entity = engine.createEntity();
+			entity.add(engine.createComponent(EngineComponent.class).set(engine));
+			entity.add(engine.createComponent(WorldComponent.class).set(world));
+			entity.add(engine.createComponent(LevelComponent.class).set(level));
+		}
+		
+		/**
+		 * Adds Render, Texture and optional Facing components.
+		 * 
+		 * @param frame
+		 * @param facing
+		 * @return
+		 */
+		public EntityBuilder render(TextureRegion frame, boolean facing){
+			entity.add(engine.createComponent(RenderComponent.class));
+			entity.add(engine.createComponent(TextureComponent.class).set(frame));
+			if(facing) entity.add(engine.createComponent(FacingComponent.class));
+			return this;
+		}
+		
+		/**
+		 * Adds Animation component.
+		 * @param animMap
+		 * @return
+		 */
+		public EntityBuilder animation(ArrayMap<State, Animation> animMap){
+			entity.add(engine.createComponent(AnimationComponent.class));
+			entity.getComponent(AnimationComponent.class).animations.putAll(animMap);
+			return this;
+		}
+		
+		/**
+		 * Adds Body, Position, Velocity and optional Collision components.
+		 * 
+		 * @param body
+		 * @param x
+		 * @param y
+		 * @param collideable
+		 * @return
+		 */
+		public EntityBuilder physics(Body body, float x, float y, boolean collideable){
+			entity.add(engine.createComponent(BodyComponent.class).set(body));
+			entity.add(engine.createComponent(PositionComponent.class).set(x, y));
+			entity.add(engine.createComponent(VelocityComponent.class));
+			if(collideable) entity.add(engine.createComponent(CollisionComponent.class));
+			return this;
+		}
+		
+		/**
+		 * Adds Input, Type and Health components.
+		 * 
+		 * @param input
+		 * @param type
+		 * @param health
+		 * @return
+		 */
+		public EntityBuilder mob(Input input, EntityType type, float health){
+			entity.add(engine.createComponent(InputComponent.class).set(input));
+			entity.add(engine.createComponent(TypeComponent.class).set(type));
+			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
+			return this;
+		}
+		
+		public Entity build(){
+			return entity;
+		}
 	}
 }

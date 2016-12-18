@@ -6,21 +6,22 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.utils.PhysicsUtils;
 
-public class BodyComponent implements Component, Poolable{
+public class BodyComponent implements Component, Poolable {
 
 	public Body body;
 	private Rectangle aabb;
-	
+
 	// CACHE PHYSICS BODY
-	public Rectangle getAABB(){
+	public Rectangle getAABB() {
 		return aabb;
 	}
-	
-	public void updateAABB(){
+
+	public void updateAABB() {
 		aabb = PhysicsUtils.getAABB(body);
 	}
-	
-	public BodyComponent set(Body body){
+
+	public BodyComponent set(Body body) {
+		if (body == null) return this;
 		this.body = body;
 		updateAABB();
 		return this;
@@ -31,6 +32,5 @@ public class BodyComponent implements Component, Poolable{
 		body = null;
 		aabb = null;
 	}
-	
-	
+
 }

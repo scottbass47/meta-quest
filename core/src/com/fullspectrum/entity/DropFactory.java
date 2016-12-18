@@ -9,13 +9,14 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
+import com.fullspectrum.level.Level;
 
 public class DropFactory {
 
 	private final static int MIN_COIN_DROPS = 3;
 	
-	public static void spawnCoin(Engine engine, World world, float x, float y, float fx, float fy, int amount){
-		engine.addEntity(EntityFactory.createCoin(engine, world, x, y, fx, fy, amount));
+	public static void spawnCoin(Engine engine, World world, Level level, float x, float y, float fx, float fy, int amount){
+		engine.addEntity(EntityFactory.createCoin(engine, world, level, x, y, fx, fy, amount));
 	}
 	
 	public static void spawnCoins(Entity entity){
@@ -50,7 +51,7 @@ public class DropFactory {
 		float interval = range / coins.size;
 		for(int i = 0; i < coins.size; i++){
 			float fx = MathUtils.random(i * interval, (i + 1) * interval) - range * 0.5f;
-			spawnCoin(Mappers.engine.get(entity).engine, Mappers.world.get(entity).world, body.getPosition().x, body.getPosition().y, fx, MathUtils.random(2.5f, 7.5f), coins.get(i));
+			spawnCoin(Mappers.engine.get(entity).engine, Mappers.world.get(entity).world, Mappers.level.get(entity).level, body.getPosition().x, body.getPosition().y, fx, MathUtils.random(2.5f, 7.5f), coins.get(i));
 		}
 	}
 	
