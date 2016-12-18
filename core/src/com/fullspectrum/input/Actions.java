@@ -5,6 +5,8 @@ public enum Actions {
 	MOVE_DOWN,
 	MOVE_RIGHT,
 	MOVE_LEFT,
+	CYCLE_RIGHT,
+	CYCLE_LEFT,
 	JUMP,
 	ATTACK,
 	BLOCK,

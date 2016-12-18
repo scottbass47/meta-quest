@@ -3,18 +3,12 @@ package com.fullspectrum.entity;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.utils.StringUtils;
 
-public enum EntityStates implements State{
+public enum PlayerState implements State{
 
-	IDLING,
-	RUNNING,
-	JUMPING,
-	FALLING,
-	DIVING,
-	SWING_ATTACK,
-	DYING,
-	CLIMBING,
-	CLEAN_UP;
-	
+	KNIGHT,
+	MAGE,
+	ROGUE;
+
 	@Override
 	public int getIndex() {
 		return ordinal();
@@ -23,11 +17,6 @@ public enum EntityStates implements State{
 	@Override
 	public int numStates() {
 		return values().length;
-	}
-	
-	@Override
-	public String toString(){
-		return getName();
 	}
 
 	@Override

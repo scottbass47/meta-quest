@@ -142,6 +142,11 @@ public class StateObject {
 		components.add(c);
 		return this;
 	}
+	
+	public StateObject setSubstateMachine(StateMachine<? extends State, ? extends StateObject> machine){
+		this.machine.addSubstateMachine(this, machine);
+		return this;
+	}
 
 	public Array<Component> getComponents() {
 		return components;

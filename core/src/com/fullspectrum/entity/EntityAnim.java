@@ -1,6 +1,7 @@
 package com.fullspectrum.entity;
 
 import com.fullspectrum.fsm.State;
+import com.fullspectrum.utils.StringUtils;
 
 public enum EntityAnim implements State{
 
@@ -28,7 +29,12 @@ public enum EntityAnim implements State{
 
 	@Override
 	public String getName() {
-		return name();
+		return StringUtils.toTitleCase(name());
+	}
+	
+	@Override
+	public String toString() {
+		return getName();
 	}
 	
 }

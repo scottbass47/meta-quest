@@ -19,14 +19,13 @@ public class EntityState extends StateObject{
 	protected EntityState(Entity entity, StateMachine<? extends State, ? extends StateObject> machine){
 		super(entity, machine);
 		animations = new AnimationStateMachine(entity, new StateObjectCreator());
-		machine.addSubstateMachine(this, animations);
+		setSubstateMachine(animations);
 		animations.setDebugName("Animation State Machine");
 		animations.entity = entity;
 	}
 	
 	public EntityState addAnimation(State anim){
 		animations.createState(anim);
-		animations.resetMachine();
 		return this;
 	}
 	

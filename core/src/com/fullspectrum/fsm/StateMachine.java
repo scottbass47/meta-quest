@@ -15,7 +15,7 @@ import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
-public class StateMachine<S extends State, E extends StateObject>{
+public class StateMachine<S extends State, E extends StateObject> {
 
 	// State
 	protected ArrayMap<E, StateMachine<? extends State, ? extends StateObject>> substateMachines;
@@ -30,7 +30,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 	// Bits
 	private Builder builder = new Builder();
 	private int bitOffset;
-	
+
 	// Debug
 	private String debugName;
 
@@ -42,7 +42,7 @@ public class StateMachine<S extends State, E extends StateObject>{
 		substateMachines = new ArrayMap<E, StateMachine<? extends State, ? extends StateObject>>();
 		states = new ArrayMap<S, E>();
 	}
-	
+
 	public E createState(S key) {
 		// State identifiers must also be taggable
 		assert (key instanceof Tag);
@@ -57,89 +57,72 @@ public class StateMachine<S extends State, E extends StateObject>{
 		states.put(key, state);
 		return state;
 	}
-	
-	public void disableState(S state){
-		if(currentState == states.get(state)) return;
+
+	public void disableState(S state) {
+		if (currentState == states.get(state)) return;
 		states.get(state).disable();
 	}
-	
-	public void enableState(S state){
+
+	public void enableState(S state) {
 		states.get(state).enable();
 	}
-	
-	public void resetMachine(){
-		currentState = states.get(initialState);
-	}
-	
-	public void reset(){
-		Iterator<Entry<S, E>> iter = states.iterator();
-		while(iter.hasNext()){
-			Entry<S, E> state = iter.next();
-			for(Component c : state.value.getComponents()){
-				Poolable pool = (Poolable)c;
-				pool.reset();
-			}
-		}
+
+	public void reset() {
 		if (currentState != null) {
+			Iterator<Entry<S, E>> iter = states.iterator();
+			while (iter.hasNext()) {
+				Entry<S, E> state = iter.next();
+				for (Component c : state.value.getComponents()) {
+					Poolable pool = (Poolable) c;
+					pool.reset();
+				}
+			}
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
-//			for (Component c : currentState.getComponents()) {
-//				entity.remove(c.getClass());
-//			}
+			StateResetSystem.getInstance().removeStateMachine(this);
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
-			if(machine != null){
-				for(Transition t : machine.currentState.getTransitions()){
-					t.getSystem().removeStateMachine(machine);
-				}
-				machine.resetMachine();
+			if (machine != null) {
+				machine.reset();
 			}
 		}
-//		for(Entry<E, StateMachine<? extends State, ? extends StateObject>> entry : substateMachines){
-//			entry.value.reset();
-//		}
+		currentState = null;
 	}
 
 	public E getCurrentState() {
 		return currentState;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public E getState(State state){
-		if(!stateClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
-		return states.get((S)state);
+	public E getState(State state) {
+		if (!stateClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
+		return states.get((S) state);
 	}
 
-	public Entity getEntity(){
+	public Entity getEntity() {
 		return entity;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine){
-		if(!stateObjectClazz.isInstance(state))
-			throw new IllegalArgumentException("Incorrect state type.");
-		substateMachines.put((E)state, machine);
+	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine) {
+		if (!stateObjectClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
+		substateMachines.put((E) state, machine);
 	}
-	
-	public void changeState(State identifier) {
-		if(!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
-		@SuppressWarnings("unchecked")
-		E newState = states.get((S)identifier);
-		if(newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
-		if (newState == currentState) return;
+
+	private void exitCurrent() {
 		if (currentState != null) {
 			currentState.onExit();
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
-			for(TransitionObject obj : currentState.getTranstionObjects()){
-				if(obj.data != null){
+			for (TransitionObject obj : currentState.getTranstionObjects()) {
+				if (obj.data != null) {
 					obj.data.reset();
 				}
 			}
-			for(MultiTransition multi : currentState.getMultiTransitions()){
-				for(TransitionObject obj : multi.transitionObjects){
-					if(obj.data != null){
+			for (MultiTransition multi : currentState.getMultiTransitions()) {
+				for (TransitionObject obj : multi.transitionObjects) {
+					if (obj.data != null) {
 						obj.data.reset();
 					}
 				}
@@ -149,14 +132,20 @@ public class StateMachine<S extends State, E extends StateObject>{
 			}
 			StateResetSystem.getInstance().removeStateMachine(this);
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
-			if(machine != null){
-				for(Transition t : machine.currentState.getTransitions()){
-					t.getSystem().removeStateMachine(machine);
-				}
-				StateResetSystem.getInstance().removeStateMachine(machine);
-				machine.resetMachine();
+			if (machine != null) {
+				machine.exitCurrent();
 			}
 		}
+		currentState = null;
+	}
+
+	public void changeState(State identifier) {
+		if (!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
+		@SuppressWarnings("unchecked")
+		E newState = states.get((S) identifier);
+		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
+		if (newState == currentState) return;
+		exitCurrent();
 		for (Transition t : newState.getTransitions()) {
 			t.getSystem().addStateMachine(this);
 		}
@@ -166,25 +155,21 @@ public class StateMachine<S extends State, E extends StateObject>{
 		newState.onEnter();
 		StateResetSystem.getInstance().addStateMachine(this);
 		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
-		if(machine != null){
-			for(Transition t : machine.currentState.getTransitions()){
-				t.getSystem().addStateMachine(machine);
-			}
+		if (machine != null) {
 			machine.changeState(machine.initialState);
-			StateResetSystem.getInstance().addStateMachine(machine);
 		}
 		currentState = newState;
 	}
-	
-	public void changeState(TransitionObject obj){
-		if(currentState.getState(obj) != null){
+
+	public void changeState(TransitionObject obj) {
+		if (currentState.getState(obj) != null) {
 			changeState(currentState.getState(obj));
 		}
 		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
-		for(MultiTransition multi : multiTransitions){
-			if(multi.transitionObjects.contains(obj, false)){
+		for (MultiTransition multi : multiTransitions) {
+			if (multi.transitionObjects.contains(obj, false)) {
 				multi.set(obj, true);
-				if(multi.shouldTransition()){
+				if (multi.shouldTransition()) {
 					multi.resetMap();
 					changeState(currentState.getState(multi));
 					return;
@@ -193,10 +178,10 @@ public class StateMachine<S extends State, E extends StateObject>{
 			}
 		}
 	}
-	
-	protected void resetMultiTransitions(){
+
+	protected void resetMultiTransitions() {
 		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
-		for(MultiTransition multi : multiTransitions){
+		for (MultiTransition multi : multiTransitions) {
 			multi.resetMap();
 		}
 	}
@@ -208,9 +193,9 @@ public class StateMachine<S extends State, E extends StateObject>{
 	public void addTransition(S fromState, Transition transition, TransitionData data, S toState) {
 		states.get(fromState).addTransition(transition, data, toState);
 	}
-	
-	public void addTransition(S fromState, MultiTransition multiTransition, S toState){
-		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
+
+	public void addTransition(S fromState, MultiTransition multiTransition, S toState) {
+		if (multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		states.get(fromState).addMultiTransition(multiTransition, toState);
 	}
 
@@ -222,17 +207,17 @@ public class StateMachine<S extends State, E extends StateObject>{
 		Iterator<Entry<S, E>> iter = states.iterator();
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();
-			if(entry.value.bits.get(fromTag.getIndex() + bitOffset)){
+			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
 				addTransition(entry.key, transition, data, toState);
 			}
 		}
 	}
-	
+
 	public void addTransition(TransitionTag fromTag, MultiTransition multiTransition, S toState) {
-		if(multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
+		if (multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
 			Entry<S, E> entry = iter.next();
-			if(entry.value.bits.get(fromTag.getIndex() + bitOffset)){
+			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
 				addTransition(entry.key, multiTransition, toState);
 			}
 		}
@@ -259,9 +244,9 @@ public class StateMachine<S extends State, E extends StateObject>{
 			addTransition(entry.key, transition, data, toState);
 		}
 	}
-	
+
 	public void addTransition(Builder builder, MultiTransition multiTransition, S toState) {
-		for(Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
+		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
 			Entry<S, E> entry = iter.next();
 			E state = entry.value;
 			if (!state.bits.containsAll(builder.all)) {
@@ -276,20 +261,20 @@ public class StateMachine<S extends State, E extends StateObject>{
 			addTransition(entry.key, multiTransition, toState);
 		}
 	}
-	
-	public Array<State> getStates(){
+
+	public Array<State> getStates() {
 		Array<State> ret = new Array<State>();
 		Iterator<Entry<S, E>> iter = states.iterator();
-		while(iter.hasNext()){
+		while (iter.hasNext()) {
 			ret.add(iter.next().key);
 		}
 		return ret;
 	}
-	
-	public void setDebugName(String debugName){
+
+	public void setDebugName(String debugName) {
 		this.debugName = debugName;
 	}
-	
+
 	@Override
 	public String toString() {
 		return debugName != null ? debugName : "";
@@ -366,7 +351,8 @@ public class StateMachine<S extends State, E extends StateObject>{
 				Tag tag = (Tag) tags[i];
 				if (tag instanceof State) {
 					bits.set(tag.getIndex());
-				} else {
+				}
+				else {
 					bits.set(tag.getIndex() + bitOffset);
 				}
 			}

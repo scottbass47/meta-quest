@@ -15,7 +15,6 @@ public class Mappers {
 	public static final ComponentMapper<TextureComponent> texture =  ComponentMapper.getFor(TextureComponent.class);
 	public static final ComponentMapper<BodyComponent> body =  ComponentMapper.getFor(BodyComponent.class);
 	public static final ComponentMapper<AnimationComponent> animation =  ComponentMapper.getFor(AnimationComponent.class);
-	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);
 	public static final ComponentMapper<StateComponent> state =  ComponentMapper.getFor(StateComponent.class);
 	public static final ComponentMapper<InputComponent> input =  ComponentMapper.getFor(InputComponent.class);
 	public static final ComponentMapper<DirectionComponent> direction =  ComponentMapper.getFor(DirectionComponent.class);
@@ -30,7 +29,9 @@ public class Mappers {
 	public static final ComponentMapper<PathComponent> path = ComponentMapper.getFor(PathComponent.class);
 	public static final ComponentMapper<FollowComponent> follow = ComponentMapper.getFor(FollowComponent.class);
 	public static final ComponentMapper<AIControllerComponent> aiController = ComponentMapper.getFor(AIControllerComponent.class);
+	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);
 	public static final ComponentMapper<AIStateMachineComponent> aism = ComponentMapper.getFor(AIStateMachineComponent.class);
+	public static final ComponentMapper<ESMComponent> esm =  ComponentMapper.getFor(ESMComponent.class);
 	public static final ComponentMapper<WanderingComponent> wandering = ComponentMapper.getFor(WanderingComponent.class);
 	public static final ComponentMapper<TargetComponent> target = ComponentMapper.getFor(TargetComponent.class);
 	public static final ComponentMapper<LevelComponent> level = ComponentMapper.getFor(LevelComponent.class);

@@ -24,7 +24,7 @@ public class DropFactory {
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		Body body = bodyComp.body;
 		
-		if(bodyComp == null || bodyComp.body == null || moneyComp == null) return;
+		if(bodyComp == null || bodyComp.body == null || moneyComp == null || moneyComp.money <= 0) return;
 		
 		int amount = moneyComp.money;
 		int min = CoinType.getLowestCoinValue();
