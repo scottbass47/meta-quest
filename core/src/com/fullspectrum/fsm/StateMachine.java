@@ -161,8 +161,8 @@ public class StateMachine<S extends State, E extends StateObject> {
 		currentState = newState;
 	}
 
-	public void changeState(TransitionObject obj) {
-		if (currentState.getState(obj) != null) {
+	public boolean changeState(TransitionObject obj) {
+ 		if (currentState.getState(obj) != null) {
 			changeState(currentState.getState(obj));
 		}
 		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
@@ -172,11 +172,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 				if (multi.shouldTransition()) {
 					multi.resetMap();
 					changeState(currentState.getState(multi));
-					return;
+					return true;
 				}
-				break;
 			}
 		}
+		return false;
 	}
 
 	protected void resetMultiTransitions() {
@@ -197,6 +197,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public void addTransition(S fromState, MultiTransition multiTransition, S toState) {
 		if (multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		states.get(fromState).addMultiTransition(multiTransition, toState);
+	}
+	
+	public void addTransition(S fromState, Array<MultiTransition> multiTransitions, S toState){
+		for(MultiTransition multi : multiTransitions){
+			addTransition(fromState, multi, toState);
+		}
 	}
 
 	public void addTransition(TransitionTag fromTag, Transition transition, S toState) {
@@ -220,6 +226,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
 				addTransition(entry.key, multiTransition, toState);
 			}
+		}
+	}
+	
+	public void addTransition(TransitionTag fromTag, Array<MultiTransition> multiTransitions, S toState){
+		for(MultiTransition multi : multiTransitions){
+			addTransition(fromTag, multi, toState);
 		}
 	}
 
@@ -259,6 +271,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 				continue;
 			}
 			addTransition(entry.key, multiTransition, toState);
+		}
+	}
+	
+	public void addTransition(Builder builder, Array<MultiTransition> multiTransitions, S toState){
+		for(MultiTransition multi : multiTransitions){
+			addTransition(builder, multi, toState);
 		}
 	}
 
@@ -301,11 +319,14 @@ public class StateMachine<S extends State, E extends StateObject> {
 		Iterator<Entry<S, E>> iter = states.iterator();
 		while (iter.hasNext()) {
 			Entry<S, E> entry = iter.next();
-			Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator();
-			while (iterator.hasNext()) {
+			for (Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator(); iterator.hasNext(); ) {
 				Entry<TransitionObject, State> transition = iterator.next();
 				String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";
 				ret += entry.key.toString() + ": " + transition.key.transition.toString() + data + " -> " + transition.value.toString() + "\n";
+			}
+			for(Iterator<Entry<MultiTransition, State>> iterator = entry.value.getMultiTransitionMap().iterator(); iterator.hasNext();){
+				Entry<MultiTransition, State> transition = iterator.next();
+				ret += entry.key.toString() + ": " + transition.key + " -> " + transition.value.toString() + "\n";
 			}
 			ret += "\n";
 		}

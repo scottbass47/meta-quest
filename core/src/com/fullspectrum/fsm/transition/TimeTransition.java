@@ -25,8 +25,7 @@ public class TimeTransition extends TransitionSystem {
 			}
 			ttd.timePassed += deltaTime;
 			if (ttd.timePassed > ttd.time) {
-				machine.changeState(obj);
-
+				if(machine.changeState(obj)) break;
 			}
 		}
 	}

@@ -91,7 +91,7 @@ public class StateObject {
 		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
 			Entry<MultiTransition, State> entry = iter.next();
 			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
-				ret.add(entry.key.getTransitionObject(transition));
+				ret.addAll(entry.key.getTransitionObject(transition));
 			}
 		}
 		return ret;
@@ -107,7 +107,7 @@ public class StateObject {
 		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
 			Entry<MultiTransition, State> entry = iter.next();
 			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
-				return entry.key.getTransitionObject(transition);
+				return entry.key.getTransitionObject(transition).first();
 			}
 		}
 		return null;
@@ -162,6 +162,10 @@ public class StateObject {
 
 	public ArrayMap<TransitionObject, State> getTransitionMap() {
 		return transitionMap;
+	}
+	
+	public ArrayMap<MultiTransition, State> getMultiTransitionMap() {
+		return multiTransitionMap;
 	}
 	
 	public Array<TransitionObject> getTranstionObjects(){

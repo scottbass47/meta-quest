@@ -121,6 +121,44 @@ public enum Sensors {
 		public void endCollision(Fixture me, Fixture other) {
 			
 		}
+	},
+	RIGHT_WALL{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
+			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
+			collisionComp.rightContacts++;			
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
+			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
+			collisionComp.rightContacts--;
+		}
+	},
+	LEFT_WALL{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
+			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
+			collisionComp.leftContacts++;
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			// TEMPORARY FIX
+			String data = (String)other.getUserData();
+			if(data == null || !data.equals("ground")) return;
+			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
+			collisionComp.leftContacts--;
+		}
 	};
 	
 	public abstract void beginCollision(Fixture me, Fixture other);

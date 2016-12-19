@@ -2,7 +2,7 @@
   "BodyDef": {
     "type": "DynamicBody"
   },
-  Default: {
+  "Default": {
     "Fixtures": [
         {
           "shape": "Box",
@@ -16,8 +16,28 @@
           "height": 4,
           "yOff": -22,
           "isSensor": "true",
-          "SensorType": "feet"
+          "SensorType": "feet",
           "Category": "sensor"
+        },
+        {
+        	"shape": "Box",
+        	"width": 2,
+        	"height": 6,
+        	"yOff": -16,
+        	"xOff": 8,
+        	"isSensor": "true",
+        	"SensorType": "right_wall",
+        	"Category": "sensor"
+        },
+        {
+        	"shape": "Box",
+        	"width": 2,
+        	"height": 6,
+        	"yOff": -16,
+        	"xOff": -9,
+        	"isSensor": "true",
+        	"SensorType": "left_wall",
+        	"Category": "sensor"
         }
     ]
   }

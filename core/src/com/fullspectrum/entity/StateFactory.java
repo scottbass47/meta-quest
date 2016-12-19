@@ -224,6 +224,26 @@ public class StateFactory {
 			return this;
 		}
 		
+		public EntityStateBuilder wallSlide(){
+			esm.createState(EntityStates.WALL_SLIDING)
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.addAnimation(EntityAnim.WALL_SLIDING)
+				.addChangeListener(new StateChangeListener(){
+					@Override
+					public void onEnter(Entity entity) {
+						Mappers.body.get(entity).body.setLinearVelocity(0.0f, -5.0f);
+						Mappers.body.get(entity).body.setGravityScale(0.1f);
+					}
+
+					@Override
+					public void onExit(Entity entity) {
+						Mappers.body.get(entity).body.setGravityScale(1.0f);
+					}
+				});
+			return this;
+		}
+		
 		public EntityStateMachine build(){
 			return esm;
 		}

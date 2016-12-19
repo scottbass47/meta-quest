@@ -1,6 +1,7 @@
 package com.fullspectrum.fsm.transition;
 
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.input.Actions;
 
 public class InputTransitionData implements TransitionData{
 
@@ -32,5 +33,27 @@ public class InputTransitionData implements TransitionData{
 		ONLY_ONE,
 		ANY_ONE,
 		ALL
+	}
+	
+	public static class Builder{
+		private InputTransitionData data;
+		
+		public Builder(Type type, boolean pressed){
+			data = new InputTransitionData(type, pressed);
+		}
+		
+		public Builder add(Actions action){
+			return add(action, false);
+		}
+		
+		public Builder add(Actions action, boolean isJustPressed){
+			data.triggers.add(new InputTrigger(action, isJustPressed));
+			return this;
+		}
+		
+		public InputTransitionData build(){
+			return data;
+		}
+		
 	}
 }

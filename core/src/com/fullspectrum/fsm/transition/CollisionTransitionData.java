@@ -15,6 +15,11 @@ public class CollisionTransitionData implements TransitionData{
 		
 	}
 	
+	@Override
+	public String toString() {
+		return "Type: " + type.name() + ", onCollide: " + onCollide;
+	}
+	
 	public enum CollisionType{
 		GROUND,
 		CEILING,

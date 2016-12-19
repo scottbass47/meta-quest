@@ -23,7 +23,7 @@ public class MultiTransition {
 	}
 	
 	public MultiTransition addTransition(Transition transition, TransitionData data){
-		if(transitions.contains(transition)) return null;
+//		if(transitions.contains(transition)) return null;
 		TransitionObject obj = new TransitionObject(transition, data);
 		transitionObjects.add(obj);
 		transitions.add(transition);
@@ -35,11 +35,12 @@ public class MultiTransition {
 		return addTransition(transition, null);
 	}
 	
-	public TransitionObject getTransitionObject(Transition transition){
+	public Array<TransitionObject> getTransitionObject(Transition transition){
+		Array<TransitionObject> ret = new Array<TransitionObject>();
 		for(TransitionObject obj : transitionObjects){
-			if(obj.transition == transition) return obj;
+			if(obj.transition == transition) ret.add(obj);;
 		}
-		return null;
+		return ret;
 	}
 
 	/**
@@ -66,5 +67,10 @@ public class MultiTransition {
 	
 	protected void set(TransitionObject transitionObject, boolean value){
 		map.put(transitionObject, value);
+	}
+	
+	@Override
+	public String toString() {
+		return transitionObjects.toString();
 	}
 }

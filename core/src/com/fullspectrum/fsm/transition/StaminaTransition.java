@@ -27,8 +27,7 @@ private static StaminaTransition instance;
 			for(TransitionObject obj : machine.getCurrentState().getData(Transition.STAMINA)){
 				StaminaTransitionData staminaData = (StaminaTransitionData)obj.data;
 				if(staminaComp.stamina >= staminaData.staminaNeeded){
-					machine.changeState(obj);
-					break;
+					if(machine.changeState(obj)) break;
 				}
 			}
 		}

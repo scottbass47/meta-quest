@@ -55,13 +55,11 @@ public class RangeTransition extends TransitionSystem {
 				
 				if (inRange(x1, y1, x2, y2, distance, inside)) {
 					if((rtd.rayTrace && levelComp.level.performRayTrace(x1, y1, x2, y2)) || !rtd.rayTrace){
-						machine.changeState(obj);
-						break;
+						if(machine.changeState(obj)) break;
 					}
 				}
 				else if(!inside && !rtd.rayTrace && !levelComp.level.performRayTrace(x1, y1, x2, y2)){
-					machine.changeState(obj);
-					break;
+					if(machine.changeState(obj)) break;
 				}
 			}
 		}

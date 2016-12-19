@@ -36,7 +36,7 @@ public class CollisionTransition extends TransitionSystem{
 					if(collisionComp.onGround()) shouldTransition = true;
 					break;
 				case LADDER:
-					if(collisionComp.onLadder()) shouldTransition = true;
+					if(collisionComp.onLadder()) shouldTransition = true;  
 					break;
 				case LEFT_WALL:
 					if(collisionComp.onLeftWall()) shouldTransition = true;
@@ -48,8 +48,7 @@ public class CollisionTransition extends TransitionSystem{
 					break;
 				}
 				if((data.onCollide && shouldTransition) || (!data.onCollide && !shouldTransition)){
-					machine.changeState(obj);
-					break;
+					if(machine.changeState(obj)) break;
 				}
 			}
 		}
