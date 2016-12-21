@@ -73,6 +73,7 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
+import com.fullspectrum.systems.AirMovementSystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
 import com.fullspectrum.systems.BlinkSystem;
@@ -210,6 +211,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new ForceSystem());
 		engine.addSystem(new DirectionSystem());
 		engine.addSystem(new VelocitySystem());
+		engine.addSystem(new AirMovementSystem());
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new LadderMovementSystem());

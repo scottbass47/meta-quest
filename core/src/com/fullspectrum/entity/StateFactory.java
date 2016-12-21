@@ -3,6 +3,7 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
+import com.fullspectrum.component.AirMovementComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.GroundMovementComponent;
@@ -231,6 +232,7 @@ public class StateFactory {
 		public EntityStateBuilder wallSlide(){
 			esm.createState(EntityStates.WALL_SLIDING)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
 				.addAnimation(EntityAnim.WALL_SLIDING)
 				.addChangeListener(new StateChangeListener(){

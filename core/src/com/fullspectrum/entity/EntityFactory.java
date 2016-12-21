@@ -32,6 +32,7 @@ import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
+import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
@@ -43,6 +44,7 @@ import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
@@ -245,7 +247,7 @@ public class EntityFactory {
 	}
 	
 	private static EntityStateMachine createRogue(Engine engine, World world, Level level, float x, float y, Entity player){
-		float PLAYER_SPEED = 10.0f;
+		final float PLAYER_SPEED = 10.0f;
 
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
@@ -278,6 +280,7 @@ public class EntityFactory {
 						
 						float fx, fy;
 						fx = fy = MathUtils.sinDeg(45) * force;
+						fy *= MathUtils.E * 0.5f;
 						if(collisionComp.onRightWall()) fx = -fx;
 						entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
 					}else{
@@ -286,6 +289,33 @@ public class EntityFactory {
 						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
 					}
 				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
+		
+		esm.createState(EntityStates.WALL_JUMP)
+			.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
+//			.add(engine.createComponent(GroundMovementComponent.class))
+			.addAnimation(EntityAnim.JUMP)
+			.addAnimation(EntityAnim.RISE)
+			.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
+			.addTag(TransitionTag.AIR_STATE)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					EngineComponent engineComp = Mappers.engine.get(entity);
+					CollisionComponent collisionComp = Mappers.collision.get(entity);
+					FacingComponent facingComp = Mappers.facing.get(entity);
+					
+					// Get the jump force and remove the component
+					float fx = PLAYER_SPEED;
+					float fy = 15.0f;
+					if(collisionComp.onRightWall()) fx = -fx;
+					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
+					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
+				}
+
 				@Override
 				public void onExit(State nextState, Entity entity) {
 				}
@@ -361,7 +391,7 @@ public class EntityFactory {
 		
 		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, EntityStates.WALL_SLIDING).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, EntityStates.WALL_SLIDING).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
@@ -373,6 +403,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.FALLING, Array.with(leftSlideTransition, rightSlideTransition), EntityStates.WALL_SLIDING);
 		esm.addTransition(EntityStates.WALL_SLIDING, Array.with(offWall, offRightWall, offLeftWall), EntityStates.FALLING);
+		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
 //		System.out.print(esm.printTransitions());
 		return esm;
 	}
