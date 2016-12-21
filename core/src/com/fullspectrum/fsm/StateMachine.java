@@ -109,9 +109,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 		substateMachines.put((E) state, machine);
 	}
 
-	private void exitCurrent() {
+	private void exitCurrent(S newState) {
 		if (currentState != null) {
-			currentState.onExit();
+			currentState.onExit(newState);
 			for (Transition t : currentState.getTransitions()) {
 				t.getSystem().removeStateMachine(this);
 			}
@@ -133,26 +133,31 @@ public class StateMachine<S extends State, E extends StateObject> {
 			StateResetSystem.getInstance().removeStateMachine(this);
 			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
 			if (machine != null) {
-				machine.exitCurrent();
+				machine.exitCurrent(null);
 			}
 		}
 		currentState = null;
 	}
 
+	@SuppressWarnings("unchecked")
 	public void changeState(State identifier) {
 		if (!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
-		@SuppressWarnings("unchecked")
 		E newState = states.get((S) identifier);
 		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
-		exitCurrent();
+		E currState = currentState;
+		exitCurrent((S)identifier);
 		for (Transition t : newState.getTransitions()) {
 			t.getSystem().addStateMachine(this);
 		}
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
-		newState.onEnter();
+		if(currState != null){
+			newState.onEnter(states.getKey(currState, false));
+		}else{
+			newState.onEnter(null);
+		}
 		StateResetSystem.getInstance().addStateMachine(this);
 		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
 		if (machine != null) {

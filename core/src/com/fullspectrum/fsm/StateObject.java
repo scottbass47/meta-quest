@@ -126,15 +126,15 @@ public class StateObject {
 		return this;
 	}
 
-	public void onEnter() {
+	public void onEnter(State prevState) {
 		for (StateChangeListener listener : listeners) {
-			listener.onEnter(entity);
+			listener.onEnter(prevState, entity);
 		}
 	}
 	
-	public void onExit() {
+	public void onExit(State nextState) {
 		for (StateChangeListener listener : listeners) {
-			listener.onExit(entity);
+			listener.onExit(nextState, entity);
 		}
 	}
 

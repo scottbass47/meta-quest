@@ -11,6 +11,7 @@ public enum EntityStates implements State{
 	FALLING,
 	DIVING,
 	SWING_ATTACK,
+	BASE_ATTACK,
 	WALL_SLIDING,
 	DYING,
 	CLIMBING,

@@ -17,6 +17,7 @@ import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -104,10 +105,11 @@ public class StateFactory {
 		 * 
 		 * @param jumpForce
 		 * @param airSpeed
+		 * @param withStateChangeListener TODO
 		 * @return
 		 */
-		public EntityStateBuilder jump(float jumpForce, float airSpeed){
-			esm.createState(EntityStates.JUMPING)
+		public EntityStateBuilder jump(float jumpForce, float airSpeed, boolean withStateChangeListener){
+			EntityState state = esm.createState(EntityStates.JUMPING)
 				.add(engine.createComponent(SpeedComponent.class).set(airSpeed))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
@@ -115,18 +117,20 @@ public class StateFactory {
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
-				.addTag(TransitionTag.AIR_STATE)
-				.addChangeListener(new StateChangeListener(){
+				.addTag(TransitionTag.AIR_STATE);
+			if(withStateChangeListener){
+				state.addChangeListener(new StateChangeListener(){
 					@Override
-					public void onEnter(Entity entity) {
+					public void onEnter(State prevState, Entity entity) {
 						JumpComponent jumpComp = Mappers.jump.get(entity);
 						InputComponent inputComp = Mappers.input.get(entity);						
 						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
 					}
 					@Override
-					public void onExit(Entity entity) {
+					public void onExit(State nextState, Entity entity) {
 					}
 				});
+			}
 			return this;
 		}
 		
@@ -145,12 +149,12 @@ public class StateFactory {
 				.addAnimation(EntityAnim.CLIMBING)
 				.addChangeListener(new StateChangeListener(){
 					@Override
-					public void onEnter(Entity entity) {
+					public void onEnter(State prevState, Entity entity) {
 						Mappers.body.get(entity).body.setGravityScale(0.0f);
 					}
 	
 					@Override
-					public void onExit(Entity entity) {
+					public void onExit(State nextState, Entity entity) {
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
 					}
 				});
@@ -185,7 +189,7 @@ public class StateFactory {
 				.addTag(TransitionTag.STATIC_STATE)
 				.addChangeListener(new StateChangeListener(){
 					@Override
-					public void onEnter(Entity entity) {
+					public void onEnter(State prevState, Entity entity) {
 						// Setup Sword Swing
 						SwingComponent swingComp = Mappers.swing.get(entity);
 						swingComp.time = 0;
@@ -207,7 +211,7 @@ public class StateFactory {
 					}
 	
 					@Override
-					public void onExit(Entity entity) {
+					public void onExit(State nextState, Entity entity) {
 						SwordComponent swordComp = Mappers.sword.get(entity);
 						
 						EngineComponent engineComp = Mappers.engine.get(entity);
@@ -231,13 +235,13 @@ public class StateFactory {
 				.addAnimation(EntityAnim.WALL_SLIDING)
 				.addChangeListener(new StateChangeListener(){
 					@Override
-					public void onEnter(Entity entity) {
+					public void onEnter(State prevState, Entity entity) {
 						Mappers.body.get(entity).body.setLinearVelocity(0.0f, -5.0f);
 						Mappers.body.get(entity).body.setGravityScale(0.1f);
 					}
 
 					@Override
-					public void onExit(Entity entity) {
+					public void onExit(State nextState, Entity entity) {
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
 					}
 				});
