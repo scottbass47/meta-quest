@@ -55,6 +55,7 @@ public class Mappers {
 	public static final ComponentMapper<StaminaComponent> stamina = ComponentMapper.getFor(StaminaComponent.class);
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
+	public static final ComponentMapper<WallComponent> wall = ComponentMapper.getFor(WallComponent.class);
 
 }
 

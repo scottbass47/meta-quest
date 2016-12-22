@@ -96,6 +96,7 @@ import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.StaminaSystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.VelocitySystem;
+import com.fullspectrum.systems.WallSlideSystem;
 import com.fullspectrum.systems.WanderingSystem;
 
 public class GameScreen extends AbstractScreen {
@@ -215,6 +216,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new LadderMovementSystem());
+		engine.addSystem(new WallSlideSystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
@@ -320,9 +322,9 @@ public class GameScreen extends AbstractScreen {
 			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
 		}
 		
-		if(DebugInput.isPressed(DebugKeys.SHOOT) && ups % 5 == 0){
-			BulletFactory.spawnBullet(playerOne, 5.0f, 0.0f, 20.0f, 25.0f);
-		}
+//		if(DebugInput.isPressed(DebugKeys.SHOOT) && ups % 5 == 0){
+//			BulletFactory.spawnBullet(playerOne, 5.0f, 0.0f, 20.0f, 25.0f);
+//		}
 
 		// Random Coin Spawning
 //		if (ups % 6 == 0) {

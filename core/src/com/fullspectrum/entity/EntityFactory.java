@@ -32,10 +32,8 @@ import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
-import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
-import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -114,24 +112,26 @@ public class EntityFactory {
 		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player);
 		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player);
 		EntityStateMachine mageESM = createMage(engine, world, level, x, y, player);
+		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player);
 
 		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
 		
 		playerStateMachine.createState(PlayerState.KNIGHT)
 			.add(engine.createComponent(ESMComponent.class).set(knightESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
-			.setSubstateMachine(knightESM);
+			.addSubstateMachine(knightESM);
 		
 		playerStateMachine.createState(PlayerState.ROGUE)
 			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
-			.add(engine.createComponent(FSMComponent.class).set(createRogueAttackMachine(player)))
+			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
-			.setSubstateMachine(rogueESM);
+			.addSubstateMachine(rogueESM)
+			.addSubstateMachine(rogueAttackFSM);
 		
 		playerStateMachine.createState(PlayerState.MAGE)
 			.add(engine.createComponent(ESMComponent.class).set(mageESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
-			.setSubstateMachine(mageESM);
+			.addSubstateMachine(mageESM);
 		
 		
 		InputTransitionData rightCycleData = new InputTransitionData(Type.ALL, true);
@@ -161,7 +161,6 @@ public class EntityFactory {
 		rtd.probability = 1.0f;
 		
 		Entity sword = createSword(engine, world, level, player, x, y, 100);
-		
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player, "body/player.json")
 			.idle()
@@ -226,22 +225,28 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 		
 //		System.out.print(fsm.printTransitions());
-
-//		fsm.disableState(EntityStates.DIVING);
-//		esm.changeState(EntityStates.IDLING);
 		return esm;
 	}
 	
 	private static StateMachine<EntityStates, StateObject> createRogueAttackMachine(Entity player){
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
-		rogueSM.createState(EntityStates.BASE_ATTACK);
 		rogueSM.createState(EntityStates.IDLING);
+		rogueSM.createState(EntityStates.BASE_ATTACK)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					BulletFactory.spawnBullet(entity, 5.0f, 5.0f, 25f, 100f);
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
 		
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
-		InputTransitionData stopAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 		
 		rogueSM.addTransition(EntityStates.IDLING, Transition.INPUT, attacking, EntityStates.BASE_ATTACK);
-		rogueSM.addTransition(EntityStates.BASE_ATTACK, Transition.INPUT, stopAttacking, EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
 		return rogueSM;
 	}
@@ -253,50 +258,17 @@ public class EntityFactory {
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 		
-		Entity sword = createSword(engine, world, level, player, x, y, 100);
-		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player, "body/player.json")
 			.idle()
 			.run(PLAYER_SPEED)
-			.jump(15.0f, PLAYER_SPEED, false)
+			.jump(15.0f, PLAYER_SPEED, true)
 			.fall(PLAYER_SPEED, true)
 			.climb(6.0f)
-			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.wallSlide()
 			.build();
 		
-		esm.getState(EntityStates.JUMPING)
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					if(prevState != null && prevState.equals(EntityStates.WALL_SLIDING)){
-						EngineComponent engineComp = Mappers.engine.get(entity);
-						CollisionComponent collisionComp = Mappers.collision.get(entity);
-						JumpComponent jumpComp = Mappers.jump.get(entity);
-						
-						// Get the jump force and remove the component
-						float force = jumpComp.maxForce;
-						entity.remove(JumpComponent.class);
-						
-						float fx, fy;
-						fx = fy = MathUtils.sinDeg(45) * force;
-						fy *= MathUtils.E * 0.5f;
-						if(collisionComp.onRightWall()) fx = -fx;
-						entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
-					}else{
-						JumpComponent jumpComp = Mappers.jump.get(entity);
-						InputComponent inputComp = Mappers.input.get(entity);						
-						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
-					}
-				}
-				@Override
-				public void onExit(State nextState, Entity entity) {
-				}
-			});
-		
 		esm.createState(EntityStates.WALL_JUMP)
 			.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
-//			.add(engine.createComponent(GroundMovementComponent.class))
 			.addAnimation(EntityAnim.JUMP)
 			.addAnimation(EntityAnim.RISE)
 			.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
@@ -396,8 +368,6 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, EntityStates.WALL_SLIDING).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);

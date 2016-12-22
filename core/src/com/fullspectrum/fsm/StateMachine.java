@@ -18,7 +18,7 @@ import com.fullspectrum.fsm.transition.TransitionTag;
 public class StateMachine<S extends State, E extends StateObject> {
 
 	// State
-	protected ArrayMap<E, StateMachine<? extends State, ? extends StateObject>> substateMachines;
+	protected ArrayMap<E, Array<StateMachine<? extends State, ? extends StateObject>>> substateMachines;
 	protected ArrayMap<S, E> states;
 	protected E currentState;
 	protected S initialState;
@@ -39,7 +39,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		this.creator = creator;
 		this.stateClazz = stateClazz;
 		this.stateObjectClazz = stateObjectClazz;
-		substateMachines = new ArrayMap<E, StateMachine<? extends State, ? extends StateObject>>();
+		substateMachines = new ArrayMap<E, Array<StateMachine<? extends State, ? extends StateObject>>>();
 		states = new ArrayMap<S, E>();
 	}
 
@@ -81,9 +81,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 				t.getSystem().removeStateMachine(this);
 			}
 			StateResetSystem.getInstance().removeStateMachine(this);
-			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
-			if (machine != null) {
-				machine.reset();
+			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
+			if(machines != null){
+				for(StateMachine<? extends State, ? extends StateObject> machine : machines){
+					machine.reset();
+				}
 			}
 		}
 		currentState = null;
@@ -106,7 +108,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 	@SuppressWarnings("unchecked")
 	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine) {
 		if (!stateObjectClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
-		substateMachines.put((E) state, machine);
+		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get((E)state);
+		if(machines == null){
+			machines = new Array<StateMachine<? extends State, ? extends StateObject>>();
+		}
+		machines.add(machine);
+		substateMachines.put((E) state, machines);
 	}
 
 	private void exitCurrent(S newState) {
@@ -131,9 +138,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 				entity.remove(c.getClass());
 			}
 			StateResetSystem.getInstance().removeStateMachine(this);
-			StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(currentState);
-			if (machine != null) {
-				machine.exitCurrent(null);
+			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
+			if(machines != null){
+				for(StateMachine<? extends State, ? extends StateObject> machine : machines){
+					machine.exitCurrent(null);
+				}
 			}
 		}
 		currentState = null;
@@ -159,9 +168,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 			newState.onEnter(null);
 		}
 		StateResetSystem.getInstance().addStateMachine(this);
-		StateMachine<? extends State, ? extends StateObject> machine = substateMachines.get(newState);
-		if (machine != null) {
-			machine.changeState(machine.initialState);
+		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(newState);
+		if(machines != null){
+			for(StateMachine<? extends State, ? extends StateObject> machine : machines){
+				machine.changeState(machine.initialState);
+			}
 		}
 		currentState = newState;
 	}

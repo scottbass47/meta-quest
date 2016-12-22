@@ -143,7 +143,7 @@ public class StateObject {
 		return this;
 	}
 	
-	public StateObject setSubstateMachine(StateMachine<? extends State, ? extends StateObject> machine){
+	public StateObject addSubstateMachine(StateMachine<? extends State, ? extends StateObject> machine){
 		this.machine.addSubstateMachine(this, machine);
 		return this;
 	}

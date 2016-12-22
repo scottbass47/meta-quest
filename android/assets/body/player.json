@@ -24,7 +24,7 @@
         	"width": 2,
         	"height": 6,
         	"yOff": -16,
-        	"xOff": 8,
+        	"xOff": 9,
         	"isSensor": "true",
         	"SensorType": "right_wall",
         	"Category": "sensor"

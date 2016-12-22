@@ -3,7 +3,6 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
-import com.fullspectrum.component.AirMovementComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.GroundMovementComponent;
@@ -16,6 +15,7 @@ import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
+import com.fullspectrum.component.WallComponent;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.State;
@@ -233,13 +233,13 @@ public class StateFactory {
 			esm.createState(EntityStates.WALL_SLIDING)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
-				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(WallComponent.class))
 				.addAnimation(EntityAnim.WALL_SLIDING)
 				.addChangeListener(new StateChangeListener(){
 					@Override
 					public void onEnter(State prevState, Entity entity) {
-						Mappers.body.get(entity).body.setLinearVelocity(0.0f, -5.0f);
-						Mappers.body.get(entity).body.setGravityScale(0.1f);
+						Mappers.body.get(entity).body.setLinearVelocity(0.0f, -2.5f);
+						Mappers.body.get(entity).body.setGravityScale(0.3f);
 					}
 
 					@Override
