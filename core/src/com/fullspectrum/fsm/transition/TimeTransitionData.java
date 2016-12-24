@@ -14,4 +14,8 @@ public class TimeTransitionData implements TransitionData{
 		timePassed = 0.0f;
 	}
 
+	@Override
+	public String toString() {
+		return "Time: " + time + "s";
+	}
 }

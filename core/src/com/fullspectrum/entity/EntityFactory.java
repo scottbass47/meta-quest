@@ -71,6 +71,7 @@ import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.StaminaTransitionData;
+import com.fullspectrum.fsm.transition.TimeTransition;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -292,6 +293,33 @@ public class EntityFactory {
 				public void onExit(State nextState, Entity entity) {
 				}
 			});
+		
+		esm.createState(EntityStates.DASH)
+			.addAnimation(EntityAnim.SWING)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					FacingComponent facingComp = Mappers.facing.get(entity);
+					ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
+					
+					Body body = bodyComp.body;
+					body.setLinearVelocity(body.getLinearVelocity().x, 0);
+					body.setGravityScale(0.0f);
+					
+					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
+					entity.add(forceComp);
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					Body body = bodyComp.body;
+					
+					body.setLinearVelocity(0.0f, 0.0f);
+					body.setGravityScale(1.0f);
+				}
+			});
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -310,6 +338,9 @@ public class EntityFactory {
 
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
+		
+		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
+		TimeTransitionData dashTime = new TimeTransitionData(0.1f);
 		
 		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
 		
@@ -374,7 +405,9 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.FALLING, Array.with(leftSlideTransition, rightSlideTransition), EntityStates.WALL_SLIDING);
 		esm.addTransition(EntityStates.WALL_SLIDING, Array.with(offWall, offRightWall, offLeftWall), EntityStates.FALLING);
 		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
-//		System.out.print(esm.printTransitions());
+		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transition.INPUT, dashData, EntityStates.DASH);
+		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
+		System.out.print(esm.printTransitions());
 		return esm;
 	}
 	
