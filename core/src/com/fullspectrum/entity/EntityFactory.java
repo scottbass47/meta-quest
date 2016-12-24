@@ -407,6 +407,8 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
 		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transition.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
+//		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onRightWallData, EntityStates.FALLING);
+//		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onLeftWallData, EntityStates.FALLING);
 		System.out.print(esm.printTransitions());
 		return esm;
 	}
