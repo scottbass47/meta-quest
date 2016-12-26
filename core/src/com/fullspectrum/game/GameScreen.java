@@ -50,7 +50,6 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.entity.BulletFactory;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityType;
@@ -78,6 +77,7 @@ import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
 import com.fullspectrum.systems.BlinkSystem;
 import com.fullspectrum.systems.CameraSystem;
+import com.fullspectrum.systems.CombustibleSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.DropMovementSystem;
@@ -95,6 +95,7 @@ import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.StaminaSystem;
 import com.fullspectrum.systems.SwingingSystem;
+import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WallSlideSystem;
 import com.fullspectrum.systems.WanderingSystem;
@@ -206,6 +207,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(StateResetSystem.getInstance());
 
 		// Other Systems
+		engine.addSystem(new TimerSystem());
 		engine.addSystem(new DropSpawnSystem());
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
@@ -221,6 +223,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
 		engine.addSystem(new StaminaSystem());
+		engine.addSystem(new CombustibleSystem());
 		engine.addSystem(new RelativePositioningSystem());
 		engine.addSystem(new SwingingSystem());
 		engine.addSystem(new BlinkSystem());

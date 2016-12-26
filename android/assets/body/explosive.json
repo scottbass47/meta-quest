@@ -1,0 +1,15 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody",
+    "gravityScale": 0,
+    "bullet": "true"
+  },
+  "Fixtures": [
+     {
+       "shape": "Circle",
+       "radius": 3,
+       "CollisionType": "explosive",
+       "Category": "item"
+     }
+  ]
+}

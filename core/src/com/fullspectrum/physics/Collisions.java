@@ -4,6 +4,7 @@ package com.fullspectrum.physics;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
+import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RemoveComponent;
@@ -54,7 +55,42 @@ public enum Collisions {
 		public void postSolve(Fixture me, Fixture other, Contact contact) {
 			
 		}
-	};
+	},
+	EXPLOSIVE{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			TypeComponent myType = Mappers.type.get(entity);
+			TypeComponent otherType = otherEntity != null ? Mappers.type.get(otherEntity) : null;
+			
+			if(otherType != null && myType.type.equals(otherType.type)) return;
+
+			if(!other.isSensor()){
+				CombustibleComponent combustibleComp = Mappers.combustible.get(entity);
+				combustibleComp.shouldExplode = true;
+				return;
+			}else if(other.isSensor()){
+				return;
+			}
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			
+		}
+
+		@Override
+		public void preSolve(Fixture me, Fixture other, Contact contact) {
+			
+		}
+
+		@Override
+		public void postSolve(Fixture me, Fixture other, Contact contact) {
+			
+		}
+	},;
 	
 	
 	public abstract void beginCollision(Fixture me, Fixture other);

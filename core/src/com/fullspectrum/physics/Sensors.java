@@ -1,14 +1,17 @@
 package com.fullspectrum.physics;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwordStatsComponent;
+import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityUtils;
 
@@ -47,7 +50,7 @@ public enum Sensors {
 			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
 			
 			
-			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity, true) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
+			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
 				enemyHealth.health -= swordStats.damage;
 				swordStats.hitEntities.add(otherEntity);
 				
@@ -63,7 +66,7 @@ public enum Sensors {
 			Entity otherEntity = (Entity)other.getBody().getUserData();
 			
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
-			swordStats.hitEntities.removeValue(otherEntity, true);
+			swordStats.hitEntities.remove(otherEntity);
 		}
 	},
 	LADDER{
@@ -115,6 +118,43 @@ public enum Sensors {
 			}
 			
 			entity.add(new RemoveComponent());
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			
+		}
+	},
+	EXPLOSIVE_PARTICLE{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			if(otherEntity == null && !other.isSensor()){
+				entity.add(new RemoveComponent());
+				return;
+			}else if(other.isSensor()){
+				return;
+			}
+			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
+			if(enemyHealth == null) return;
+			
+			// No damage dealt to entities of same type
+			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type) return;
+			
+			Entity explosion = Mappers.parent.get(entity).parent;
+			if(explosion == null || !EntityUtils.isValid(explosion)) return;
+			CombustibleComponent combustibleComp = Mappers.combustible.get(explosion);
+			TimerComponent timerComp = Mappers.timer.get(entity);
+			
+			if(combustibleComp.hitEntities.contains(otherEntity)) return;
+			combustibleComp.hitEntities.add(otherEntity);
+			enemyHealth.health -= MathUtils.clamp((int)(combustibleComp.damage * (1.0f - (timerComp.elapsed / timerComp.time))), 1, Integer.MAX_VALUE);
+			
+			if(enemyHealth.health <= 0){
+				otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
+			}
 		}
 
 		@Override

@@ -56,6 +56,7 @@ public class Mappers {
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 	public static final ComponentMapper<WallComponent> wall = ComponentMapper.getFor(WallComponent.class);
-
+	public static final ComponentMapper<CombustibleComponent> combustible = ComponentMapper.getFor(CombustibleComponent.class);
+	public static final ComponentMapper<TimerComponent> timer = ComponentMapper.getFor(TimerComponent.class);
 }
 

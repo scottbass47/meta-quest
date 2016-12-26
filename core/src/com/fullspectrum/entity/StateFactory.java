@@ -168,9 +168,9 @@ public class StateFactory {
 		 * how many degrees the sword is swung for. Duration is the time in seconds the entire swing lasts. Cost is the amount of stamina
 		 * required for the attack.<br><br>
 		 * 
-		 * Anim - SWING
-		 * State - SWING_ATTACK
-		 * Tags - Static, Ground
+		 * Anim - SWING<br>
+		 * State - SWING_ATTACK<br>
+		 * Tags - Static, Ground<br>
 		 * 
 		 * @param sword
 		 * @param startAngle
