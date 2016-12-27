@@ -43,7 +43,6 @@ public class RenderingSystem extends EntitySystem {
 			if(tint != null) batch.setColor(tint.tint);
 			if(facing != null){
 				texture.region.flip(!facing.facingRight, false);
-				if(tint != null) batch.setColor(tint.tint);
 				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
 				texture.region.flip(texture.region.isFlipX(), false);
 			}

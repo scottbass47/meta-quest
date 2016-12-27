@@ -7,6 +7,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -49,6 +50,7 @@ import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
@@ -76,7 +78,6 @@ import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.StaminaTransitionData;
-import com.fullspectrum.fsm.transition.TimeTransition;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -239,7 +240,7 @@ public class EntityFactory {
 	private static StateMachine<EntityStates, StateObject> createRogueAttackMachine(Entity player){
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
 		rogueSM.createState(EntityStates.IDLING);
-		rogueSM.createState(EntityStates.BASE_ATTACK)
+		rogueSM.createState(EntityStates.PROJECTILE_ATTACK)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -253,8 +254,8 @@ public class EntityFactory {
 		
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		
-		rogueSM.addTransition(EntityStates.IDLING, Transition.INPUT, attacking, EntityStates.BASE_ATTACK);
-		rogueSM.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.IDLING, Transition.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
+		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
 		return rogueSM;
 	}
@@ -418,7 +419,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onLeftWallData, EntityStates.FALLING);
-		System.out.print(esm.printTransitions(true));
+//		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
 	
@@ -442,7 +443,7 @@ public class EntityFactory {
 		
 		esm.setDebugName("Mage ESM");
 		
-		esm.createState(EntityStates.BASE_ATTACK)
+		esm.createState(EntityStates.PROJECTILE_ATTACK)
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(GroundMovementComponent.class))
@@ -451,7 +452,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnExplosiveProjectile(entity, 5.0f, 5.0f, 10f, 50f, 45f, 5.0f, 20.0f, 5.0f);
+					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 20.0f, 5.0f);
 				}
 
 				@Override
@@ -510,8 +511,8 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.BASE_ATTACK), attackTransition, EntityStates.BASE_ATTACK);
-		esm.addTransition(EntityStates.BASE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.PROJECTILE_ATTACK), attackTransition, EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 //		esm.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
 //		System.out.print(esm.printTransitions(true));
@@ -792,6 +793,20 @@ public class EntityFactory {
 			}
 		}));
 		return particle;
+	}
+	
+	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
+		Entity entity = new EntityBuilder(engine, world, level).build();
+		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
+		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
+		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
+		entity.add(engine.createComponent(TimerComponent.class).set(0.4f, false, new TimeListener(){
+			@Override
+			public void onTime(Entity entity) {
+				entity.add(new RemoveComponent());
+			}
+		}));
+		return entity;
 	}
 	
 	private static class EntityBuilder{

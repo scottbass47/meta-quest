@@ -27,7 +27,7 @@ public class VelocitySystem extends IteratingSystem{
 			speedComp.multiplier = Math.abs(inputComp.input.getValue(Actions.MOVE_LEFT) - inputComp.input.getValue(Actions.MOVE_RIGHT));
 		}
 		
-		velocityComp.x = speedComp.maxSpeed * speedComp.multiplier * directionComp.direction.getDirection();
+		velocityComp.dx = speedComp.maxSpeed * speedComp.multiplier * directionComp.direction.getDirection();
 	}
 	
 }

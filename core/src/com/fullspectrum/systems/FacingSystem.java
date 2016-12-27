@@ -17,7 +17,7 @@ public class FacingSystem extends IteratingSystem{
 	protected void processEntity(Entity entity, float deltaTime) {
 		FacingComponent facingComp = Mappers.facing.get(entity);
 		VelocityComponent velocityComp = Mappers.velocity.get(entity);
-		float dx = velocityComp.x;
+		float dx = velocityComp.dx;
 		facingComp.facingRight = dx > 0 || dx < 0 ? dx > 0 : facingComp.facingRight;
 	}	
 }

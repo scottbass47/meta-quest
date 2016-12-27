@@ -83,7 +83,13 @@ public enum Collisions {
 
 		@Override
 		public void preSolve(Fixture me, Fixture other, Contact contact) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			if(otherEntity == null || !EntityUtils.isValid(otherEntity)) return;
 			
+			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type){
+				contact.setEnabled(false);
+			}
 		}
 
 		@Override

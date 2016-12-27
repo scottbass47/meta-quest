@@ -19,7 +19,7 @@ public class GroundMovementSystem extends IteratingSystem{
 	protected void processEntity(Entity entity, float deltaTime) {
 		Body body = Mappers.body.get(entity).body;
 		VelocityComponent velocityComp = Mappers.velocity.get(entity);
-		float velChange = velocityComp.x - body.getLinearVelocity().x;
+		float velChange = velocityComp.dx - body.getLinearVelocity().x;
 		float impulse = body.getMass() * velChange;
 		body.applyLinearImpulse(impulse, 0, body.getWorldCenter().x, body.getWorldCenter().y, true);
 	}

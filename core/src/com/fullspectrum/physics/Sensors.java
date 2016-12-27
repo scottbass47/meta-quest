@@ -6,14 +6,13 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
-import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityUtils;
+import com.fullspectrum.handlers.DamageHandler;
 
 public enum Sensors {
 
@@ -51,12 +50,8 @@ public enum Sensors {
 			
 			
 			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
-				enemyHealth.health -= swordStats.damage;
+				DamageHandler.dealDamage(otherEntity, swordStats.damage);
 				swordStats.hitEntities.add(otherEntity);
-				
-				if(enemyHealth.health <= 0/* && Mappers.type.get(otherEntity).type == EntityType.ENEMY*/){
-					otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
-				}
 			}
 		}
 
@@ -111,11 +106,7 @@ public enum Sensors {
 			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type) return;
 			
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
-			enemyHealth.health -= bulletStatsComp.damage;
-		
-			if(enemyHealth.health <= 0/* && Mappers.type.get(otherEntity).type == EntityType.ENEMY*/){
-				otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
-			}
+			DamageHandler.dealDamage(otherEntity, bulletStatsComp.damage);
 			
 			entity.add(new RemoveComponent());
 		}
@@ -150,11 +141,12 @@ public enum Sensors {
 			
 			if(combustibleComp.hitEntities.contains(otherEntity)) return;
 			combustibleComp.hitEntities.add(otherEntity);
-			enemyHealth.health -= MathUtils.clamp((int)(combustibleComp.damage * (1.0f - (timerComp.elapsed / timerComp.time))), 1, Integer.MAX_VALUE);
 			
-			if(enemyHealth.health <= 0){
-				otherEntity.add(Mappers.engine.get(otherEntity).engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
-			}
+			float speed = combustibleComp.speed;
+			float timeElapsed = timerComp.elapsed;
+			float distanceTraveled = speed * timeElapsed;
+			
+			DamageHandler.dealDamage(otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE));
 		}
 
 		@Override
