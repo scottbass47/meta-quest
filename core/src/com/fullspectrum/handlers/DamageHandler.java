@@ -33,7 +33,7 @@ public class DamageHandler {
 		amount += MathUtils.random(-half, half);
 		amount = MathUtils.clamp(amount, 1.0f, healthComp.health);
 		
-		healthComp.health -= amount;
+		healthComp.health -= (int)amount;
 		
 		if(healthComp.health <= 0){
 			toEntity.add(engineComp.engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
