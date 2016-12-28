@@ -12,12 +12,17 @@ public class TransitionObject {
 	
 	@Override
 	public String toString() {
-		return transition.toString() + ", " + (data == null ? "null" : data.toString());
+		return transition.toString() + ", " + (data == null ? "" : data.toString());
 	}
+	
 	
 	@Override
 	public int hashCode() {
-		return transition.ordinal() * 26 + data.hashCode() * 45;
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + transition.hashCode();
+		result = prime * result + ((data == null) ? 0 : data.hashCode());
+		return result;
 	}
 	
 	@Override

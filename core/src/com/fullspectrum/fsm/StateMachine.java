@@ -183,7 +183,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		}
 		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
 		for (MultiTransition multi : multiTransitions) {
-			if (multi.transitionObjects.contains(obj, false)) {
+			if (multi.contains(obj)) {
 				multi.set(obj, true);
 				if (multi.shouldTransition()) {
 					multi.resetMap();
@@ -211,7 +211,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	public void addTransition(S fromState, MultiTransition multiTransition, S toState) {
-		if (multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
+		if (multiTransition.isEmpty()) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
 		states.get(fromState).addMultiTransition(multiTransition, toState);
 	}
 

@@ -13,7 +13,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.assets.Assets;
@@ -130,7 +129,7 @@ public class EntityFactory {
 		
 		playerStateMachine.createState(PlayerState.ROGUE)
 			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
-			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
+//			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
 			.addSubstateMachine(rogueESM)
 			.addSubstateMachine(rogueAttackFSM);
@@ -155,6 +154,7 @@ public class EntityFactory {
 		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, rightCycleData, PlayerState.KNIGHT);
 		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, leftCycleData, PlayerState.ROGUE);
 		
+		playerStateMachine.setDebugName("Player FSM");
 		playerStateMachine.changeState(PlayerState.KNIGHT);
 		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
 		return player;
@@ -203,9 +203,7 @@ public class EntityFactory {
 		
 		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
 		
-		MultiTransition attackTransition = new MultiTransition();
-		attackTransition.addTransition(Transition.INPUT, attackData);
-		attackTransition.addTransition(Transition.STAMINA, attackStamina);
+		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData).and(Transition.STAMINA, attackStamina);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -213,9 +211,8 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition();
-		ladderTransition.addTransition(Transition.INPUT, ladderInputData);
-		ladderTransition.addTransition(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
+					.and(Transition.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		
@@ -345,18 +342,14 @@ public class EntityFactory {
 		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+		
+		MultiTransition idleTransition = new MultiTransition(Transition.INPUT, idleData).or(Transition.INPUT, bothData);
 
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
 		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
 		TimeTransitionData dashTime = new TimeTransitionData(0.1f);
-		
-		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
-		
-		MultiTransition attackTransition = new MultiTransition();
-		attackTransition.addTransition(Transition.INPUT, attackData);
-		attackTransition.addTransition(Transition.STAMINA, attackStamina);
 		
 		InputTransitionData ladderInputData = new InputTransitionData.Builder(Type.ANY_ONE, true)
 					.add(Actions.MOVE_UP)
@@ -365,9 +358,8 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition();
-		ladderTransition.addTransition(Transition.INPUT, ladderInputData);
-		ladderTransition.addTransition(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
+			.and(Transition.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		CollisionTransitionData onRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
@@ -378,48 +370,48 @@ public class EntityFactory {
 		InputTransitionData rightWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).build();
 		InputTransitionData leftWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_LEFT).build();
 		
-		MultiTransition rightSlideTransition = new MultiTransition();
-		rightSlideTransition.addTransition(Transition.FALLING);
-		rightSlideTransition.addTransition(Transition.COLLISION, onRightWallData);
-		rightSlideTransition.addTransition(Transition.INPUT, rightWallInput);
+		MultiTransition rightSlideTransition = new MultiTransition(Transition.FALLING)
+			.and(Transition.COLLISION, onRightWallData)
+			.and(Transition.INPUT, rightWallInput);
 		
-		MultiTransition leftSlideTransition = new MultiTransition();
-		leftSlideTransition.addTransition(Transition.FALLING);
-		leftSlideTransition.addTransition(Transition.COLLISION, onLeftWallData);
-		leftSlideTransition.addTransition(Transition.INPUT, leftWallInput);
-
-		MultiTransition offWall = new MultiTransition();
-		offWall.addTransition(Transition.COLLISION, offRightWallData);
-		offWall.addTransition(Transition.COLLISION, offLeftWallData);
+		MultiTransition leftSlideTransition = new MultiTransition(Transition.FALLING)
+			.and(Transition.FALLING)
+			.and(Transition.COLLISION, onLeftWallData)
+			.and(Transition.INPUT, leftWallInput);
+		
+		MultiTransition wallSlideTransition = new MultiTransition(rightSlideTransition).or(leftSlideTransition);
 		
 		InputTransitionData offRightWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).build();
 		InputTransitionData offLeftWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_LEFT).build();
 		
-		MultiTransition offRightWall = new MultiTransition()
-				.addTransition(Transition.COLLISION, onRightWallData)
-				.addTransition(Transition.INPUT, offRightWallInput);
-		MultiTransition offLeftWall = new MultiTransition()
-				.addTransition(Transition.COLLISION, onLeftWallData)
-				.addTransition(Transition.INPUT, offLeftWallInput);
+		MultiTransition offRightWall = new MultiTransition(Transition.COLLISION, onRightWallData)
+				.and(Transition.INPUT, offRightWallInput);
+		MultiTransition offLeftWall = new MultiTransition(Transition.COLLISION, onLeftWallData)
+				.and(Transition.INPUT, offLeftWallInput);
+		
+		// (offWallLeft && offWallRight) || (onWallLeft && offInputLeft) || (onWallRight && offInputRight)
+		MultiTransition offWall = new MultiTransition(new MultiTransition(Transition.COLLISION, offRightWallData)
+				.and(Transition.COLLISION, offLeftWallData))
+				.or(offRightWall)
+				.or(offLeftWall);
 		
 		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.one(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, EntityStates.WALL_SLIDING).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), idleTransition, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.FALLING, Array.with(leftSlideTransition, rightSlideTransition), EntityStates.WALL_SLIDING);
-		esm.addTransition(EntityStates.WALL_SLIDING, Array.with(offWall, offRightWall, offLeftWall), EntityStates.FALLING);
+		esm.addTransition(EntityStates.FALLING, wallSlideTransition, EntityStates.WALL_SLIDING);
+		esm.addTransition(EntityStates.WALL_SLIDING, offWall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
 		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transition.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onLeftWallData, EntityStates.FALLING);
-//		System.out.print(esm.printTransitions(true));
+//		System.out.print(esm.printTransitions(false));
 		return esm;
 	}
 	
@@ -482,9 +474,8 @@ public class EntityFactory {
 		// Attack
 		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
-		MultiTransition attackTransition = new MultiTransition()
-				.addTransition(Transition.INPUT, attackData)
-				.addTransition(Transition.STAMINA, attackStamina);
+		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
+				.and(Transition.STAMINA, attackStamina);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -492,9 +483,8 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition();
-		ladderTransition.addTransition(Transition.INPUT, ladderInputData);
-		ladderTransition.addTransition(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
+			.and(Transition.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		
@@ -577,9 +567,8 @@ public class EntityFactory {
 		
 		TimeTransitionData attackCooldown = new TimeTransitionData(0.5f);
 		
-		MultiTransition attackTransition = new MultiTransition();
-		attackTransition.addTransition(Transition.INPUT, attackData);
-		attackTransition.addTransition(Transition.TIME, attackCooldown);
+		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
+				.and(Transition.TIME, attackCooldown);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -587,9 +576,8 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition();
-		ladderTransition.addTransition(Transition.INPUT, ladderInputData);
-		ladderTransition.addTransition(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
+				.and(Transition.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 

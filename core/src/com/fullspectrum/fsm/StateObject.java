@@ -80,8 +80,8 @@ public class StateObject {
 		return tags;
 	}
 
-	public Array<TransitionObject> getData(Transition transition) {
-		Array<TransitionObject> ret = new Array<TransitionObject>();
+	public ObjectSet<TransitionObject> getData(Transition transition) {
+		ObjectSet<TransitionObject> ret = new ObjectSet<TransitionObject>();
 		for (Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator(); iter.hasNext();) {
 			Entry<TransitionObject, State> entry = iter.next();
 			if (entry.key.transition.equals(transition) && machine.getState(entry.value).isEnabled()) {
@@ -91,7 +91,7 @@ public class StateObject {
 		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
 			Entry<MultiTransition, State> entry = iter.next();
 			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
-				ret.addAll(entry.key.getTransitionObject(transition));
+				ret.addAll(entry.key.getTransitionObjects(transition));
 			}
 		}
 		return ret;
@@ -107,7 +107,7 @@ public class StateObject {
 		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
 			Entry<MultiTransition, State> entry = iter.next();
 			if (entry.key.transitions.contains(transition) && machine.getState(entry.value).isEnabled()) {
-				return entry.key.getTransitionObject(transition).first();
+				return entry.key.getTransitionObjects(transition).first();
 			}
 		}
 		return null;
