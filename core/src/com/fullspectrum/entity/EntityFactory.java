@@ -37,12 +37,14 @@ import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
+import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -70,6 +72,7 @@ import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.fsm.StateObjectCreator;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
+import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
@@ -176,6 +179,7 @@ public class EntityFactory {
 			.fall(PLAYER_SPEED, true)
 			.climb(5.0f)
 			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
+			.knockBack()
 			.build();
 		
 		esm.setDebugName("Knight ESM");
@@ -230,7 +234,10 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 		
-//		System.out.print(fsm.printTransitions());
+		// Knock Back Transition
+		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+//		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
 	
@@ -271,6 +278,7 @@ public class EntityFactory {
 			.fall(PLAYER_SPEED, true)
 			.climb(6.0f)
 			.wallSlide()
+			.knockBack()
 			.build();
 		
 		esm.setDebugName("Rogue ESM");
@@ -409,6 +417,10 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
 		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transition.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
+		
+		// Knock Back Transition
+		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onLeftWallData, EntityStates.FALLING);
 //		System.out.print(esm.printTransitions(false));
@@ -430,6 +442,7 @@ public class EntityFactory {
 			.jump(12f, PLAYER_SPEED, true)
 			.fall(PLAYER_SPEED, true)
 			.climb(4.0f)
+			.knockBack()
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
 		
@@ -505,6 +518,9 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 //		esm.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
+		// Knock Back Transition
+		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions(true));
 
 //		fsm.disableState(EntityStates.DIVING);
@@ -545,6 +561,7 @@ public class EntityFactory {
 			.jump(17.5f, 5.0f, true)
 			.climb(5.0f)
 			.swingAttack(sword, 150f, 210f, 0.6f, 0)
+			.knockBack()
 			.build();
 			
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
@@ -593,7 +610,10 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
-//		System.out.print(fsm.printTransitions());
+		// Knock Back Transition
+		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+//		System.out.print(esm.printTransitions());
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -743,12 +763,13 @@ public class EntityFactory {
 		return drop;
 	}
 	
-	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float  y, boolean isArc, EntityType type){
+	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float y, boolean isArc, EntityType type){
 		Entity projectile = new EntityBuilder(engine, world, level)
 				.physics(null, x, y, false)
 				.build();
 		projectile.add(engine.createComponent(TypeComponent.class).set(type));
 		projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
+		projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, isArc));
 		
 		Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(physicsBody), world, new Vector2(x, y), projectile, true);
 		if(isArc) body.setGravityScale(1.0f);
@@ -774,7 +795,7 @@ public class EntityFactory {
 		Entity particle = createProjectile(engine, world, level, "body/explosive_particle.json", speed, angle, x, y, false, Mappers.type.get(parent).type);
 		CombustibleComponent combustibleComp = Mappers.combustible.get(parent);
 		particle.add(engine.createComponent(ParentComponent.class).set(parent));
-		particle.add(engine.createComponent(TimerComponent.class).set(combustibleComp.radius / combustibleComp.speed, false, new TimeListener(){
+		particle.add(engine.createComponent(TimerComponent.class).add("particle_life", combustibleComp.radius / combustibleComp.speed, false, new TimeListener(){
 			@Override
 			public void onTime(Entity entity) {
 				entity.add(new RemoveComponent());
@@ -788,7 +809,7 @@ public class EntityFactory {
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
-		entity.add(engine.createComponent(TimerComponent.class).set(0.4f, false, new TimeListener(){
+		entity.add(engine.createComponent(TimerComponent.class).add("text_life", 0.4f, false, new TimeListener(){
 			@Override
 			public void onTime(Entity entity) {
 				entity.add(new RemoveComponent());

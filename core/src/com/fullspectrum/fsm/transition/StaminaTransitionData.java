@@ -12,4 +12,9 @@ public class StaminaTransitionData implements TransitionData{
 	public void reset() {
 	}
 
+	@Override
+	public String toString() {
+		return "" + staminaNeeded;
+	}
+	
 }

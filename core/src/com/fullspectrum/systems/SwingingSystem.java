@@ -48,7 +48,6 @@ public class SwingingSystem extends IteratingSystem{
 		}
 		FacingComponent facingComp = Mappers.facing.get(entity);
 		
-		
 		float degrees = 0.0f;
 		if(facingComp.facingRight){
 			degrees = swingComp.startAngle;

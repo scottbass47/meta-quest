@@ -59,6 +59,9 @@ public class Mappers {
 	public static final ComponentMapper<CombustibleComponent> combustible = ComponentMapper.getFor(CombustibleComponent.class);
 	public static final ComponentMapper<TimerComponent> timer = ComponentMapper.getFor(TimerComponent.class);
 	public static final ComponentMapper<TextRenderComponent> textRender =  ComponentMapper.getFor(TextRenderComponent.class);
+	public static final ComponentMapper<KnockBackComponent> knockBack = ComponentMapper.getFor(KnockBackComponent.class);
+	public static final ComponentMapper<ProjectileComponent> projectile = ComponentMapper.getFor(ProjectileComponent.class);
 
+	
 }
 

@@ -30,7 +30,7 @@ public class CombustibleSystem extends IteratingSystem {
 			body.setActive(false);
 			combustibleComp.shouldExplode = false;
 			float time = combustibleComp.radius / combustibleComp.speed;
-			entity.add(Mappers.engine.get(entity).engine.createComponent(TimerComponent.class).set(time, false, new TimeListener(){
+			entity.add(Mappers.engine.get(entity).engine.createComponent(TimerComponent.class).add("explosive_life", time, false, new TimeListener(){
 				@Override
 				public void onTime(Entity entity) {
 					entity.add(new RemoveComponent());

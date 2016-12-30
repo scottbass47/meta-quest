@@ -57,6 +57,7 @@ import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateResetSystem;
 import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
 import com.fullspectrum.fsm.transition.CollisionTransition;
+import com.fullspectrum.fsm.transition.ComponentTransition;
 import com.fullspectrum.fsm.transition.FallingTransition;
 import com.fullspectrum.fsm.transition.InputTransition;
 import com.fullspectrum.fsm.transition.InvalidEntityTransition;
@@ -209,6 +210,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(InvalidEntityTransition.getInstance());
 		engine.addSystem(StaminaTransition.getInstance());
 		engine.addSystem(CollisionTransition.getInstance());
+		engine.addSystem(ComponentTransition.getInstance());
 		engine.addSystem(StateResetSystem.getInstance());
 
 		// Other Systems

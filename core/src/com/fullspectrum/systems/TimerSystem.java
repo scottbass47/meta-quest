@@ -1,10 +1,13 @@
 package com.fullspectrum.systems;
 
+import java.util.Iterator;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimerComponent;
+import com.fullspectrum.component.TimerComponent.Timer;
 
 public class TimerSystem extends IteratingSystem{
 
@@ -15,14 +18,18 @@ public class TimerSystem extends IteratingSystem{
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		TimerComponent timerComp = Mappers.timer.get(entity);
-		timerComp.elapsed += deltaTime;
-		if(timerComp.elapsed >= timerComp.time){
-			timerComp.listener.onTime(entity);
-			if(!timerComp.looping){
-				entity.remove(TimerComponent.class);
-				return;
+		if(timerComp.timers.size == 0) return;
+		for(Iterator<String> iter = timerComp.timers.keys().iterator(); iter.hasNext();){
+			Timer timer = timerComp.get(iter.next());
+			timer.addTime(deltaTime);
+			if(timer.isDone()){
+				timer.onTime(entity);
+				if(!timer.isLooping()){
+					iter.remove();
+					continue;
+				}
+				timer.resetElapsed();
 			}
-			timerComp.elapsed -= timerComp.time;
 		}
 	}
 	

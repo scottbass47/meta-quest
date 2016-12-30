@@ -8,6 +8,7 @@ import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TimerComponent;
@@ -142,11 +143,16 @@ public enum Sensors {
 			if(combustibleComp.hitEntities.contains(otherEntity)) return;
 			combustibleComp.hitEntities.add(otherEntity);
 			
-			float speed = combustibleComp.speed;
-			float timeElapsed = timerComp.elapsed;
+			ProjectileComponent projectileComp = Mappers.projectile.get(entity);
+			
+			float speed = projectileComp.speed;
+			float timeElapsed = timerComp.timers.get("particle_life").getElapsed();
 			float distanceTraveled = speed * timeElapsed;
 			
-			DamageHandler.dealDamage(otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE));
+			float knockBackDistance = combustibleComp.radius - distanceTraveled;
+			float knockBackSpeed = speed * (1 - (distanceTraveled / combustibleComp.radius));
+			
+			DamageHandler.dealDamage(otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, knockBackSpeed, projectileComp.angle);
 		}
 
 		@Override

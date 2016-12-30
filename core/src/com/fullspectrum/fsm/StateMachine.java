@@ -53,6 +53,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		E state = creator.getInstance(entity, this);
 		state.identifier = key.toString();
 		state.bitOffset = bitOffset;
+		state.addTag(TransitionTag.ALL);
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);
 		return state;

@@ -17,6 +17,7 @@ public enum EntityStates implements State{
 	DASH,
 	DYING,
 	CLIMBING,
+	KNOCK_BACK,
 	CLEAN_UP;
 	
 	@Override
