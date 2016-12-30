@@ -22,6 +22,7 @@ public enum DebugToggle {
 	}
 	
 	public static DebugToggle getToggle(char character){
+		character = Character.toLowerCase(character);
 		for(DebugToggle action : values()){
 			if(action.character == character) return action;
 		}

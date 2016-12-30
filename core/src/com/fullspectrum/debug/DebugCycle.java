@@ -22,6 +22,7 @@ public enum DebugCycle {
 	}
 	
 	public static DebugCycle getCycle(char character){
+		character = Character.toLowerCase(character);
 		for(DebugCycle cycle : values()){
 			if(cycle.character == character) return cycle;
 		}

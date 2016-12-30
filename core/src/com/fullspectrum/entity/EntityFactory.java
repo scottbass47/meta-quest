@@ -77,6 +77,7 @@ import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.InvalidEntityData;
+import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.StaminaTransitionData;
@@ -158,6 +159,7 @@ public class EntityFactory {
 		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, leftCycleData, PlayerState.ROGUE);
 		
 		playerStateMachine.setDebugName("Player FSM");
+//		System.out.println(playerStateMachine.printTransitions());
 		playerStateMachine.changeState(PlayerState.KNIGHT);
 		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
 		return player;
@@ -458,11 +460,16 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 20.0f, 5.0f);
+					StaminaComponent staminaComp = Mappers.stamina.get(entity);
+					staminaComp.stamina = MathUtils.clamp(staminaComp.stamina - 50f, 0, staminaComp.maxStamina);
+					staminaComp.timeElapsed = 0.0f;
+					staminaComp.locked = true;
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					
+					StaminaComponent staminaComp = Mappers.stamina.get(entity);
+					staminaComp.locked = false;
 				}
 			});
 				
@@ -486,7 +493,7 @@ public class EntityFactory {
 		
 		// Attack
 		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
+		StaminaTransitionData attackStamina = new StaminaTransitionData(50f);
 		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
 				.and(Transition.STAMINA, attackStamina);
 		
@@ -563,6 +570,8 @@ public class EntityFactory {
 			.swingAttack(sword, 150f, 210f, 0.6f, 0)
 			.knockBack()
 			.build();
+		
+		esm.setDebugName("AI ESM");
 			
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -630,40 +639,51 @@ public class EntityFactory {
 			.add(engine.createComponent(TargetComponent.class).set(toFollow))
 			.add(engine.createComponent(AttackComponent.class));
 		
-		RangeTransitionData wanderingToFollow = new RangeTransitionData();
-		wanderingToFollow.target = toFollow;
-		wanderingToFollow.distance = 15.0f;
-		wanderingToFollow.inRange = true;
-		wanderingToFollow.rayTrace = true;
+		LOSTransitionData inSightData = new LOSTransitionData(toFollow, true);
+		LOSTransitionData outOfSightData = new LOSTransitionData(toFollow, false);
 		
-		RangeTransitionData followToWandering = new RangeTransitionData();
-		followToWandering.target = toFollow;
-		followToWandering.distance = 15.0f;
-		followToWandering.inRange = false;
-		followToWandering.rayTrace = false;
+		RangeTransitionData wanderInRange = new RangeTransitionData();
+		wanderInRange.target = toFollow;
+		wanderInRange.distance = 15.0f;
+		wanderInRange.inRange = true;
 		
-		RangeTransitionData toAttack = new RangeTransitionData();
-		toAttack.target = toFollow;
-		toAttack.distance = 1.5f;
-		toAttack.inRange = true;
-		toAttack.rayTrace = true;
+		MultiTransition wanderToFollow = new MultiTransition(Transition.RANGE, wanderInRange)
+			.and(Transition.LINE_OF_SIGHT, inSightData);
 		
-		RangeTransitionData fromAttack = new RangeTransitionData();
-		fromAttack.target = toFollow;
-		fromAttack.distance = 2.5f;
-		fromAttack.inRange = false;
-		fromAttack.rayTrace = false;
+		RangeTransitionData followOutOfRange = new RangeTransitionData();
+		followOutOfRange.target = toFollow;
+		followOutOfRange.distance = 15.0f;
+		followOutOfRange.inRange = false;
+
+		MultiTransition followToWander = new MultiTransition(Transition.RANGE, followOutOfRange)
+			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		
+		RangeTransitionData inAttackRange = new RangeTransitionData();
+		inAttackRange.target = toFollow;
+		inAttackRange.distance = 1.5f;
+		inAttackRange.inRange = true;
+		
+		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange)
+			.and(Transition.LINE_OF_SIGHT, inSightData);
+		
+		RangeTransitionData outOfAttackRange = new RangeTransitionData();
+		outOfAttackRange.target = toFollow;
+		outOfAttackRange.distance = 2.5f;
+		outOfAttackRange.inRange = false;
+		
+		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange)
+			.or(Transition.LINE_OF_SIGHT, outOfSightData);
 		
 		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
 		
-		aism.addTransition(AIState.WANDERING, Transition.RANGE, wanderingToFollow, AIState.FOLLOWING);
-		aism.addTransition(AIState.FOLLOWING, Transition.RANGE, followToWandering, AIState.WANDERING);
+		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
+		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, invalidEntity, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), Transition.RANGE, toAttack, AIState.ATTACKING);
-		aism.addTransition(AIState.ATTACKING, Transition.RANGE, fromAttack, AIState.FOLLOWING);
+		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
+		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
 		aism.changeState(AIState.WANDERING);
-		
+//		System.out.println(aism.printTransitions());
 		player.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return player;
 	}

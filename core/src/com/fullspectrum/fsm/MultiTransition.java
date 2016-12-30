@@ -104,6 +104,17 @@ public class MultiTransition {
 		}
 		return ret;
 	}
+	
+	public ObjectSet<TransitionObject> getAllTransitionObjects(){
+		ObjectSet<TransitionObject> ret = new ObjectSet<TransitionObject>();
+		for(TransitionObject obj : transitionObjects){
+			ret.add(obj);
+		}
+		for(MultiTransition multi : multiTransitions){
+			ret.addAll(multi.getAllTransitionObjects());
+		}
+		return ret;
+	}
 
 	/**
 	 * Returns whether or not all transition requirements have been met.

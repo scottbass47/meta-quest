@@ -31,6 +31,7 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
@@ -39,9 +40,11 @@ import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
+import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
@@ -54,18 +57,10 @@ import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.entity.EntityUtils;
-import com.fullspectrum.fsm.StateResetSystem;
-import com.fullspectrum.fsm.transition.AnimationFinishedTransition;
-import com.fullspectrum.fsm.transition.CollisionTransition;
-import com.fullspectrum.fsm.transition.ComponentTransition;
-import com.fullspectrum.fsm.transition.FallingTransition;
-import com.fullspectrum.fsm.transition.InputTransition;
-import com.fullspectrum.fsm.transition.InvalidEntityTransition;
-import com.fullspectrum.fsm.transition.LandedTransition;
-import com.fullspectrum.fsm.transition.RandomTransition;
-import com.fullspectrum.fsm.transition.RangeTransition;
-import com.fullspectrum.fsm.transition.StaminaTransition;
-import com.fullspectrum.fsm.transition.TimeTransition;
+import com.fullspectrum.fsm.StateMachineSystem;
+import com.fullspectrum.fsm.transition.RangeTransitionData;
+import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
@@ -137,7 +132,7 @@ public class GameScreen extends AbstractScreen {
 	private BitmapFont font;
 
 	// Coin Stuff
-	private int ups = 0;
+//	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -199,19 +194,8 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PathFollowingSystem());
 		engine.addSystem(new AttackingSystem());
 
-		// Transition Systems
-		engine.addSystem(RangeTransition.getInstance());
-		engine.addSystem(RandomTransition.getInstance());
-		engine.addSystem(TimeTransition.getInstance());
-		engine.addSystem(AnimationFinishedTransition.getInstance());
-		engine.addSystem(FallingTransition.getInstance());
-		engine.addSystem(LandedTransition.getInstance());
-		engine.addSystem(InputTransition.getInstance());
-		engine.addSystem(InvalidEntityTransition.getInstance());
-		engine.addSystem(StaminaTransition.getInstance());
-		engine.addSystem(CollisionTransition.getInstance());
-		engine.addSystem(ComponentTransition.getInstance());
-		engine.addSystem(StateResetSystem.getInstance());
+		// State Machine System (transitions)
+		engine.addSystem(StateMachineSystem.getInstance());
 
 		// Other Systems
 		engine.addSystem(new TimerSystem());
@@ -301,7 +285,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-		ups++;
+//		ups++;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -407,7 +391,13 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
-		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)) RangeTransition.getInstance().render(batch);
+		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)){
+			for(Entity enemy : enemies){
+				if(Mappers.aism.get(enemy) != null){
+					renderRange(batch, enemy);
+				}
+			}
+		}
 
 		frameBuffer.end();
 
@@ -540,6 +530,45 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.rect(x, y, width, height);
 		sRenderer.setColor(Color.valueOf("e43b44"));
 		sRenderer.rect(x, y, width * (healthComp.health / healthComp.maxHealth), height);
+		sRenderer.end();
+	}
+	
+	public void renderRange(SpriteBatch batch, Entity entity) {
+		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+		sRenderer.begin(ShapeType.Line);
+		AIStateMachineComponent aismComp = Mappers.aism.get(entity);
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		LevelComponent levelComp = Mappers.level.get(entity);
+
+		TransitionObject obj = aismComp.aism.getCurrentState().getFirstData(Transition.RANGE);
+		RangeTransitionData rtd = (RangeTransitionData) obj.data;
+		if (rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) return;
+		BodyComponent otherBody = Mappers.body.get(rtd.target);
+
+		Body b1 = bodyComp.body;
+		Body b2 = otherBody.body;
+
+		float x1 = b1.getPosition().x;
+		float y1 = b1.getPosition().y;
+		float x2 = b2.getPosition().x;
+		float y2 = b2.getPosition().y;
+		float r = rtd.distance * rtd.distance;
+		
+		float d = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+		
+		Color color = new Color(1, 0, 0, 1);
+		if(d <= r){
+			color = new Color(0, 1, 0, 1);
+		}
+		sRenderer.setColor(color);
+		sRenderer.circle(x1, y1, rtd.distance, 32);
+		
+		color = new Color(1, 0, 0, 1);
+		if(levelComp.level.performRayTrace(x1, y1, x2, y2)){
+			color = new Color(0, 1, 0, 1);
+		}
+		sRenderer.setColor(color);
+		sRenderer.line(x1, y1, x2, y2);
 		sRenderer.end();
 	}
 

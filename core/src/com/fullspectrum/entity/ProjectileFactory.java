@@ -7,7 +7,6 @@ import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.game.GameVars;
 

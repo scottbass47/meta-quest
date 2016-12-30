@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
@@ -78,10 +79,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 					pool.reset();
 				}
 			}
-			for (Transition t : currentState.getTransitions()) {
-				t.getSystem().removeStateMachine(this);
-			}
-			StateResetSystem.getInstance().removeStateMachine(this);
+			StateMachineSystem.getInstance().removeStateMachine(this);
 			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
 			if (machines != null) {
 				for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
@@ -120,9 +118,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 	private void exitCurrent(S newState) {
 		if (currentState != null) {
 			currentState.onExit(newState);
-			for (Transition t : currentState.getTransitions()) {
-				t.getSystem().removeStateMachine(this);
-			}
 			for (TransitionObject obj : currentState.getTranstionObjects()) {
 				if (obj.data != null) {
 					obj.data.reset();
@@ -138,7 +133,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
-			StateResetSystem.getInstance().removeStateMachine(this);
+			StateMachineSystem.getInstance().removeStateMachine(this);
 			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
 			if (machines != null) {
 				for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
@@ -157,9 +152,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 		if (newState == currentState) return;
 		E currState = currentState;
 		exitCurrent((S) identifier);
-		for (Transition t : newState.getTransitions()) {
-			t.getSystem().addStateMachine(this);
-		}
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
@@ -168,7 +160,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		} else {
 			newState.onEnter(null);
 		}
-		StateResetSystem.getInstance().addStateMachine(this);
+		StateMachineSystem.getInstance().addStateMachine(this);
 		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(newState);
 		if (machines != null) {
 			for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
@@ -181,8 +173,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public boolean changeState(TransitionObject obj) {
 		if (currentState.getState(obj) != null) {
 			changeState(currentState.getState(obj));
+			return true;
 		}
-		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
+		ObjectSet<MultiTransition> multiTransitions = currentState.getMultiTransitions();
 		for (MultiTransition multi : multiTransitions) {
 			if (multi.contains(obj)) {
 				multi.set(obj, true);
@@ -197,7 +190,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	protected void resetMultiTransitions() {
-		Array<MultiTransition> multiTransitions = currentState.getMultiTransitions();
+		ObjectSet<MultiTransition> multiTransitions = currentState.getMultiTransitions();
 		for (MultiTransition multi : multiTransitions) {
 			multi.resetMap();
 		}
@@ -308,6 +301,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	public void setDebugName(String debugName) {
 		this.debugName = debugName;
+	}
+	
+	public String getDebugName(){
+		return debugName;
 	}
 
 	@Override

@@ -7,11 +7,10 @@ public class RangeTransitionData implements TransitionData{
 	public Entity target;
 	public float distance;
 	public boolean inRange = true;
-	public boolean rayTrace = true;
 	
 	@Override
 	public String toString() {
-		return "Range: " + distance + ", In Range: " + inRange + ", Ray Trace: " + rayTrace;
+		return "Range: " + distance + ", In Range: " + inRange;
 	}
 
 	@Override

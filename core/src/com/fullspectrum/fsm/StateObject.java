@@ -168,8 +168,8 @@ public class StateObject {
 		return multiTransitionMap;
 	}
 	
-	public Array<TransitionObject> getTranstionObjects(){
-		Array<TransitionObject> ret = new Array<TransitionObject>();
+	public ObjectSet<TransitionObject> getTranstionObjects(){
+		ObjectSet<TransitionObject> ret = new ObjectSet<TransitionObject>();
 		for(Iterator<Entry<TransitionObject, State>> iter = transitionMap.iterator(); iter.hasNext();){
 			Entry<TransitionObject, State> entry = iter.next();
 			ret.add(entry.key);
@@ -177,11 +177,23 @@ public class StateObject {
 		return ret;
 	}
 	
-	public Array<MultiTransition> getMultiTransitions(){
-		Array<MultiTransition> ret = new Array<MultiTransition>();
+	public ObjectSet<MultiTransition> getMultiTransitions(){
+		ObjectSet<MultiTransition> ret = new ObjectSet<MultiTransition>();
 		for(Iterator<Entry<MultiTransition, State>> iter = multiTransitionMap.iterator(); iter.hasNext();){
 			Entry<MultiTransition, State> entry = iter.next();
 			ret.add(entry.key);
+		}
+		return ret;
+	}
+	
+	/**
+	 * Includes multi-transitions
+	 * @return
+	 */
+	public ObjectSet<TransitionObject> getAllTransitionObjects(){
+		ObjectSet<TransitionObject> ret = getTranstionObjects();
+		for(MultiTransition multi : getMultiTransitions()){
+			ret.addAll(multi.getAllTransitionObjects());
 		}
 		return ret;
 	}
