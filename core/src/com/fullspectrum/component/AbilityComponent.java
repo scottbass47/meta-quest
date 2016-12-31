@@ -40,7 +40,7 @@ public class AbilityComponent implements Component, Poolable{
 	}
 	
 	public void resetTime(AbilityType type){
-		abilityMap.get(type).elapsed -= abilityMap.get(type).rechargeTime;
+		abilityMap.get(type).elapsed = 0.0f;
 	}
 	
 	public ArrayMap<AbilityType, Ability> getAbilityMap(){

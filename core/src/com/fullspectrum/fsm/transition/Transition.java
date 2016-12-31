@@ -11,7 +11,6 @@ import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.input.GameInput;
@@ -180,16 +179,6 @@ public enum Transition {
 			}
 			ttd.timePassed += deltaTime;
 			return ttd.timePassed >= ttd.time;
-		}
-	},
-	STAMINA(true) {
-		@Override
-		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-			StaminaComponent staminaComp = Mappers.stamina.get(entity);
-			if(staminaComp == null) return false;
-			StaminaTransitionData staminaData = (StaminaTransitionData)obj.data;
-			if(staminaData == null) return false;
-			return staminaComp.stamina >= staminaData.staminaNeeded;
 		}
 	},
 	COLLISION(true) {

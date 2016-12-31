@@ -52,7 +52,7 @@ public class Mappers {
 	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);
 	public static final ComponentMapper<DropSpawnComponent> dropSpawn = ComponentMapper.getFor(DropSpawnComponent.class);
 	public static final ComponentMapper<DropTypeComponent> dropType = ComponentMapper.getFor(DropTypeComponent.class);
-	public static final ComponentMapper<StaminaComponent> stamina = ComponentMapper.getFor(StaminaComponent.class);
+	public static final ComponentMapper<BarrierComponent> barrier = ComponentMapper.getFor(BarrierComponent.class);
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 	public static final ComponentMapper<WallComponent> wall = ComponentMapper.getFor(WallComponent.class);

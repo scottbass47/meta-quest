@@ -13,7 +13,7 @@ import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LadderComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
-import com.fullspectrum.component.StaminaComponent;
+import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
@@ -207,11 +207,11 @@ public class StateFactory {
 						engineComp.engine.addEntity(swordComp.sword);
 						
 						// Lower Stamina
-						StaminaComponent staminaComp = Mappers.stamina.get(entity);
+						BarrierComponent staminaComp = Mappers.barrier.get(entity);
 						if(staminaComp != null){
 							staminaComp.locked = true;
 							staminaComp.timeElapsed = 0;
-							staminaComp.stamina = MathUtils.clamp(staminaComp.stamina - staminaCost, 0, staminaComp.maxStamina);
+							staminaComp.barrier = MathUtils.clamp(staminaComp.barrier - staminaCost, 0, staminaComp.maxBarrier);
 						}
 					}
 	
@@ -225,7 +225,7 @@ public class StateFactory {
 						Mappers.body.get(swordComp.sword).body.setActive(false);
 						
 						// Unlock Stamina
-						StaminaComponent staminaComp = Mappers.stamina.get(entity);
+						BarrierComponent staminaComp = Mappers.barrier.get(entity);
 						if(staminaComp != null){
 							staminaComp.locked = false;
 						}

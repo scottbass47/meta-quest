@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.assets.Assets;
+import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.EngineComponent;
@@ -29,14 +30,32 @@ public class DamageHandler {
 		WorldComponent worldComp = Mappers.world.get(toEntity);
 		LevelComponent levelComp = Mappers.level.get(toEntity);
 		HealthComponent healthComp = Mappers.heatlh.get(toEntity);
+		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 		
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
-		amount = MathUtils.clamp(amount, 1.0f, healthComp.health);
+		int dealt = (int)MathUtils.clamp(amount, 1.0f, healthComp.health);
 		
-		healthComp.health -= (int)amount;
+		int healthDown = 0;
+		int shieldDown = 0;
+		
+		if(barrierComp != null){
+			barrierComp.barrier -= dealt;
+			shieldDown = dealt;
+			if(barrierComp.barrier < 0){
+				shieldDown = dealt - (int)Math.abs(barrierComp.barrier);
+				dealt = (int)Math.abs(barrierComp.barrier);
+				barrierComp.barrier = 0.0f;
+			}
+			else{
+				dealt = 0;
+			}
+			barrierComp.timeElapsed = 0.0f;
+		}
+		healthDown = dealt;
+		healthComp.health -= dealt;
 		
 		if(healthComp.health <= 0){
 			toEntity.add(engineComp.engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
@@ -55,7 +74,14 @@ public class DamageHandler {
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + PhysicsUtils.getAABB(body).height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font28);
-		engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + ((int)amount), Color.RED, font, x, y, 2.0f));
+		if(shieldDown > 0 && healthDown > 0){
+			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
+			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));
+		}else if(shieldDown > 0){
+			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x, y, 2.0f));
+		}else{
+			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x, y, 2.0f));
+		}
 	}
 	
 	public static void dealDamage(Entity toEntity, float amount){

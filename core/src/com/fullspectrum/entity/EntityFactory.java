@@ -21,6 +21,7 @@ import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
+import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
@@ -49,7 +50,6 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
-import com.fullspectrum.component.StaminaComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
@@ -71,18 +71,17 @@ import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.fsm.StateObjectCreator;
+import com.fullspectrum.fsm.transition.AbilityTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
-import com.fullspectrum.fsm.transition.AbilityTransitionData;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
-import com.fullspectrum.fsm.transition.StaminaTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
@@ -119,7 +118,7 @@ public class EntityFactory {
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.add(engine.createComponent(MoneyComponent.class));
-		player.add(engine.createComponent(StaminaComponent.class).set(100, 100, 25, 0.3f));
+		player.add(engine.createComponent(BarrierComponent.class).set(100, 100, 25, 0.3f));
 
 		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player);
 		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player);
@@ -129,12 +128,14 @@ public class EntityFactory {
 		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
 		
 		playerStateMachine.createState(PlayerState.KNIGHT)
+			.add(engine.createComponent(BarrierComponent.class).set(500.0f, 500.0f, 50.0f, 1.0f))
 			.add(engine.createComponent(ESMComponent.class).set(knightESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class))
 			.addSubstateMachine(knightESM);
 		
 		playerStateMachine.createState(PlayerState.ROGUE)
+			.add(engine.createComponent(BarrierComponent.class).set(200.0f, 200.0f, 50.0f, 1.0f))
 			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
 //			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
@@ -143,6 +144,7 @@ public class EntityFactory {
 			.addSubstateMachine(rogueAttackFSM);
 		
 		playerStateMachine.createState(PlayerState.MAGE)
+			.add(engine.createComponent(BarrierComponent.class).set(75.0f, 75.0f, 50.0f, 1.0f))
 			.add(engine.createComponent(ESMComponent.class).set(mageESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class)
@@ -213,10 +215,6 @@ public class EntityFactory {
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
-		StaminaTransitionData attackStamina = new StaminaTransitionData(25f);
-		
-		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData).and(Transition.STAMINA, attackStamina);
-		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_DOWN, false));
@@ -236,7 +234,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
 //		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transition.INPUT, attackData, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);

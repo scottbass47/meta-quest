@@ -3,18 +3,18 @@ package com.fullspectrum.component;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class StaminaComponent implements Component, Poolable {
+public class BarrierComponent implements Component, Poolable {
 
-	public float maxStamina = 0.0f;
-	public float stamina = 0.0f;
+	public float maxBarrier = 0.0f;
+	public float barrier = 0.0f;
 	public float rechargeRate = 0.0f;
 	public float delay = 0.0f;
 	public float timeElapsed = 0.0f;
 	public boolean locked = false;
 
-	public StaminaComponent set(float maxStamina, float stamina, float rechargeRate, float delay) {
-		this.maxStamina = maxStamina;
-		this.stamina = stamina;
+	public BarrierComponent set(float maxBarrier, float barrier, float rechargeRate, float delay) {
+		this.maxBarrier = maxBarrier;
+		this.barrier = barrier;
 		this.rechargeRate = rechargeRate;
 		this.delay = delay;
 		return this;
@@ -22,8 +22,8 @@ public class StaminaComponent implements Component, Poolable {
 
 	@Override
 	public void reset() {
-		maxStamina = 0.0f;
-		stamina = 0.0f;
+		maxBarrier = 0.0f;
+		barrier = 0.0f;
 		rechargeRate = 0.0f;
 		delay = 0.0f;
 		timeElapsed = 0.0f;

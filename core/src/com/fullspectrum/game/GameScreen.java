@@ -49,7 +49,7 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
-import com.fullspectrum.component.StaminaComponent;
+import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
@@ -93,7 +93,7 @@ import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.SimpleVelocitySystem;
-import com.fullspectrum.systems.StaminaSystem;
+import com.fullspectrum.systems.BarrierSystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
@@ -218,7 +218,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
-		engine.addSystem(new StaminaSystem());
+		engine.addSystem(new BarrierSystem());
 		engine.addSystem(new CombustibleSystem());
 		engine.addSystem(new RelativePositioningSystem());
 		engine.addSystem(new SwingingSystem());
@@ -470,7 +470,7 @@ public class GameScreen extends AbstractScreen {
 		if (!EntityUtils.isValid(entity)) return;
 		AbilityComponent abilityComp = Mappers.ability.get(entity);
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
-		StaminaComponent staminaComp = Mappers.stamina.get(entity);
+		BarrierComponent staminaComp = Mappers.barrier.get(entity);
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 		
 		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
@@ -495,6 +495,7 @@ public class GameScreen extends AbstractScreen {
 			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
 			if(!abilityComp.isAbilityReady(type)){
 				int timeLeft = (int)(abilityComp.getRechargeTime(type) - abilityComp.getElapsed(type) + 0.5f);
+				font.setColor(Color.WHITE);
 				font.draw(batch, "" + timeLeft, x - 4.0f, abilityY + 8.0f);
 			}
 		}
@@ -519,7 +520,7 @@ public class GameScreen extends AbstractScreen {
 
 		// int staminaBarWidth = (int)(staminaEmptyWidth * (healthComp.health /
 		// healthComp.maxHealth));
-		int staminaBarWidth = (int)(staminaEmptyWidth * (staminaComp.stamina / staminaComp.maxStamina));
+		int staminaBarWidth = (int)(staminaEmptyWidth * (staminaComp.barrier / staminaComp.maxBarrier));
 
 		float coinY = staminaY - coin.getRegionHeight() * scale - 4 * scale;
 		float coinWidth = coin.getRegionWidth();
