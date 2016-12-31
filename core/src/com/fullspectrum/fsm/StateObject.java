@@ -13,6 +13,7 @@ import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.utils.StringUtils;
 
 public class StateObject {
 	
@@ -216,6 +217,6 @@ public class StateObject {
 
 	@Override
 	public String toString() {
-		return identifier;
+		return StringUtils.toTitleCase(identifier);
 	}
 }

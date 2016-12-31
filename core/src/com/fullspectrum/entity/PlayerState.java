@@ -24,4 +24,8 @@ public enum PlayerState implements State{
 		return StringUtils.toTitleCase(name());
 	}
 	
+	@Override
+	public String toString() {
+		return getName();
+	}
 }

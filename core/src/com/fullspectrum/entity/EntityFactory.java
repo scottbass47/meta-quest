@@ -18,6 +18,7 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
+import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BlinkComponent;
@@ -75,6 +76,7 @@ import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
+import com.fullspectrum.fsm.transition.AbilityTransitionData;
 import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.LOSTransitionData;
@@ -129,18 +131,22 @@ public class EntityFactory {
 		playerStateMachine.createState(PlayerState.KNIGHT)
 			.add(engine.createComponent(ESMComponent.class).set(knightESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
+			.add(engine.createComponent(AbilityComponent.class))
 			.addSubstateMachine(knightESM);
 		
 		playerStateMachine.createState(PlayerState.ROGUE)
 			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
 //			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
+			.add(engine.createComponent(AbilityComponent.class))
 			.addSubstateMachine(rogueESM)
 			.addSubstateMachine(rogueAttackFSM);
 		
 		playerStateMachine.createState(PlayerState.MAGE)
 			.add(engine.createComponent(ESMComponent.class).set(mageESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
+			.add(engine.createComponent(AbilityComponent.class)
+					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), 5.0f))
 			.addSubstateMachine(mageESM);
 		
 		
@@ -159,7 +165,7 @@ public class EntityFactory {
 		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, leftCycleData, PlayerState.ROGUE);
 		
 		playerStateMachine.setDebugName("Player FSM");
-//		System.out.println(playerStateMachine.printTransitions());
+//		System.out.println(playerStateMachine.printTransitions(true));
 		playerStateMachine.changeState(PlayerState.KNIGHT);
 		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
 		return player;
@@ -250,7 +256,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, 25f, 100f);
+					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, 25f, 25f);
 				}
 
 				@Override
@@ -460,16 +466,13 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 20.0f, 5.0f);
-					StaminaComponent staminaComp = Mappers.stamina.get(entity);
-					staminaComp.stamina = MathUtils.clamp(staminaComp.stamina - 50f, 0, staminaComp.maxStamina);
-					staminaComp.timeElapsed = 0.0f;
-					staminaComp.locked = true;
+					AbilityComponent abilityComp = Mappers.ability.get(entity);
+					abilityComp.resetTime(AbilityType.MANA_BOMB);
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					StaminaComponent staminaComp = Mappers.stamina.get(entity);
-					staminaComp.locked = false;
+					
 				}
 			});
 				
@@ -493,9 +496,9 @@ public class EntityFactory {
 		
 		// Attack
 		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-		StaminaTransitionData attackStamina = new StaminaTransitionData(50f);
+		AbilityTransitionData manaBombAbility = new AbilityTransitionData(AbilityType.MANA_BOMB);
 		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
-				.and(Transition.STAMINA, attackStamina);
+				.and(Transition.ABILITY, manaBombAbility);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));

@@ -61,7 +61,7 @@ public class Mappers {
 	public static final ComponentMapper<TextRenderComponent> textRender =  ComponentMapper.getFor(TextRenderComponent.class);
 	public static final ComponentMapper<KnockBackComponent> knockBack = ComponentMapper.getFor(KnockBackComponent.class);
 	public static final ComponentMapper<ProjectileComponent> projectile = ComponentMapper.getFor(ProjectileComponent.class);
-
+	public static final ComponentMapper<AbilityComponent> ability = ComponentMapper.getFor(AbilityComponent.class);
 	
 }
 

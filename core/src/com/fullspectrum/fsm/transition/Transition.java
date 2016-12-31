@@ -3,6 +3,7 @@ package com.fullspectrum.fsm.transition;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
@@ -15,6 +16,7 @@ import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Input;
+import com.fullspectrum.utils.StringUtils;
 
 public enum Transition {
 
@@ -118,7 +120,7 @@ public enum Transition {
 			if(levelComp == null || bodyComp == null) return false;
 			
 			RangeTransitionData rtd = (RangeTransitionData)obj.data;
-			if(rtd == null) return false;
+			if(rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) return false;
 			
 			BodyComponent otherBodyComp = Mappers.body.get(rtd.target);
 			
@@ -145,7 +147,7 @@ public enum Transition {
 			if(levelComp == null || bodyComp == null) return false;
 			
 			LOSTransitionData ltd = (LOSTransitionData)obj.data;
-			if(ltd == null) return false;
+			if(ltd == null || ltd.target == null || !EntityUtils.isValid(ltd.target)) return false;
 			
 			BodyComponent otherBodyComp = Mappers.body.get(ltd.target);
 			
@@ -226,6 +228,16 @@ public enum Transition {
 			Component comp = entity.getComponent(ctd.component);
 			return (comp == null && ctd.remove) || (comp != null && !ctd.remove);
 		}
+	},
+	ABILITY(true){
+		@Override
+		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+			AbilityComponent abilityComp = Mappers.ability.get(entity);
+			if(abilityComp == null) return false;
+			AbilityTransitionData atd = (AbilityTransitionData) obj.data;
+			if(atd == null) return false;
+			return abilityComp.isAbilityReady(atd.type);
+		}
 	};
 
 	public final boolean allowMultiple;
@@ -237,7 +249,7 @@ public enum Transition {
 	public abstract boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime);
 
 	public String toString() {
-		return name();
+		return StringUtils.toTitleCase(name());
 	}
 
 }

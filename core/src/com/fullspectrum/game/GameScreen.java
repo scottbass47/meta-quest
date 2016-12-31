@@ -41,6 +41,7 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
+import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.HealthComponent;
@@ -53,6 +54,7 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityType;
@@ -68,6 +70,7 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
+import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AirMovementSystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
@@ -198,6 +201,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(StateMachineSystem.getInstance());
 
 		// Other Systems
+		engine.addSystem(new AbilitySystem());
 		engine.addSystem(new TimerSystem());
 		engine.addSystem(new DropSpawnSystem());
 		engine.addSystem(new AnimationSystem());
@@ -464,21 +468,41 @@ public class GameScreen extends AbstractScreen {
 
 	private void renderHUD(SpriteBatch batch, Entity entity) {
 		if (!EntityUtils.isValid(entity)) return;
+		AbilityComponent abilityComp = Mappers.ability.get(entity);
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
 		StaminaComponent staminaComp = Mappers.stamina.get(entity);
 		MoneyComponent moneyComp = Mappers.money.get(entity);
-
+		
 		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
 		TextureRegion healthFull = assets.getHUDElement(Assets.healthBarFull);
 		TextureRegion staminaEmpty = assets.getHUDElement(Assets.staminaBarEmpty);
 		TextureRegion staminaFull = assets.getHUDElement(Assets.staminaBarFull);
 		TextureRegion coin = assets.getSpriteAnimation(Assets.goldCoin).getKeyFrame(0);
 
-		// Health
 		float scale = 4.0f;
+
+		batch.begin();
+		// Abilities
+		float abilityY = 150;
+		float tallestIcon = 0.0f;
+		for(AbilityType type : abilityComp.getAbilityMap().keys()){
+			TextureRegion icon = abilityComp.getIcon(type);
+			if(icon == null) continue;
+			float iconWidth = icon.getRegionWidth();
+			float iconHeight = icon.getRegionHeight();
+			float x = GameVars.SCREEN_WIDTH * 0.5f - iconWidth * 0.5f;
+			if(iconHeight > tallestIcon) tallestIcon = iconHeight;
+			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
+			if(!abilityComp.isAbilityReady(type)){
+				int timeLeft = (int)(abilityComp.getRechargeTime(type) - abilityComp.getElapsed(type) + 0.5f);
+				font.draw(batch, "" + timeLeft, x - 4.0f, abilityY + 8.0f);
+			}
+		}
+		
+		// Health
 		float healthEmptyWidth = healthEmpty.getRegionWidth();
 		float healthEmptyHeight = healthEmpty.getRegionHeight();
-		float healthY = 100;
+		float healthY = abilityY - (tallestIcon + healthEmptyHeight) * scale;
 
 		int healthSrcX = healthFull.getRegionX();
 		int healthSrcY = healthFull.getRegionY();
@@ -501,7 +525,6 @@ public class GameScreen extends AbstractScreen {
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
 
-		batch.begin();
 		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
 		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
 		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);

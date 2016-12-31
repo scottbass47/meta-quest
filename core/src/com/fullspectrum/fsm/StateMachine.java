@@ -345,11 +345,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 					for (Entry<TransitionObject, State> transition : e.value.getTransitionMap().entries()) {
 						if(!transition.value.equals(state)) continue;
 						String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";
-						ret += state.toString() + " <- " + transition.key.transition.toString() + data + " <- " + e.value.toString() + "\n";
+						ret += state.getName() + " <- " + transition.key.transition.toString() + data + " <- " + e.key.getName() + "\n";
 					}
 					for (Entry<MultiTransition, State> transition : e.value.getMultiTransitionMap().entries()) {
 						if(!transition.value.equals(state)) continue;
-						ret += state.toString() + " <- " + transition.key + " <- " + e.value.toString() + "\n";
+						ret += state.getName() + " <- " + transition.key + " <- " + e.key.getName() + "\n";
 					}
 				}
 				ret += "\n";
@@ -360,11 +360,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 				for (Iterator<Entry<TransitionObject, State>> iterator = entry.value.getTransitionMap().iterator(); iterator.hasNext();) {
 					Entry<TransitionObject, State> transition = iterator.next();
 					String data = transition.key.data == null ? "" : "(" + transition.key.data.toString() + ")";
-					ret += entry.key.toString() + " -> " + transition.key.transition.toString() + data + " -> " + transition.value.toString() + "\n";
+					ret += entry.key.getName() + " -> " + transition.key.transition.toString() + data + " -> " + transition.value.getName() + "\n";
 				}
 				for (Iterator<Entry<MultiTransition, State>> iterator = entry.value.getMultiTransitionMap().iterator(); iterator.hasNext();) {
 					Entry<MultiTransition, State> transition = iterator.next();
-					ret += entry.key.toString() + " -> " + transition.key + " -> " + transition.value.toString() + "\n";
+					ret += entry.key.getName() + " -> " + transition.key + " -> " + transition.value.getName() + "\n";
 				}
 				ret += "\n";
 			}

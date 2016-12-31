@@ -1,5 +1,6 @@
 package com.fullspectrum.fsm;
 
+import com.fullspectrum.utils.StringUtils;
 
 public enum AIState implements State{
 	
@@ -19,6 +20,11 @@ public enum AIState implements State{
 
 	@Override
 	public String getName() {
-		return name();
+		return StringUtils.toTitleCase(name());
+	}
+	
+	@Override
+	public String toString() {
+		return getName();
 	}
 }
