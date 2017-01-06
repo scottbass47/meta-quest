@@ -109,8 +109,6 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
-		
-		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
 				.mob(input, EntityType.FRIENDLY, 2500f)
@@ -118,7 +116,6 @@ public class EntityFactory {
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.add(engine.createComponent(MoneyComponent.class));
-		player.add(engine.createComponent(BarrierComponent.class).set(100, 100, 25, 0.3f));
 
 		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player);
 		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player);

@@ -34,6 +34,7 @@ public class PathFinder {
 	private Node current;
 	private Array<NavLink> path;
 	private ArrayMap<Node, PathData> pathDataMap;
+	private PathHeuristic heuristic;
 	
 	public PathFinder(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
 		this.navMesh = navMesh;
@@ -49,6 +50,7 @@ public class PathFinder {
 			pathDataMap.put(node, new PathData());
 		}
 		debugColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f);
+		heuristic = new DefaultHeuristic();
 		calculatePath();
 	}
 	
@@ -112,8 +114,7 @@ public class PathFinder {
 		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
 			@Override
 			public int compare(NavLink linkOne, NavLink linkTwo) {
-//				return linkOne.cost > linkTwo.cost? 1 : -1;
-				return linkOne.cost + getManhattanDistance(linkOne.toNode, goal) / 100 > linkTwo.cost + getManhattanDistance(linkTwo.toNode, goal) / 100 ? 1 : -1;
+				return heuristic.cost(linkOne, navMesh, goal) > heuristic.cost(linkTwo, navMesh, goal) ? 1 : -1;
 			}
 		});
 		for(NavLink link : start.getLinks()){
@@ -155,6 +156,10 @@ public class PathFinder {
 		for(Entry<Node, PathData> node : pathDataMap.entries()){
 			pathDataMap.get(node.key).reset();
 		}
+	}
+	
+	public void setHeuristic(PathHeuristic heuristic){
+		this.heuristic = heuristic;
 	}
 	
 	public int getManhattanDistance(Node node1, Node node2){
