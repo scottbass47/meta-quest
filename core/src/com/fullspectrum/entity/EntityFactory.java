@@ -34,6 +34,9 @@ import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
+import com.fullspectrum.component.FlowFieldComponent;
+import com.fullspectrum.component.FlowFollowComponent;
+import com.fullspectrum.component.FlyingComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
@@ -87,6 +90,7 @@ import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
+import com.fullspectrum.level.FlowField;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -686,6 +690,91 @@ public class EntityFactory {
 		return player;
 	}
 	
+	public static Entity createFlyingEnemy(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
+		AIController controller = new AIController();
+		Entity entity = new EntityBuilder(engine, world, level)
+				.physics(null, x, y, false)
+				.mob(controller, EntityType.ENEMY, 10f)
+				.build();
+		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
+		entity.add(engine.createComponent(MoneyComponent.class).set(money));
+		
+		EntityStateMachine esm = new EntityStateMachine(entity, "body/winged.json");
+		esm.createState(EntityStates.FLYING)
+			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
+			.add(engine.createComponent(FlyingComponent.class))
+			.add(engine.createComponent(FlowFieldComponent.class).set(field));
+		
+		esm.changeState(EntityStates.FLYING);
+		
+		Mappers.body.get(entity).body.setGravityScale(0.0f);
+		entity.add(engine.createComponent(ESMComponent.class).set(esm));
+		
+		AIStateMachine aism = new  AIStateMachine(entity);
+		aism.createState(AIState.WANDERING);
+		aism.createState(AIState.FOLLOWING)
+			.add(engine.createComponent(FlowFollowComponent.class))
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.aiController.get(entity).controller.releaseAll();
+				}
+			});
+		aism.createState(AIState.ATTACKING);
+		
+		LOSTransitionData inSightData = new LOSTransitionData(toFollow, true);
+		LOSTransitionData outOfSightData = new LOSTransitionData(toFollow, false);
+		
+		RangeTransitionData wanderInRange = new RangeTransitionData();
+		wanderInRange.target = toFollow;
+		wanderInRange.distance = 15.0f;
+		wanderInRange.inRange = true;
+		
+		MultiTransition wanderToFollow = new MultiTransition(Transition.RANGE, wanderInRange);
+//			.and(Transition.LINE_OF_SIGHT, inSightData);
+		
+		RangeTransitionData followOutOfRange = new RangeTransitionData();
+		followOutOfRange.target = toFollow;
+		followOutOfRange.distance = 15.0f;
+		followOutOfRange.inRange = false;
+
+		MultiTransition followToWander = new MultiTransition(Transition.RANGE, followOutOfRange);
+//			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		
+		RangeTransitionData inAttackRange = new RangeTransitionData();
+		inAttackRange.target = toFollow;
+		inAttackRange.distance = 2.5f;
+		inAttackRange.inRange = true;
+		
+		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange);
+//			.and(Transition.LINE_OF_SIGHT, inSightData);
+		
+		RangeTransitionData outOfAttackRange = new RangeTransitionData();
+		outOfAttackRange.target = toFollow;
+		outOfAttackRange.distance = 3.5f;
+		outOfAttackRange.inRange = false;
+		
+		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange);
+//			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		
+		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+		
+		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
+		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, invalidEntity, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
+		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
+		
+		aism.changeState(AIState.WANDERING);
+
+		entity.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
+		return entity;
+	}
+	
 	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
 //		Entity sword = initPhysicsEntity(engine, world, level, null, x, y);
 		Entity sword = new EntityBuilder(engine, world, level)
@@ -734,7 +823,7 @@ public class EntityFactory {
 		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
 		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
 		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
-		
+
 		EntityStateMachine esm = new EntityStateMachine(drop, physicsBody);
 		esm.createState(EntityStates.IDLING)
 			.add(engine.createComponent(DropMovementComponent.class))

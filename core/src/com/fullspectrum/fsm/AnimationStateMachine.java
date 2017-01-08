@@ -13,6 +13,7 @@ public class AnimationStateMachine extends StateMachine<State, StateObject>{
 	
 	@Override
 	public void changeState(State identifier) {
+		if(identifier == null) return;
 		super.changeState(identifier);
 		time = 0;
 	}

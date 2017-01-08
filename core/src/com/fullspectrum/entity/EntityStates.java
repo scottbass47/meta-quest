@@ -18,7 +18,8 @@ public enum EntityStates implements State{
 	DYING,
 	CLIMBING,
 	KNOCK_BACK,
-	CLEAN_UP;
+	CLEAN_UP,
+	FLYING;
 	
 	@Override
 	public int getIndex() {
