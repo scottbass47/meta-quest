@@ -103,6 +103,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public Entity getEntity() {
 		return entity;
 	}
+	
+	@SuppressWarnings("unchecked")
+	public boolean hasState(State state){
+		if(!stateClazz.isInstance(state)) return false;
+		return states.containsKey((S)state);
+	}
 
 	@SuppressWarnings("unchecked")
 	public void addSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine) {

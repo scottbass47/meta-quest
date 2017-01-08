@@ -149,7 +149,7 @@ public class EntityFactory {
 			.add(engine.createComponent(ESMComponent.class).set(mageESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class)
-					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), 5.0f))
+					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), 1.0f))
 			.addSubstateMachine(mageESM);
 		
 		
@@ -694,12 +694,14 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(engine, world, level)
 				.physics(null, x, y, false)
-				.mob(controller, EntityType.ENEMY, 10f)
+				.mob(controller, EntityType.ENEMY, 100f)
 				.build();
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		
-		EntityStateMachine esm = new EntityStateMachine(entity, "body/winged.json");
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/winged.json")
+			.knockBack()
+			.build();
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
 			.add(engine.createComponent(FlyingComponent.class))
@@ -709,6 +711,10 @@ public class EntityFactory {
 		
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		entity.add(engine.createComponent(ESMComponent.class).set(esm));
+		
+		// Knock Back Transition
+		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.FLYING);
 		
 		AIStateMachine aism = new  AIStateMachine(entity);
 		aism.createState(AIState.WANDERING);

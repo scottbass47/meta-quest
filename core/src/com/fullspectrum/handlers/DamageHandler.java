@@ -7,18 +7,24 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BarrierComponent;
+import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.InvicibilityComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityUtils;
+import com.fullspectrum.entity.PlayerState;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class DamageHandler {
@@ -33,6 +39,23 @@ public class DamageHandler {
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
+		
+		if(Mappers.inviciblity.get(toEntity) != null) return;
+		if(Mappers.fsm.get(toEntity) != null && Mappers.fsm.get(toEntity).fsm.hasState(PlayerState.KNIGHT)){
+			float duration = 2.5f;
+			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
+			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)
+					.addBlink(duration, 0.15f));
+			TimerComponent timerComp = EntityUtils.getTimerComponent(toEntity);
+			timerComp.add("invincibility", duration, false, new TimeListener(){
+				@Override
+				public void onTime(Entity entity) {
+					entity.remove(InvicibilityComponent.class);
+					entity.remove(BlinkComponent.class);
+					if(entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
+				}
+			});
+		}
 		
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
