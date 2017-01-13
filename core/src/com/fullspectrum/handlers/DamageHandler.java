@@ -46,7 +46,7 @@ public class DamageHandler {
 			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)
 					.addBlink(duration, 0.15f));
-			TimerComponent timerComp = EntityUtils.getTimerComponent(toEntity);
+			TimerComponent timerComp = Mappers.timer.get(toEntity);
 			timerComp.add("invincibility", duration, false, new TimeListener(){
 				@Override
 				public void onTime(Entity entity) {

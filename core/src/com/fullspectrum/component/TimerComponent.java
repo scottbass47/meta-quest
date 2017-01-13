@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
-// TODO Make component global
 public class TimerComponent implements Component, Poolable{
 
 	public ArrayMap<String, Timer> timers;

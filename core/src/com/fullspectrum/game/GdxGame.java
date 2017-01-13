@@ -33,6 +33,8 @@ import com.fullspectrum.input.RawInput;
  * TODO Add wrapper for Level that provides utility functions for simple ai to make decisions
  * TODO Change how rendering works to support zooming in and out smoothly during gameplay
  * TODO Add audio system to handle sound effects and music
+ * TODO Take out state machine physics body changing
+ * TODO Change velocity, position, and force systems to be more unified
  */
 public class GdxGame extends Game {
 	// Rendering

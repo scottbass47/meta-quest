@@ -30,12 +30,13 @@ public class CombustibleSystem extends IteratingSystem {
 			body.setActive(false);
 			combustibleComp.shouldExplode = false;
 			float time = combustibleComp.radius / combustibleComp.speed;
-			entity.add(Mappers.engine.get(entity).engine.createComponent(TimerComponent.class).add("explosive_life", time, false, new TimeListener(){
+			TimerComponent timerComp = Mappers.timer.get(entity);
+			timerComp.add("explosive_life", time, false, new TimeListener(){
 				@Override
 				public void onTime(Entity entity) {
 					entity.add(new RemoveComponent());
 				}
-			}));
+			});
 			float radius = combustibleComp.radius;
 			float r = 4 * GameVars.PPM_INV;
 			int numParticles = (int)(MathUtils.PI * radius / (r + 8 * GameVars.PPM_INV));

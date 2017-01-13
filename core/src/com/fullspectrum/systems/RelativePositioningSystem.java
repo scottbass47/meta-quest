@@ -9,17 +9,17 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
+import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.entity.EntityUtils;
 
 public class RelativePositioningSystem extends IteratingSystem{
 
 	public RelativePositioningSystem(){
-		super(Family.all(ParentComponent.class, BodyComponent.class, OffsetComponent.class).get());
+		super(Family.all(ParentComponent.class, OffsetComponent.class).one(BodyComponent.class, PositionComponent.class).get());
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		BodyComponent bodyComp = Mappers.body.get(entity);
 		ParentComponent parentComp = Mappers.parent.get(entity);
 		OffsetComponent offsetComp = Mappers.offset.get(entity);
 		
@@ -42,7 +42,14 @@ public class RelativePositioningSystem extends IteratingSystem{
 		}
 		y += offsetComp.yOff;
 		
-		bodyComp.body.setTransform(x, y, 0.0f);
-		bodyComp.body.setActive(true);
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		PositionComponent positionComp = Mappers.position.get(entity);
+		if(bodyComp != null){
+			bodyComp.body.setTransform(x, y, 0.0f);
+			bodyComp.body.setActive(true);
+		}else{
+			positionComp.x = x;
+			positionComp.y = y;
+		}
 	}
 }

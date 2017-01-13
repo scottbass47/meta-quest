@@ -593,8 +593,6 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	public void renderRange(SpriteBatch batch, Entity entity) {
-		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-		sRenderer.begin(ShapeType.Line);
 		AIStateMachineComponent aismComp = Mappers.aism.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		LevelComponent levelComp = Mappers.level.get(entity);
@@ -619,6 +617,8 @@ public class GameScreen extends AbstractScreen {
 		if(d <= r){
 			color = new Color(0, 1, 0, 1);
 		}
+		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+		sRenderer.begin(ShapeType.Line);
 		sRenderer.setColor(color);
 		sRenderer.circle(x1, y1, rtd.distance, 32);
 		

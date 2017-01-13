@@ -3,6 +3,7 @@ package com.fullspectrum.component;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+// TODO Add in types that the entity can interact with (e.g. my type = neutral, I interact with enemies and friendly)
 public class TypeComponent implements Component, Poolable{
 
 	public EntityType type = EntityType.NEUTRAL;

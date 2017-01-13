@@ -54,6 +54,7 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.SpeedComponent;
+import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
@@ -694,14 +695,20 @@ public class EntityFactory {
 	
 	// TODO Add in wings entity that has relative positioning and attacking
 	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(engine, world, level)
+				.animation(animMap)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.physics(null, x, y, false)
 				.mob(controller, EntityType.ENEMY, 100f)
 				.build();
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
-		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 6.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 6 pixel height
+		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
+		
+		engine.addEntity(createWings(engine, world, level, entity, x, y, -1.5f, 0f, assets.getSpriteAnimation(Assets.spitterWings)));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/spitter.json")
 			.knockBack()
@@ -709,7 +716,10 @@ public class EntityFactory {
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
 			.add(engine.createComponent(FlyingComponent.class))
-			.add(engine.createComponent(FlowFieldComponent.class).set(field));
+			.add(engine.createComponent(FlowFieldComponent.class).set(field))
+			.addAnimation(EntityAnim.IDLE);
+		esm.createState(EntityStates.PROJECTILE_ATTACK);
+		esm.createState(EntityStates.DYING);
 		
 		esm.changeState(EntityStates.FLYING);
 		
@@ -783,6 +793,20 @@ public class EntityFactory {
 
 		entity.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return entity;
+	}
+	
+	public static Entity createWings(Engine engine, World world, Level level, Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, flapping);
+		Entity wings = new EntityBuilder(engine, world, level)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+				.animation(animMap)
+				.build();
+		wings.add(engine.createComponent(PositionComponent.class).set(x, y));
+		wings.add(engine.createComponent(StateComponent.class).set(EntityAnim.IDLE));
+		wings.add(engine.createComponent(ParentComponent.class).set(owner));
+		wings.add(engine.createComponent(OffsetComponent.class).set(xOff, yOff, true));
+		return wings;
 	}
 	
 	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
@@ -912,12 +936,12 @@ public class EntityFactory {
 		Entity particle = createProjectile(engine, world, level, "body/explosive_particle.json", speed, angle, x, y, false, Mappers.type.get(parent).type);
 		CombustibleComponent combustibleComp = Mappers.combustible.get(parent);
 		particle.add(engine.createComponent(ParentComponent.class).set(parent));
-		particle.add(engine.createComponent(TimerComponent.class).add("particle_life", combustibleComp.radius / combustibleComp.speed, false, new TimeListener(){
+		particle.getComponent(TimerComponent.class).add("particle_life", combustibleComp.radius / combustibleComp.speed, false, new TimeListener(){
 			@Override
 			public void onTime(Entity entity) {
 				entity.add(new RemoveComponent());
 			}
-		}));
+		});
 		return particle;
 	}
 	
@@ -926,12 +950,12 @@ public class EntityFactory {
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
-		entity.add(engine.createComponent(TimerComponent.class).add("text_life", 0.4f, false, new TimeListener(){
+		entity.getComponent(TimerComponent.class).add("text_life", 0.4f, false, new TimeListener(){
 			@Override
 			public void onTime(Entity entity) {
 				entity.add(new RemoveComponent());
 			}
-		}));
+		});
 		return entity;
 	}
 	
@@ -951,6 +975,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(EngineComponent.class).set(engine));
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level));
+			entity.add(engine.createComponent(TimerComponent.class));
 		}
 		
 		/**

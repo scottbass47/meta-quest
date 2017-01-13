@@ -37,7 +37,7 @@ public class RenderingSystem extends EntitySystem {
 			TextureComponent texture = Mappers.texture.get(e);
 			FacingComponent facing = Mappers.facing.get(e);
 			TintComponent tint = Mappers.tint.get(e);
-			if (texture.region == null) return;
+			if (texture.region == null) continue;
 			float width = texture.region.getRegionWidth();
 			float height = texture.region.getRegionHeight();
 			if(tint != null) batch.setColor(tint.tint);

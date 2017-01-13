@@ -52,6 +52,11 @@ public class Assets {
 	public static final String blueCoin = "drop_coin_blue";
 	public static final String disappearCoin = "drop_coin_disappear";
 	
+	// Spitter
+	public static final String spitterWings = "spitter_wings";
+	public static final String spitterAttack = "spitter_attack";
+	public static final String spitterIdle = "spitter_idle";
+	
 	// Font
 	public static final String font24 = "font/test24.fnt";
 	public static final String font28 = "font/test28.fnt";

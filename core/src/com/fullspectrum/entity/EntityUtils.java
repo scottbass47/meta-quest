@@ -23,11 +23,4 @@ public class EntityUtils {
 			entity.flags &= ~VALID;
 		}
 	}
-	
-	public static TimerComponent getTimerComponent(Entity entity){
-		if(Mappers.timer.get(entity) == null){
-			entity.add(Mappers.engine.get(entity).engine.createComponent(TimerComponent.class));
-		}
-		return Mappers.timer.get(entity);
-	}
 }

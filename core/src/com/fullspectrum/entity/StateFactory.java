@@ -272,7 +272,7 @@ public class StateFactory {
 					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
 					
 					float time = knockBackComp.distance / knockBackComp.speed;
-					TimerComponent timerComp = EntityUtils.getTimerComponent(entity);
+					TimerComponent timerComp = Mappers.timer.get(entity);
 					timerComp.add("knockBack_life", time, false, new TimeListener(){
 						@Override
 						public void onTime(Entity entity) {
