@@ -3,6 +3,8 @@ package com.fullspectrum.component;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+// TODO Make component global
+// TODO Add in support for continuous forces and multiple forces
 public class ForceComponent implements Component, Poolable{
 
 	public float fx = 0.0f;

@@ -26,7 +26,14 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
 import com.fullspectrum.input.RawInput;
-
+/*
+ * Global Task List
+ * ----------------
+ * TODO Add ai behaviors with BehaviorComponent and BehaviorSystem
+ * TODO Add wrapper for Level that provides utility functions for simple ai to make decisions
+ * TODO Change how rendering works to support zooming in and out smoothly during gameplay
+ * TODO Add audio system to handle sound effects and music
+ */
 public class GdxGame extends Game {
 	// Rendering
 	private SpriteBatch batch;

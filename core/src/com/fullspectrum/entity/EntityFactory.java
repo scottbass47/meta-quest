@@ -692,6 +692,7 @@ public class EntityFactory {
 		return player;
 	}
 	
+	// TODO Add in wings entity that has relative positioning and attacking
 	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(engine, world, level)
@@ -707,7 +708,7 @@ public class EntityFactory {
 			.build();
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
-//			.add(engine.createComponent(FlyingComponent.class))
+			.add(engine.createComponent(FlyingComponent.class))
 			.add(engine.createComponent(FlowFieldComponent.class).set(field));
 		
 		esm.changeState(EntityStates.FLYING);

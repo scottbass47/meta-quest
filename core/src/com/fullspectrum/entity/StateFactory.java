@@ -110,7 +110,7 @@ public class StateFactory {
 		 * 
 		 * @param jumpForce
 		 * @param airSpeed
-		 * @param withStateChangeListener TODO
+		 * @param withStateChangeListener 
 		 * @return
 		 */
 		public EntityStateBuilder jump(float jumpForce, float airSpeed, boolean withStateChangeListener){
