@@ -65,5 +65,6 @@ public class Mappers {
 	public static final ComponentMapper<FlowFieldComponent> flowField = ComponentMapper.getFor(FlowFieldComponent.class);
 	public static final ComponentMapper<FlowFollowComponent> flowFollow = ComponentMapper.getFor(FlowFollowComponent.class);
 	public static final ComponentMapper<InvicibilityComponent> inviciblity = ComponentMapper.getFor(InvicibilityComponent.class);
+	public static final ComponentMapper<BobComponent> bob = ComponentMapper.getFor(BobComponent.class);
 }
 

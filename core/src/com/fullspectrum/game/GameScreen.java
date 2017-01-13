@@ -73,11 +73,11 @@ import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
-import com.fullspectrum.systems.FlyingSystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
 import com.fullspectrum.systems.BarrierSystem;
 import com.fullspectrum.systems.BlinkSystem;
+import com.fullspectrum.systems.BobSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.CombustibleSystem;
 import com.fullspectrum.systems.DeathSystem;
@@ -86,6 +86,7 @@ import com.fullspectrum.systems.DropMovementSystem;
 import com.fullspectrum.systems.DropSpawnSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.FlowFollowSystem;
+import com.fullspectrum.systems.FlyingSystem;
 import com.fullspectrum.systems.FollowingSystem;
 import com.fullspectrum.systems.ForceSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
@@ -211,6 +212,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new DropSpawnSystem());
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
+		engine.addSystem(new BobSystem());
 		engine.addSystem(new ForceSystem());
 		engine.addSystem(new DirectionSystem());
 		engine.addSystem(new VelocitySystem());
@@ -246,7 +248,7 @@ public class GameScreen extends AbstractScreen {
 		playerMesh = NavMesh.createNavMesh(level, goblinStats);
 
 		// Setup Flow Field
-		flowField = new FlowField(level);
+		flowField = new FlowField(level, 15);
 		
 		// Spawn Player
 		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
@@ -293,8 +295,11 @@ public class GameScreen extends AbstractScreen {
 			row = MathUtils.random(0, level.getHeight());
 		    col = MathUtils.random(0, level.getWidth());
 		}while(level.isSolid(row, col) || row > 25);
-		
-		Entity enemy = EntityFactory.createFlyingEnemy(engine, world, level, flowField, col + 0.5f, row + 0.5f, playerOne, MathUtils.random(10, 25));
+		spawnFlyingEnemy(row, col);
+	}
+	
+	private void spawnFlyingEnemy(int row, int col){
+		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, playerOne, MathUtils.random(10, 25));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -316,7 +321,6 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
-
 		world.step(delta, 6, 2);
 		if (input.isJustPressed(Actions.SELECT)) {
 			changePlayer();
@@ -329,8 +333,7 @@ public class GameScreen extends AbstractScreen {
 				spawnEnemy(mouseNode);
 			}
 		} else if(!level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
-			Entity coin = EntityFactory.createCoin(engine, world, level, mousePos.x, mousePos.y, MathUtils.random(-5, 5), 0, MathUtils.random(1, 100));
-			engine.addEntity(coin);
+			spawnFlyingEnemy((int)mousePos.y, (int)mousePos.x);
 		}
 
 		if (DebugInput.isPressed(DebugKeys.SPAWN)) {

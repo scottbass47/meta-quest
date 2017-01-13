@@ -30,7 +30,7 @@ public class FlyingSystem extends IteratingSystem{
 		float dx = vx - body.getLinearVelocity().x;
 		float dy = vy - body.getLinearVelocity().y;
 		
-		body.applyLinearImpulse(dx * deltaTime * 5, dy * deltaTime * 5, body.getWorldCenter().x, body.getWorldCenter().y, true);
+		body.applyLinearImpulse(dx * deltaTime * 2, dy * deltaTime * 2, body.getWorldCenter().x, body.getWorldCenter().y, true);
 	}
 	
 }

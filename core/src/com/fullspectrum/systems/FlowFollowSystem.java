@@ -35,6 +35,7 @@ public class FlowFollowSystem extends IteratingSystem{
 		float y = body.getPosition().y;
 		
 		FlowNode node = field.getNode(x, y);
+		if(node == null) return;
 		float angle = node.getAngle();
 		
 		float xx = MathUtils.cos(angle);

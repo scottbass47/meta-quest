@@ -23,6 +23,7 @@ import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlinkComponent;
+import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
@@ -88,6 +89,7 @@ import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.level.FlowField;
@@ -690,7 +692,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createFlyingEnemy(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
+	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(engine, world, level)
 				.physics(null, x, y, false)
@@ -698,13 +700,14 @@ public class EntityFactory {
 				.build();
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
+		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 6.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 6 pixel height
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/winged.json")
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/spitter.json")
 			.knockBack()
 			.build();
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
-			.add(engine.createComponent(FlyingComponent.class))
+//			.add(engine.createComponent(FlyingComponent.class))
 			.add(engine.createComponent(FlowFieldComponent.class).set(field));
 		
 		esm.changeState(EntityStates.FLYING);

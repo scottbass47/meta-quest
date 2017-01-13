@@ -6,8 +6,8 @@
   	"Fixtures": [
       {
         "shape": "Box",
-        "width": 8,
-        "height": 8,
+        "width": 24,
+        "height": 24,
         "Category": "entity"
       }
   	]

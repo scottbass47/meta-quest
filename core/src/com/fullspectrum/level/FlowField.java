@@ -17,19 +17,23 @@ public class FlowField {
 	private int height;
 	private ArrayMap<GridPoint2, FlowNode> nodeMap;
 	private Array<FlowNode> nodes;
+	private ObjectSet<FlowNode> fieldNodes;
 	private Level level;
 	private int goalRow;
 	private int goalCol;
+	private int radius;
 	
 	// Debug Renderer
 	private ShapeRenderer sRender;
 	
-	public FlowField(Level level){
+	public FlowField(Level level, int radius){
 		this.level = level;
+		this.radius = radius;
 		height = level.getHeight();
 		width = level.getWidth();
 		nodeMap = new ArrayMap<GridPoint2, FlowNode>();
 		nodes = new Array<FlowNode>();
+		fieldNodes = new ObjectSet<FlowNode>();
 		
 		sRender = new ShapeRenderer();
 		initNodes();
@@ -38,7 +42,7 @@ public class FlowField {
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
 		sRender.begin(ShapeType.Line);
-		for(FlowNode node : nodes){
+		for(FlowNode node : fieldNodes){
 			sRender.setColor(Color.WHITE);
 			float fromX = node.col + 0.5f;
 			float fromY = node.row + 0.5f;
@@ -118,6 +122,7 @@ public class FlowField {
 	}
 	
 	private void updateField(){
+		fieldNodes.clear();
 //		long startTime = System.nanoTime();
 		// Brushfire
 		boolean success = brushFire(goalRow, goalCol);
@@ -138,6 +143,7 @@ public class FlowField {
 		if(node == null) return false;
 		node.distance = 0;
 		visited.add(node);
+		fieldNodes.add(node);
 		
 		for(FlowNode adj : node.adjacentNodes){
 			adj.parent = node;
@@ -147,9 +153,11 @@ public class FlowField {
 		
 		while(queue.size > 0){
 			FlowNode next = queue.removeFirst();
+			fieldNodes.add(next);
 			next.distance = next.parent.distance + 1;
 			for(FlowNode adj : next.adjacentNodes){
-				if(visited.contains(adj)) continue;
+				float d = (adj.row - goalRow) * (adj.row - goalRow) + (adj.col - goalCol) * (adj.col - goalCol);
+				if(visited.contains(adj) || radius * radius < d) continue;
 				adj.parent = next;
 				queue.addLast(adj);
 				visited.add(adj);
@@ -159,7 +167,7 @@ public class FlowField {
 	}
 	
 	private void vecField(){
-		for(FlowNode node : nodes){
+		for(FlowNode node : fieldNodes){
 			FlowNode right = getAdjacentNode(node, Direction.RIGHT);
 			FlowNode left = getAdjacentNode(node, Direction.LEFT);
 			FlowNode up = getAdjacentNode(node, Direction.UP);
@@ -167,8 +175,13 @@ public class FlowField {
 			
 			int wallCost = 4;
 			
-			node.vec.x = (left == null ? node.distance + wallCost : left.distance) - (right == null ? node.distance + wallCost : right.distance);
-			node.vec.y = (down == null ? node.distance + wallCost : down.distance) - (up == null ? node.distance + wallCost : up.distance);
+			float leftCost = left == null ? node.distance + wallCost : (!fieldNodes.contains(left) ? node.distance + 1 : left.distance);
+			float rightCost = right == null ? node.distance + wallCost : (!fieldNodes.contains(right) ? node.distance + 1 : right.distance);
+			float upCost = up == null ? node.distance + wallCost : (!fieldNodes.contains(up) ? node.distance + 1 : up.distance);
+			float downCost = down == null ? node.distance + wallCost : (!fieldNodes.contains(down) ? node.distance + 1 : down.distance);
+			
+			node.vec.x = leftCost - rightCost;
+			node.vec.y = downCost - upCost;
 		}
 	}
 	
