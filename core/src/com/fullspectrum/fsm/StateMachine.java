@@ -16,7 +16,6 @@ import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
-// TODO Add in chain transitions
 public class StateMachine<S extends State, E extends StateObject> {
 
 	// State

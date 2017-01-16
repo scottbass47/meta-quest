@@ -319,6 +319,7 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 //		ups++;
+		worldCamera.zoom = 0.35f;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);

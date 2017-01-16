@@ -693,7 +693,6 @@ public class EntityFactory {
 		return player;
 	}
 	
-	// TODO Add in wings entity that has relative positioning and attacking
 	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
@@ -976,6 +975,14 @@ public class EntityFactory {
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level));
 			entity.add(engine.createComponent(TimerComponent.class));
+		}
+		
+		/**
+		 * Use to decorate existing entities with new components
+		 * @param entity
+		 */
+		public EntityBuilder(Entity entity){
+			this.entity = entity;
 		}
 		
 		/**

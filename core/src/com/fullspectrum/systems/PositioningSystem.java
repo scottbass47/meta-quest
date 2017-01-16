@@ -27,6 +27,5 @@ public class PositioningSystem extends IteratingSystem{
 			posComp.x += velocityComp.dx * deltaTime;
 			posComp.y += velocityComp.dy * deltaTime;
 		}
-	}
-	
+	}	
 }

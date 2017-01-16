@@ -29,12 +29,16 @@ import com.fullspectrum.input.RawInput;
 /*
  * Global Task List
  * ----------------
- * TODO Add ai behaviors with BehaviorComponent and BehaviorSystem
- * TODO Add wrapper for Level that provides utility functions for simple ai to make decisions
- * TODO Change how rendering works to support zooming in and out smoothly during gameplay
- * TODO Add audio system to handle sound effects and music
- * TODO Take out state machine physics body changing
- * TODO Change velocity, position, and force systems to be more unified
+ * TODO [AI] Add ai behaviors with BehaviorComponent and BehaviorSystem
+ * TODO [AI] Add wrapper for Level that provides utility functions for simple ai to make decisions
+ * TODO [Rendering] Change how rendering works to support zooming in and out smoothly during gameplay
+ * TODO [Sound] Add audio system to handle sound effects and music
+ * TODO [State Machine] Take out state machine physics body changing
+ * TODO [General] Make spreadsheet for enemies
+ * TODO [State Machine] Add in chain transitions
+ * TODO [Component] Add in types that the entity can interact with (e.g. my type = neutral, I interact with enemies and friendly)
+ * TODO [Enemies] Add in wings entity that has relative positioning and attacking
+ * TODO [Enemies] Add in enemy spawners
  */
 public class GdxGame extends Game {
 	// Rendering
