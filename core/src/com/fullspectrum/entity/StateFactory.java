@@ -266,10 +266,9 @@ public class StateFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					KnockBackComponent knockBackComp = Mappers.knockBack.get(entity);
-					EngineComponent engineComp = Mappers.engine.get(entity);
 					float fx = knockBackComp.speed * MathUtils.cosDeg(knockBackComp.angle);
 					float fy = knockBackComp.speed * MathUtils.sinDeg(knockBackComp.angle);
-					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
+					entity.getComponent(ForceComponent.class).add(fx, fy);
 					
 					float time = knockBackComp.distance / knockBackComp.speed;
 					TimerComponent timerComp = Mappers.timer.get(entity);
@@ -283,7 +282,10 @@ public class StateFactory {
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					
+					KnockBackComponent knockBackComp = Mappers.knockBack.get(entity);
+					float fx = knockBackComp.speed * MathUtils.cosDeg(knockBackComp.angle);
+					float fy = knockBackComp.speed * MathUtils.sinDeg(knockBackComp.angle);
+					entity.getComponent(ForceComponent.class).add(-fx, -fy);
 				}
 			});
 			return this;

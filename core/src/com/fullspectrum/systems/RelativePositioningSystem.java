@@ -15,7 +15,7 @@ import com.fullspectrum.entity.EntityUtils;
 public class RelativePositioningSystem extends IteratingSystem{
 
 	public RelativePositioningSystem(){
-		super(Family.all(ParentComponent.class, OffsetComponent.class).one(BodyComponent.class, PositionComponent.class).get());
+		super(Family.all(ParentComponent.class, OffsetComponent.class, PositionComponent.class).get());
 	}
 
 	@Override
@@ -47,9 +47,8 @@ public class RelativePositioningSystem extends IteratingSystem{
 		if(bodyComp != null){
 			bodyComp.body.setTransform(x, y, 0.0f);
 			bodyComp.body.setActive(true);
-		}else{
-			positionComp.x = x;
-			positionComp.y = y;
 		}
+		positionComp.x = x;
+		positionComp.y = y;
 	}
 }

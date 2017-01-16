@@ -5,8 +5,13 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class VelocityComponent implements Component, Poolable{
 
+	// Actual Velicty
 	public float dx = 0.0f;
 	public float dy = 0.0f;
+	
+	// Expected Velocity
+	public float ex = 0.0f;
+	public float ey = 0.0f;
 
 	public VelocityComponent set(float dx, float dy){
 		this.dx = dx;
@@ -18,6 +23,8 @@ public class VelocityComponent implements Component, Poolable{
 	public void reset() {
 		dx = 0.0f;
 		dy = 0.0f;
+		ex = 0.0f;
+		ey = 0.0f;
 	}
 	
 }

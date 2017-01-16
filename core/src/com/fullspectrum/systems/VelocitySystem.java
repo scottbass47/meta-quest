@@ -3,31 +3,33 @@ package com.fullspectrum.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.fullspectrum.component.DirectionComponent;
-import com.fullspectrum.component.InputComponent;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.VelocityComponent;
-import com.fullspectrum.input.Actions;
 
 public class VelocitySystem extends IteratingSystem{
 
+	/**
+	 * Takes velocity component and applies an impulse to the physics body
+	 */
 	public VelocitySystem(){
-		super(Family.all(DirectionComponent.class, SpeedComponent.class, VelocityComponent.class).get());
+		super(Family.all(VelocityComponent.class, BodyComponent.class, ForceComponent.class).get());
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		DirectionComponent directionComp = Mappers.direction.get(entity);
-		SpeedComponent speedComp = Mappers.speed.get(entity);
 		VelocityComponent velocityComp = Mappers.velocity.get(entity);
-		InputComponent inputComp = Mappers.input.get(entity);
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		Body body = bodyComp.body;
 		
-		if(inputComp != null){
-			speedComp.multiplier = Math.abs(inputComp.input.getValue(Actions.MOVE_LEFT) - inputComp.input.getValue(Actions.MOVE_RIGHT));
-		}
-		
-		velocityComp.dx = speedComp.maxSpeed * speedComp.multiplier * directionComp.direction.getDirection();
+		velocityComp.dx = body.getLinearVelocity().x;
+		velocityComp.dy = body.getLinearVelocity().y;
+
+//		float dx = velocityComp.dx - body.getLinearVelocity().x;
+//		float dy = velocityComp.dy - body.getLinearVelocity().y;
+//
+//		body.applyLinearImpulse(dx, dy, body.getWorldCenter().x, body.getWorldCenter().y, true);
 	}
-	
 }

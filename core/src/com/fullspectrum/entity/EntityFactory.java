@@ -311,7 +311,7 @@ public class EntityFactory {
 					float fy = 15.0f;
 					if(collisionComp.onRightWall()) fx = -fx;
 					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
-					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
+					entity.getComponent(ForceComponent.class).add(fx, fy);
 				}
 
 				@Override
@@ -326,22 +326,23 @@ public class EntityFactory {
 				public void onEnter(State prevState, Entity entity) {
 					BodyComponent bodyComp = Mappers.body.get(entity);
 					FacingComponent facingComp = Mappers.facing.get(entity);
-					ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
+					ForceComponent forceComp = Mappers.force.get(entity);
 					
 					Body body = bodyComp.body;
-					body.setLinearVelocity(body.getLinearVelocity().x, 0);
 					body.setGravityScale(0.0f);
 					
-					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
+					forceComp.add(facingComp.facingRight ? 30f : -30f, 0.0f);
 					entity.add(forceComp);
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
+					ForceComponent forceComp = Mappers.force.get(entity);
+					FacingComponent facingComp = Mappers.facing.get(entity);
 					BodyComponent bodyComp = Mappers.body.get(entity);
 					Body body = bodyComp.body;
 					
-					body.setLinearVelocity(0.0f, 0.0f);
+					forceComp.add(facingComp.facingRight ? -30f : 30f, 0.0f);
 					body.setGravityScale(1.0f);
 				}
 			});
@@ -854,7 +855,7 @@ public class EntityFactory {
 				.render(dropIdle.getKeyFrame(0), false)
 				.build();
 		
-		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
+		drop.getComponent(ForceComponent.class).add(fx, fy);
 		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
 		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
 
@@ -901,6 +902,7 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		drop.add(engine.createComponent(ESMComponent.class).set(esm));
+		drop.getComponent(BodyComponent.class).body.setGravityScale(0.75f);
 		return drop;
 	}
 	
@@ -909,7 +911,7 @@ public class EntityFactory {
 				.physics(null, x, y, false)
 				.build();
 		projectile.add(engine.createComponent(TypeComponent.class).set(type));
-		projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
+		projectile.getComponent(ForceComponent.class).add(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle));
 		projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, isArc));
 		
 		Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(physicsBody), world, new Vector2(x, y), projectile, true);
@@ -976,6 +978,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level));
 			entity.add(engine.createComponent(TimerComponent.class));
+			entity.add(engine.createComponent(ForceComponent.class));
 		}
 		
 		/**
