@@ -36,6 +36,9 @@ public class RelativePositioningSystem extends IteratingSystem{
 		
 		if(offsetComp.canFlip && facingComp != null){
 			x += (facingComp.facingRight ? offsetComp.xOff : -offsetComp.xOff);
+			if(Mappers.facing.get(entity) != null){
+				Mappers.facing.get(entity).facingRight = facingComp.facingRight;
+			}
 		}
 		else{
 			x += offsetComp.xOff;

@@ -9,6 +9,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
@@ -37,17 +38,19 @@ public class RenderingSystem extends EntitySystem {
 			TextureComponent texture = Mappers.texture.get(e);
 			FacingComponent facing = Mappers.facing.get(e);
 			TintComponent tint = Mappers.tint.get(e);
+			float x = position.x - (texture.region.getRegionWidth() * 0.5f * PPM_INV);
+			float y = position.y - (texture.region.getRegionHeight() * 0.5f * PPM_INV);
 			if (texture.region == null) continue;
 			float width = texture.region.getRegionWidth();
 			float height = texture.region.getRegionHeight();
 			if(tint != null) batch.setColor(tint.tint);
 			if(facing != null){
 				texture.region.flip(!facing.facingRight, false);
-				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
+				batch.draw(texture.region, x, y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
 				texture.region.flip(texture.region.isFlipX(), false);
 			}
 			else{
-				batch.draw(texture.region, position.x, position.y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
+				batch.draw(texture.region, x, y, 0, 0, width, height, PPM_INV, PPM_INV, 0.0f);
 			}
 			batch.setColor(Color.WHITE);
 		}

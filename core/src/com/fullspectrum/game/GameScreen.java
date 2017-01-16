@@ -97,7 +97,6 @@ import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
-import com.fullspectrum.systems.SimpleVelocitySystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
@@ -215,13 +214,15 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new BobSystem());
 		engine.addSystem(new ForceSystem());
 		engine.addSystem(new DirectionSystem());
-		engine.addSystem(new VelocitySystem());
-		engine.addSystem(new SimpleVelocitySystem());
+		
+		// Movement Systems
 		engine.addSystem(new FlyingSystem());
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new WallSlideSystem());
+		
+		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());

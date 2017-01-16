@@ -708,7 +708,7 @@ public class EntityFactory {
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
 		
-		engine.addEntity(createWings(engine, world, level, entity, x, y, -1.5f, 0f, assets.getSpriteAnimation(Assets.spitterWings)));
+		engine.addEntity(createWings(engine, world, level, entity, x, y, -0.8f, 0.5f, assets.getSpriteAnimation(Assets.spitterWings)));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/spitter.json")
 			.knockBack()
