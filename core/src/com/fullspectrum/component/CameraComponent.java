@@ -9,7 +9,8 @@ public class CameraComponent implements Component, Poolable {
 
 	public float x = 0.0f;
 	public float y = 0.0f;
-
+	public float zoom = 0.0f;
+	
 	public float minX = 0.0f;
 	public float minY = 0.0f;
 	public float maxX = 0.0f;
@@ -32,6 +33,7 @@ public class CameraComponent implements Component, Poolable {
 	public void reset() {
 		x = 0.0f;
 		y = 0.0f;
+		zoom = 0.0f;
 
 		minX = 0.0f;
 		minY = 0.0f;
