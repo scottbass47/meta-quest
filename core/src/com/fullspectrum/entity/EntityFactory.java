@@ -28,6 +28,9 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.DeathComponent;
+import com.fullspectrum.component.DeathComponent.DeathBehavior;
+import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.DropTypeComponent;
@@ -66,6 +69,7 @@ import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
+import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
@@ -118,11 +122,18 @@ public class EntityFactory {
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(input, EntityType.FRIENDLY, 2500f)
+				.mob(input, EntityType.FRIENDLY, 1f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.add(engine.createComponent(MoneyComponent.class));
+		player.getComponent(DeathComponent.class).set(new DeathBehavior(){
+			@Override
+			public void onDeath(Entity entity) {
+				Mappers.heatlh.get(entity).health = Mappers.heatlh.get(entity).maxHealth;
+				Mappers.death.get(entity).triggered = false;
+			}
+		});
 
 		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player);
 		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player);
@@ -696,6 +707,8 @@ public class EntityFactory {
 	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
+		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
+		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.spitterAttack));
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(engine, world, level)
 				.animation(animMap)
@@ -706,29 +719,78 @@ public class EntityFactory {
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
+		entity.getComponent(DeathComponent.class).set(new DeathBehavior(){
+			@Override
+			public void onDeath(Entity entity) {
+				Mappers.body.get(entity).body.setActive(false);
+				Mappers.wing.get(entity).wings.add(new RemoveComponent());
+				Mappers.esm.get(entity).esm.changeState(EntityStates.DYING);
+			}
+		});
 		
-		engine.addEntity(createWings(engine, world, level, entity, x, y, -0.8f, 0.5f, assets.getSpriteAnimation(Assets.spitterWings)));
+		Entity wings = createWings(engine, world, level, entity, x, y, -0.8f, 0.5f, assets.getSpriteAnimation(Assets.spitterWings));
+		entity.add(engine.createComponent(WingComponent.class).set(wings));
+		engine.addEntity(wings);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity, "body/spitter.json")
 			.knockBack()
 			.build();
+		esm.setDebugName("Spitter ESM");
+		
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
 			.add(engine.createComponent(FlyingComponent.class))
 			.add(engine.createComponent(FlowFieldComponent.class).set(field))
 			.addAnimation(EntityAnim.IDLE);
-		esm.createState(EntityStates.PROJECTILE_ATTACK);
-		esm.createState(EntityStates.DYING);
+		
+		esm.createState(EntityStates.PROJECTILE_ATTACK)
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(FlyingComponent.class))
+			.add(engine.createComponent(FlowFieldComponent.class).set(field))
+			.addAnimation(EntityAnim.ATTACK)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					// shoot projectile
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
+		
+		esm.createState(EntityStates.DYING)
+			.addAnimation(EntityAnim.DYING)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					entity.add(new RemoveComponent());
+				}
+			});
 		
 		esm.changeState(EntityStates.FLYING);
 		
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		entity.add(engine.createComponent(ESMComponent.class).set(esm));
 		
-		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		// Attack Input
+		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
+		
+		// Knock Back Transitions
+		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
 		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.FLYING);
 		
+		// Attack Transitions
+		esm.addTransition(EntityStates.FLYING, Transition.INPUT, attackInput, EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.FLYING);
+
+		// After death
+		esm.addTransition(EntityStates.DYING, Transition.ANIMATION_FINISHED, EntityStates.FLYING);
+
 		AIStateMachine aism = new  AIStateMachine(entity);
 		aism.createState(AIState.WANDERING);
 		aism.createState(AIState.FOLLOWING)
@@ -743,7 +805,9 @@ public class EntityFactory {
 					Mappers.aiController.get(entity).controller.releaseAll();
 				}
 			});
-		aism.createState(AIState.ATTACKING);
+		aism.createState(AIState.ATTACKING)
+			.add(engine.createComponent(TargetComponent.class).set(toFollow))
+			.add(engine.createComponent(AttackComponent.class));
 		
 		LOSTransitionData inSightData = new LOSTransitionData(toFollow, true);
 		LOSTransitionData outOfSightData = new LOSTransitionData(toFollow, false);
@@ -766,7 +830,7 @@ public class EntityFactory {
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
 		inAttackRange.target = toFollow;
-		inAttackRange.distance = 2.5f;
+		inAttackRange.distance = 5.0f;
 		inAttackRange.inRange = true;
 		
 		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange);
@@ -774,7 +838,7 @@ public class EntityFactory {
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
 		outOfAttackRange.target = toFollow;
-		outOfAttackRange.distance = 3.5f;
+		outOfAttackRange.distance = 6.0f;
 		outOfAttackRange.inRange = false;
 		
 		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange);
@@ -975,6 +1039,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level));
 			entity.add(engine.createComponent(TimerComponent.class));
+			entity.add(engine.createComponent(DeathComponent.class).set(new DefaultDeathBehavior()));				
 		}
 		
 		/**

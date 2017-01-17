@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Bits;
@@ -34,7 +35,8 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	// Debug
 	private String debugName = "";
-
+	private boolean debugOutput = false;
+	
 	public StateMachine(Entity entity, StateCreator<E> creator, Class<S> stateClazz, Class<E> stateObjectClazz) {
 		this.entity = entity;
 		this.creator = creator;
@@ -51,6 +53,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 			initialState = key;
 			bitOffset = key.numStates();
 		}
+		if(debugOutput) Gdx.app.log(debugName, key.getName() + " state created.");
 		E state = creator.getInstance(entity, this);
 		state.identifier = key.toString();
 		state.bitOffset = bitOffset;
@@ -67,6 +70,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	public void enableState(S state) {
 		states.get(state).enable();
+	}
+	
+	public void setDebugOutput(boolean debugOutput){
+		this.debugOutput = debugOutput;
 	}
 
 	public void reset() {
@@ -157,6 +164,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
 		E currState = currentState;
+		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName());
 		exitCurrent((S) identifier);
 		for (Component c : newState.getComponents()) {
 			entity.add(c);

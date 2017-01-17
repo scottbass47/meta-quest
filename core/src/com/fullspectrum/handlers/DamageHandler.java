@@ -42,7 +42,7 @@ public class DamageHandler {
 		
 		if(Mappers.inviciblity.get(toEntity) != null) return;
 		if(Mappers.fsm.get(toEntity) != null && Mappers.fsm.get(toEntity).fsm.hasState(PlayerState.KNIGHT)){
-			float duration = 2.5f;
+			float duration = 0.5f;
 			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)
 					.addBlink(duration, 0.15f));
@@ -59,7 +59,7 @@ public class DamageHandler {
 		
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
-		int dealt = (int)MathUtils.clamp(amount, 1.0f, healthComp.health);
+		int dealt = (int)MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
 		
 		int healthDown = 0;
 		int shieldDown = 0;

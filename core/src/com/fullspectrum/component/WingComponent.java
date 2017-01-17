@@ -5,20 +5,20 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.entity.EntityManager;
 
-public class SwordComponent implements Component, Poolable{
+public class WingComponent implements Component, Poolable{
 
-	public Entity sword;
+	public Entity wings;
 	
-	public SwordComponent set(Entity sword){
-		this.sword = sword;
+	public WingComponent set(Entity wings){
+		this.wings = wings;
 		return this;
 	}
-
-	@Override
-	public void reset(){
-		if(sword == null) return;
-		EntityManager.cleanUp(sword);
-		sword = null;
-	}
 	
+	@Override
+	public void reset() {
+		if(wings == null) return;
+		EntityManager.cleanUp(wings);
+		wings = null;
+	}
+
 }

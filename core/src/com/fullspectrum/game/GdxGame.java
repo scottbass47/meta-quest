@@ -37,6 +37,7 @@ import com.fullspectrum.input.RawInput;
  * TODO [Component] Add in types that the entity can interact with (e.g. my type = neutral, I interact with enemies and friendly)
  * TODO [Enemies] Add in wings entity that has relative positioning and attacking
  * TODO [Enemies] Add in enemy spawners
+ * TODO [Entity] Add in DeathComponent to handle removal behavior for entities
  */
 public class GdxGame extends Game {
 	// Rendering

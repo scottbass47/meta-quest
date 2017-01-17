@@ -14,6 +14,8 @@ public enum EntityAnim implements State{
 	JUMP_APEX,
 	CLIMBING,
 	SWING,
+	ATTACK,
+	DYING,
 	WALL_SLIDING,
 	DROP_IDLE,
 	DROP_DISAPPEAR;
