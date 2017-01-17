@@ -3,7 +3,6 @@ package com.fullspectrum.game;
 import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
@@ -31,7 +30,6 @@ import com.fullspectrum.input.RawInput;
  * ----------------
  * TODO [AI] Add ai behaviors with BehaviorComponent and BehaviorSystem
  * TODO [AI] Add wrapper for Level that provides utility functions for simple ai to make decisions
- * TODO [Rendering] Change how rendering works to support zooming in and out smoothly during gameplay
  * TODO [Sound] Add audio system to handle sound effects and music
  * TODO [State Machine] Take out state machine physics body changing
  * TODO [General] Make spreadsheet for enemies
@@ -65,7 +63,7 @@ public class GdxGame extends Game {
 		batch = new SpriteBatch();
 		worldCamera = new OrthographicCamera();
 		worldViewport = new FitViewport(SCREEN_WIDTH * PPM_INV, SCREEN_HEIGHT * PPM_INV, worldCamera);
-		worldCamera.zoom = 1.0f / UPSCALE;
+		worldCamera.zoom = 1.0f;
 		hudCamera = new OrthographicCamera();
 		hudViewport = new FitViewport(SCREEN_WIDTH, SCREEN_HEIGHT, hudCamera);
 		font = new BitmapFont();

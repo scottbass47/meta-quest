@@ -5,7 +5,6 @@ import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
 import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-import static com.fullspectrum.game.GameVars.UPSCALE;
 
 import java.util.Iterator;
 
@@ -24,8 +23,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.HdpiUtils;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
@@ -36,7 +33,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.GdxRuntimeException;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.ai.XYAlignHeuristic;
@@ -132,7 +128,7 @@ public class GameScreen extends AbstractScreen {
 	// Rendering
 	private FrameBuffer frameBuffer;
 //	private FrameBuffer mainBuffer;
-	private ShaderProgram mellowShader;
+//	private ShaderProgram mellowShader;
 //	private ShaderProgram vignetteShader;
 	private int previousZoom = 0;
 	private Assets assets;
@@ -157,10 +153,10 @@ public class GameScreen extends AbstractScreen {
 		font = assets.getFont(Assets.font28);
 
 		// Setup Shader
-		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
-		if (!mellowShader.isCompiled()) {
-			throw new GdxRuntimeException(mellowShader.getLog());
-		}
+//		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
+//		if (!mellowShader.isCompiled()) {
+//			throw new GdxRuntimeException(mellowShader.getLog());
+//		}
 //		vignetteShader = new ShaderProgram(Gdx.files.internal("shaders/vignette.vsh"), Gdx.files.internal("shaders/vignette.fsh"));
 //		if (!vignetteShader.isCompiled()) {
 //			throw new GdxRuntimeException(vignetteShader.getLog());
@@ -275,6 +271,7 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMinY = 0f;
 		cameraComp.windowMaxX = 2f;
 		cameraComp.windowMaxY = 0f;
+		cameraComp.zoom = 3.0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
 		spawnFlyingEnemey();
@@ -319,7 +316,6 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 //		ups++;
-		worldCamera.zoom = 0.35f;
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
@@ -349,8 +345,7 @@ public class GameScreen extends AbstractScreen {
 
 		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
 			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
-			GameVars.resize(1 << previousZoom, worldCamera);
-			resetFrameBuffer(FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT);
+			Mappers.camera.get(cameraEntity).zoom = previousZoom + 1;
 		}
 		
 		BodyComponent bodyComp = Mappers.body.get(playerOne);
@@ -403,8 +398,8 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void render() {
-		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
-		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+//		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
+//		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		// Render Buffer
 		frameBuffer.begin();
@@ -442,17 +437,18 @@ public class GameScreen extends AbstractScreen {
 
 		frameBuffer.end();
 
-		HdpiUtils.glViewport(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH, SCREEN_HEIGHT);
-		HdpiUtils.glScissor(UPSCALE / 2, UPSCALE / 2, SCREEN_WIDTH - UPSCALE, SCREEN_HEIGHT - UPSCALE);
+//		HdpiUtils.glViewport(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+//		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH - 1, SCREEN_HEIGHT - 1);
 
-		CameraComponent camera = Mappers.camera.get(cameraEntity);
+//		CameraComponent camera = Mappers.camera.get(cameraEntity);
 
 //		mainBuffer.begin();
 		batch.begin();
-		batch.setShader(mellowShader);
+//		batch.setShader(mellowShader);
 		batch.setProjectionMatrix(hudCamera.combined);
-		mellowShader.setUniformf("u_textureSizes", FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, UPSCALE, 0.0f);
-		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
+//		batch.setProjectionMatrix(batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
+//		mellowShader.setUniformf("u_textureSizes", FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 1.0f, 0.0f);
+//		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
 		batch.draw(frameBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
 		batch.end();
 		
@@ -466,7 +462,7 @@ public class GameScreen extends AbstractScreen {
 //		batch.end();
 
 		batch.setShader(null);
-		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
+//		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		batch.setProjectionMatrix(hudCamera.combined);
 		if(DebugInput.isToggled(DebugToggle.SHOW_MAP_COORDS)){
@@ -642,7 +638,6 @@ public class GameScreen extends AbstractScreen {
 	public void dispose() {
 		super.dispose();
 		sRenderer.dispose();
-		mellowShader.dispose();
 		frameBuffer.dispose();
 	}
 }

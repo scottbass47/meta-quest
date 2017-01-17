@@ -33,8 +33,8 @@ public class TextRenderingSystem extends EntitySystem{
 			PositionComponent positionComp = Mappers.position.get(e);
 			TextRenderComponent textRenderComp = Mappers.textRender.get(e);
 			
-			float x = (positionComp.x - cameraComp.x + GameVars.R_WORLD_WIDTH * 0.5f) * GameVars.PPM * 4.0f;
-			float y = (positionComp.y - cameraComp.y + GameVars.R_WORLD_HEIGHT * 0.5f) * GameVars.PPM * 4.0f;
+			float x = (positionComp.x - cameraComp.x + GameVars.R_WORLD_WIDTH * 1.0f / cameraComp.zoom * 0.5f) * GameVars.PPM * cameraComp.zoom;
+			float y = (positionComp.y - cameraComp.y + GameVars.R_WORLD_HEIGHT * 1.0f / cameraComp.zoom * 0.5f) * GameVars.PPM * cameraComp.zoom;
 			
 			textRenderComp.font.setColor(textRenderComp.color);
 			textRenderComp.font.draw(batch, textRenderComp.text, x, y);
