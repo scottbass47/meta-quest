@@ -6,12 +6,14 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TimerComponent;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.handlers.DamageHandler;
 
@@ -109,7 +111,7 @@ public enum Sensors {
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
 			DamageHandler.dealDamage(otherEntity, bulletStatsComp.damage);
 			
-			entity.add(new RemoveComponent());
+			EntityManager.sendToDie(entity);
 		}
 
 		@Override

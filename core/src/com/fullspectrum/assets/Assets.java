@@ -57,6 +57,9 @@ public class Assets {
 	public static final String spitterAttack = "spitter_attack";
 	public static final String spitterIdle = "spitter_idle";
 	public static final String spitterDeath = "spitter_death";
+	public static final String spitInit = "spitter_init_projectile";
+	public static final String spitFly = "spitter_flying_projectile";
+	public static final String spitSplash = "spitter_splashing_projectile";
 	
 	// Font
 	public static final String font24 = "font/test24.fnt";

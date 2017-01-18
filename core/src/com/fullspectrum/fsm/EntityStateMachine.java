@@ -1,42 +1,19 @@
 package com.fullspectrum.fsm;
 
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Fixture;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.EntityStates;
-import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityStateMachine extends StateMachine<EntityStates, EntityState> {
 
-	// Physics
-	private String bodyPath;
-	
-	public EntityStateMachine(Entity entity, String bodyPath) {
+	public EntityStateMachine(Entity entity/*, String bodyPath*/) {
 		super(entity, new EntityStateCreator(), EntityStates.class, EntityState.class);
 		this.states = new ArrayMap<EntityStates, EntityState>();
-		this.bodyPath = bodyPath;
-		
-		// Setup Physics
-		PositionComponent posComp = Mappers.position.get(entity);
-		BodyComponent bodyComp = Mappers.body.get(entity);
-		WorldComponent worldComp = Mappers.world.get(entity);
-		assert bodyComp != null && posComp != null && worldComp != null : "Component can't be null.";
-		bodyComp.body = PhysicsUtils.createPhysicsBody(Gdx.files.internal(bodyPath), worldComp.world, new Vector2(posComp.x, posComp.y), entity, false);
 	}
 	
 	@Override
 	public EntityState createState(EntityStates key) {
 		EntityState state = super.createState(key);
-		state.fixtures = PhysicsUtils.getEntityFixtures(Gdx.files.internal(bodyPath), key);
 		return state;
 	}
 	
@@ -48,32 +25,11 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 		EntityState newState = states.get(state);
 		super.changeState(identifier);
 		if (newState == currState) return;
-		if(currState == null){
-			changeBody(newState);
-			return;
-		}
-		if(!newState.fixtures.equals(currState.fixtures)){
-			changeBody(newState);
-		}
 	}
 	
 	@Override
 	public void reset() {
 		super.reset();
-	}
-	
-	private void changeBody(EntityState state){
-//		Gdx.app.debug("Entity State Machine", "changing body.");
-		BodyComponent bodyComp = Mappers.body.get(entity);
-		Body body = bodyComp.body;
-		for(Fixture fixture : body.getFixtureList()){
-			body.destroyFixture(fixture);
-		}
-		for(Entry<FixtureDef, Object> fdef : state.fixtures.getFixtures().entries()){
-			Fixture fixture = body.createFixture(fdef.key);
-			fixture.setUserData(state.fixtures.getData(fdef.key));
-		}
-		bodyComp.updateAABB();
 	}
 	
 	public float getAnimationTime(){

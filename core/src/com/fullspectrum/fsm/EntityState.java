@@ -5,16 +5,12 @@ import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
-import com.fullspectrum.physics.EntityFixtures;
 
 public class EntityState extends StateObject{
 
 	// Animations
 	protected AnimationStateMachine animations;
 	protected State initialAnim;
-	
-	// Physics
-	protected EntityFixtures fixtures;
 	
 	protected EntityState(Entity entity, StateMachine<? extends State, ? extends StateObject> machine){
 		super(entity, machine);
@@ -42,10 +38,6 @@ public class EntityState extends StateObject{
 	public EntityState setInitialAnimation(State anim){
 		initialAnim = anim;
 		return this;
-	}
-	
-	public EntityFixtures getFixtures(){
-		return fixtures;
 	}
 	
 	public State getCurrentAnimation(){

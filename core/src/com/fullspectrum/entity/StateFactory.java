@@ -35,9 +35,9 @@ public class StateFactory {
 		private Engine engine;
 		private EntityStateMachine esm;
 		
-		public EntityStateBuilder(Engine engine, Entity entity, String bodyPath){
+		public EntityStateBuilder(Engine engine, Entity entity){
 			this.engine = engine;
-			esm = new EntityStateMachine(entity, bodyPath);
+			esm = new EntityStateMachine(entity);
 		}
 		
 		/**

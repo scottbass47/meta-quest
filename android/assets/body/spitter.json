@@ -2,7 +2,6 @@
   "BodyDef": {
     "type": "DynamicBody"
   },
-  "Default":{
   	"Fixtures": [
       {
         "shape": "Box",
@@ -11,5 +10,4 @@
         "Category": "entity"
       }
   	]
-  }
 }

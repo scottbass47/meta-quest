@@ -53,6 +53,7 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.entity.EntityUtils;
@@ -320,6 +321,7 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
 		world.step(delta, 6, 2);
+		EntityManager.update(delta);
 		if (input.isJustPressed(Actions.SELECT)) {
 			changePlayer();
 		}

@@ -11,6 +11,7 @@ public enum EntityAnim implements State{
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
 	FALLING,
+	FLYING,
 	JUMP_APEX,
 	CLIMBING,
 	SWING,

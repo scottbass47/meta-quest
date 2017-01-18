@@ -71,7 +71,16 @@ public class ProjectileFactory {
 		
 		engineComp.engine.addEntity(EntityFactory.createExplosiveParticle(engineComp.engine, worldComp.world, levelComp.level, entity, speed, data.angle, data.x, data.y));
 	}
-
+	
+	public static void spawnSpitProjectile(Entity entity, float xOff, float yOff, float speed, float damage, float angle, float airTime){
+		EngineComponent engineComp = Mappers.engine.get(entity);
+		WorldComponent worldComp = Mappers.world.get(entity);
+		LevelComponent levelComp = Mappers.level.get(entity);
+		ProjectileData data = initProjectile(entity, xOff, yOff, angle);
+		
+		engineComp.engine.addEntity(EntityFactory.createSpitProjectile(engineComp.engine, worldComp.world, levelComp.level, speed, data.angle, data.x, data.y, damage, airTime, Mappers.type.get(entity).type));
+	}
+	
 	private static class ProjectileData {
 
 		public final float x;

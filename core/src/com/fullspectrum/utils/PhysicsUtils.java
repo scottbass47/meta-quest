@@ -21,44 +21,9 @@ import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
-import com.badlogic.gdx.utils.ObjectMap.Entry;
-import com.fullspectrum.fsm.State;
 import com.fullspectrum.physics.CollisionBits;
-import com.fullspectrum.physics.EntityFixtures;
 
 public class PhysicsUtils {
-	
-	public static EntityFixtures getEntityFixtures(FileHandle file, State state){
-		EntityFixtures eFixtures = new EntityFixtures();
-		String jsonString = file.readString();
-		JsonReader reader = new JsonReader();
-		JsonValue root = reader.parse(jsonString);
-		
-		JsonValue value = root.get(StringUtils.toTitleCase(state.getName()));
-		eFixtures.setName(state.getName());
-		if(value == null){
-			value = root.get("Default");
-			eFixtures.setName("Default");
-			if(value == null){
-				Gdx.app.log("ERROR", "no default physics body for this entity.");
-				return null;
-			}
-		}
-		
-		for(JsonValue json : value.get("Fixtures")){
-			FixtureDef fdef = loadFixture(json);
-			Object data = null;
-			if(fdef.isSensor){
-				data = json.getString("SensorType");
-			}else{
-				if(json.has("CollisionType")){
-					data = json.getString("CollisionType");
-				}
-			}
-			eFixtures.add(fdef, data);
-		}
-		return eFixtures;
-	}
 	
 	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, Entity entity, boolean withFixtures){
 		String jsonString = file.readString();
@@ -175,37 +140,4 @@ public class PhysicsUtils {
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
-	public static Rectangle getAABB(EntityFixtures fixtures){
-		float maxX = 0, maxY = 0, minX = 0, minY = 0;
-		for(Entry<FixtureDef, Object> fdef : fixtures.getFixtures()){
-			if(fdef.key.isSensor) continue;
-			Type type = fdef.key.shape.getType();
-			switch(type){
-			case Circle:
-				CircleShape circleShape = (CircleShape)fdef.key.shape;
-				Vector2 position = circleShape.getPosition();
-				float radius = circleShape.getRadius();
-				if(position.x - radius < minX) minX = position.x - radius;
-				if(position.y - radius < minY) minY = position.y - radius;
-				if(position.x + radius > maxX) maxX = position.x + radius;
-				if(position.y + radius > maxY) maxY = position.y + radius;
-				break;
-			case Polygon:
-				PolygonShape boxShape = (PolygonShape)fdef.key.shape;
-				for(int i = 0; i < boxShape.getVertexCount(); i++){
-					Vector2 vertex = new Vector2();
-					boxShape.getVertex(i, vertex);
-					if(vertex.x < minX) minX = vertex.x;
-					if(vertex.y < minY) minY = vertex.y;
-					if(vertex.x > maxX) maxX = vertex.x;
-					if(vertex.y > maxY) maxY = vertex.y;
-				}
-				break;
-			default:
-				Gdx.app.error("ERROR", " - invalid shape type for calculating AABB.");
-				break;
-			}
-		}
-		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
-	}
 }
