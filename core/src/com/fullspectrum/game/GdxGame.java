@@ -31,13 +31,10 @@ import com.fullspectrum.input.RawInput;
  * TODO [AI] Add ai behaviors with BehaviorComponent and BehaviorSystem
  * TODO [AI] Add wrapper for Level that provides utility functions for simple ai to make decisions
  * TODO [Sound] Add audio system to handle sound effects and music
- * TODO [State Machine] Take out state machine physics body changing
  * TODO [General] Make spreadsheet for enemies
  * TODO [State Machine] Add in chain transitions
  * TODO [Component] Add in types that the entity can interact with (e.g. my type = neutral, I interact with enemies and friendly)
- * TODO [Enemies] Add in wings entity that has relative positioning and attacking
  * TODO [Enemies] Add in enemy spawners
- * TODO [Entity] Add in DeathComponent to handle removal behavior for entities
  */
 public class GdxGame extends Game {
 	// Rendering

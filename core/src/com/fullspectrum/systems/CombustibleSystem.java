@@ -7,6 +7,7 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.TimeListener;
@@ -29,14 +30,8 @@ public class CombustibleSystem extends IteratingSystem {
 		if(body.isActive() && combustibleComp.shouldExplode){
 			body.setActive(false);
 			combustibleComp.shouldExplode = false;
-			float time = combustibleComp.radius / combustibleComp.speed;
-			TimerComponent timerComp = Mappers.timer.get(entity);
-			timerComp.add("explosive_life", time, false, new TimeListener(){
-				@Override
-				public void onTime(Entity entity) {
-					entity.add(new RemoveComponent());
-				}
-			});
+			DeathComponent deathComp = Mappers.death.get(entity);
+			deathComp.onDeath.onDeath(entity);
 			float radius = combustibleComp.radius;
 			float r = 4 * GameVars.PPM_INV;
 			int numParticles = (int)(MathUtils.PI * radius / (r + 8 * GameVars.PPM_INV));

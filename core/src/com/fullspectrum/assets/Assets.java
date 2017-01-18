@@ -24,6 +24,7 @@ public class Assets {
 	public static final String healthBarFull = "healthbar_full";
 	public static final String staminaBarEmpty = "staminabar_empty";
 	public static final String staminaBarFull = "staminabar_full";
+	public static final String newHud = "new_hud";
 	
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
@@ -60,6 +61,9 @@ public class Assets {
 	public static final String spitInit = "spitter_init_projectile";
 	public static final String spitFly = "spitter_flying_projectile";
 	public static final String spitSplash = "spitter_splashing_projectile";
+	
+	// Mana Bomb
+	public static final String manaBombExplosion = "mana_bomb_explosion";
 	
 	// Font
 	public static final String font24 = "font/test24.fnt";

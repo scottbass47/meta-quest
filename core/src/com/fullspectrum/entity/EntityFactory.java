@@ -479,7 +479,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 20.0f, 5.0f);
+					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 5.0f);
 					AbilityComponent abilityComp = Mappers.ability.get(entity);
 					abilityComp.resetTime(AbilityType.MANA_BOMB);
 				}
@@ -572,7 +572,7 @@ public class EntityFactory {
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
-		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/goblin.json"), world, new Vector2(x, y), player, true));
+		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(x, y), player, true));
 		player.add(engine.createComponent(MoneyComponent.class).set(value));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class).set(toFollow));
@@ -757,7 +757,7 @@ public class EntityFactory {
 					Mappers.timer.get(entity).add("spit_delay", 0.4f, false, new TimeListener(){
 						@Override
 						public void onTime(Entity entity) {
-							ProjectileFactory.spawnSpitProjectile(entity, 5.0f, 0.0f, 5.0f, 35.0f, 0.0f, 1.0f);
+							ProjectileFactory.spawnSpitProjectile(entity, 5.0f, 2.0f, 10.0f, 35.0f, 0.0f, 1.0f);
 						}
 					});
 				}
@@ -1031,10 +1031,13 @@ public class EntityFactory {
 		});
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, spit).build();
+		
 		esm.createState(EntityStates.IDLING)
 			.addAnimation(EntityAnim.IDLE);
+		
 		esm.createState(EntityStates.FLYING)
 			.addAnimation(EntityAnim.FLYING);
+		
 		esm.createState(EntityStates.DYING)
 			.addAnimation(EntityAnim.DYING)
 			.addChangeListener(new StateChangeListener() {
@@ -1056,9 +1059,58 @@ public class EntityFactory {
 		return spit;
 	}
 	
-	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, float radius, float radiusGrowRate, float damageDropOffRate){
+	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, float radius, float damageDropOffRate){
 		Entity explosive = createProjectile(engine, world, level, "body/explosive.json", speed, angle, x, y, isArc, type);
-		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, radiusGrowRate, damage, damageDropOffRate));
+		
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, new Animation(0.1f, assets.getSpriteAnimation(Assets.manaBombExplosion).getKeyFrame(0)));
+		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.manaBombExplosion));
+		
+		explosive = new EntityBuilder(explosive)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), false)
+				.animation(animMap)
+				.build();
+		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, radius * 2f, damage, damageDropOffRate));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, explosive).build();
+		
+		esm.createState(EntityStates.IDLING)
+			.addAnimation(EntityAnim.IDLE);
+		esm.createState(EntityStates.DYING)
+			.addAnimation(EntityAnim.DYING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					entity.add(new RemoveComponent());
+				}
+			});
+		
+		esm.addTransition(EntityStates.DYING, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		explosive.add(engine.createComponent(ESMComponent.class).set(esm));
+		
+		explosive.getComponent(DeathComponent.class).set(new DeathBehavior() {
+			@Override
+			public void onDeath(Entity entity) {
+				Mappers.esm.get(entity).esm.changeState(EntityStates.DYING);
+				CombustibleComponent combustibleComp = Mappers.combustible.get(entity);
+				float time = combustibleComp.radius / combustibleComp.speed;
+				TimerComponent timerComp = Mappers.timer.get(entity);
+				timerComp.add("explosive_life", time * 2f, false, new TimeListener(){
+					@Override
+					public void onTime(Entity entity) {
+						entity.add(new RemoveComponent());
+					}
+				});
+			}
+		});
+		
 		return explosive;
 	}
 	
