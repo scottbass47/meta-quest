@@ -47,6 +47,7 @@ public class TypeComponent implements Component, Poolable{
 	@Override
 	public void reset() {
 		type = EntityType.NEUTRAL;
+		collideWith = null;
 	}
 	
 	public enum EntityType{

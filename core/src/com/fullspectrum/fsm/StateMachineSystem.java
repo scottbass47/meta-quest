@@ -27,8 +27,8 @@ public class StateMachineSystem extends TransitionSystem {
 	@Override
 	public void update(float deltaTime) {
 		for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
-			if(machine.getCurrentState() == null) continue;
-			for (TransitionObject obj : machine.getCurrentState().getAllTransitionObjects()) {
+			if(machine.getCurrentStateObject() == null) continue;
+			for (TransitionObject obj : machine.getCurrentStateObject().getAllTransitionObjects()) {
 				if (obj.transition.shouldTransition(machine.getEntity(), obj, deltaTime)) {
 					if (machine.changeState(obj)) break;
 				}

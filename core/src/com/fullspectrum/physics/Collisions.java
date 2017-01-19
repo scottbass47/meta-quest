@@ -5,10 +5,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.DamageComponent;
+import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.entity.EntityUtils;
+import com.fullspectrum.handlers.DamageHandler;
 
 public enum Collisions {
 
@@ -90,7 +93,41 @@ public enum Collisions {
 		public void postSolve(Fixture me, Fixture other, Contact contact) {
 			
 		}
-	},;
+	},
+	DAMAGE {
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			
+			TypeComponent myType = Mappers.type.get(entity);
+			TypeComponent otherType = otherEntity != null ? Mappers.type.get(otherEntity) : null;
+			
+			if(otherType == null || !myType.shouldCollide(otherType)) return;
+			
+			HealthComponent healthComp = Mappers.heatlh.get(otherEntity);
+			if(healthComp == null) return;
+			
+			DamageComponent damageComp = Mappers.damage.get(entity);
+			DamageHandler.dealDamage(otherEntity, damageComp.damage);
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+		}
+
+		@Override
+		public void preSolve(Fixture me, Fixture other, Contact contact) {
+			Entity otherEntity = (Entity)other.getBody().getUserData();
+			if(otherEntity == null || !EntityUtils.isValid(otherEntity)) return;
+			
+			contact.setEnabled(false);
+		}
+
+		@Override
+		public void postSolve(Fixture me, Fixture other, Contact contact) {
+		}
+	};
 	
 	
 	public abstract void beginCollision(Fixture me, Fixture other);

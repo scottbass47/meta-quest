@@ -54,7 +54,7 @@ public enum Transition {
 			ESMComponent esmComp = Mappers.esm.get(entity);
 			if (animComp == null || esmComp == null) return false;
 			EntityStateMachine esm = esmComp.esm;
-			if (esm.getAnimationTime() >= animComp.animations.get(esm.getAnimation()).getAnimationDuration() - 0.1f) {
+			if (esm.getAnimationTime() >= animComp.animations.get(esm.getAnimation()).getAnimationDuration() - 2 * deltaTime) {
 				return true;
 			}
 			return false;

@@ -14,7 +14,7 @@ public class BehaviorSystem extends IteratingSystem{
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		Mappers.behavior.get(entity).behavior.update(deltaTime);
+		Mappers.behavior.get(entity).behavior.update(entity, deltaTime);
 	}
 
 }

@@ -45,7 +45,12 @@ public class EntityStateMachine extends StateMachine<EntityStates, EntityState> 
 	}
 	
 	@Override
-	public EntityState getCurrentState() {
+	public EntityState getCurrentStateObject() {
 		return currentState;
+	}
+	
+	@Override
+	public EntityStates getCurrentState() {
+		return super.getCurrentState();
 	}
 }

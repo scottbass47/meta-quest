@@ -32,7 +32,6 @@ public class RenderingSystem extends EntitySystem {
 	}
 	
 	public void render(SpriteBatch batch){
-		batch.setColor(Color.WHITE);
 		batch.begin();
 		for (Entity e : entities) {
 			PositionComponent position = Mappers.position.get(e);

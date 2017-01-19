@@ -69,6 +69,7 @@ public class Mappers {
 	public static final ComponentMapper<WingComponent> wing = ComponentMapper.getFor(WingComponent.class);
 	public static final ComponentMapper<DeathComponent> death = ComponentMapper.getFor(DeathComponent.class);
 	public static final ComponentMapper<BehaviorComponent> behavior = ComponentMapper.getFor(BehaviorComponent.class);
+	public static final ComponentMapper<DamageComponent> damage = ComponentMapper.getFor(DamageComponent.class);
 
 }
 

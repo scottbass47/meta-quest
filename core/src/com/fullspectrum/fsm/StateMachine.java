@@ -97,8 +97,12 @@ public class StateMachine<S extends State, E extends StateObject> {
 		currentState = null;
 	}
 
-	public E getCurrentState() {
+	public E getCurrentStateObject() {
 		return currentState;
+	}
+	
+	public S getCurrentState(){
+		return states.getKey(currentState, false);
 	}
 
 	@SuppressWarnings("unchecked")

@@ -1,0 +1,23 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody"
+  },
+	"Fixtures": [
+	  {
+	    "shape": "Box",
+	    "width": 12,
+	    "height": 8,
+	    "CollisionType": "damage",
+	    "Category": "entity"
+	  },
+	  {
+          "shape": "Box",
+          "width": 10,
+          "height": 4,
+          "yOff": -4,
+          "isSensor": "true",
+          "SensorType": "feet",
+          "Category": "sensor"
+        }
+	]
+}

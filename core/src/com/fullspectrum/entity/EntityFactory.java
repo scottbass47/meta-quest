@@ -30,6 +30,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
@@ -48,6 +49,7 @@ import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
+import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -867,6 +869,131 @@ public class EntityFactory {
 
 		entity.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return entity;
+	}
+	
+	public static Entity createSlime(Engine engine, World world, Level level, float x, float y, int money, float damage){
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.slimeIdle));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.slimeJump));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.slimeRise));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.slimeApex));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.slimeFall));
+		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.slimeLand));
+		
+		AIController controller = new AIController();
+		
+		Entity slime = new EntityBuilder(engine, world, level)
+				.mob(controller, EntityType.ENEMY, 10.0f)
+				.physics(null, x, y, true)
+				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+				.animation(animMap)
+				.build();
+		slime.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/slime.json"), world, new Vector2(x, y), slime, true));
+		slime.add(engine.createComponent(AIControllerComponent.class).set(controller));
+		slime.add(engine.createComponent(MoneyComponent.class).set(money));
+		slime.add(engine.createComponent(DamageComponent.class).set(damage));
+		
+		final float SPEED = 4.0f;
+		final float JUMP_FORCE = 10.0f;
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, slime)
+				.idle()
+				.fall(SPEED, true)
+				.jump(JUMP_FORCE, SPEED, false)
+				.knockBack()
+				.build();
+		
+		esm.getState(EntityStates.JUMPING)
+				.addChangeListener(new StateChangeListener() {
+					@Override
+					public void onEnter(State prevState, Entity entity) {
+						// Save jump data to use later
+						InputComponent inputComp = Mappers.input.get(entity);
+						final float jForce = Mappers.jump.get(entity).maxForce;
+						final float jMultiplier = inputComp.input.getValue(Actions.JUMP);
+						final boolean facingRight = Mappers.facing.get(entity).facingRight;
+						final float rMultiplier = facingRight ? inputComp.input.getValue(Actions.MOVE_RIGHT) : inputComp.input.getValue(Actions.MOVE_LEFT);
+						
+						Mappers.aiController.get(entity).controller.releaseAll();
+						entity.remove(JumpComponent.class);
+						
+						Mappers.timer.get(entity).add("jump", 0.25f, false, new TimeListener() {
+							@Override
+							public void onTime(Entity entity) {
+								AIController controller = Mappers.aiController.get(entity).controller;
+								controller.press(facingRight ? Actions.MOVE_RIGHT : Actions.MOVE_LEFT, rMultiplier);
+								entity.add(Mappers.engine.get(entity).engine.createComponent(JumpComponent.class).set(jForce));
+								Mappers.jump.get(entity).multiplier = jMultiplier;
+							}
+						});
+					}
+
+					@Override
+					public void onExit(State nextState, Entity entity) {
+					}
+				});
+		
+		esm.createState(EntityStates.LANDING)
+				.add(engine.createComponent(DirectionComponent.class))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.addAnimation(EntityAnim.LAND);
+		
+		MultiTransition jumpTransition = new MultiTransition(Transition.INPUT, new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build());
+		
+		// Knock Back Transitions
+		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+		
+		esm.addTransition(EntityStates.FALLING, Transition.LANDED, EntityStates.LANDING);
+		esm.addTransition(EntityStates.LANDING, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.IDLING, jumpTransition, EntityStates.JUMPING);
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transition.FALLING, EntityStates.FALLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		slime.add(engine.createComponent(ESMComponent.class).set(esm));
+		
+		AIStateMachine aism = new AIStateMachine(slime);
+		aism.createState(AIState.WANDERING)
+				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
+					@Override
+					public void update(Entity entity, float deltaTime) {
+						if(Mappers.esm.get(entity).esm.getCurrentState() != EntityStates.IDLING) return;
+						
+						TimerComponent timerComp = Mappers.timer.get(entity);
+						if(!timerComp.timers.containsKey("jump_delay")){
+							timerComp.add("jump_delay", MathUtils.random(2.5f, 3.5f), false, new TimeListener() {
+								@Override
+								public void onTime(Entity entity) {
+									AIController controller = Mappers.aiController.get(entity).controller;
+									boolean right = Math.random() > 0.5f;
+									float xMult = MathUtils.random(0.5f, 1.0f);
+									
+									controller.releaseAll();
+									if(right){
+										controller.press(Actions.MOVE_RIGHT, xMult);
+									}else{
+										controller.press(Actions.MOVE_LEFT, xMult);
+									}
+									controller.justPress(Actions.JUMP);
+								}
+							});
+						}
+					}
+				}));
+		
+		aism.createState(AIState.ATTACKING)
+				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
+					@Override
+					public void update(Entity entity, float deltaTime) {
+					}
+				}));
+		
+		
+		aism.changeState(AIState.WANDERING);
+		slime.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
+		
+		return slime;
 	}
 	
 	public static Entity createWings(Engine engine, World world, Level level, Entity owner, float x, float y, float xOff, float yOff, Animation flapping){

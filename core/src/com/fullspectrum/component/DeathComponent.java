@@ -19,6 +19,7 @@ public class DeathComponent implements Component, Poolable {
 	public void reset() {
 		onDeath = null;
 		triggered = false;
+		shouldDie = false;
 	}
 	
 	public void triggerDeath(){

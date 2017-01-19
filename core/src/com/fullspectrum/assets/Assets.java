@@ -62,6 +62,14 @@ public class Assets {
 	public static final String spitFly = "spitter_flying_projectile";
 	public static final String spitSplash = "spitter_splashing_projectile";
 	
+	// Slime
+	public static final String slimeApex = "slime_apex";
+	public static final String slimeFall = "slime_fall";
+	public static final String slimeJump = "slime_jump";
+	public static final String slimeLand = "slime_land";
+	public static final String slimeRise = "slime_rise";
+	public static final String slimeIdle = "slime_idle";
+	
 	// Mana Bomb
 	public static final String manaBombExplosion = "mana_bomb_explosion";
 	

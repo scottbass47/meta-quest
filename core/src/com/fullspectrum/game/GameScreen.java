@@ -276,7 +276,8 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.zoom = 3.0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
-		spawnFlyingEnemey();
+//		spawnFlyingEnemey();
+		spawnSlime(playerMesh.getRandomNode());
 	}
 
 	private void spawnEnemy(Node node) {
@@ -299,6 +300,16 @@ public class GameScreen extends AbstractScreen {
 	
 	private void spawnFlyingEnemy(int row, int col){
 		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, playerOne, MathUtils.random(10, 25));
+		enemies.add(enemy);
+		engine.addEntity(enemy);
+	}
+	
+	private void spawnSlime(Node node){
+		spawnSlime(node.getRow(), node.getCol());
+	}
+	
+	private void spawnSlime(int row, int col){
+		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10), 25.0f);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -338,8 +349,12 @@ public class GameScreen extends AbstractScreen {
 		}
 
 		if (DebugInput.isPressed(DebugKeys.SPAWN)) {
-			if(MathUtils.random() <= 0.5f){
+			float random = MathUtils.random();
+			if(random <= 0.33f){
 				spawnFlyingEnemey();
+			}else if(random <= 0.66f){
+				Node spawnNode = playerMesh.getRandomNode();
+				spawnSlime(spawnNode);
 			}else{
 				Node spawnNode = playerMesh.getRandomNode();
 				spawnEnemy(spawnNode);
@@ -606,7 +621,8 @@ public class GameScreen extends AbstractScreen {
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		LevelComponent levelComp = Mappers.level.get(entity);
 
-		TransitionObject obj = aismComp.aism.getCurrentState().getFirstData(Transition.RANGE);
+		TransitionObject obj = aismComp.aism.getCurrentStateObject().getFirstData(Transition.RANGE);
+		if(obj == null) return;
 		RangeTransitionData rtd = (RangeTransitionData) obj.data;
 		if (rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) return;
 		BodyComponent otherBody = Mappers.body.get(rtd.target);
