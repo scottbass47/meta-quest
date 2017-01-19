@@ -571,7 +571,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(controller, EntityType.FRIENDLY, 100f)
+				.mob(controller, EntityType.ENEMY, 100f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
@@ -664,6 +664,7 @@ public class EntityFactory {
 		
 		RangeTransitionData wanderInRange = new RangeTransitionData();
 		wanderInRange.distance = 15.0f;
+		wanderInRange.fov = 180.0f;
 		wanderInRange.inRange = true;
 		
 		MultiTransition wanderToFollow = new MultiTransition(Transition.RANGE, wanderInRange)
@@ -671,6 +672,7 @@ public class EntityFactory {
 		
 		RangeTransitionData followOutOfRange = new RangeTransitionData();
 		followOutOfRange.distance = 15.0f;
+		followOutOfRange.fov = 180.0f;
 		followOutOfRange.inRange = false;
 
 		MultiTransition followToWander = new MultiTransition(Transition.RANGE, followOutOfRange)
@@ -678,6 +680,7 @@ public class EntityFactory {
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
 		inAttackRange.distance = 1.5f;
+		inAttackRange.fov = 180.0f;
 		inAttackRange.inRange = true;
 		
 		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange)
@@ -685,6 +688,7 @@ public class EntityFactory {
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
 		outOfAttackRange.distance = 2.5f;
+		outOfAttackRange.fov = 180.0f;
 		outOfAttackRange.inRange = false;
 		
 		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange)
@@ -814,29 +818,7 @@ public class EntityFactory {
 				}
 			});
 		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(AttackComponent.class))
-			.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
-				@Override
-				public void update(Entity entity, float deltaTime) {
-					PositionComponent posComp = Mappers.position.get(entity);
-					TargetComponent targetComp = Mappers.target.get(entity);
-					
-					if(!EntityUtils.isValid(targetComp.target)) return;
-					PositionComponent enemyPos = Mappers.position.get(targetComp.target);
-					
-					AIController controller = Mappers.aiController.get(entity).controller;
-					if(Math.abs(posComp.y - enemyPos.y) < 0.5f){
-						controller.release(Actions.MOVE_UP, Actions.MOVE_DOWN);
-						return;
-					}
-					
-					if(posComp.y < enemyPos.y){
-						controller.press(Actions.MOVE_UP, 0.5f);
-					}else{
-						controller.press(Actions.MOVE_DOWN, 0.5f);
-					}
-				}
-			}));
+			.add(engine.createComponent(AttackComponent.class));
 		
 		LOSTransitionData inSightData = new LOSTransitionData(true);
 		LOSTransitionData outOfSightData = new LOSTransitionData(false);
@@ -857,6 +839,7 @@ public class EntityFactory {
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
 		inAttackRange.distance = 5.0f;
+		inAttackRange.fov = 30.0f;
 		inAttackRange.inRange = true;
 		
 		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange);
@@ -864,6 +847,7 @@ public class EntityFactory {
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
 		outOfAttackRange.distance = 6.0f;
+		outOfAttackRange.fov = 30.0f;
 		outOfAttackRange.inRange = false;
 		
 		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange);
@@ -1002,7 +986,7 @@ public class EntityFactory {
 				}));
 		
 		
-		aism.changeState(AIState.WANDERING);
+//		aism.changeState(AIState.WANDERING);
 		slime.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		
 		return slime;

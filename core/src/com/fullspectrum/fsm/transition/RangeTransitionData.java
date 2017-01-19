@@ -1,11 +1,10 @@
 package com.fullspectrum.fsm.transition;
 
-import com.badlogic.ashley.core.Entity;
-
 public class RangeTransitionData implements TransitionData{
 
 	public float distance;
 	public boolean inRange = true;
+	public float fov = 360;
 	
 	@Override
 	public String toString() {

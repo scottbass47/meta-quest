@@ -2,12 +2,14 @@ package com.fullspectrum.fsm.transition;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.ESMComponent;
+import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -123,6 +125,7 @@ public enum Transition {
 			RangeTransitionData rtd = (RangeTransitionData)obj.data;
 			if(rtd == null || targetComp == null || !EntityUtils.isValid(targetComp.target)) return false;
 			
+			FacingComponent facingComp = Mappers.facing.get(entity);
 			BodyComponent otherBodyComp = Mappers.body.get(targetComp.target);
 			
 			Body b1 = bodyComp.body;
@@ -137,7 +140,16 @@ public enum Transition {
 			
 			float d = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 			
-			return (inside && d <= r) || (!inside && d >= r);
+			float opposite = y2 - y1;
+			float adjacent = facingComp.facingRight ? x2 - x1 : x1 - x2;
+			float angle = MathUtils.atan2(opposite, adjacent) * MathUtils.radiansToDegrees;
+			angle = angle < 0 ? angle + 360 : angle;
+
+//			float halfAngle = angle * 0.5f;
+			float halfFov = rtd.fov * 0.5f;
+			boolean inFov = angle < halfFov || angle > 360 - halfFov;
+			
+			return (inside && d <= r && inFov) || (!inside && (d >= r || !inFov));
 		}
 	},
 	LINE_OF_SIGHT(false){

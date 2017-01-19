@@ -41,6 +41,7 @@ import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
+import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -282,7 +283,7 @@ public class GameScreen extends AbstractScreen {
 //		spawnFlyingEnemey();
 		spawnSlime(playerMesh.getRandomNode());
 	}
-
+	
 	private void spawnEnemy(Node node) {
 		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
@@ -629,6 +630,7 @@ public class GameScreen extends AbstractScreen {
 		TargetComponent targetComp = Mappers.target.get(entity);
 		RangeTransitionData rtd = (RangeTransitionData) obj.data;
 		if (rtd == null || targetComp == null || !EntityUtils.isValid(targetComp.target)) return;
+		FacingComponent facingComp = Mappers.facing.get(entity);
 		BodyComponent otherBody = Mappers.body.get(targetComp.target);
 
 		Body b1 = bodyComp.body;
@@ -642,14 +644,26 @@ public class GameScreen extends AbstractScreen {
 		
 		float d = (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 		
+		float opposite = y2 - y1;
+		float adjacent = facingComp.facingRight ? x2 - x1 : x1 - x2;
+		float angle = MathUtils.atan2(opposite, adjacent) * MathUtils.radiansToDegrees;
+		angle = angle < 0 ? angle + 360 : angle;
+
+		float halfFov = rtd.fov * 0.5f;
+		boolean inFov = angle < halfFov || angle > 360 - halfFov;
+		
 		Color color = new Color(1, 0, 0, 1);
-		if(d <= r){
+		if(d <= r && inFov){
 			color = new Color(0, 1, 0, 1);
 		}
 		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 		sRenderer.begin(ShapeType.Line);
 		sRenderer.setColor(color);
-		sRenderer.circle(x1, y1, rtd.distance, 32);
+		if(MathUtils.isEqual(rtd.fov, 360)){
+			sRenderer.circle(x1, y1, rtd.distance, 32);
+		}else{
+			sRenderer.arc(x1, y1, rtd.distance, facingComp.facingRight ? 360 - halfFov : 180 - halfFov, rtd.fov, 16);
+		}
 		
 		color = new Color(1, 0, 0, 1);
 		if(levelComp.level.performRayTrace(x1, y1, x2, y2)){
