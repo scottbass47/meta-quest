@@ -7,7 +7,8 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class DeathComponent implements Component, Poolable {
 
 	public DeathBehavior onDeath;
-	public boolean triggered = false;
+	private boolean triggered = false;
+	private boolean shouldDie = false;
 	
 	public DeathComponent set(DeathBehavior onDeath){
 		this.onDeath = onDeath;
@@ -17,6 +18,26 @@ public class DeathComponent implements Component, Poolable {
 	@Override
 	public void reset() {
 		onDeath = null;
+		triggered = false;
+	}
+	
+	public void triggerDeath(){
+		if(!triggered){
+			triggered = true;
+			shouldDie = true;
+		}
+	}
+	
+	public boolean shouldDie(){
+		return shouldDie;
+	}
+	
+	public void makeDead(){
+		shouldDie = false;
+	}
+	
+	public void makeAlive(){
+		shouldDie = false;
 		triggered = false;
 	}
 	

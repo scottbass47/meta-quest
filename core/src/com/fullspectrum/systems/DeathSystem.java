@@ -7,20 +7,23 @@ import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 
-public class DeathSystem extends IteratingSystem{
+public class DeathSystem extends IteratingSystem {
 
-	public DeathSystem(){
-		super(Family.all(HealthComponent.class).get());
+	public DeathSystem() {
+		super(Family.all(DeathComponent.class).get());
 	}
-	
+
 	protected void processEntity(Entity entity, float deltaTime) {
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
-		if(healthComp.health <= 0){
-			DeathComponent deathComp = Mappers.death.get(entity);
-			if(!deathComp.triggered){
-				deathComp.onDeath.onDeath(entity);
-				deathComp.triggered = true;
-			}
+		DeathComponent deathComp = Mappers.death.get(entity);
+		
+		if(healthComp != null && healthComp.health <= 0.0f){
+			deathComp.triggerDeath();
+		}
+		
+		if (deathComp.shouldDie()) {
+			deathComp.onDeath.onDeath(entity);
+			deathComp.makeDead();
 		}
 	}
 }

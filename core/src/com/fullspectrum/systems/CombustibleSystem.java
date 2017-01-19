@@ -31,7 +31,7 @@ public class CombustibleSystem extends IteratingSystem {
 			body.setActive(false);
 			combustibleComp.shouldExplode = false;
 			DeathComponent deathComp = Mappers.death.get(entity);
-			deathComp.onDeath.onDeath(entity);
+			deathComp.triggerDeath();
 			float radius = combustibleComp.radius;
 			float r = 4 * GameVars.PPM_INV;
 			int numParticles = (int)(MathUtils.PI * radius / (r + 8 * GameVars.PPM_INV));

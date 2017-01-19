@@ -6,7 +6,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
-import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
@@ -46,7 +45,7 @@ public enum Sensors {
 			Entity swordWielder = Mappers.parent.get(sword).parent;
 			
 			// Don't deal damage to an entity of the same type (e.g. no friendly fire)
-			if(Mappers.type.get(swordWielder).type == Mappers.type.get(otherEntity).type) return;
+			if(!Mappers.type.get(swordWielder).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
 			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
@@ -106,7 +105,7 @@ public enum Sensors {
 			if(enemyHealth == null) return;
 			
 			// No damage dealt to entities of same type
-			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type) return;
+			if(!Mappers.type.get(entity).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
 			DamageHandler.dealDamage(otherEntity, bulletStatsComp.damage);
@@ -135,7 +134,7 @@ public enum Sensors {
 			if(enemyHealth == null) return;
 			
 			// No damage dealt to entities of same type
-			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type) return;
+			if(!Mappers.type.get(entity).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
 			Entity explosion = Mappers.parent.get(entity).parent;
 			if(explosion == null || !EntityUtils.isValid(explosion)) return;

@@ -35,7 +35,6 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
-import com.fullspectrum.ai.XYAlignHeuristic;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -73,6 +72,7 @@ import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
 import com.fullspectrum.systems.BarrierSystem;
+import com.fullspectrum.systems.BehaviorSystem;
 import com.fullspectrum.systems.BlinkSystem;
 import com.fullspectrum.systems.BobSystem;
 import com.fullspectrum.systems.CameraSystem;
@@ -193,6 +193,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(textRenderer);
 
 		// AI Systems
+		engine.addSystem(new BehaviorSystem());
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());

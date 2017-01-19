@@ -14,6 +14,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
@@ -22,6 +23,7 @@ import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BarrierComponent;
+import com.fullspectrum.component.BehaviorComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
@@ -132,7 +134,7 @@ public class EntityFactory {
 			@Override
 			public void onDeath(Entity entity) {
 				Mappers.heatlh.get(entity).health = Mappers.heatlh.get(entity).maxHealth;
-				Mappers.death.get(entity).triggered = false;
+				Mappers.death.get(entity).makeAlive();
 			}
 		});
 
@@ -929,7 +931,7 @@ public class EntityFactory {
 		drop.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal(physicsBody), world, new Vector2(x, y), drop, true));
 		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
 		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
-		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL));
+		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL).setCollideWith(EntityType.FRIENDLY));
 
 		EntityStateMachine esm = new EntityStateMachine(drop);
 		esm.createState(EntityStates.IDLING)
@@ -981,7 +983,7 @@ public class EntityFactory {
 		Entity projectile = new EntityBuilder(engine, world, level)
 				.physics(null, x, y, false)
 				.build();
-		projectile.add(engine.createComponent(TypeComponent.class).set(type));
+		projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 		projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
 		projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, isArc));
 		
@@ -1015,10 +1017,7 @@ public class EntityFactory {
 			@Override
 			public void onTime(Entity entity) {
 				DeathComponent deathComp = Mappers.death.get(entity);
-				if(!deathComp.triggered){
-					deathComp.onDeath.onDeath(entity);
-					deathComp.triggered = true;
-				}
+				deathComp.triggerDeath();
 			}
 		});
 
@@ -1222,7 +1221,7 @@ public class EntityFactory {
 		 */
 		public EntityBuilder mob(Input input, EntityType type, float health){
 			entity.add(engine.createComponent(InputComponent.class).set(input));
-			entity.add(engine.createComponent(TypeComponent.class).set(type));
+			entity.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
 			return this;
 		}

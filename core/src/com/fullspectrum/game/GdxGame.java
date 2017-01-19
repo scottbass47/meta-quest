@@ -28,12 +28,10 @@ import com.fullspectrum.input.RawInput;
 /*
  * Global Task List
  * ----------------
- * TODO [AI] Add ai behaviors with BehaviorComponent and BehaviorSystem
  * TODO [AI] Add wrapper for Level that provides utility functions for simple ai to make decisions
+ * TODO [Enemies] Implement slime with ai
  * TODO [Sound] Add audio system to handle sound effects and music
- * TODO [General] Make spreadsheet for enemies
  * TODO [State Machine] Add in chain transitions
- * TODO [Component] Add in types that the entity can interact with (e.g. my type = neutral, I interact with enemies and friendly)
  * TODO [Enemies] Add in enemy spawners
  */
 public class GdxGame extends Game {

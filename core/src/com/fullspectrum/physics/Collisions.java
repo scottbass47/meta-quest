@@ -7,9 +7,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
-import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityUtils;
 
 public enum Collisions {
@@ -17,21 +15,21 @@ public enum Collisions {
 	DROP {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
+			Entity coin = (Entity)me.getBody().getUserData();
 			Entity entity = (Entity)other.getBody().getUserData();
 			if(entity == null || !EntityUtils.isValid(entity)) return;
 			
 			MoneyComponent moneyComp = Mappers.money.get(entity);
-			TypeComponent typeComp = Mappers.type.get(entity);
+			TypeComponent myTypeComp = Mappers.type.get(coin);
+			TypeComponent otherTypeComp = Mappers.type.get(entity);
+
+			if(moneyComp == null || !myTypeComp.shouldCollide(otherTypeComp))return;
 			
-			// Only entities that are type friendly can pick up currency
-			if(moneyComp == null || typeComp == null || typeComp.type != EntityType.FRIENDLY)return;
-			
-			Entity coin = (Entity)me.getBody().getUserData();
 			MoneyComponent coinAmount = Mappers.money.get(coin);
 			
 			moneyComp.money += coinAmount.money;
 			coinAmount.money = 0;
-			coin.add(new RemoveComponent());
+			Mappers.death.get(coin).triggerDeath();
 		}
 
 		@Override
@@ -44,10 +42,6 @@ public enum Collisions {
 			Entity entity = (Entity)other.getBody().getUserData();
 			if(entity == null || !EntityUtils.isValid(entity)) return;
 			
-//			TypeComponent typeComp = Mappers.type.get(entity);
-			
-			// Only entities that are type friendly can pick up currency
-//			if(typeComp == null || typeComp.type == EntityType.FRIENDLY)return;
 			contact.setEnabled(false);
 		}
 
@@ -65,7 +59,7 @@ public enum Collisions {
 			TypeComponent myType = Mappers.type.get(entity);
 			TypeComponent otherType = otherEntity != null ? Mappers.type.get(otherEntity) : null;
 			
-			if(otherType != null && myType.type.equals(otherType.type)) return;
+			if(otherType != null && !myType.shouldCollide(otherType)) return;
 
 			if(!other.isSensor()){
 				CombustibleComponent combustibleComp = Mappers.combustible.get(entity);
@@ -87,7 +81,7 @@ public enum Collisions {
 			Entity otherEntity = (Entity)other.getBody().getUserData();
 			if(otherEntity == null || !EntityUtils.isValid(otherEntity)) return;
 			
-			if(Mappers.type.get(entity).type == Mappers.type.get(otherEntity).type){
+			if(Mappers.type.get(entity).same(Mappers.type.get(otherEntity))){
 				contact.setEnabled(false);
 			}
 		}

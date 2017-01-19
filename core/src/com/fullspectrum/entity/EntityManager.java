@@ -41,10 +41,7 @@ public class EntityManager {
 		for(Iterator<Entity> iter = toDie.iterator(); iter.hasNext();){
 			Entity entity = iter.next();
 			DeathComponent deathComp = Mappers.death.get(entity);
-			if(!deathComp.triggered){
-				deathComp.triggered = true;
-				deathComp.onDeath.onDeath(entity);
-			}
+			deathComp.triggerDeath();
 			iter.remove();
 		}
 	}
