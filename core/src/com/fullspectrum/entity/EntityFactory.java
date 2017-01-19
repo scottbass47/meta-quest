@@ -91,7 +91,6 @@ import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
-import com.fullspectrum.fsm.transition.InvalidEntityData;
 import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -126,7 +125,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(input, EntityType.FRIENDLY, 1f)
+				.mob(input, EntityType.FRIENDLY, 2500f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
@@ -556,7 +555,7 @@ public class EntityFactory {
 		return esm;
 	}
 	
-	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, Entity toFollow, World world, float x, float y, int value) {
+	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, World world, float x, float y, int value) {
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
@@ -572,14 +571,14 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(controller, EntityType.ENEMY, 100f)
+				.mob(controller, EntityType.FRIENDLY, 100f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(x, y), player, true));
 		player.add(engine.createComponent(MoneyComponent.class).set(value));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		player.add(engine.createComponent(TargetComponent.class).set(toFollow));
+		player.add(engine.createComponent(TargetComponent.class));
 
 		Entity sword = createSword(engine, world, level, player, x, y, 25);
 		
@@ -655,17 +654,15 @@ public class EntityFactory {
 			.add(engine.createComponent(WanderingComponent.class).set(20, 1.5f));
 		
 		aism.createState(AIState.FOLLOWING)
-			.add(engine.createComponent(FollowComponent.class).set(toFollow));
+			.add(engine.createComponent(FollowComponent.class));
 		
 		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(TargetComponent.class).set(toFollow))
 			.add(engine.createComponent(AttackComponent.class));
 		
-		LOSTransitionData inSightData = new LOSTransitionData(toFollow, true);
-		LOSTransitionData outOfSightData = new LOSTransitionData(toFollow, false);
+		LOSTransitionData inSightData = new LOSTransitionData(true);
+		LOSTransitionData outOfSightData = new LOSTransitionData(false);
 		
 		RangeTransitionData wanderInRange = new RangeTransitionData();
-		wanderInRange.target = toFollow;
 		wanderInRange.distance = 15.0f;
 		wanderInRange.inRange = true;
 		
@@ -673,7 +670,6 @@ public class EntityFactory {
 			.and(Transition.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData followOutOfRange = new RangeTransitionData();
-		followOutOfRange.target = toFollow;
 		followOutOfRange.distance = 15.0f;
 		followOutOfRange.inRange = false;
 
@@ -681,7 +677,6 @@ public class EntityFactory {
 			.or(Transition.LINE_OF_SIGHT, outOfSightData);
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
-		inAttackRange.target = toFollow;
 		inAttackRange.distance = 1.5f;
 		inAttackRange.inRange = true;
 		
@@ -689,18 +684,17 @@ public class EntityFactory {
 			.and(Transition.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-		outOfAttackRange.target = toFollow;
 		outOfAttackRange.distance = 2.5f;
 		outOfAttackRange.inRange = false;
 		
 		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange)
 			.or(Transition.LINE_OF_SIGHT, outOfSightData);
 		
-		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+//		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
 		
 		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, invalidEntity, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
@@ -710,7 +704,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, Entity toFollow, int money){
+	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, int money){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
 		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
@@ -724,6 +718,7 @@ public class EntityFactory {
 				.build();
 		entity.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/spitter.json"), world, new Vector2(x, y), entity, true));
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
+		entity.add(engine.createComponent(TargetComponent.class));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
 		entity.getComponent(DeathComponent.class).set(new DeathBehavior(){
@@ -819,14 +814,34 @@ public class EntityFactory {
 				}
 			});
 		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(TargetComponent.class).set(toFollow))
-			.add(engine.createComponent(AttackComponent.class));
+			.add(engine.createComponent(AttackComponent.class))
+			.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
+				@Override
+				public void update(Entity entity, float deltaTime) {
+					PositionComponent posComp = Mappers.position.get(entity);
+					TargetComponent targetComp = Mappers.target.get(entity);
+					
+					if(!EntityUtils.isValid(targetComp.target)) return;
+					PositionComponent enemyPos = Mappers.position.get(targetComp.target);
+					
+					AIController controller = Mappers.aiController.get(entity).controller;
+					if(Math.abs(posComp.y - enemyPos.y) < 0.5f){
+						controller.release(Actions.MOVE_UP, Actions.MOVE_DOWN);
+						return;
+					}
+					
+					if(posComp.y < enemyPos.y){
+						controller.press(Actions.MOVE_UP, 0.5f);
+					}else{
+						controller.press(Actions.MOVE_DOWN, 0.5f);
+					}
+				}
+			}));
 		
-		LOSTransitionData inSightData = new LOSTransitionData(toFollow, true);
-		LOSTransitionData outOfSightData = new LOSTransitionData(toFollow, false);
+		LOSTransitionData inSightData = new LOSTransitionData(true);
+		LOSTransitionData outOfSightData = new LOSTransitionData(false);
 		
 		RangeTransitionData wanderInRange = new RangeTransitionData();
-		wanderInRange.target = toFollow;
 		wanderInRange.distance = 15.0f;
 		wanderInRange.inRange = true;
 		
@@ -834,7 +849,6 @@ public class EntityFactory {
 //			.and(Transition.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData followOutOfRange = new RangeTransitionData();
-		followOutOfRange.target = toFollow;
 		followOutOfRange.distance = 15.0f;
 		followOutOfRange.inRange = false;
 
@@ -842,7 +856,6 @@ public class EntityFactory {
 //			.or(Transition.LINE_OF_SIGHT, outOfSightData);
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
-		inAttackRange.target = toFollow;
 		inAttackRange.distance = 5.0f;
 		inAttackRange.inRange = true;
 		
@@ -850,18 +863,17 @@ public class EntityFactory {
 //			.and(Transition.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-		outOfAttackRange.target = toFollow;
 		outOfAttackRange.distance = 6.0f;
 		outOfAttackRange.inRange = false;
 		
 		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange);
 //			.or(Transition.LINE_OF_SIGHT, outOfSightData);
 		
-		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+//		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
 		
 		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY, invalidEntity, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
@@ -1282,7 +1294,7 @@ public class EntityFactory {
 			entity = engine.createEntity();
 			entity.add(engine.createComponent(EngineComponent.class).set(engine));
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
-			entity.add(engine.createComponent(LevelComponent.class).set(level));
+			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));
 			entity.add(engine.createComponent(TimerComponent.class));
 			entity.add(engine.createComponent(DeathComponent.class).set(new DefaultDeathBehavior()));				
 		}

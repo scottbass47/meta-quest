@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Entity;
 
 public class RangeTransitionData implements TransitionData{
 
-	public Entity target;
 	public float distance;
 	public boolean inRange = true;
 	

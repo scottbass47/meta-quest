@@ -8,6 +8,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -15,16 +16,16 @@ import com.fullspectrum.level.Node;
 public class FollowingSystem extends IteratingSystem{
 
 	public FollowingSystem(){
-		super(Family.all(FollowComponent.class, PathComponent.class, BodyComponent.class).get());
+		super(Family.all(TargetComponent.class, FollowComponent.class, PathComponent.class, BodyComponent.class).get());
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		PathComponent pathComp = Mappers.path.get(entity);
-		FollowComponent followComp = Mappers.follow.get(entity);
+		TargetComponent targetComp = Mappers.target.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
-		if(followComp.toFollow == null || !EntityUtils.isValid(followComp.toFollow)) return;
-		BodyComponent otherBody = Mappers.body.get(followComp.toFollow);
+		if(!EntityUtils.isValid(targetComp.target)) return;
+		BodyComponent otherBody = Mappers.body.get(targetComp.target);
 		
 		PathFinder pathFinder = pathComp.pathFinder;
 		NavMesh navMesh = pathFinder.getNavMesh();
@@ -33,7 +34,11 @@ public class FollowingSystem extends IteratingSystem{
 //		Node goalNode = navMesh.getNodeAt(otherBody.body.getPosition().x, otherBody.body.getPosition().y + bodyComp.getAABB().y);
 		
 		Node myNode = navMesh.getNearestNode(bodyComp.body, 0.0f, bodyComp.getAABB().y, true);
-		Node goalNode = navMesh.getShadowNode(otherBody.body, 0.0f, bodyComp.getAABB().y);
+		Node goalNode = navMesh.getShadowNode(otherBody.body, 0.0f, /*bodyComp.getAABB().y*/ 0.0f);
+		
+		if(goalNode == null){
+			System.out.println();
+		}
 		
 		if(myNode == null){
 			if(goalNode != null){

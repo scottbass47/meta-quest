@@ -35,6 +35,10 @@ public class AIController implements Input{
 		actionValues.put(action, amount);
 	}
 	
+	public void release(Actions... actions){
+		for(Actions action : actions) release(action);
+	}
+	
 	public void release(Actions action){
 		pressed.put(action, false);
 		justPressed.put(action, false);

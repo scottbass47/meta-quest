@@ -46,6 +46,7 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
@@ -95,6 +96,7 @@ import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
 import com.fullspectrum.systems.SwingingSystem;
+import com.fullspectrum.systems.TargetingSystem;
 import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
@@ -193,6 +195,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(textRenderer);
 
 		// AI Systems
+		engine.addSystem(new TargetingSystem());
 		engine.addSystem(new BehaviorSystem());
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
@@ -281,7 +284,7 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), playerOne, world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
@@ -299,7 +302,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnFlyingEnemy(int row, int col){
-		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, playerOne, MathUtils.random(10, 25));
+		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -623,9 +626,10 @@ public class GameScreen extends AbstractScreen {
 
 		TransitionObject obj = aismComp.aism.getCurrentStateObject().getFirstData(Transition.RANGE);
 		if(obj == null) return;
+		TargetComponent targetComp = Mappers.target.get(entity);
 		RangeTransitionData rtd = (RangeTransitionData) obj.data;
-		if (rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) return;
-		BodyComponent otherBody = Mappers.body.get(rtd.target);
+		if (rtd == null || targetComp == null || !EntityUtils.isValid(targetComp.target)) return;
+		BodyComponent otherBody = Mappers.body.get(targetComp.target);
 
 		Body b1 = bodyComp.body;
 		Body b2 = otherBody.body;

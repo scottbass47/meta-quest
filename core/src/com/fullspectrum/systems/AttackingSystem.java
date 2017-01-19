@@ -38,7 +38,7 @@ public class AttackingSystem extends IteratingSystem{
 		}
 		
 		AIController controller = aiControllerComp.controller;
-		controller.releaseAll();
+		controller.release(Actions.MOVE_LEFT, Actions.MOVE_RIGHT);
 		controller.justPress(Actions.ATTACK);
 	}
 	

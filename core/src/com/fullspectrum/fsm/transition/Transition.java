@@ -11,6 +11,7 @@ import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.input.GameInput;
@@ -118,10 +119,11 @@ public enum Transition {
 			BodyComponent bodyComp = Mappers.body.get(entity);
 			if(levelComp == null || bodyComp == null) return false;
 			
+			TargetComponent targetComp = Mappers.target.get(entity);
 			RangeTransitionData rtd = (RangeTransitionData)obj.data;
-			if(rtd == null || rtd.target == null || !EntityUtils.isValid(rtd.target)) return false;
+			if(rtd == null || targetComp == null || !EntityUtils.isValid(targetComp.target)) return false;
 			
-			BodyComponent otherBodyComp = Mappers.body.get(rtd.target);
+			BodyComponent otherBodyComp = Mappers.body.get(targetComp.target);
 			
 			Body b1 = bodyComp.body;
 			Body b2 = otherBodyComp.body;
@@ -145,10 +147,11 @@ public enum Transition {
 			BodyComponent bodyComp = Mappers.body.get(entity);
 			if(levelComp == null || bodyComp == null) return false;
 			
+			TargetComponent targetComp = Mappers.target.get(entity);
 			LOSTransitionData ltd = (LOSTransitionData)obj.data;
-			if(ltd == null || ltd.target == null || !EntityUtils.isValid(ltd.target)) return false;
+			if(targetComp == null || !EntityUtils.isValid(targetComp.target)) return false;
 			
-			BodyComponent otherBodyComp = Mappers.body.get(ltd.target);
+			BodyComponent otherBodyComp = Mappers.body.get(targetComp.target);
 			
 			Body b1 = bodyComp.body;
 			Body b2 = otherBodyComp.body;
@@ -165,9 +168,10 @@ public enum Transition {
 	INVALID_ENTITY(true) {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-			InvalidEntityData ied = (InvalidEntityData)obj.data;
-			if(ied == null) return false;
-			return ied.toFollow == null || !EntityUtils.isValid(ied.toFollow);
+			TargetComponent targetComp = Mappers.target.get(entity);
+//			InvalidEntityData ied = (InvalidEntityData)obj.data;
+			if(targetComp == null) return false;
+			return !EntityUtils.isValid(targetComp.target);
 		};
 	},
 	TIME(false) {

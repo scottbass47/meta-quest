@@ -28,11 +28,14 @@ import com.fullspectrum.input.RawInput;
 /*
  * Global Task List
  * ----------------
- * TODO [AI] Add wrapper for Level that provides utility functions for simple ai to make decisions
- * TODO [Enemies] Implement slime with ai
+ * TODO [AI + WIP] Add wrapper for Level that provides utility functions for simple ai to make decisions
  * TODO [Sound] Add audio system to handle sound effects and music
  * TODO [State Machine] Add in chain transitions
  * TODO [Enemies] Add in enemy spawners
+ * TODO [Entity] Make EntityStats a more used class that all entities have and use (should be loaded in from config files)
+ * TODO [Component] Add entity type to type component (i.e. Player, Slime, Spitter, etc... different from Friendly, Neutral, and Enemy)
+ * TODO [AI] Update range transition to allow for "pie slice" range checks
+ * TODO [AI] Add to targeting system ability to define how to target (default targeting is closest enemy)
  */
 public class GdxGame extends Game {
 	// Rendering
