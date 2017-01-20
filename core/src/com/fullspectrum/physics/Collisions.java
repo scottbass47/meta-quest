@@ -20,13 +20,13 @@ public enum Collisions {
 		public void beginCollision(Fixture me, Fixture other) {
 			Entity coin = (Entity)me.getBody().getUserData();
 			Entity entity = (Entity)other.getBody().getUserData();
-			if(entity == null || !EntityUtils.isValid(entity)) return;
+			if(entity == null || !EntityUtils.isValid(entity) || Mappers.player.get(entity) == null) return;
 			
 			MoneyComponent moneyComp = Mappers.money.get(entity);
-			TypeComponent myTypeComp = Mappers.type.get(coin);
-			TypeComponent otherTypeComp = Mappers.type.get(entity);
-
-			if(moneyComp == null || !myTypeComp.shouldCollide(otherTypeComp))return;
+//			TypeComponent myTypeComp = Mappers.type.get(coin);
+//			TypeComponent otherTypeComp = Mappers.type.get(entity);
+//
+//			if(moneyComp == null || !myTypeComp.shouldCollide(otherTypeComp))return;
 			
 			MoneyComponent coinAmount = Mappers.money.get(coin);
 			
@@ -94,7 +94,7 @@ public enum Collisions {
 			
 		}
 	},
-	DAMAGE {
+	DAMAGE_ON_CONTACT {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
 			Entity entity = (Entity)me.getBody().getUserData();

@@ -23,8 +23,6 @@ import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityFactory;
-import com.fullspectrum.entity.EntityUtils;
-import com.fullspectrum.entity.PlayerState;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class DamageHandler {
@@ -41,7 +39,7 @@ public class DamageHandler {
 		Body body = bodyComp.body;
 		
 		if(Mappers.inviciblity.get(toEntity) != null) return;
-		if(Mappers.fsm.get(toEntity) != null && Mappers.fsm.get(toEntity).fsm.hasState(PlayerState.KNIGHT)){
+		if(Mappers.player.get(toEntity) != null){
 			float duration = 0.5f;
 			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)

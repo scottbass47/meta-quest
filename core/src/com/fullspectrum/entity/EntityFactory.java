@@ -56,6 +56,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
+import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
@@ -64,6 +65,7 @@ import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.component.TargetComponent.*;
 import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
@@ -131,6 +133,7 @@ public class EntityFactory {
 				.build();
 		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(x, y), player, true));
 		player.add(engine.createComponent(MoneyComponent.class));
+		player.add(engine.createComponent(PlayerComponent.class));
 		player.getComponent(DeathComponent.class).set(new DeathBehavior(){
 			@Override
 			public void onDeath(Entity entity) {
@@ -571,7 +574,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(controller, EntityType.ENEMY, 100f)
+				.mob(controller, EntityType.FRIENDLY, 100f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
@@ -722,7 +725,7 @@ public class EntityFactory {
 				.build();
 		entity.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/spitter.json"), world, new Vector2(x, y), entity, true));
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		entity.add(engine.createComponent(TargetComponent.class));
+		entity.add(engine.createComponent(TargetComponent.class).set(new PlayerTargetBehavior()));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
 		entity.getComponent(DeathComponent.class).set(new DeathBehavior(){
@@ -962,7 +965,7 @@ public class EntityFactory {
 								@Override
 								public void onTime(Entity entity) {
 									AIController controller = Mappers.aiController.get(entity).controller;
-									boolean right = Math.random() > 0.5f;
+									boolean right = MathUtils.randomBoolean();
 									float xMult = MathUtils.random(0.5f, 1.0f);
 									
 									controller.releaseAll();
@@ -986,7 +989,7 @@ public class EntityFactory {
 				}));
 		
 		
-//		aism.changeState(AIState.WANDERING);
+		aism.changeState(AIState.WANDERING);
 		slime.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		
 		return slime;
