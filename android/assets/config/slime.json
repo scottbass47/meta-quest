@@ -1,0 +1,9 @@
+{
+	// Movement
+	air_speed: 4.0,
+	jump_force: 8.0,
+	
+	// Damage
+	damage: 25.0,
+	health: 10.0
+}

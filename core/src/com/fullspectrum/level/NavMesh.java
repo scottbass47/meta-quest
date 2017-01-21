@@ -59,24 +59,22 @@ public class NavMesh{
 	// Climb Stats
 	private float climbSpeed;
 
-	private NavMesh(Level level, EntityStats stats) {
-		init(level, stats);
+	private NavMesh(Level level, EntityStats stats, Rectangle boundingBox) {
+		init(level, stats, boundingBox);
 		calculate();
 	}
 	
-	private NavMesh(EntityStats stats){
-		init(null, stats);	
+	private NavMesh(EntityStats stats, Rectangle boundingBox){
+		init(null, stats, boundingBox);	
 	}
 	
-	private void init(Level level, EntityStats stats){
+	private void init(Level level, EntityStats stats, Rectangle boundingBox){
 		this.level = level;
 		this.stats = stats;
-		this.boundingBox = stats.getHitBox();
-		this.maxAirSpeed = stats.getAirSpeed();
-		this.maxJumpForce = stats.getJumpForce();
-		this.maxRunSpeed = stats.getRunSpeed();
-		this.climbSpeed = stats.getClimbSpeed();
-
+		this.boundingBox = boundingBox;
+		
+		if(stats != null) updateStats();
+		
 		nodes = new Array<Node>();
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
@@ -92,9 +90,17 @@ public class NavMesh{
 		setupJumpConnections();
 		setupLadderConnections();
 	}
+	
+	private void updateStats(){
+		this.maxAirSpeed = stats.get("air_speed");
+		this.maxJumpForce = stats.get("jump_force");
+		this.maxRunSpeed = stats.get("ground_speed");
+		this.climbSpeed = stats.get("air_speed");
 
-	public static NavMesh createNavMesh(Level level, EntityStats stats) {
-		String fileName = stats.getType().name().toLowerCase() + "-" + level.getName() + ".nav";
+	}
+
+	public static NavMesh createNavMesh(Level level, EntityStats stats, Rectangle boundingBox) {
+		String fileName = stats.getEntityIndex().getName() + "-" + level.getName() + ".nav";
 		final Level levelCopy = level;
 		Kryo kryo = new Kryo();
 		kryo.setReferences(false);
@@ -110,9 +116,10 @@ public class NavMesh{
 				int version = input.readInt();
 				int levelHash = input.readInt();
 				int statsHash = input.readInt();
-				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode()){
+				Rectangle rect = new Rectangle(input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat());
+				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode() && rect.equals(boundingBox)){
 					NavMesh mesh = kryo.readObject(input, NavMesh.class);
-					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getType().name()) + " mesh for level " + StringUtils.toTitleCase(level.getName()));
+					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + StringUtils.toTitleCase(level.getName()));
 					input.close();
 					mesh.level = levelCopy;
 					for(Node n : mesh.nodes){
@@ -125,13 +132,17 @@ public class NavMesh{
 				e.printStackTrace();
 			}
 		}
-		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getType().name()) + " mesh for level " + StringUtils.toTitleCase(level.getName()) + "...");
-		NavMesh mesh = new NavMesh(level, stats);
+		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + StringUtils.toTitleCase(level.getName()) + "...");
+		NavMesh mesh = new NavMesh(level, stats, boundingBox);
 		try {
 			Output output = new Output(new FileOutputStream(Gdx.files.local(fileName).path()));
 			output.writeInt(VERSION);
 			output.writeInt(level.hashCode());
 			output.writeInt(stats.hashCode());
+			output.writeFloat(boundingBox.x);
+			output.writeFloat(boundingBox.y);
+			output.writeFloat(boundingBox.width);
+			output.writeFloat(boundingBox.height);
 			kryo.writeObject(output, mesh);
 			output.close();
 		} catch (FileNotFoundException e) {
@@ -155,7 +166,7 @@ public class NavMesh{
 				case FALL:
 					sRender.setColor(Color.CHARTREUSE);
 					TrajectoryData fallData = (TrajectoryData) link.data;
-					RenderUtils.renderTrajectory(sRender, node.col + 0.5f, node.row + 0.5f, link.isDirRight(), fallData.time, fallData.jumpForce, fallData.speed, 50);
+					RenderUtils.renderTrajectory(sRender, link.isDirRight() ? node.col + 1.5f : node.col - 0.5f, node.row + 0.5f, link.isDirRight(), fallData.time, fallData.jumpForce, fallData.speed, 50);
 					break;
 				case FALL_OVER:
 					sRender.setColor(Color.GOLD);
@@ -668,6 +679,11 @@ public class NavMesh{
 		@Override
 		public void write(Kryo kryo, Output output, NavMesh object) {
 			kryo.writeObject(output, object.stats);
+			output.writeFloat(object.boundingBox.x);
+			output.writeFloat(object.boundingBox.y);
+			output.writeFloat(object.boundingBox.width);
+			output.writeFloat(object.boundingBox.height);
+			
 			output.writeShort((short)object.nodes.size);
 			for(Node n : object.nodes){
 				kryo.writeObject(output, n);
@@ -680,7 +696,7 @@ public class NavMesh{
 
 		@Override
 		public NavMesh read(Kryo kryo, Input input, Class<NavMesh> type) {
-			NavMesh mesh = new NavMesh(kryo.readObject(input, EntityStats.class));
+			NavMesh mesh = new NavMesh(kryo.readObject(input, EntityStats.class), new Rectangle(input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat()));
 			int size = input.readShort();
 			for(int i = 0; i < size; i++){
 				Node node = kryo.readObject(input, Node.class);

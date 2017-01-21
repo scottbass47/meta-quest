@@ -1,0 +1,13 @@
+{
+	
+	// Base Stats
+	health: 100,
+	sword_damage: 100,
+
+	// Movement
+	ground_speed: 8.0,
+	air_speed: 8.0,
+	climb_speed: 5.0,
+	jump_force: 14.0,
+	
+}

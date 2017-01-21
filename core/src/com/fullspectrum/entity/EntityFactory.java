@@ -65,7 +65,7 @@ import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.component.TargetComponent.*;
+import com.fullspectrum.component.TargetComponent.PlayerTargetBehavior;
 import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
@@ -112,7 +112,7 @@ public class EntityFactory {
 	
 	private EntityFactory(){}
 	
-	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y) {
+	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y, EntityStats playerStats, EntityStats knightStats, EntityStats rogueStats, EntityStats mageStats) {
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
@@ -127,13 +127,15 @@ public class EntityFactory {
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(input, EntityType.FRIENDLY, 2500f)
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(x, y), player, true));
 		player.add(engine.createComponent(MoneyComponent.class));
 		player.add(engine.createComponent(PlayerComponent.class));
+		player.add(engine.createComponent(InputComponent.class).set(input));
+		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY).setCollideWith(EntityType.FRIENDLY.getOpposite()));
+		player.add(engine.createComponent(BarrierComponent.class).set(playerStats.get("shield"), playerStats.get("shield"), playerStats.get("shield_rate"), playerStats.get("shield_delay")));
 		player.getComponent(DeathComponent.class).set(new DeathBehavior(){
 			@Override
 			public void onDeath(Entity entity) {
@@ -142,22 +144,22 @@ public class EntityFactory {
 			}
 		});
 
-		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player);
-		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player);
-		EntityStateMachine mageESM = createMage(engine, world, level, x, y, player);
-		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player);
+		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player, knightStats);
+		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player, rogueStats);
+		EntityStateMachine mageESM = createMage(engine, world, level, x, y, player, mageStats);
+		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player, rogueStats);
 
 		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
 		
 		playerStateMachine.createState(PlayerState.KNIGHT)
-			.add(engine.createComponent(BarrierComponent.class).set(500.0f, 500.0f, 50.0f, 1.0f))
+			.add(engine.createComponent(HealthComponent.class).set(knightStats.get("health"), knightStats.get("health")))
 			.add(engine.createComponent(ESMComponent.class).set(knightESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class))
 			.addSubstateMachine(knightESM);
 		
 		playerStateMachine.createState(PlayerState.ROGUE)
-			.add(engine.createComponent(BarrierComponent.class).set(200.0f, 200.0f, 50.0f, 1.0f))
+			.add(engine.createComponent(HealthComponent.class).set(rogueStats.get("health"), rogueStats.get("health")))
 			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
 //			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
@@ -166,11 +168,11 @@ public class EntityFactory {
 			.addSubstateMachine(rogueAttackFSM);
 		
 		playerStateMachine.createState(PlayerState.MAGE)
-			.add(engine.createComponent(BarrierComponent.class).set(75.0f, 75.0f, 50.0f, 1.0f))
+			.add(engine.createComponent(HealthComponent.class).set(mageStats.get("health"), mageStats.get("health")))
 			.add(engine.createComponent(ESMComponent.class).set(mageESM))
 			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class)
-					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), 1.0f))
+					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")))
 			.addSubstateMachine(mageESM);
 		
 		
@@ -195,22 +197,21 @@ public class EntityFactory {
 		return player;
 	}
 	
-	private static EntityStateMachine createKnight(Engine engine, World world, Level level, float x, float y, Entity player){
-		float PLAYER_SPEED = 8.0f;
+	private static EntityStateMachine createKnight(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats knightStats){
 
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 		
-		Entity sword = createSword(engine, world, level, player, x, y, 100);
+		Entity sword = createSword(engine, world, level, player, x, y, (int)knightStats.get("sword_damage"));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
-			.run(PLAYER_SPEED)
-			.jump(14f, PLAYER_SPEED, true)
-			.fall(PLAYER_SPEED, true)
+			.run(knightStats.get("ground_speed"))
+			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true)
+			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
-			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
+			.swingAttack(sword, 150f, 210f, 0.6f, 25f) // TODO TAKE OUT STAMINA
 			.knockBack()
 			.build();
 		
@@ -269,14 +270,16 @@ public class EntityFactory {
 		return esm;
 	}
 	
-	private static StateMachine<EntityStates, StateObject> createRogueAttackMachine(Entity player){
+	private static StateMachine<EntityStates, StateObject> createRogueAttackMachine(Entity player, final EntityStats rogueStats){
+		final float projectileSpeed = rogueStats.get("projectile_speed");
+		final float projectileDamage = rogueStats.get("projectile_damage");
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
 		rogueSM.createState(EntityStates.IDLING);
 		rogueSM.createState(EntityStates.PROJECTILE_ATTACK)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, 25f, 25f);
+					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage);
 				}
 
 				@Override
@@ -292,19 +295,17 @@ public class EntityFactory {
 		return rogueSM;
 	}
 	
-	private static EntityStateMachine createRogue(Engine engine, World world, Level level, float x, float y, Entity player){
-		final float PLAYER_SPEED = 10.0f;
-
+	private static EntityStateMachine createRogue(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats rogueStats){
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
-			.run(PLAYER_SPEED)
-			.jump(15.0f, PLAYER_SPEED, true)
-			.fall(PLAYER_SPEED, true)
-			.climb(6.0f)
+			.run(rogueStats.get("ground_speed"))
+			.jump(rogueStats.get("jump_force"), rogueStats.get("air_speed"), true)
+			.fall(rogueStats.get("air_speed"), true)
+			.climb(rogueStats.get("climb_speed"))
 			.wallSlide()
 			.knockBack()
 			.build();
@@ -312,7 +313,7 @@ public class EntityFactory {
 		esm.setDebugName("Rogue ESM");
 		
 		esm.createState(EntityStates.WALL_JUMP)
-			.add(engine.createComponent(SpeedComponent.class).set(PLAYER_SPEED))
+			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
 			.addAnimation(EntityAnim.JUMP)
 			.addAnimation(EntityAnim.RISE)
 			.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
@@ -325,7 +326,7 @@ public class EntityFactory {
 					FacingComponent facingComp = Mappers.facing.get(entity);
 					
 					// Get the jump force and remove the component
-					float fx = PLAYER_SPEED;
+					float fx = Mappers.speed.get(entity).maxSpeed;
 					float fy = 15.0f;
 					if(collisionComp.onRightWall()) fx = -fx;
 					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
@@ -455,9 +456,7 @@ public class EntityFactory {
 		return esm;
 	}
 	
-	private static EntityStateMachine createMage(Engine engine, World world, Level level, float x, float y, Entity player){
-		float PLAYER_SPEED = 6.0f;
-
+	private static EntityStateMachine createMage(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats mageStats){
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
@@ -466,10 +465,10 @@ public class EntityFactory {
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
-			.run(PLAYER_SPEED)
-			.jump(12f, PLAYER_SPEED, true)
-			.fall(PLAYER_SPEED, true)
-			.climb(4.0f)
+			.run(mageStats.get("ground_speed"))
+			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true)
+			.fall(mageStats.get("air_speed"), true)
+			.climb(mageStats.get("climb_speed"))
 			.knockBack()
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
@@ -485,7 +484,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, 10f, 50f, 45f, 5.0f, 5.0f);
+					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, mageStats.get("mana_bomb_speed"), mageStats.get("mana_bomb_damage"), 45f, 5.0f, 5.0f);
 					AbilityComponent abilityComp = Mappers.ability.get(entity);
 					abilityComp.resetTime(AbilityType.MANA_BOMB);
 				}
@@ -558,7 +557,7 @@ public class EntityFactory {
 		return esm;
 	}
 	
-	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, World world, float x, float y, int value) {
+	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, World world, float x, float y, int value, final EntityStats stats) {
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
@@ -574,7 +573,7 @@ public class EntityFactory {
 		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
-				.mob(controller, EntityType.FRIENDLY, 100f)
+				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
@@ -583,14 +582,14 @@ public class EntityFactory {
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class));
 
-		Entity sword = createSword(engine, world, level, player, x, y, 25);
+		Entity sword = createSword(engine, world, level, player, x, y, (int)stats.get("sword_damage"));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
-			.run(5.0f)
-			.fall(5.0f, true)
-			.jump(17.5f, 5.0f, true)
-			.climb(5.0f)
+			.run(stats.get("ground_speed"))
+			.fall(stats.get("air_speed"), true)
+			.jump(stats.get("jump_force"), stats.get("air_speed"), true)
+			.climb(stats.get("climb_speed"))
 			.swingAttack(sword, 150f, 210f, 0.6f, 0)
 			.knockBack()
 			.build();
@@ -711,7 +710,7 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, int money){
+	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, int money, final EntityStats stats){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
 		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
@@ -721,7 +720,7 @@ public class EntityFactory {
 				.animation(animMap)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.physics(null, x, y, false)
-				.mob(controller, EntityType.ENEMY, 100f)
+				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.build();
 		entity.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/spitter.json"), world, new Vector2(x, y), entity, true));
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
@@ -747,7 +746,7 @@ public class EntityFactory {
 		esm.setDebugName("Spitter ESM");
 		
 		esm.createState(EntityStates.FLYING)
-			.add(engine.createComponent(SpeedComponent.class).set(8.0f))
+			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
 			.add(engine.createComponent(FlyingComponent.class))
 			.add(engine.createComponent(FlowFieldComponent.class).set(field))
 			.addAnimation(EntityAnim.IDLE);
@@ -763,7 +762,7 @@ public class EntityFactory {
 					Mappers.timer.get(entity).add("spit_delay", 0.4f, false, new TimeListener(){
 						@Override
 						public void onTime(Entity entity) {
-							ProjectileFactory.spawnSpitProjectile(entity, 5.0f, 2.0f, 10.0f, 35.0f, 0.0f, 1.0f);
+							ProjectileFactory.spawnSpitProjectile(entity, 5.0f, 2.0f, stats.get("projectile_speed"), stats.get("projectile_damage"), 0.0f, stats.get("projectile_time"));
 						}
 					});
 				}
@@ -870,7 +869,7 @@ public class EntityFactory {
 		return entity;
 	}
 	
-	public static Entity createSlime(Engine engine, World world, Level level, float x, float y, int money, float damage){
+	public static Entity createSlime(Engine engine, World world, Level level, float x, float y, int money, final EntityStats stats){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.slimeIdle));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.slimeJump));
@@ -882,7 +881,7 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		
 		Entity slime = new EntityBuilder(engine, world, level)
-				.mob(controller, EntityType.ENEMY, 10.0f)
+				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.physics(null, x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.animation(animMap)
@@ -890,10 +889,10 @@ public class EntityFactory {
 		slime.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/slime.json"), world, new Vector2(x, y), slime, true));
 		slime.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		slime.add(engine.createComponent(MoneyComponent.class).set(money));
-		slime.add(engine.createComponent(DamageComponent.class).set(damage));
+		slime.add(engine.createComponent(DamageComponent.class).set(stats.get("damage")));
 		
-		final float SPEED = 4.0f;
-		final float JUMP_FORCE = 10.0f;
+		final float SPEED = stats.get("air_speed");
+		final float JUMP_FORCE = stats.get("jump_force");
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, slime)
 				.idle()
@@ -1302,7 +1301,7 @@ public class EntityFactory {
 		 * @param facing
 		 * @return
 		 */
-		public EntityBuilder render(TextureRegion frame, boolean facing){
+		public EntityBuilder render(TextureRegion frame, boolean facing){ 
 			entity.add(engine.createComponent(RenderComponent.class));
 			entity.add(engine.createComponent(TextureComponent.class).set(frame));
 			if(facing) entity.add(engine.createComponent(FacingComponent.class));

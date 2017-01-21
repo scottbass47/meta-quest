@@ -1,0 +1,18 @@
+{
+	
+	// Movement
+	ground_speed: 6.0,
+	air_speed: 6.0,
+	climb_speed: 4.0,
+	jump_force: 12.0,
+	
+	// Health
+	health: 100,
+	
+	// Ability Cooldowns
+	mana_bomb_cooldown: 1.0,
+	
+	// Ability Stats
+	mana_bomb_damage: 50.0,
+	mana_bomb_speed: 10.0
+}
