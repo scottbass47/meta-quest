@@ -38,9 +38,11 @@ public class DamageHandler {
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 		
+		if(amount < 1.0f) return; 
+		
 		if(Mappers.inviciblity.get(toEntity) != null) return;
 		if(Mappers.player.get(toEntity) != null){
-			float duration = 0.5f;
+			float duration = 1.0f;
 			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)
 					.addBlink(duration, 0.15f));

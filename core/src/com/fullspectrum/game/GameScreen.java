@@ -2,9 +2,9 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
+import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.util.Iterator;
 
@@ -54,9 +54,9 @@ import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityStats;
-import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -241,20 +241,14 @@ public class GameScreen extends AbstractScreen {
 		level.loadMap("map/ArenaMapv1.tmx");
 
 		// Setup Nav Mesh
-		EntityStats goblinStats = new EntityStats.Builder(EntityType.GOBLIN)
-					.setAirSpeed(5.0f)
-					.setRunSpeed(5.0f)
-					.setClimbSpeed(5.0f)
-					.setJumpForce(17.5f)
-					.setHitBox(new Rectangle(0, 0, 15.0f * PPM_INV, 40 * PPM_INV))
-					.build();
-		playerMesh = NavMesh.createNavMesh(level, goblinStats);
+		playerMesh = NavMesh.createNavMesh(level, EntityLoader.aiPlayerStats, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
 
 		// Setup Flow Field
 		flowField = new FlowField(level, 15);
 		
 		// Spawn Player
-		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
+		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y,
+				EntityLoader.playerStats, EntityLoader.knightStats, EntityLoader.rogueStats, EntityLoader.mageStats);
 		engine.addEntity(playerOne);
 		
 		// Init Camera Position
@@ -282,10 +276,11 @@ public class GameScreen extends AbstractScreen {
 		engine.addEntity(cameraEntity);
 //		spawnFlyingEnemey();
 		spawnSlime(playerMesh.getRandomNode());
+		EntityLoader.load(EntityIndex.SLIME);
 	}
 	
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
+		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50), EntityLoader.aiPlayerStats);
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
@@ -303,7 +298,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnFlyingEnemy(int row, int col){
-		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
+		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, MathUtils.random(10, 25), EntityLoader.spitterStats);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -313,7 +308,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10), 25.0f);
+		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10), EntityLoader.slimeStats);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}

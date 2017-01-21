@@ -18,6 +18,6 @@ public class GameVars {
 	public static float R_WORLD_HEIGHT = FRAMEBUFFER_HEIGHT * PPM_INV;
 	
 	// Physics
-	public final static float GRAVITY = -23.0f;
+	public final static float GRAVITY = -23f;
 	
 }

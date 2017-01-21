@@ -1,0 +1,8 @@
+{
+	
+	// Shield
+	shield: 100,
+	shield_rate: 25.0,
+	shield_delay: 1.0
+
+}
