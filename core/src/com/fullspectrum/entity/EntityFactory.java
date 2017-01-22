@@ -112,7 +112,13 @@ public class EntityFactory {
 	
 	private EntityFactory(){}
 	
-	public static Entity createPlayer(Engine engine, Level level, Input input, World world, float x, float y, EntityStats playerStats, EntityStats knightStats, EntityStats rogueStats, EntityStats mageStats) {
+	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
+		// Stats
+		EntityStats playerStats = EntityLoader.playerStats;
+		EntityStats knightStats = EntityLoader.knightStats;
+		EntityStats rogueStats = EntityLoader.rogueStats;
+		EntityStats mageStats = EntityLoader.mageStats;
+		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
@@ -198,7 +204,6 @@ public class EntityFactory {
 	}
 	
 	private static EntityStateMachine createKnight(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats knightStats){
-
 		RandomTransitionData rtd = new RandomTransitionData();
 		rtd.waitTime = 4.0f;
 		rtd.probability = 1.0f;
@@ -557,7 +562,10 @@ public class EntityFactory {
 		return esm;
 	}
 	
-	public static Entity createAIPlayer(Engine engine, Level level, AIController controller/*, PathFinder pathFinder*/, World world, float x, float y, int value, final EntityStats stats) {
+	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y, int money) {
+		// Stats
+		EntityStats stats = EntityLoader.aiPlayerStats;
+		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
@@ -570,6 +578,9 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD));
 		
+		// Controller
+		AIController controller = new AIController();
+		
 		// Setup Player
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
@@ -578,7 +589,7 @@ public class EntityFactory {
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
 		player.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/player.json"), world, new Vector2(x, y), player, true));
-		player.add(engine.createComponent(MoneyComponent.class).set(value));
+		player.add(engine.createComponent(MoneyComponent.class).set(money));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class));
 
@@ -710,7 +721,10 @@ public class EntityFactory {
 		return player;
 	}
 	
-	public static Entity createSpitter(Engine engine, World world, Level level, FlowField field, float x, float y, int money, final EntityStats stats){
+	public static Entity createSpitter(Engine engine, World world, Level level, float x, float y, int money){
+		// Stats
+		final EntityStats stats = EntityLoader.spitterStats;
+		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
 		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
@@ -869,7 +883,10 @@ public class EntityFactory {
 		return entity;
 	}
 	
-	public static Entity createSlime(Engine engine, World world, Level level, float x, float y, int money, final EntityStats stats){
+	public static Entity createSlime(Engine engine, World world, Level level, float x, float y, int money){
+		// Stats
+		final EntityStats stats = EntityLoader.slimeStats;
+		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.slimeIdle));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.slimeJump));

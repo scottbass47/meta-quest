@@ -43,6 +43,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -247,8 +248,8 @@ public class GameScreen extends AbstractScreen {
 		flowField = new FlowField(level, 15);
 		
 		// Spawn Player
-		playerOne = EntityFactory.createPlayer(engine, level, input, world, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y,
-				EntityLoader.playerStats, EntityLoader.knightStats, EntityLoader.rogueStats, EntityLoader.mageStats);
+		playerOne = EntityIndex.PLAYER.create(engine, world, level, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y, 0);
+		playerOne.getComponent(InputComponent.class).set(input);
 		engine.addEntity(playerOne);
 		
 		// Init Camera Position
@@ -280,7 +281,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityFactory.createAIPlayer(engine, level, new AIController(), world, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50), EntityLoader.aiPlayerStats);
+		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, level, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
 		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
 		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
@@ -298,7 +299,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnFlyingEnemy(int row, int col){
-		Entity enemy = EntityFactory.createSpitter(engine, world, level, flowField, col + 0.5f, row + 0.5f, MathUtils.random(10, 25), EntityLoader.spitterStats);
+		Entity enemy = EntityFactory.createSpitter(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -308,7 +309,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10), EntityLoader.slimeStats);
+		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
