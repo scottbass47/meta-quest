@@ -21,13 +21,16 @@ public class FlowFieldManager {
 		fieldMap = new ArrayMap<GridPoint2, FlowField>();
 		points = new ObjectSet<GridPoint2>();
 		pool = new Array<FlowField>();
-		init(level, radius);
+		init(level, radius, 4);
 	}
 	
-	public void init(Level level, int radius){
+	public void init(Level level, int radius, int poolSize){
 		reset();
 		this.level = level;
 		this.radius = radius;
+		for(int i = 0; i < poolSize; i++){
+			pool.add(new FlowField(level, radius));
+		}
 	}
 	
 	private  void reset(){
@@ -66,7 +69,8 @@ public class FlowFieldManager {
 				field.setGoal(row, col);
 				fieldMap.put(point, field);
 			}else{
-				fieldMap.put(point, new FlowField(level, radius, row, col));
+				fieldMap.put(point, new FlowField(level, radius));
+				fieldMap.get(point).setGoal(row, col);
 			}
 		}
 		return fieldMap.get(point);

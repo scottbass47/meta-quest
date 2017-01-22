@@ -36,14 +36,14 @@ public class PathFinder {
 	private ArrayMap<Node, PathData> pathDataMap;
 	private PathHeuristic heuristic;
 	
-	public PathFinder(NavMesh navMesh, int startRow, int startCol, int goalRow, int goalCol){
+	public PathFinder(NavMesh navMesh){
 		this.navMesh = navMesh;
 		sRender = new ShapeRenderer();
-		start = navMesh.getNodeMap().get(new Point(startRow, startCol));
-		goal = navMesh.getNodeMap().get(new Point(goalRow, goalCol));
-		if(start == null) throw new IllegalArgumentException("Start node doesn't exist!");
-		if(goal == null) throw new IllegalArgumentException("Goal node doesn't exist!");
-		current = start;
+//		start = navMesh.getNodeMap().get(new Point(startRow, startCol));
+//		goal = navMesh.getNodeMap().get(new Point(goalRow, goalCol));
+//		if(start == null) throw new IllegalArgumentException("Start node doesn't exist!");
+//		if(goal == null) throw new IllegalArgumentException("Goal node doesn't exist!");
+//		current = start;
 		path = new Array<NavLink>();
 		pathDataMap = new ArrayMap<Node, PathData>();
 		for(Node node : navMesh.getNodes()){
@@ -51,12 +51,12 @@ public class PathFinder {
 		}
 		debugColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f);
 		heuristic = new DefaultHeuristic();
-		calculatePath();
+//		calculatePath();
 	}
 	
-	public PathFinder(NavMesh navMesh, Node start, Node goal){
-		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
-	}
+//	public PathFinder(NavMesh navMesh, Node start, Node goal){
+//		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
+//	}
 	
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
@@ -105,6 +105,7 @@ public class PathFinder {
 	}
 	
 	public void calculatePath(){
+		if(goal == null || start == null) return;
 //		long startTime = System.nanoTime();
 		path.clear();
 		Set<Node> visitedNodes = new HashSet<Node>();
@@ -174,6 +175,14 @@ public class PathFinder {
 		this.goal = goal;
 	}
 	
+	public Node getStart(){
+		return start;
+	}
+	
+	public Node getGoal(){
+		return goal;
+	}
+	
 	public Array<NavLink> getPath(){
 		return path;
 	}
@@ -220,6 +229,7 @@ public class PathFinder {
 	}
 	
 	public boolean atGoal(Node node){
+		if(node == null || goal == null) return false;
 		return goal.equals(node);
 	}
 }

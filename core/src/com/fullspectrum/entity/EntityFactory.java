@@ -16,6 +16,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
+import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AIStateMachineComponent;
@@ -56,6 +57,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
+import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
@@ -104,6 +106,7 @@ import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.level.FlowField;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
@@ -565,6 +568,8 @@ public class EntityFactory {
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y, int money) {
 		// Stats
 		EntityStats stats = EntityLoader.aiPlayerStats;
+		NavMesh mesh = NavMesh.aiPlayerMesh;
+		PathFinder pathFinder = new PathFinder(mesh);
 		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -592,6 +597,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(MoneyComponent.class).set(money));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class));
+		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
 
 		Entity sword = createSword(engine, world, level, player, x, y, (int)stats.get("sword_damage"));
 		

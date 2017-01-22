@@ -31,7 +31,10 @@ public class WanderingSystem extends IteratingSystem{
 		if(currentNode == null) return;
 		
 		if(wanderingComp.wandering){
-			if(path.atGoal(currentNode)){
+			if(path.getStart() == null || path.getGoal() == null){
+				wanderingComp.wandering = false;
+			}
+			else if(path.atGoal(currentNode)){
 				wanderingComp.wandering = false;
 				return;
 			}

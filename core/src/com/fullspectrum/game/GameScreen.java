@@ -245,6 +245,7 @@ public class GameScreen extends AbstractScreen {
 
 		// Setup Nav Mesh
 		playerMesh = NavMesh.createNavMesh(level, EntityLoader.aiPlayerStats, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
+		NavMesh.aiPlayerMesh = playerMesh;
 
 		// Setup Flow Field
 		flowManager = new FlowFieldManager(level, 15);
@@ -285,8 +286,6 @@ public class GameScreen extends AbstractScreen {
 	
 	private void spawnEnemy(Node node) {
 		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, level, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
-		PathFinder pathFinder = new PathFinder(playerMesh, node.getRow(), node.getCol(), node.getRow(), node.getCol());
-		enemy.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -298,11 +297,11 @@ public class GameScreen extends AbstractScreen {
 			row = MathUtils.random(0, level.getHeight());
 		    col = MathUtils.random(0, level.getWidth());
 		}while(level.isSolid(row, col) || row > 25);
-		spawnFlyingEnemy(row, col);
+		spawnSpitter(row, col);
 	}
 	
-	private void spawnFlyingEnemy(int row, int col){
-		Entity enemy = EntityFactory.createSpitter(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
+	private void spawnSpitter(int row, int col){
+		Entity enemy = EntityIndex.SPITTER.create(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -312,7 +311,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityFactory.createSlime(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10));
+		Entity enemy = EntityIndex.SLIME.create(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10));
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -348,7 +347,7 @@ public class GameScreen extends AbstractScreen {
 				spawnEnemy(mouseNode);
 			}
 		} else if(!level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
-			spawnFlyingEnemy((int)mousePos.y, (int)mousePos.x);
+			spawnSpitter((int)mousePos.y, (int)mousePos.x);
 		}
 
 		if (DebugInput.isPressed(DebugKeys.SPAWN)) {
@@ -369,7 +368,7 @@ public class GameScreen extends AbstractScreen {
 			Mappers.camera.get(cameraEntity).zoom = previousZoom + 1;
 		}
 		
-		BodyComponent bodyComp = Mappers.body.get(playerOne);
+//		BodyComponent bodyComp = Mappers.body.get(playerOne);
 		
 //		if(DebugInput.isPressed(DebugKeys.SHOOT) && ups % 5 == 0){
 //			BulletFactory.spawnBullet(playerOne, 5.0f, 0.0f, 20.0f, 25.0f);

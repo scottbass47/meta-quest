@@ -26,7 +26,7 @@ public class FlowField {
 	// Debug Renderer
 	private ShapeRenderer sRender;
 	
-	public FlowField(Level level, int radius, int goalRow, int goalCol){
+	public FlowField(Level level, int radius){
 		this.level = level;
 		this.radius = radius;
 		height = level.getHeight();
@@ -37,7 +37,6 @@ public class FlowField {
 		
 		sRender = new ShapeRenderer();
 		initNodes();
-		setGoal(goalRow, goalCol);
 	}
 	
 	public void render(SpriteBatch batch){
