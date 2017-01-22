@@ -33,6 +33,10 @@ public class EntityStats {
 	public EntityIndex getEntityIndex(){
 		return index;
 	}
+	
+	public ArrayMap<String, Float> getStatsMap(){
+		return statsMap;
+	}
 
 	@Override
 	public int hashCode() {

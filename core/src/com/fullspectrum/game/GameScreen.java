@@ -33,7 +33,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -46,14 +45,12 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
-import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
-import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
@@ -65,9 +62,9 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
-import com.fullspectrum.level.FlowField;
 import com.fullspectrum.level.FlowFieldManager;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.physics.WorldCollision;
@@ -98,6 +95,7 @@ import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
+import com.fullspectrum.systems.SpawnerSystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.TargetingSystem;
 import com.fullspectrum.systems.TextRenderingSystem;
@@ -214,6 +212,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new AbilitySystem());
 		engine.addSystem(new TimerSystem());
 		engine.addSystem(new DropSpawnSystem());
+		engine.addSystem(new SpawnerSystem());
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
 		engine.addSystem(new BobSystem());
@@ -252,7 +251,7 @@ public class GameScreen extends AbstractScreen {
 		engine.getSystem(FlowFieldSystem.class).setFlowManager(flowManager);
 		
 		// Spawn Player
-		playerOne = EntityIndex.PLAYER.create(engine, world, level, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y, 0);
+		playerOne = EntityIndex.PLAYER.create(engine, world, level, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
 		playerOne.getComponent(InputComponent.class).set(input);
 		engine.addEntity(playerOne);
 		
@@ -282,10 +281,17 @@ public class GameScreen extends AbstractScreen {
 //		spawnFlyingEnemey();
 		spawnSlime(playerMesh.getRandomNode());
 		EntityLoader.load(EntityIndex.SLIME);
+
+		for(EntitySpawn spawn : level.getEntitySpawns()){
+			Vector2 spawnPoint = spawn.getSpawnPoint();
+			Entity enemy = spawn.getIndex().create(engine, world, level, spawnPoint.x, spawnPoint.y);
+			enemies.add(enemy);
+			engine.addEntity(enemy);
+		}
 	}
 	
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, level, node.getCol() + 0.5f, node.getRow() + 1.0f, MathUtils.random(20, 50));
+		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, level, node.getCol() + 0.5f, node.getRow() + 1.0f);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -301,7 +307,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSpitter(int row, int col){
-		Entity enemy = EntityIndex.SPITTER.create(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(10, 25));
+		Entity enemy = EntityIndex.SPITTER.create(engine, world, level, col + 0.5f, row + 0.5f);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}
@@ -311,7 +317,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityIndex.SLIME.create(engine, world, level, col + 0.5f, row + 0.5f, MathUtils.random(5, 10));
+		Entity enemy = EntityIndex.SLIME.create(engine, world, level, col + 0.5f, row + 0.5f);
 		enemies.add(enemy);
 		engine.addEntity(enemy);
 	}

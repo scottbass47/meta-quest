@@ -39,12 +39,9 @@ public enum Transition {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			RandomTransitionData rtd = (RandomTransitionData) obj.data;
-			if (rtd == null) {
-				rtd = new RandomTransitionData();
-			}
+			if(rtd == null) return false;
 			rtd.timePassed += deltaTime;
-			if (rtd.timePassed < rtd.waitTime) return false;
-			if (rtd.probability / deltaTime > Math.random()) {
+			if (rtd.timePassed >= rtd.waitTime) {
 				return true;
 			}
 			return false;

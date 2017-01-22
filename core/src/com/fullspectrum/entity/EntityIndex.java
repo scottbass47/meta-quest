@@ -10,25 +10,25 @@ public enum EntityIndex {
 	// Player
 	PLAYER {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
 			return EntityFactory.createPlayer(engine, world, level, null, x, y);
 		}
 	},
 	KNIGHT {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
 			return null;
 		}
 	},
 	ROGUE {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
 			return null;
 		}
 	},
 	MAGE {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
 			return null;
 		}
 	},
@@ -36,24 +36,30 @@ public enum EntityIndex {
 	// Enemies
 	SPITTER {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
-			return EntityFactory.createSpitter(engine, world, level, x, y, money);
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
+			return EntityFactory.createSpitter(engine, world, level, x, y);
 		}
 	},
 	SLIME {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
-			return EntityFactory.createSlime(engine, world, level, x, y, money);
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
+			return EntityFactory.createSlime(engine, world, level, x, y);
 		}
 	},
 	AI_PLAYER {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y, int money) {
-			return EntityFactory.createAIPlayer(engine, world, level, x, y, money);
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
+			return EntityFactory.createAIPlayer(engine, world, level, x, y);
+		}
+	},
+	SPAWNER{
+		@Override
+		public Entity create(Engine engine, World world, Level level, float x, float y) {
+			return EntityFactory.createSpawner(engine, world, level, x, y);
 		}
 	};
 	
-	public abstract Entity create(Engine engine, World world, Level level, float x, float y, int money);
+	public abstract Entity create(Engine engine, World world, Level level, float x, float y);
 	
 	public String getName(){
 		return name().toLowerCase();
@@ -61,6 +67,13 @@ public enum EntityIndex {
 	
 	public short shortIndex(){
 		return (short)ordinal();
+	}
+	
+	public static EntityIndex get(String name){
+		for(EntityIndex index : EntityIndex.values()){
+			if(index.name().equalsIgnoreCase(name)) return index;
+		}
+		return null;
 	}
 	
 }

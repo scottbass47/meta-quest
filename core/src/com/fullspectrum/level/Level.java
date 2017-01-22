@@ -24,6 +24,8 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 import com.fullspectrum.physics.CollisionBits;
@@ -53,6 +55,7 @@ public class Level {
 
 	// Spawns
 	private Vector2 playerSpawn;
+	private Array<EntitySpawn> entitySpawns;
 
 	public Level(String name, World world, OrthographicCamera cam, SpriteBatch batch) {
 		this.name = name;
@@ -61,6 +64,7 @@ public class Level {
 		this.batch = batch;
 		loader = new TmxMapLoader();
 		ladders = new Array<Tile>();
+		entitySpawns = new Array<EntitySpawn>();
 	}
 
 	public void loadMap(String path) {
@@ -293,14 +297,21 @@ public class Level {
 	private void setupSpawnPoints() {
 		MapObjects objects = map.getLayers().get("spawns").getObjects();
 		for (MapObject o : objects) {
+			float x = (Float) o.getProperties().get("x");
+			float y = (Float) o.getProperties().get("y");
+			float width = (Float) o.getProperties().get("width");
+			float height = (Float) o.getProperties().get("height");
+			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			if (o.getName().equals("player_spawn")) {
-				float x = (Float) o.getProperties().get("x");
-				float y = (Float) o.getProperties().get("y");
-				float width = (Float) o.getProperties().get("width");
-				float height = (Float) o.getProperties().get("height");
-				playerSpawn = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
+				playerSpawn = spawnPoint;
+			}else if(o.getName().equals("spawner")){
+				entitySpawns.add(new EntitySpawn(EntityIndex.SPAWNER, spawnPoint));
 			}
 		}
+	}
+	
+	public Array<EntitySpawn> getEntitySpawns(){
+		return entitySpawns;
 	}
 	
 	public boolean isLadder(int row, int col){
@@ -480,6 +491,24 @@ public class Level {
 			if (t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >= startCol && t.getCol() <= endCol) {
 				iter.remove();
 			}
+		}
+	}
+	
+	public class EntitySpawn{
+		private EntityIndex index;
+		private Vector2 vec;
+		
+		public EntitySpawn(EntityIndex index, Vector2 vec){
+			this.index = index;
+			this.vec = vec;
+		}
+		
+		public EntityIndex getIndex(){
+			return index;
+		}
+		
+		public Vector2 getSpawnPoint(){
+			return vec;
 		}
 	}
 	

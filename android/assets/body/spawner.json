@@ -1,0 +1,13 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody"
+  },
+  	"Fixtures": [
+      {
+        "shape": "Box",
+        "width": 24,
+        "height": 24,
+        "Category": "entity"
+      }
+  	]
+}

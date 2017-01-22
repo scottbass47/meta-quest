@@ -50,7 +50,6 @@ public enum Sensors {
 			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
 			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
 			
-			
 			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
 				DamageHandler.dealDamage(otherEntity, swordStats.damage);
 				swordStats.hitEntities.add(otherEntity);
