@@ -21,7 +21,7 @@ public class TargetingSystem extends IteratingSystem{
 		TargetComponent targetComp = Mappers.target.get(entity);
 		
 		// don't re-target if you already have a valid target
-		if(targetComp.target != null && EntityUtils.isValid(targetComp.target)) return;
+		if(targetComp.target != null && EntityUtils.isValid(targetComp.target) && targetComp.behavior.targetCost(entity, targetComp.target) < targetComp.behavior.maxLimit()) return;
 	
 		LevelComponent levelComp = Mappers.level.get(entity);
 		LevelHelper helper = levelComp.levelHelper;

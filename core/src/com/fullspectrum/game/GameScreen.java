@@ -2,9 +2,9 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
+import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.util.Iterator;
 
@@ -33,7 +33,6 @@ import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
@@ -67,6 +66,7 @@ import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.FlowField;
+import com.fullspectrum.level.FlowFieldManager;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -85,6 +85,7 @@ import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.DropMovementSystem;
 import com.fullspectrum.systems.DropSpawnSystem;
 import com.fullspectrum.systems.FacingSystem;
+import com.fullspectrum.systems.FlowFieldSystem;
 import com.fullspectrum.systems.FlowFollowSystem;
 import com.fullspectrum.systems.FlyingSystem;
 import com.fullspectrum.systems.FollowingSystem;
@@ -125,8 +126,8 @@ public class GameScreen extends AbstractScreen {
 
 	// Tile Map
 	private Level level;
-	private FlowField flowField;
-
+	private FlowFieldManager flowManager;
+	
 	// Box2D
 	private World world;
 
@@ -202,6 +203,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());
+		engine.addSystem(new FlowFieldSystem());
 		engine.addSystem(new FlowFollowSystem());
 		engine.addSystem(new AttackingSystem());
 
@@ -245,7 +247,8 @@ public class GameScreen extends AbstractScreen {
 		playerMesh = NavMesh.createNavMesh(level, EntityLoader.aiPlayerStats, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
 
 		// Setup Flow Field
-		flowField = new FlowField(level, 15);
+		flowManager = new FlowFieldManager(level, 15);
+		engine.getSystem(FlowFieldSystem.class).setFlowManager(flowManager);
 		
 		// Spawn Player
 		playerOne = EntityIndex.PLAYER.create(engine, world, level, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y, 0);
@@ -367,7 +370,6 @@ public class GameScreen extends AbstractScreen {
 		}
 		
 		BodyComponent bodyComp = Mappers.body.get(playerOne);
-		flowField.setGoal((int)bodyComp.body.getPosition().y, (int)bodyComp.body.getPosition().x);
 		
 //		if(DebugInput.isPressed(DebugKeys.SHOOT) && ups % 5 == 0){
 //			BulletFactory.spawnBullet(playerOne, 5.0f, 0.0f, 20.0f, 25.0f);
@@ -431,7 +433,7 @@ public class GameScreen extends AbstractScreen {
 		level.render();
 		renderer.render(batch);
 		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_FLOW_FIELD)) flowField.render(batch);
+		if(DebugInput.isToggled(DebugToggle.SHOW_FLOW_FIELD)) flowManager.render(batch);
 		if (DebugInput.isToggled(DebugToggle.SHOW_PATH)) {
 			for (Entity enemy : enemies) {
 				if(Mappers.path.get(enemy) == null) continue;

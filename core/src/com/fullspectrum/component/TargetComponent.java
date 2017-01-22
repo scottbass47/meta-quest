@@ -30,6 +30,16 @@ public class TargetComponent implements Component, Poolable{
 	}
 	
 	public static class DefaultTargetBehavior implements TargetBehavior{
+		private float maxLimit;
+		
+		public DefaultTargetBehavior() {
+			this(Float.MAX_VALUE);
+		}
+		
+		public DefaultTargetBehavior(float maxLimit){
+			this.maxLimit = maxLimit;
+		}
+		
 		@Override
 		public float targetCost(Entity me, Entity target) {
 			PositionComponent myPos = Mappers.position.get(me);
@@ -39,7 +49,7 @@ public class TargetComponent implements Component, Poolable{
 
 		@Override
 		public float maxLimit() {
-			return Float.MAX_VALUE;
+			return maxLimit;
 		} 
 	}
 	
@@ -57,7 +67,5 @@ public class TargetComponent implements Component, Poolable{
 		public float maxLimit() {
 			return Float.MAX_VALUE - 1;
 		}
-		
 	}
-	
 }

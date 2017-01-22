@@ -738,7 +738,7 @@ public class EntityFactory {
 				.build();
 		entity.getComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/spitter.json"), world, new Vector2(x, y), entity, true));
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		entity.add(engine.createComponent(TargetComponent.class).set(new PlayerTargetBehavior()));
+		entity.add(engine.createComponent(TargetComponent.class).set(new TargetComponent.DefaultTargetBehavior(15.0f * 15.0f)));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
 		entity.getComponent(DeathComponent.class).set(new DeathBehavior(){
@@ -762,13 +762,13 @@ public class EntityFactory {
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
 			.add(engine.createComponent(FlyingComponent.class))
-			.add(engine.createComponent(FlowFieldComponent.class).set(field))
+			.add(engine.createComponent(FlowFieldComponent.class))
 			.addAnimation(EntityAnim.IDLE);
 		
 		esm.createState(EntityStates.PROJECTILE_ATTACK)
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(FlyingComponent.class))
-			.add(engine.createComponent(FlowFieldComponent.class).set(field))
+			.add(engine.createComponent(FlowFieldComponent.class))
 			.addAnimation(EntityAnim.ATTACK)
 			.addChangeListener(new StateChangeListener(){
 				@Override
@@ -834,7 +834,17 @@ public class EntityFactory {
 				}
 			});
 		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(AttackComponent.class));
+			.add(engine.createComponent(AttackComponent.class))
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+				}
+				
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.aiController.get(entity).controller.releaseAll();
+				}
+			});
 		
 		LOSTransitionData inSightData = new LOSTransitionData(true);
 		LOSTransitionData outOfSightData = new LOSTransitionData(false);
