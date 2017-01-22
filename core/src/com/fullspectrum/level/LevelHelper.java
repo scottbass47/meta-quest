@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent;
@@ -31,6 +32,16 @@ public class LevelHelper {
 	public Array<Entity> getEntities(EntityType type){
 		Array<Entity> ret = new Array<Entity>();
 		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, TypeComponent.class).get())){
+			if(Mappers.type.get(entity).type.equals(type)){
+				ret.add(entity);
+			}
+		}
+		return ret;
+	}
+	
+	public Array<Entity> getAliveEntities(EntityType type){
+		Array<Entity> ret = new Array<Entity>();
+		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, TypeComponent.class, HealthComponent.class).get())){
 			if(Mappers.type.get(entity).type.equals(type)){
 				ret.add(entity);
 			}

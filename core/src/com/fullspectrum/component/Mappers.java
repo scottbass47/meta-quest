@@ -71,7 +71,8 @@ public class Mappers {
 	public static final ComponentMapper<BehaviorComponent> behavior = ComponentMapper.getFor(BehaviorComponent.class);
 	public static final ComponentMapper<DamageComponent> damage = ComponentMapper.getFor(DamageComponent.class);
 	public static final ComponentMapper<PlayerComponent> player = ComponentMapper.getFor(PlayerComponent.class);
-
+	public static final ComponentMapper<SpawnComponent> spawn = ComponentMapper.getFor(SpawnComponent.class);
+	public static final ComponentMapper<SpawnerPoolComponent> spawnerPool = ComponentMapper.getFor(SpawnerPoolComponent.class);
 
 }
 

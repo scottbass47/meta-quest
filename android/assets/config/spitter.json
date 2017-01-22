@@ -2,11 +2,12 @@
 	// Movement
 	air_speed: 8.0,
 	
-	// Damage
+	// Base Stats
+	money: 10.0,
 	health: 100.0,
 	
 	// Projectile
 	projectile_speed: 10.0,
-	projectile_damage: 35.0,
+	projectile_damage: 50.0,
 	projectile_time: 1.0
 }

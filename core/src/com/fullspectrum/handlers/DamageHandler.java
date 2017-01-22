@@ -27,9 +27,10 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class DamageHandler {
 
-	private DamageHandler(){}
-	
-	public static void dealDamage(Entity toEntity, float amount, float knockBackDistance, float knockBackSpeed, float knockBackAngle){
+	private DamageHandler() {
+	}
+
+	public static void dealDamage(Entity toEntity, float amount, float knockBackDistance, float knockBackSpeed, float knockBackAngle) {
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
 		WorldComponent worldComp = Mappers.world.get(toEntity);
 		LevelComponent levelComp = Mappers.level.get(toEntity);
@@ -37,78 +38,83 @@ public class DamageHandler {
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
-		
-		if(amount < 1.0f) return; 
-		
-		if(Mappers.inviciblity.get(toEntity) != null) return;
-		if(Mappers.player.get(toEntity) != null){
+
+		if (amount < 1.0f) return;
+
+		if (Mappers.inviciblity.get(toEntity) != null) return;
+		if (Mappers.player.get(toEntity) != null) {
 			float duration = 1.0f;
 			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
-			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class)
-					.addBlink(duration, 0.15f));
+			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class).addBlink(duration, 0.15f));
 			TimerComponent timerComp = Mappers.timer.get(toEntity);
-			timerComp.add("invincibility", duration, false, new TimeListener(){
+			timerComp.add("invincibility", duration, false, new TimeListener() {
 				@Override
 				public void onTime(Entity entity) {
 					entity.remove(InvicibilityComponent.class);
 					entity.remove(BlinkComponent.class);
-					if(entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
+					if (entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
 				}
 			});
 		}
-		
+
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
-		int dealt = (int)MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
-		
+		int dealt = (int) MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
+
 		int healthDown = 0;
 		int shieldDown = 0;
-		
-		if(barrierComp != null){
+
+		if (barrierComp != null) {
 			barrierComp.barrier -= dealt;
 			shieldDown = dealt;
-			if(barrierComp.barrier < 0){
-				shieldDown = dealt - (int)Math.abs(barrierComp.barrier);
-				dealt = (int)Math.abs(barrierComp.barrier);
+			if (barrierComp.barrier < 0) {
+				shieldDown = dealt - (int) Math.abs(barrierComp.barrier);
+				dealt = (int) Math.abs(barrierComp.barrier);
 				barrierComp.barrier = 0.0f;
 			}
-			else{
+			else {
 				dealt = 0;
 			}
 			barrierComp.timeElapsed = 0.0f;
 		}
 		healthDown = dealt;
 		healthComp.health -= dealt;
-		
-		if(healthComp.health <= 0){
+
+		if (healthComp.health <= 0) {
 			toEntity.add(engineComp.engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
 		}
-		
-		if(knockBackDistance > 0 && knockBackSpeed > 0){
-			if(toEntity.getComponent(KnockBackComponent.class) != null){
-				TimerComponent timerComp = Mappers.timer.get(toEntity);
-				Timer timer = timerComp.get("knockBack_life");
-				timer.resetElapsed();
-			}else{
-				toEntity.add(engineComp.engine.createComponent(KnockBackComponent.class).set(knockBackDistance, knockBackSpeed, knockBackAngle));
+
+		if (knockBackDistance > 0 && knockBackSpeed > 0) {
+			// TODO Handle entities that shouldn't receive knockback more cleanly
+			if (Mappers.spawnerPool.get(toEntity) == null) {
+				if (toEntity.getComponent(KnockBackComponent.class) != null) {
+					TimerComponent timerComp = Mappers.timer.get(toEntity);
+					Timer timer = timerComp.get("knockBack_life");
+					timer.resetElapsed();
+				}
+				else {
+					toEntity.add(engineComp.engine.createComponent(KnockBackComponent.class).set(knockBackDistance, knockBackSpeed, knockBackAngle));
+				}
 			}
 		}
-		
+
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + PhysicsUtils.getAABB(body).height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font28);
-		if(shieldDown > 0 && healthDown > 0){
+		if (shieldDown > 0 && healthDown > 0) {
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));
-		}else if(shieldDown > 0){
+		}
+		else if (shieldDown > 0) {
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x, y, 2.0f));
-		}else{
+		}
+		else {
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x, y, 2.0f));
 		}
 	}
-	
-	public static void dealDamage(Entity toEntity, float amount){
+
+	public static void dealDamage(Entity toEntity, float amount) {
 		DamageHandler.dealDamage(toEntity, amount, 0, 0, 0);
 	}
-	
+
 }

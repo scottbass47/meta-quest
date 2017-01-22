@@ -58,6 +58,9 @@ public class NavMesh{
 	
 	// Climb Stats
 	private float climbSpeed;
+	
+	// Nav Meshes
+	public static NavMesh aiPlayerMesh;
 
 	private NavMesh(Level level, EntityStats stats, Rectangle boundingBox) {
 		init(level, stats, boundingBox);

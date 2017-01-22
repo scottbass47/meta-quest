@@ -32,7 +32,6 @@ import com.fullspectrum.input.RawInput;
  * TODO [Sound] Add audio system to handle sound effects and music
  * TODO [State Machine] Add in chain transitions
  * TODO [Enemies] Add in enemy spawners
- * TODO [Entity] Make EntityStats a more used class that all entities have and use (should be loaded in from config files)
  * TODO [Component] Add entity type to type component (i.e. Player, Slime, Spitter, etc... different from Friendly, Neutral, and Enemy)
  */
 public class GdxGame extends Game {

@@ -28,6 +28,8 @@ public class FlowFollowSystem extends IteratingSystem{
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		
 		FlowField field = flowFieldComp.field;
+		if(field == null) return;
+		
 		AIController controller = aiControllerComp.controller;
 		Body body = bodyComp.body;
 		

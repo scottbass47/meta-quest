@@ -36,18 +36,18 @@ public class FollowingSystem extends IteratingSystem{
 		Node myNode = navMesh.getNearestNode(bodyComp.body, 0.0f, bodyComp.getAABB().y, true);
 		Node goalNode = navMesh.getShadowNode(otherBody.body, 0.0f, /*bodyComp.getAABB().y*/ 0.0f);
 		
-		if(goalNode == null){
-			System.out.println();
-		}
-		
 		if(myNode == null){
 			if(goalNode != null){
 				pathFinder.setGoal(goalNode);
 				pathFinder.calculatePath();
 			}
 			return;
+		}else{
+			if(pathFinder.getStart() == null){
+				pathFinder.setStart(myNode);
+			}
 		}
-		
+			
 		if(pathFinder.atGoal(goalNode)) return;
 		pathFinder.setGoal(goalNode);
 		if(!pathFinder.onPath(myNode)){

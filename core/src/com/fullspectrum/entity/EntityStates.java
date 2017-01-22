@@ -19,6 +19,7 @@ public enum EntityStates implements State{
 	DYING,
 	CLIMBING,
 	KNOCK_BACK,
+	BASE_ATTACK,
 	CLEAN_UP,
 	FLYING;
 	

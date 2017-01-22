@@ -19,6 +19,9 @@ public class EntityLoader {
 	public static final EntityStats aiPlayerStats = load(EntityIndex.AI_PLAYER);
 	public static final EntityStats spitterStats = load(EntityIndex.SPITTER);
 	
+	// Spawners
+	public static final EntityStats spawnerStats = load(EntityIndex.SPAWNER);
+	
 	public static EntityStats load(EntityIndex index){
 		EntityStats ret = new EntityStats(index);
 		String file = Gdx.files.internal("config/" + index.getName() + ".json").readString();
