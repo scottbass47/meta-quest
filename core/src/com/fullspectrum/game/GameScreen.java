@@ -275,7 +275,7 @@ public class GameScreen extends AbstractScreen {
 		cameraComp.windowMinY = 0f;
 		cameraComp.windowMaxX = 2f;
 		cameraComp.windowMaxY = 0f;
-		cameraComp.zoom = 3.0f;
+		cameraComp.zoom = 1.0f;
 		cameraEntity.add(cameraComp);
 		engine.addEntity(cameraEntity);
 //		spawnFlyingEnemey();
