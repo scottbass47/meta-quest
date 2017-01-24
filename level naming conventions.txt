@@ -1,0 +1,45 @@
+----------------
+| Level Naming |
+----------------
+
+Hub
+------
+[THEME]-hub.tmx
+e.g. grassy-hub.tmx
+
+Levels
+------
+[THEME]-level-[LEVEL NUMBER]-[SECTION NUMBER].tmx
+e.g. grassy-level-1-1.tmx (first level, first section)
+
+Secret Areas
+------
+[THEME]-secret-[LEVEL NUMBER]-[SECRET NUMBER]-[SECTION NUMBER].tmx
+e.g. rainy-secret-1-1-1.tmx (first section in the first secret area in first level)
+
+-------------------
+| Level Switching |
+-------------------
+
+Linear Advance
+------
+name - "next"
+Use: For linking to the next section in the level. If there is no section after this one it will return the player to the level hub.
+
+Linear Backtrack
+------
+name - "back"
+Use: For going back to the previous section. If there is no section before this one it will return the player to the level hub.
+
+Secret Branch
+------
+name - "secret-[SECRET_NUMBER]"
+e.g. "secret-1" (take you to the first section in the first secret branch)
+Use: For jumping to a secret room branch (which secret room is specified by SECRET_NUMBER]
+
+Explicit Jump
+------
+name - "[FILE_NAME]"
+e.g. "rainy-level-1-1" (take you to the first section of the first level in the rainy theme)
+e.g. "grassy-secret-1-1-1" (take you to the first section of of the first secret room in level one of the grassy theme)
+Note: You can optionally exclude the the theme (the theme used will be the theme of the level you're switching out of)

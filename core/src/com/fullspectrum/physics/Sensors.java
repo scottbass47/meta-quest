@@ -7,6 +7,7 @@ import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
@@ -196,6 +197,25 @@ public enum Sensors {
 			if(data == null || !data.equals("ground")) return;
 			CollisionComponent collisionComp = Mappers.collision.get((Entity)me.getBody().getUserData());
 			collisionComp.leftContacts--;
+		}
+	},
+	LEVEL_TRIGGER{
+		@Override
+		public void beginCollision(Fixture me, Fixture other) {
+			Entity entity = (Entity)me.getBody().getUserData();
+			Entity player = (Entity)other.getBody().getUserData();
+			if(!EntityUtils.isValid(player) || Mappers.player.get(player) == null) return;
+			
+			String levelSwitch = Mappers.levelSwitch.get(entity).data;
+			player.add(Mappers.engine.get(player).engine.createComponent(LevelSwitchComponent.class).set(levelSwitch));
+		}
+
+		@Override
+		public void endCollision(Fixture me, Fixture other) {
+			Entity player = (Entity)other.getBody().getUserData();
+			if(!EntityUtils.isValid(player) || Mappers.player.get(player) == null) return;
+			
+			if(Mappers.levelSwitch.get(player) != null) player.remove(LevelSwitchComponent.class);
 		}
 	};
 	

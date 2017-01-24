@@ -1,8 +1,12 @@
 package com.fullspectrum.component;
 
+import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
+import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
+
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class CameraComponent implements Component, Poolable {
@@ -10,6 +14,7 @@ public class CameraComponent implements Component, Poolable {
 	public float x = 0.0f;
 	public float y = 0.0f;
 	public float zoom = 0.0f;
+	public boolean locked = false;
 	
 	public float minX = 0.0f;
 	public float minY = 0.0f;
@@ -28,12 +33,20 @@ public class CameraComponent implements Component, Poolable {
 
 	public OrthographicCamera camera;
 	public Entity toFollow;
+	
+	public void update(){
+		camera.zoom = 1.0f / zoom;
+		camera.position.x = MathUtils.clamp(x, minX + R_WORLD_WIDTH * 0.5f * camera.zoom, maxX - R_WORLD_WIDTH * 0.5f * camera.zoom);
+		camera.position.y = MathUtils.clamp(y, minY + R_WORLD_HEIGHT * 0.5f * camera.zoom, maxY - R_WORLD_HEIGHT * 0.5f * camera.zoom);
+		camera.update();
+	}
 
 	@Override
 	public void reset() {
 		x = 0.0f;
 		y = 0.0f;
 		zoom = 0.0f;
+		locked = false;
 
 		minX = 0.0f;
 		minY = 0.0f;

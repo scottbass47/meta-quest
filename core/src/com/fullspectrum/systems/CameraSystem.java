@@ -21,7 +21,7 @@ public class CameraSystem extends IteratingSystem{
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		CameraComponent cameraComp = Mappers.camera.get(entity);
-		if(!EntityUtils.isValid(cameraComp.toFollow) || Mappers.position.get(cameraComp.toFollow) == null) return;
+		if(!EntityUtils.isValid(cameraComp.toFollow) || Mappers.position.get(cameraComp.toFollow) == null || cameraComp.locked) return;
 		PositionComponent positionComp = Mappers.position.get(cameraComp.toFollow);
 		
 		float dx = positionComp.x - cameraComp.x;

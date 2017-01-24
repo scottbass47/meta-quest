@@ -23,9 +23,13 @@ public enum Theme {
 		return parent;
 	}
 	
+	public String lowerCaseName(){
+		return name().toLowerCase();
+	}
+	
 	@Override
 	public String toString() {
-		return StringUtils.toTitleCase(name());
+		return lowerCaseName();
 	}
 	
 	public int getIndex(){

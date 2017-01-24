@@ -1,0 +1,15 @@
+{
+  "BodyDef": {
+    "type": "StaticBody"
+  },
+  "Fixtures": [
+     {
+       "shape": "Box",
+       "width": 4,
+       "height": 4,
+       "SensorType": "level_trigger",
+       "isSensor": "true",
+       "Category": "sensor"
+     }
+  ]
+}

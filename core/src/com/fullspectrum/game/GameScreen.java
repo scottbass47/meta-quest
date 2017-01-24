@@ -11,6 +11,7 @@ import java.util.Iterator;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -45,12 +46,12 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
+import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
@@ -66,8 +67,12 @@ import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.FlowFieldManager;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
+import com.fullspectrum.level.LevelInfo.LevelType;
+import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
+import com.fullspectrum.level.Theme;
+import com.fullspectrum.level.Tile;
 import com.fullspectrum.physics.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -91,6 +96,7 @@ import com.fullspectrum.systems.ForceSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.LadderMovementSystem;
+import com.fullspectrum.systems.LevelSwitchSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
@@ -116,16 +122,8 @@ public class GameScreen extends AbstractScreen {
 	private RenderingSystem renderer;
 	private TextRenderingSystem textRenderer;
 
-	// Player
-	private Entity playerOne;
-	private Array<Entity> enemies;
-	private Entity cameraEntity;
-	private NavMesh playerMesh;
-	private int index = 0;
-
 	// Tile Map
-	private Level level;
-	private FlowFieldManager flowManager;
+	private LevelManager levelManager;
 	
 	// Box2D
 	private World world;
@@ -135,7 +133,7 @@ public class GameScreen extends AbstractScreen {
 //	private FrameBuffer mainBuffer;
 //	private ShaderProgram mellowShader;
 //	private ShaderProgram vignetteShader;
-	private int previousZoom = 0;
+//	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
 
@@ -149,7 +147,6 @@ public class GameScreen extends AbstractScreen {
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		world.setContactListener(new WorldCollision());
-		enemies = new Array<Entity>();
 
 		// Load Assets
 		assets.loadHUD();
@@ -236,64 +233,18 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new RelativePositioningSystem());
 		engine.addSystem(new SwingingSystem());
 		engine.addSystem(new BlinkSystem());
+		engine.addSystem(new LevelSwitchSystem());
 		engine.addSystem(new DeathSystem());
 		engine.addSystem(new RemovalSystem(world));
 
 		// Setup and Load Level
-		level = new Level("arena", world, worldCamera, batch);
-		level.loadMap("map/ArenaMapv1.tmx");
-
-		// Setup Nav Mesh
-		playerMesh = NavMesh.createNavMesh(level, EntityLoader.aiPlayerStats, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
-		NavMesh.aiPlayerMesh = playerMesh;
-
-		// Setup Flow Field
-		flowManager = new FlowFieldManager(level, 15);
-		engine.getSystem(FlowFieldSystem.class).setFlowManager(flowManager);
-		
-		// Spawn Player
-		playerOne = EntityIndex.PLAYER.create(engine, world, level, level.getPlayerSpawnPoint().x, level.getPlayerSpawnPoint().y);
-		playerOne.getComponent(InputComponent.class).set(input);
-		engine.addEntity(playerOne);
-		
-		// Init Camera Position
-		worldCamera.position.x = level.getPlayerSpawnPoint().x;
-		worldCamera.position.y = level.getPlayerSpawnPoint().y;
-		worldCamera.update();
-
-		// Setup Camera
-		cameraEntity = engine.createEntity();
-		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
-		cameraComp.camera = worldCamera;
-		cameraComp.toFollow = playerOne;
-		cameraComp.x = worldCamera.position.x;
-		cameraComp.y = worldCamera.position.y;
-		cameraComp.minX = 0f;
-		cameraComp.minY = 0f;
-		cameraComp.maxX = level.getWidth();
-		cameraComp.maxY = level.getHeight();
-		cameraComp.windowMinX = -2f;
-		cameraComp.windowMinY = 0f;
-		cameraComp.windowMaxX = 2f;
-		cameraComp.windowMaxY = 0f;
-		cameraComp.zoom = 1.0f;
-		cameraEntity.add(cameraComp);
-		engine.addEntity(cameraEntity);
-//		spawnFlyingEnemey();
-		spawnSlime(playerMesh.getRandomNode());
-		EntityLoader.load(EntityIndex.SLIME);
-
-		for(EntitySpawn spawn : level.getEntitySpawns()){
-			Vector2 spawnPoint = spawn.getSpawnPoint();
-			Entity enemy = spawn.getIndex().create(engine, world, level, spawnPoint.x, spawnPoint.y);
-			enemies.add(enemy);
-			engine.addEntity(enemy);
-		}
+		batch.setProjectionMatrix(worldCamera.combined);
+		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
+		levelManager.switchLevel(Theme.GRASSY, LevelType.HUB, -1, -1, -1);
 	}
 	
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, level, node.getCol() + 0.5f, node.getRow() + 1.0f);
-		enemies.add(enemy);
+		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, levelManager.getCurrentLevel(), node.getCol() + 0.5f, node.getRow() + 1.0f);
 		engine.addEntity(enemy);
 	}
 	
@@ -301,15 +252,14 @@ public class GameScreen extends AbstractScreen {
 		int row = 0;
 		int col = 0;
 		do{
-			row = MathUtils.random(0, level.getHeight());
-		    col = MathUtils.random(0, level.getWidth());
-		}while(level.isSolid(row, col) || row > 25);
+			row = MathUtils.random(0, levelManager.getCurrentLevel().getHeight());
+		    col = MathUtils.random(0, levelManager.getCurrentLevel().getWidth());
+		}while(levelManager.getCurrentLevel().isSolid(row, col) || row > 25);
 		spawnSpitter(row, col);
 	}
 	
 	private void spawnSpitter(int row, int col){
-		Entity enemy = EntityIndex.SPITTER.create(engine, world, level, col + 0.5f, row + 0.5f);
-		enemies.add(enemy);
+		Entity enemy = EntityIndex.SPITTER.create(engine, world, levelManager.getCurrentLevel(), col + 0.5f, row + 0.5f);
 		engine.addEntity(enemy);
 	}
 	
@@ -318,8 +268,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityIndex.SLIME.create(engine, world, level, col + 0.5f, row + 0.5f);
-		enemies.add(enemy);
+		Entity enemy = EntityIndex.SLIME.create(engine, world, levelManager.getCurrentLevel(), col + 0.5f, row + 0.5f);
 		engine.addEntity(enemy);
 	}
 	
@@ -343,37 +292,37 @@ public class GameScreen extends AbstractScreen {
 		engine.update(delta);
 		world.step(delta, 6, 2);
 		EntityManager.update(delta);
-		if (input.isJustPressed(Actions.SELECT)) {
-			changePlayer();
-		}
+//		if (input.isJustPressed(Actions.SELECT)) {
+//			changePlayer();
+//		}
 
-		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-		Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-		if (mouseNode != null) {
-			if (Mouse.isJustPressed()) {
-				spawnEnemy(mouseNode);
-			}
-		} else if(!level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
-			spawnSpitter((int)mousePos.y, (int)mousePos.x);
-		}
-
-		if (DebugInput.isPressed(DebugKeys.SPAWN)) {
-			float random = MathUtils.random();
-			if(random <= 0.33f){
-				spawnFlyingEnemey();
-			}else if(random <= 0.66f){
-				Node spawnNode = playerMesh.getRandomNode();
-				spawnSlime(spawnNode);
-			}else{
-				Node spawnNode = playerMesh.getRandomNode();
-				spawnEnemy(spawnNode);
-			}
-		}
-
-		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
-			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
-			Mappers.camera.get(cameraEntity).zoom = previousZoom + 1;
-		}
+//		Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+//		Node mouseNode = NavMesh.get(EntityIndex.AI_PLAYER).getNodeAt(mousePos.x, mousePos.y);
+//		if (mouseNode != null) {
+//			if (Mouse.isJustPressed()) {
+//				spawnEnemy(mouseNode);
+//			}
+//		} else if(!level.isSolid(mousePos.x, mousePos.y) && Mouse.isJustPressed()){
+//			spawnSpitter((int)mousePos.y, (int)mousePos.x);
+//		}
+//
+//		if (DebugInput.isPressed(DebugKeys.SPAWN)) {
+//			float random = MathUtils.random();
+//			if(random <= 0.33f){
+//				spawnFlyingEnemey();
+//			}else if(random <= 0.66f){
+//				Node spawnNode = playerMesh.getRandomNode();
+//				spawnSlime(spawnNode);
+//			}else{
+//				Node spawnNode = playerMesh.getRandomNode();
+//				spawnEnemy(spawnNode);
+//			}
+//		}
+//
+//		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
+//			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
+//			Mappers.camera.get(cameraEntity).zoom = previousZoom + 1;
+//		}
 		
 //		BodyComponent bodyComp = Mappers.body.get(playerOne);
 		
@@ -394,11 +343,11 @@ public class GameScreen extends AbstractScreen {
 //		}
 
 		// Remove Invalid Enemies
-		for (Iterator<Entity> iter = enemies.iterator(); iter.hasNext();) {
-			if (!EntityUtils.isValid(iter.next())) {
-				iter.remove();
-			}
-		}
+//		for (Iterator<Entity> iter = enemies.iterator(); iter.hasNext();) {
+//			if (!EntityUtils.isValid(iter.next())) {
+//				iter.remove();
+//			}
+//		}
 		
 		// Respawn Player
 //		if(!EntityUtils.isValid(playerOne)){
@@ -410,17 +359,17 @@ public class GameScreen extends AbstractScreen {
 //		}
 	}
 
-	private void changePlayer() {
-		CameraComponent cameraComp = Mappers.camera.get(cameraEntity);
-		index++;
-		if (index > enemies.size) index = 0;
-		if (index == 0) {
-			cameraComp.toFollow = playerOne;
-		}
-		else {
-			cameraComp.toFollow = enemies.get(index - 1);
-		}
-	}
+//	private void changePlayer() {
+//		CameraComponent cameraComp = Mappers.camera.get(cameraEntity);
+//		index++;
+//		if (index > enemies.size) index = 0;
+//		if (index == 0) {
+//			cameraComp.toFollow = playerOne;
+//		}
+//		else {
+//			cameraComp.toFollow = enemies.get(index - 1);
+//		}
+//	}
 
 	@Override
 	public void render() {
@@ -436,28 +385,32 @@ public class GameScreen extends AbstractScreen {
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 
-		level.render();
+		levelManager.render();
 		renderer.render(batch);
-		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) playerMesh.render(batch);
-		if(DebugInput.isToggled(DebugToggle.SHOW_FLOW_FIELD)) flowManager.render(batch);
+		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) {
+			if(levelManager.getCurrentLevel().getMeshes().size > 0){
+				NavMesh.get(EntityIndex.AI_PLAYER).render(batch);
+			}
+		}
+		if(DebugInput.isToggled(DebugToggle.SHOW_FLOW_FIELD)){
+			if(levelManager.getCurrentLevel().requiresFlowField()){
+				levelManager.getFlowFieldManager().render(batch);
+			}
+		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_PATH)) {
-			for (Entity enemy : enemies) {
-				if(Mappers.path.get(enemy) == null) continue;
+			for (Entity enemy : engine.getEntitiesFor(Family.all(PathComponent.class).get())) {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HEALTH)) {
-			renderHealth(batch, playerOne);
-			for (Entity enemy : enemies) {
-				renderHealth(batch, enemy);
+			for (Entity entity : engine.getEntitiesFor(Family.all(HealthComponent.class).get())) {
+				renderHealth(batch, entity);
 			}
 		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)){
-			for(Entity enemy : enemies){
-				if(Mappers.aism.get(enemy) != null){
-					renderRange(batch, enemy);
-				}
+			for(Entity enemy : engine.getEntitiesFor(Family.all(AIStateMachineComponent.class).get())){
+				renderRange(batch, enemy);
 			}
 		}
 
@@ -493,15 +446,15 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(hudCamera.combined);
 		if(DebugInput.isToggled(DebugToggle.SHOW_MAP_COORDS)){
 			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-			Node mouseNode = playerMesh.getNodeAt(mousePos.x, mousePos.y);
-			if(mouseNode != null){
+			Tile mouseTile = levelManager.getCurrentLevel().tileAt((int)mousePos.y, (int)mousePos.x);
+			if(mouseTile != null){
 				batch.begin();
-				font.draw(batch, mouseNode.getRow() + ", " + mouseNode.getCol(), 10, 40);
+				font.draw(batch, mouseTile.getRow() + ", " + mouseTile.getCol(), 10, 40);
 				batch.end();
 			}
 		}
-		textRenderer.render(batch, cameraEntity);
-		renderHUD(batch, playerOne);
+		textRenderer.render(batch, levelManager.getCameraEntity());
+		renderHUD(batch, levelManager.getPlayer());
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);

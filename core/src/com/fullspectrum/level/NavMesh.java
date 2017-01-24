@@ -22,6 +22,7 @@ import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
@@ -60,21 +61,30 @@ public class NavMesh{
 	private float climbSpeed;
 	
 	// Nav Meshes
-	public static NavMesh aiPlayerMesh;
+	private static ArrayMap<EntityIndex, NavMesh> meshMap;
+	private static ArrayMap<EntityIndex, Rectangle> hitBoxes;
+	
+	static{
+		meshMap = new ArrayMap<EntityIndex, NavMesh>();
+		hitBoxes = new ArrayMap<EntityIndex, Rectangle>();
+		
+		// Manually put in hitbox info
+		hitBoxes.put(EntityIndex.AI_PLAYER, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
+	}
 
-	private NavMesh(Level level, EntityStats stats, Rectangle boundingBox) {
-		init(level, stats, boundingBox);
+	private NavMesh(Level level, EntityStats stats) {
+		init(level, stats);
 		calculate();
 	}
 	
-	private NavMesh(EntityStats stats, Rectangle boundingBox){
-		init(null, stats, boundingBox);	
+	private NavMesh(EntityStats stats){
+		init(null, stats);	
 	}
 	
-	private void init(Level level, EntityStats stats, Rectangle boundingBox){
+	private void init(Level level, EntityStats stats){
 		this.level = level;
 		this.stats = stats;
-		this.boundingBox = boundingBox;
+		this.boundingBox = hitBoxes.get(stats.getEntityIndex());
 		
 		if(stats != null) updateStats();
 		
@@ -82,6 +92,8 @@ public class NavMesh{
 		nodeMap = new ArrayMap<Point, Node>();
 		edgeNodes = new Array<Node>();
 		sRender = new ShapeRenderer();
+		
+		meshMap.put(stats.getEntityIndex(), this);
 	}
 	
 	private void calculate(){
@@ -99,12 +111,13 @@ public class NavMesh{
 		this.maxJumpForce = stats.get("jump_force");
 		this.maxRunSpeed = stats.get("ground_speed");
 		this.climbSpeed = stats.get("air_speed");
-
 	}
 
-	public static NavMesh createNavMesh(Level level, EntityStats stats, Rectangle boundingBox) {
-		String fileName = stats.getEntityIndex().getName() + "-" + level.getName() + ".nav";
+	public static NavMesh createNavMesh(Level level, EntityStats stats) {
+		String fileName = stats.getEntityIndex().getName() + "-" + level.getInfo().toFileFormat() + ".nav";
 		final Level levelCopy = level;
+		Rectangle boundingBox = hitBoxes.get(stats.getEntityIndex());
+		
 		Kryo kryo = new Kryo();
 		kryo.setReferences(false);
 		kryo.register(NavMesh.class, getSerializer(), 10);
@@ -122,7 +135,7 @@ public class NavMesh{
 				Rectangle rect = new Rectangle(input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat());
 				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode() && rect.equals(boundingBox)){
 					NavMesh mesh = kryo.readObject(input, NavMesh.class);
-					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + StringUtils.toTitleCase(level.getName()));
+					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getInfo().toFileFormat());
 					input.close();
 					mesh.level = levelCopy;
 					for(Node n : mesh.nodes){
@@ -135,8 +148,8 @@ public class NavMesh{
 				e.printStackTrace();
 			}
 		}
-		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + StringUtils.toTitleCase(level.getName()) + "...");
-		NavMesh mesh = new NavMesh(level, stats, boundingBox);
+		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getInfo().toFileFormat() + "...");
+		NavMesh mesh = new NavMesh(level, stats);
 		try {
 			Output output = new Output(new FileOutputStream(Gdx.files.local(fileName).path()));
 			output.writeInt(VERSION);
@@ -219,6 +232,11 @@ public class NavMesh{
 			sRender.rect(x1 + (0.5f - width * 0.5f), y1 + (0.5f - height * 0.5f), width * 0.5f, height * 0.5f, width, height, 1.0f, 1.0f, 45f);
 		}
 		sRender.end();
+	}
+	
+	public static NavMesh get(EntityIndex index){
+		if(!meshMap.containsKey(index)) throw new RuntimeException("No mesh loaded for entity " + index);
+		return meshMap.get(index);
 	}
 	
 	private void createNodes() {
@@ -682,10 +700,6 @@ public class NavMesh{
 		@Override
 		public void write(Kryo kryo, Output output, NavMesh object) {
 			kryo.writeObject(output, object.stats);
-			output.writeFloat(object.boundingBox.x);
-			output.writeFloat(object.boundingBox.y);
-			output.writeFloat(object.boundingBox.width);
-			output.writeFloat(object.boundingBox.height);
 			
 			output.writeShort((short)object.nodes.size);
 			for(Node n : object.nodes){
@@ -699,7 +713,7 @@ public class NavMesh{
 
 		@Override
 		public NavMesh read(Kryo kryo, Input input, Class<NavMesh> type) {
-			NavMesh mesh = new NavMesh(kryo.readObject(input, EntityStats.class), new Rectangle(input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat()));
+			NavMesh mesh = new NavMesh(kryo.readObject(input, EntityStats.class));
 			int size = input.readShort();
 			for(int i = 0; i < size; i++){
 				Node node = kryo.readObject(input, Node.class);

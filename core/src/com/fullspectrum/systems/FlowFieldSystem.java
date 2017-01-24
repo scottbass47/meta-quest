@@ -37,7 +37,7 @@ public class FlowFieldSystem extends EntitySystem{
 			
 			flowFieldComp.field = manager.getField(position.x, position.y);
 		}
-		manager.update(deltaTime);
+		if(manager != null) manager.update(deltaTime);
 	}
 	
 	public void setFlowManager(FlowFieldManager manager){

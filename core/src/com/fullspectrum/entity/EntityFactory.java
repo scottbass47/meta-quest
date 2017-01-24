@@ -117,10 +117,10 @@ public class EntityFactory {
 	
 	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
 		// Stats
-		EntityStats playerStats = EntityLoader.playerStats;
-		EntityStats knightStats = EntityLoader.knightStats;
-		EntityStats rogueStats = EntityLoader.rogueStats;
-		EntityStats mageStats = EntityLoader.mageStats;
+		EntityStats playerStats = EntityLoader.get(EntityIndex.PLAYER);
+		EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
+		EntityStats rogueStats = EntityLoader.get(EntityIndex.ROGUE);
+		EntityStats mageStats = EntityLoader.get(EntityIndex.MAGE);
 		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -554,8 +554,8 @@ public class EntityFactory {
 	
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y) {
 		// Stats
-		EntityStats stats = EntityLoader.aiPlayerStats;
-		NavMesh mesh = NavMesh.aiPlayerMesh;
+		EntityStats stats = EntityLoader.get(EntityIndex.AI_PLAYER);
+		NavMesh mesh = NavMesh.get(EntityIndex.AI_PLAYER);
 		PathFinder pathFinder = new PathFinder(mesh);
 		
 		// Setup Animations
@@ -717,7 +717,7 @@ public class EntityFactory {
 	
 	public static Entity createSpitter(Engine engine, World world, Level level, float x, float y){
 		// Stats
-		final EntityStats stats = EntityLoader.spitterStats;
+		final EntityStats stats = EntityLoader.get(EntityIndex.SPITTER);
 		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
@@ -891,7 +891,7 @@ public class EntityFactory {
 	
 	public static Entity createSlime(Engine engine, World world, Level level, float x, float y){
 		// Stats
-		final EntityStats stats = EntityLoader.slimeStats;
+		final EntityStats stats = EntityLoader.get(EntityIndex.SLIME);
 		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.slimeIdle));
@@ -1019,7 +1019,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSpawner(Engine engine, World world, Level level, float x, float y){
-		EntityStats stats = EntityLoader.spawnerStats;
+		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
 		
 		Entity spawner = new EntityBuilder(engine, world, level)

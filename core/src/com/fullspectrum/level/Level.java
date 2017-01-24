@@ -1,17 +1,19 @@
 package com.fullspectrum.level;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
-import static com.fullspectrum.game.GameVars.R_WORLD_HEIGHT;
-import static com.fullspectrum.game.GameVars.R_WORLD_WIDTH;
 
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
+import com.badlogic.ashley.core.Engine;
+import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
+import com.badlogic.gdx.maps.MapProperties;
 import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
@@ -25,16 +27,18 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 import com.fullspectrum.physics.CollisionBits;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
 
 	// Physics
 	private World world;
-	private Array<Body> tileHitboxes;
+	private Array<Body> bodies;
 
 	// Tile Map
 	private TiledMap map;
@@ -43,37 +47,55 @@ public class Level {
 	private int width;
 	private int height;
 	private Tile[][] mapTiles;
-
 	private Array<Tile> ladders;
-	private final String name;
-
-	// Camera
-	private OrthographicCamera cam;
-
-	// Rendering
-	private SpriteBatch batch;
 
 	// Spawns
 	private Vector2 playerSpawn;
 	private Array<EntitySpawn> entitySpawns;
-
-	public Level(String name, World world, OrthographicCamera cam, SpriteBatch batch) {
-		this.name = name;
-		this.world = world;
-		this.cam = cam;
-		this.batch = batch;
+	
+	// Engine
+	private Engine engine;
+	
+	// Level Info
+	private LevelManager manager;
+	private LevelInfo info;
+	private Array<EntityIndex> meshes;
+	private boolean requiresFlowField;
+	private boolean isCameraLocked;
+	private float cameraZoom;
+	
+	public Level(LevelManager manager, LevelInfo info) {
+		this.manager = manager;
+		this.engine = manager.getEngine();
+		this.world = manager.getWorld();
+		this.info = info;
 		loader = new TmxMapLoader();
 		ladders = new Array<Tile>();
 		entitySpawns = new Array<EntitySpawn>();
-		tileHitboxes = new Array<Body>();
+		bodies = new Array<Body>();
+		meshes = new Array<EntityIndex>();
 	}
 
-	public void loadMap(String path) {
-		map = loader.load(path);
+	public void loadMap(SpriteBatch batch) {
+		map = loader.load("map/" + info.toFileFormatExtension());
 		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
+		if(map.getProperties().containsKey("meshes")){
+			String meshList = (String) map.getProperties().get("meshes");
+			meshList.replaceAll("\\s+", "");
+			String[] parts = meshList.split(",");
+			for(String part : parts){
+				meshes.add(EntityIndex.get(part));
+			}
+		}
+		MapProperties prop = map.getProperties();
+		requiresFlowField = prop.containsKey("flow_field");
+		isCameraLocked = prop.containsKey("camera_locked");
+		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
+		
 		setupGround();
 		setupLadders();
 		setupSpawnPoints();
+		setupLevelTriggers();
 	}
 
 	public int getWidth() {
@@ -83,18 +105,33 @@ public class Level {
 	public int getHeight() {
 		return height;
 	}
-
-	public String getName(){
-		return name;
+	
+	public LevelManager getManager(){
+		return manager;
 	}
 	
-	public void update(float delta) {
-		cam.position.x = R_WORLD_WIDTH * 0.5f;
-		cam.position.y = R_WORLD_HEIGHT * 0.5f;
+	public LevelInfo getInfo(){
+		return info;
 	}
-
-	public void render() {
-		mapRenderer.setView(cam);
+	
+	public Array<EntityIndex> getMeshes(){
+		return meshes;
+	}
+	
+	public boolean requiresFlowField(){
+		return requiresFlowField;
+	}
+	
+	public boolean isCameraLocked(){
+		return isCameraLocked;
+	}
+	
+	public float getCameraZoom(){
+		return cameraZoom;
+	}
+	
+	public void render(OrthographicCamera worldCamera) {
+		mapRenderer.setView(worldCamera);
 		mapRenderer.render();
 	}
 
@@ -241,7 +278,7 @@ public class Level {
 			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
 			Body body = world.createBody(bdef);
 			body.createFixture(fdef).setUserData("ground");
-			tileHitboxes.add(body);
+			bodies.add(body);
 			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
 	}
@@ -295,7 +332,7 @@ public class Level {
 			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
 			Body body = world.createBody(bdef);
 			body.createFixture(fdef).setUserData("ladder");
-			tileHitboxes.add(body);
+			bodies.add(body);
 		}
 	}
 
@@ -315,9 +352,26 @@ public class Level {
 		}
 	}
 	
+	private void setupLevelTriggers() {
+		MapObjects objects = map.getLayers().get("triggers").getObjects();
+		for (MapObject o : objects) {
+			float x = (Float) o.getProperties().get("x");
+			float y = (Float) o.getProperties().get("y");
+			float width = (Float) o.getProperties().get("width");
+			float height = (Float) o.getProperties().get("height");
+			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
+			
+			Entity entity = engine.createEntity();
+			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));
+			Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/level_trigger.json"), world, spawnPoint, entity, true);
+			bodies.add(body);
+			engine.addEntity(entity);
+		}
+	}
+	
 	public void destroy(){
 		// Destroy Physics Bodies
-		for(Iterator<Body> iter = tileHitboxes.iterator(); iter.hasNext();){
+		for(Iterator<Body> iter = bodies.iterator(); iter.hasNext();){
 			world.destroyBody(iter.next());
 			iter.remove();
 		}
@@ -511,21 +565,39 @@ public class Level {
 	
 	public class EntitySpawn{
 		private EntityIndex index;
-		private Vector2 vec;
+		private Vector2 pos;
 		
-		public EntitySpawn(EntityIndex index, Vector2 vec){
+		public EntitySpawn(EntityIndex index, Vector2 pos){
 			this.index = index;
-			this.vec = vec;
+			this.pos = pos;
 		}
 		
 		public EntityIndex getIndex(){
 			return index;
 		}
 		
-		public Vector2 getSpawnPoint(){
-			return vec;
+		public Vector2 getPos(){
+			return pos;
 		}
 	}
+	
+//	public class LevelTrigger{
+//		private String data;
+//		private Vector2 pos;
+//		
+//		public LevelTrigger(String data, Vector2 pos){
+//			this.data = data;
+//			this.pos = pos;
+//		}
+//		
+//		public String getSwitchData(){
+//			return data;
+//		}
+//		
+//		public Vector2 getPos(){
+//			return pos;
+//		}
+//	}
 	
 	@Override
 	public int hashCode() {
