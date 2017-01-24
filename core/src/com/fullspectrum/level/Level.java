@@ -18,13 +18,13 @@ import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
@@ -34,16 +34,16 @@ public class Level {
 
 	// Physics
 	private World world;
+	private Array<Body> tileHitboxes;
 
 	// Tile Map
 	private TiledMap map;
 	private TmxMapLoader loader;
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private int width;
-	
-
 	private int height;
 	private Tile[][] mapTiles;
+
 	private Array<Tile> ladders;
 	private final String name;
 
@@ -65,6 +65,7 @@ public class Level {
 		loader = new TmxMapLoader();
 		ladders = new Array<Tile>();
 		entitySpawns = new Array<EntitySpawn>();
+		tileHitboxes = new Array<Body>();
 	}
 
 	public void loadMap(String path) {
@@ -238,7 +239,9 @@ public class Level {
 			int height = endRow - startRow + 1;
 			shape.setAsBox(width * 0.5f, height * 0.5f);
 			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-			world.createBody(bdef).createFixture(fdef).setUserData("ground");
+			Body body = world.createBody(bdef);
+			body.createFixture(fdef).setUserData("ground");
+			tileHitboxes.add(body);
 			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
 	}
@@ -290,7 +293,9 @@ public class Level {
 			int height = endRow - startRow + 1;
 			shape.setAsBox(width * 0.5f - 0.4f, height * 0.5f);
 			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-			world.createBody(bdef).createFixture(fdef).setUserData("ladder");
+			Body body = world.createBody(bdef);
+			body.createFixture(fdef).setUserData("ladder");
+			tileHitboxes.add(body);
 		}
 	}
 
@@ -308,6 +313,16 @@ public class Level {
 				entitySpawns.add(new EntitySpawn(EntityIndex.SPAWNER, spawnPoint));
 			}
 		}
+	}
+	
+	public void destroy(){
+		// Destroy Physics Bodies
+		for(Iterator<Body> iter = tileHitboxes.iterator(); iter.hasNext();){
+			world.destroyBody(iter.next());
+			iter.remove();
+		}
+		
+		
 	}
 	
 	public Array<EntitySpawn> getEntitySpawns(){

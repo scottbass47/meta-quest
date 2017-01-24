@@ -59,6 +59,7 @@ public enum EntityIndex {
 		}
 	};
 	
+	// TODO Consider including Input as a needed argument
 	public abstract Entity create(Engine engine, World world, Level level, float x, float y);
 	
 	public String getName(){

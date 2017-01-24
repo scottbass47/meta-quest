@@ -50,6 +50,7 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
