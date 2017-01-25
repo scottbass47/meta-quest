@@ -12,7 +12,7 @@ public class WorldCollision implements ContactListener {
 	public void beginContact(Contact contact) {
 		Fixture f1 = contact.getFixtureA();
 		Fixture f2 = contact.getFixtureB();
-
+		
 		if (f1.isSensor() && f1.getUserData() != null) {
 			Sensors sensor = Sensors.get((String) f1.getUserData());
 			sensor.beginCollision(f1, f2);

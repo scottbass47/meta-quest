@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="40" tilewidth="16" tileheight="16" nextobjectid="12">
+<map version="1.0" orientation="orthogonal" renderorder="right-down" width="80" height="30" tilewidth="16" tileheight="16" nextobjectid="15">
+ <properties>
+  <property name="camera_zoom" type="float" value="3"/>
+  <property name="flow_field" type="bool" value="true"/>
+  <property name="meshes" value="ai_player"/>
+ </properties>
  <tileset firstgid="1" name="Grassy_Tileset" tilewidth="16" tileheight="16" tilecount="6" columns="3">
   <image source="level_tileset.png" trans="ff00ff" width="48" height="16"/>
   <tile id="0">
@@ -21,9 +26,8 @@
   <tile id="4" probability="0.01"/>
   <tile id="5" probability="0.01"/>
  </tileset>
- <layer name="ground" width="80" height="30" offsetx="-90.3333" offsety="-165.333">
+ <layer name="ground" width="80" height="30">
   <data encoding="csv">
-  
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -56,11 +60,14 @@
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
 </data>
  </layer>
- <objectgroup name="spawns" offsetx="-91.0208" offsety="-165.312">
-  <object id="1" name="player_spawn" type="player" x="639.5" y="539.5" width="1" height="1"/>
-  <object id="5" name="spawner" type="spawner" x="444" y="296" width="24" height="24"/>
-  <object id="9" name="spawner" type="spawner" x="812" y="296" width="24" height="24"/>
-  <object id="10" name="spawner" type="spawner" x="484" y="408" width="24" height="24"/>
-  <object id="11" name="spawner" type="spawner" x="772" y="408" width="24" height="24"/>
+ <objectgroup name="spawns">
+  <object id="1" name="player_spawn" type="player" x="632" y="360" width="16" height="40"/>
+  <object id="5" name="spawner" type="spawner" x="444" y="136" width="24" height="24"/>
+  <object id="9" name="spawner" type="spawner" x="812" y="136" width="24" height="24"/>
+  <object id="10" name="spawner" type="spawner" x="484" y="248" width="24" height="24"/>
+  <object id="11" name="spawner" type="spawner" x="772" y="248" width="24" height="24"/>
+ </objectgroup>
+ <objectgroup name="triggers">
+  <object id="12" name="next" x="1246" y="279" width="4" height="4"/>
  </objectgroup>
 </map>

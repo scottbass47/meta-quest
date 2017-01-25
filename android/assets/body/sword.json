@@ -1,6 +1,6 @@
 {
   "BodyDef": {
-    "type": "KinematicBody"
+    "type": "DynamicBody"
   },
   "Fixtures": [
       {

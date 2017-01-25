@@ -3,6 +3,7 @@ package com.fullspectrum.level;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -13,6 +14,7 @@ import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
+import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.input.GameInput;
@@ -31,6 +33,10 @@ public class LevelManager {
 	private Level currentLevel;
 	private FlowFieldManager flowManager;
 	private Entity player;
+	
+	// Level
+	private LevelInfo previous;
+	private LevelInfo lastLevel;
 	
 	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, GameInput input){
 		this.engine = engine;
@@ -73,10 +79,11 @@ public class LevelManager {
 			// 1. Destroy old level
 			currentLevel.destroy();
 			
-			// 2. Remove all entities excluding player or entities whose parent is the player
+			// 2. Remove all entities excluding player or entities whose parent is the player (AND ALSO CAMERA!)
 			for(Entity entity : engine.getEntities()){
-				if(Mappers.player.get(entity) != null || (Mappers.parent.get(entity) != null && Mappers.player.get(Mappers.parent.get(entity).parent) != null)) continue;
-				engine.removeEntity(entity);
+				if(Mappers.player.get(entity) != null || (Mappers.parent.get(entity) != null && Mappers.player.get(Mappers.parent.get(entity).parent) != null)
+						|| Mappers.camera.get(entity) != null) continue;
+				entity.add(engine.createComponent(RemoveComponent.class));
 			}
 		}
 		// 3. Load in new level
@@ -113,6 +120,7 @@ public class LevelManager {
 		}
 		Body body = Mappers.body.get(player).body;
 		body.setTransform(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y, 0.0f);
+		Mappers.level.get(player).level = newLevel;
 		
 		// 7. Initialize camera (zoom, position, bounds, etc...)
 		CameraComponent cameraComp = Mappers.camera.get(camera);
@@ -125,7 +133,53 @@ public class LevelManager {
 		cameraComp.zoom = newLevel.getCameraZoom();
 		cameraComp.update();
 		
+		if(currentLevel != null){
+			if(currentLevel.getInfo().isLevel()){
+				lastLevel = currentLevel.getInfo();
+			}
+			previous = currentLevel.getInfo();
+		}
 		currentLevel = newLevel;
+	}
+	
+	public void switchHub(Theme theme){
+		switchLevel(theme, LevelType.HUB, -1, -1, -1);
+	}
+	
+	public void switchLevel(LevelInfo info){
+		switchLevel(info.getTheme(), info.getLevelType(), info.getLevel(), info.getSecret(), info.getSection());
+	}
+	
+	public void switchLevel(Theme theme, int level, int section){
+		switchLevel(theme, LevelType.LEVEL, level, -1, section);
+	}
+	
+	public void switchNext(){
+		LevelInfo currentInfo = currentLevel.getInfo();
+		Theme nextTheme = currentInfo.getTheme().getNext();
+		if(nextTheme == null && currentInfo.isHub()) throw new RuntimeException("Can't switch to next level when in last section in hub.");
+	
+		if(currentInfo.isHub()){
+			switchHub(nextTheme);
+		} else if(currentInfo.isSecret()){
+			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.SECRET, currentInfo.getLevel(), currentInfo.getSecret(), currentInfo.getSecret() + 1);
+			if(!levelExists(newInfo)){
+				switchLevel(lastLevel);
+			}else{
+				switchLevel(newInfo);
+			}
+		}else{
+			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.LEVEL, currentInfo.getLevel(), 1, currentInfo.getSection() + 1);
+			if(!levelExists(newInfo)){
+				switchHub(currentInfo.getTheme());
+			}else{
+				switchLevel(newInfo);
+			}
+		}
+	}
+	
+	public boolean levelExists(LevelInfo info){
+		return Gdx.files.internal(info.toFileFormatExtension()).exists();
 	}
 	
 	public void render(){

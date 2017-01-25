@@ -40,9 +40,16 @@ public enum Theme {
 		return get(ordinal() + 1);
 	}
 	
-	public Theme get(int index){
+	public static Theme get(int index){
 		if(index < 0 || index >= values().length) return null;
 		return values()[index];
+	}
+	
+	public static Theme get(String name){
+		for(Theme theme : Theme.values()){
+			if(theme.name().equalsIgnoreCase(name)) return theme;
+		}
+		return null;
 	}
 	
 }

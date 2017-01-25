@@ -43,3 +43,26 @@ name - "[FILE_NAME]"
 e.g. "rainy-level-1-1" (take you to the first section of the first level in the rainy theme)
 e.g. "grassy-secret-1-1-1" (take you to the first section of of the first secret room in level one of the grassy theme)
 Note: You can optionally exclude the the theme (the theme used will be the theme of the level you're switching out of)
+
+--------------------
+| Level Properties |
+--------------------
+
+NOTE: Level field omitted is OK. Only include fields that are needed for that level (if a property isn't included, the default value will be used) 
+
+Nav Mesh
+------
+meshes - "[ENTITY 1],[ENTITY 2], [ENTITY 3],..."
+e.g. "ai_player, goblin"
+Note: Spaces don't matter and all entity names must be their offical EntityIndex name.
+
+Flow Field
+------
+flow_field - bool
+e.g. true (check box in tiled)
+Note: Use only if levl has flying enemies
+
+Camera
+------
+camera_locked - bool
+camera_zoom - float

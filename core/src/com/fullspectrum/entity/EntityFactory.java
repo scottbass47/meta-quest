@@ -1075,7 +1075,6 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
-//		Entity sword = initPhysicsEntity(engine, world, level, null, x, y);
 		Entity sword = new EntityBuilder(engine, world, level)
 				.physics("sword.json", x, y, false)
 				.build();
@@ -1083,6 +1082,7 @@ public class EntityFactory {
 		sword.add(engine.createComponent(OffsetComponent.class).set(16.0f * PPM_INV, 0.0f * PPM_INV, true));
 		sword.add(engine.createComponent(SwordStatsComponent.class).set(damage));
 		sword.getComponent(BodyComponent.class).body.setActive(false);
+		sword.getComponent(BodyComponent.class).body.setGravityScale(0.0f);
 		
 		return sword;
 	}
@@ -1328,7 +1328,7 @@ public class EntityFactory {
 		return entity;
 	}
 	
-	private static class EntityBuilder{
+	public static class EntityBuilder{
 		private Engine engine;
 		private World world;
 		private Entity entity;

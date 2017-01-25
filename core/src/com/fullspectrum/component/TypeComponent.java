@@ -18,6 +18,11 @@ public class TypeComponent implements Component, Poolable{
 		return this;
 	}
 	
+	public TypeComponent setCollideWith(ObjectSet<EntityType> collideWith){
+		this.collideWith = collideWith;
+		return this;
+	}
+	
 	public TypeComponent setCollideWith(EntityType... types){
 		collideWith.clear();
 		collideWith.addAll(types);

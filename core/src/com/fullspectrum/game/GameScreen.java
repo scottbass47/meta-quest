@@ -240,7 +240,7 @@ public class GameScreen extends AbstractScreen {
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
-		levelManager.switchLevel(Theme.GRASSY, LevelType.HUB, -1, -1, -1);
+		levelManager.switchHub(Theme.GRASSY);
 	}
 	
 	private void spawnEnemy(Node node) {

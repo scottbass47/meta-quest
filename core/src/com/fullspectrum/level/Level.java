@@ -8,7 +8,6 @@ import java.util.Iterator;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
@@ -28,11 +27,11 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.LevelSwitchComponent;
+import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 import com.fullspectrum.physics.CollisionBits;
-import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
 
@@ -361,10 +360,10 @@ public class Level {
 			float height = (Float) o.getProperties().get("height");
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			
-			Entity entity = engine.createEntity();
+			Entity entity = new EntityFactory.EntityBuilder(engine, world, this)
+					.physics("level_trigger.json", spawnPoint.x, spawnPoint.y, false)
+					.build();
 			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));
-			Body body = PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/level_trigger.json"), world, spawnPoint, entity, true);
-			bodies.add(body);
 			engine.addEntity(entity);
 		}
 	}

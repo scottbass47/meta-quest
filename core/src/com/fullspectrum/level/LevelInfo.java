@@ -58,6 +58,10 @@ public class LevelInfo {
 		return type == LevelType.SECRET;
 	}
 	
+	public boolean isLevel(){
+		return type == LevelType.LEVEL;
+	}
+	
 	public enum LevelType{
 		HUB,
 		LEVEL,
@@ -70,6 +74,13 @@ public class LevelInfo {
 		@Override
 		public String toString() {
 			return lowerCaseName();
+		}
+		
+		public static LevelType get(String name){
+			for(LevelType type : LevelType.values()){
+				if(type.name().equalsIgnoreCase(name)) return type;
+			}
+			return null;
 		}
 	}
 	
