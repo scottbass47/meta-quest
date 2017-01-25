@@ -2,11 +2,8 @@ package com.fullspectrum.game;
 
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
 import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
-import static com.fullspectrum.game.GameVars.PPM_INV;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-
-import java.util.Iterator;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -27,47 +24,35 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
-import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
-import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityIndex;
-import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
-import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
-import com.fullspectrum.level.FlowFieldManager;
-import com.fullspectrum.level.Level;
-import com.fullspectrum.level.Level.EntitySpawn;
-import com.fullspectrum.level.LevelInfo.LevelType;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -371,6 +356,7 @@ public class GameScreen extends AbstractScreen {
 //		}
 //	}
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void render() {
 //		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);

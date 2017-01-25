@@ -62,6 +62,11 @@ public class LevelInfo {
 		return type == LevelType.LEVEL;
 	}
 	
+	@Override
+	public String toString() {
+		return toFileFormat();
+	}
+	
 	public enum LevelType{
 		HUB,
 		LEVEL,

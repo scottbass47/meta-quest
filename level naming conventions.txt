@@ -60,7 +60,7 @@ Flow Field
 ------
 flow_field - bool
 e.g. true (check box in tiled)
-Note: Use only if levl has flying enemies
+Note: Use only if level has flying enemies
 
 Camera
 ------
