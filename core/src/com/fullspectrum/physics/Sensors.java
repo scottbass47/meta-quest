@@ -45,6 +45,8 @@ public enum Sensors {
 			Entity otherEntity = (Entity)other.getBody().getUserData();
 			Entity swordWielder = Mappers.parent.get(sword).parent;
 			
+			if(!EntityUtils.isValid(otherEntity)) return;
+			
 			// Don't deal damage to an entity of the same type (e.g. no friendly fire)
 			if(!Mappers.type.get(swordWielder).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
