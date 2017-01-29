@@ -51,6 +51,7 @@ import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
+import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.LevelManager;
@@ -568,7 +569,7 @@ public class GameScreen extends AbstractScreen {
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		LevelComponent levelComp = Mappers.level.get(entity);
 
-		TransitionObject obj = aismComp.aism.getCurrentStateObject().getFirstData(Transition.RANGE);
+		TransitionObject obj = aismComp.aism.getCurrentStateObject().getFirstData(Transitions.RANGE);
 		if(obj == null) return;
 		TargetComponent targetComp = Mappers.target.get(entity);
 		RangeTransitionData rtd = (RangeTransitionData) obj.data;

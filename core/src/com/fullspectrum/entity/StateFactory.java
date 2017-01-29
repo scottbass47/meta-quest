@@ -3,6 +3,7 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
+import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.ForceComponent;
@@ -13,7 +14,6 @@ import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LadderComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
-import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
@@ -26,6 +26,7 @@ import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
 
 public class StateFactory {
@@ -95,7 +96,7 @@ public class StateFactory {
 			if(withApex){
 				state.addAnimation(EntityAnim.JUMP_APEX)
 					.addAnimation(EntityAnim.FALLING)
-					.addAnimTransition(EntityAnim.JUMP_APEX, Transition.ANIMATION_FINISHED, EntityAnim.FALLING);
+					.addAnimTransition(EntityAnim.JUMP_APEX, Transitions.ANIMATION_FINISHED, EntityAnim.FALLING);
 			}else{
 				state.addAnimation(EntityAnim.FALLING);
 			}
@@ -121,7 +122,7 @@ public class StateFactory {
 				.add(engine.createComponent(JumpComponent.class).set(jumpForce))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
-				.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
+				.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
 				.addTag(TransitionTag.AIR_STATE);
 			if(withStateChangeListener){
 				state.addChangeListener(new StateChangeListener(){
