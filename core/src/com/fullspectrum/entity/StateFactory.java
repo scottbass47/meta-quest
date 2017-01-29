@@ -182,6 +182,7 @@ public class StateFactory {
 		 * @param duration
 		 * @return
 		 */
+		 // CLEANUP TAKE OUT STAMINA
 		public EntityStateBuilder swingAttack(Entity sword, float startAngle, float rotationAmount, float duration, final float staminaCost){
 			esm.createState(EntityStates.SWING_ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))

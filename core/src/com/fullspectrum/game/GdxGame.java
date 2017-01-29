@@ -28,10 +28,11 @@ import com.fullspectrum.input.RawInput;
 /*
  * Global Task List
  * ----------------
- * TODO [AI + WIP] Add wrapper for Level that provides utility functions for simple ai to make decisions
- * TODO [Sound] Add audio system to handle sound effects and music
- * TODO [State Machine] Add in chain transitions
- * TODO [Component] Add entity type to type component (i.e. Player, Slime, Spitter, etc... different from Friendly, Neutral, and Enemy)\
+ * TODO Add wrapper for Level that provides utility functions for simple ai to make decisions
+ * TODO Add audio system to handle sound effects and music
+ * TODO Add in chain transitions
+ * TODO Add entity type to type component (i.e. Player, Slime, Spitter, etc... different from Friendly, Neutral, and Enemy)\
+ * TODO Make state machine more dynamic (can add in states after defining transitions)
  */
 public class GdxGame extends Game {
 	// Rendering

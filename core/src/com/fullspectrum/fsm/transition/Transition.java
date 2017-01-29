@@ -241,14 +241,14 @@ public enum Transition {
 			return abilityComp.isAbilityReady(atd.type);
 		}
 	};
+	
+	public abstract boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime);
 
 	public final boolean allowMultiple;
 
 	private Transition(boolean allowMultiple) {
 		this.allowMultiple = allowMultiple;
 	}
-
-	public abstract boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime);
 
 	public String toString() {
 		return StringUtils.toTitleCase(name());

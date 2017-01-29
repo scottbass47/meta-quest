@@ -3,6 +3,7 @@ package com.fullspectrum.fsm.transition;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.input.Actions;
 
+// CLEANUP Input transitions should be singular and MultiTransitions should be used
 public class InputTransitionData implements TransitionData{
 
 	public Array<InputTrigger> triggers;

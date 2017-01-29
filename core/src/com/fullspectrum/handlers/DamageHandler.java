@@ -85,7 +85,7 @@ public class DamageHandler {
 		}
 
 		if (knockBackDistance > 0 && knockBackSpeed > 0) {
-			// TODO Handle entities that shouldn't receive knockback more cleanly
+			// CLEANUP Entities should be checked for whether or not they accept knockback
 			if (Mappers.spawnerPool.get(toEntity) == null) {
 				if (toEntity.getComponent(KnockBackComponent.class) != null) {
 					TimerComponent timerComp = Mappers.timer.get(toEntity);

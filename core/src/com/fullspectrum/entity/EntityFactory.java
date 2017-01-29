@@ -214,11 +214,23 @@ public class EntityFactory {
 			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true)
 			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
-			.swingAttack(sword, 150f, 210f, 0.6f, 25f) // TODO TAKE OUT STAMINA
+//			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.knockBack()
 			.build();
 		
 		esm.setDebugName("Knight ESM");
+		
+		// Notes
+		//	- Lower gravity scale (possibly to 0)
+		//	- If transitioning from running, jumping, or falling state skip initial swing animation
+		//	- Move forwards slight amount (more if you're coming from running state)
+		//	- After swing, move towards anticipation state
+		//	- Animations are chosen randomly but NOT repeated when chaining
+		//	- Swing animations and anticipation frames have to match up
+		//	- Swing always goes to anticipation, which then either goes back to swing or to idle
+		
+		esm.createState(EntityStates.SWING_ATTACK);
+		esm.createState(EntityStates.SWING_ANTICIPATION);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -266,6 +278,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
 		
+		// CLEANUP Knockback state with transitions should be more global
 		// Knock Back Transition
 		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
 		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
@@ -311,6 +324,7 @@ public class EntityFactory {
 		
 		esm.setDebugName("Rogue ESM");
 		
+		// CLEANUP Remove wall jumping
 		esm.createState(EntityStates.WALL_JUMP)
 			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
 			.addAnimation(EntityAnim.JUMP)
@@ -350,6 +364,7 @@ public class EntityFactory {
 					body.setLinearVelocity(body.getLinearVelocity().x, 0);
 					body.setGravityScale(0.0f);
 					
+					// CLEANUP Dash speed should be in config file
 					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
 					entity.add(forceComp);
 				}

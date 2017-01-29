@@ -60,6 +60,7 @@ public class SwingingSystem extends IteratingSystem{
 		degrees *= MathUtils.degreesToRadians;
 		swordBody.setTransform(swordBody.getPosition(), degrees);
 		
+		// CLEANUP Allow for swords of different sizes (only pivots properly for sword of length 20 pixels)
 		float dx = facingComp.facingRight ? -20 * GameVars.PPM_INV * 0.5f : -(-20 * GameVars.PPM_INV * 0.5f);
 		float dy = 0;
 		float radius = (float)Math.sqrt(dx * dx + dy * dy);

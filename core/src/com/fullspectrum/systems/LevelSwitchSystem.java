@@ -28,12 +28,11 @@ public class LevelSwitchSystem extends IteratingSystem{
 		Level level = levelComp.level;
 		
 		if(inputComp.input.isPressed(Actions.MOVE_UP)){
-			// switch
 			String switchData = switchComp.data;
 			if(switchData.trim().equalsIgnoreCase("next")){
 				level.getManager().switchNext();
 			}else if(switchData.trim().equalsIgnoreCase("back")){
-				// switch back
+				// INCOMPLETE Add in back trigger
 			}else{
 				Array<String> parts = new Array<String>(switchData.split("-"));
 				Theme theme = Theme.get(parts.first());
