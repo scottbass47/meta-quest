@@ -48,7 +48,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	public E createState(S key) {
 		// State identifiers must also be taggable
-		assert (key instanceof Tag);
+		if(!(key instanceof Tag)) throw new IllegalArgumentException("Keys must be taggable (i.e. must implement interface Tag).");
 		if (initialState == null) {
 			initialState = key;
 			bitOffset = key.numStates();

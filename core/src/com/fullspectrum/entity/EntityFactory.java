@@ -101,7 +101,9 @@ import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
@@ -191,12 +193,12 @@ public class EntityFactory {
 		leftCycleData.triggers.add(new InputTrigger(Actions.CYCLE_LEFT, true));
 		
 		// Knight, Rogue, Mage
-		playerStateMachine.addTransition(PlayerState.KNIGHT, Transition.INPUT, rightCycleData, PlayerState.ROGUE);
-		playerStateMachine.addTransition(PlayerState.KNIGHT, Transition.INPUT, leftCycleData, PlayerState.MAGE);
-		playerStateMachine.addTransition(PlayerState.ROGUE, Transition.INPUT, rightCycleData, PlayerState.MAGE);
-		playerStateMachine.addTransition(PlayerState.ROGUE, Transition.INPUT, leftCycleData, PlayerState.KNIGHT);
-		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, rightCycleData, PlayerState.KNIGHT);
-		playerStateMachine.addTransition(PlayerState.MAGE, Transition.INPUT, leftCycleData, PlayerState.ROGUE);
+		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, rightCycleData, PlayerState.ROGUE);
+		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, leftCycleData, PlayerState.MAGE);
+		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, rightCycleData, PlayerState.MAGE);
+		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, leftCycleData, PlayerState.KNIGHT);
+		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, rightCycleData, PlayerState.KNIGHT);
+		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, leftCycleData, PlayerState.ROGUE);
 		
 		playerStateMachine.setDebugName("Player FSM");
 //		System.out.println(playerStateMachine.printTransitions(true));
@@ -228,6 +230,7 @@ public class EntityFactory {
 		//	- Animations are chosen randomly but NOT repeated when chaining
 		//	- Swing animations and anticipation frames have to match up
 		//	- Swing always goes to anticipation, which then either goes back to swing or to idle
+		//  - 
 		
 		esm.createState(EntityStates.SWING_ATTACK);
 		esm.createState(EntityStates.SWING_ANTICIPATION);
@@ -259,29 +262,29 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
-					.and(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
+					.and(Transitions.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		
-		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
-//		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transition.INPUT, attackData, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
+//		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.INPUT, diveData, EntityStates.DIVING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transitions.INPUT, attackData, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		
 		// CLEANUP Knockback state with transitions should be more global
 		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
@@ -305,8 +308,8 @@ public class EntityFactory {
 		
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		
-		rogueSM.addTransition(EntityStates.IDLING, Transition.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
-		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.IDLING, Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
+		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
 		return rogueSM;
 	}
@@ -329,7 +332,7 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
 			.addAnimation(EntityAnim.JUMP)
 			.addAnimation(EntityAnim.RISE)
-			.addAnimTransition(EntityAnim.JUMP, Transition.ANIMATION_FINISHED, EntityAnim.RISE)
+			.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
 			.addTag(TransitionTag.AIR_STATE)
 			.addChangeListener(new StateChangeListener(){
 				@Override
@@ -394,7 +397,7 @@ public class EntityFactory {
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
 		
-		MultiTransition idleTransition = new MultiTransition(Transition.INPUT, idleData).or(Transition.INPUT, bothData);
+		MultiTransition idleTransition = new MultiTransition(Transitions.INPUT, idleData).or(Transitions.INPUT, bothData);
 
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
@@ -409,8 +412,8 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
-			.and(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
+			.and(Transitions.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		CollisionTransitionData onRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
@@ -421,51 +424,51 @@ public class EntityFactory {
 		InputTransitionData rightWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).build();
 		InputTransitionData leftWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_LEFT).build();
 		
-		MultiTransition rightSlideTransition = new MultiTransition(Transition.FALLING)
-			.and(Transition.COLLISION, onRightWallData)
-			.and(Transition.INPUT, rightWallInput);
+		MultiTransition rightSlideTransition = new MultiTransition(Transitions.FALLING)
+			.and(Transitions.COLLISION, onRightWallData)
+			.and(Transitions.INPUT, rightWallInput);
 		
-		MultiTransition leftSlideTransition = new MultiTransition(Transition.FALLING)
-			.and(Transition.FALLING)
-			.and(Transition.COLLISION, onLeftWallData)
-			.and(Transition.INPUT, leftWallInput);
+		MultiTransition leftSlideTransition = new MultiTransition(Transitions.FALLING)
+			.and(Transitions.FALLING)
+			.and(Transitions.COLLISION, onLeftWallData)
+			.and(Transitions.INPUT, leftWallInput);
 		
 		MultiTransition wallSlideTransition = new MultiTransition(rightSlideTransition).or(leftSlideTransition);
 		
 		InputTransitionData offRightWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).build();
 		InputTransitionData offLeftWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_LEFT).build();
 		
-		MultiTransition offRightWall = new MultiTransition(Transition.COLLISION, onRightWallData)
-				.and(Transition.INPUT, offRightWallInput);
-		MultiTransition offLeftWall = new MultiTransition(Transition.COLLISION, onLeftWallData)
-				.and(Transition.INPUT, offLeftWallInput);
+		MultiTransition offRightWall = new MultiTransition(Transitions.COLLISION, onRightWallData)
+				.and(Transitions.INPUT, offRightWallInput);
+		MultiTransition offLeftWall = new MultiTransition(Transitions.COLLISION, onLeftWallData)
+				.and(Transitions.INPUT, offLeftWallInput);
 		
 		// (offWallLeft && offWallRight) || (onWallLeft && offInputLeft) || (onWallRight && offInputRight)
-		MultiTransition offWall = new MultiTransition(new MultiTransition(Transition.COLLISION, offRightWallData)
-				.and(Transition.COLLISION, offLeftWallData))
+		MultiTransition offWall = new MultiTransition(new MultiTransition(Transitions.COLLISION, offRightWallData)
+				.and(Transitions.COLLISION, offLeftWallData))
 				.or(offRightWall)
 				.or(offLeftWall);
 		
-		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.one(TransitionTag.AIR_STATE, EntityStates.WALL_SLIDING).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
+		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.one(TransitionTag.AIR_STATE, EntityStates.WALL_SLIDING).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), idleTransition, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.FALLING, wallSlideTransition, EntityStates.WALL_SLIDING);
 		esm.addTransition(EntityStates.WALL_SLIDING, offWall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.WALL_SLIDING, Transition.INPUT, jumpData, EntityStates.WALL_JUMP);
-		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transition.INPUT, dashData, EntityStates.DASH);
-		esm.addTransition(EntityStates.DASH, Transition.TIME, dashTime, EntityStates.FALLING);
+		esm.addTransition(EntityStates.WALL_SLIDING, Transitions.INPUT, jumpData, EntityStates.WALL_JUMP);
+		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transitions.INPUT, dashData, EntityStates.DASH);
+		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
 		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
-//		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onRightWallData, EntityStates.FALLING);
-//		esm.addTransition(EntityStates.DASH, Transition.COLLISION, onLeftWallData, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+//		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onRightWallData, EntityStates.FALLING);
+//		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onLeftWallData, EntityStates.FALLING);
 //		System.out.print(esm.printTransitions(false));
 		return esm;
 	}
@@ -526,8 +529,8 @@ public class EntityFactory {
 		// Attack
 		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		AbilityTransitionData manaBombAbility = new AbilityTransitionData(AbilityType.MANA_BOMB);
-		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
-				.and(Transition.ABILITY, manaBombAbility);
+		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
+				.and(Transitions.ABILITY, manaBombAbility);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -535,31 +538,31 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
-			.and(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
+			.and(Transitions.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 		
-		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
-//		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transition.INPUT, diveData, EntityStates.DIVING);
+		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
+//		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.INPUT, diveData, EntityStates.DIVING);
 //		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
-//		esm.addTransition(EntityStates.SWING_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+//		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.PROJECTILE_ATTACK), attackTransition, EntityStates.PROJECTILE_ATTACK);
-		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
-//		esm.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+//		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
 		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions(true));
 
 //		fsm.disableState(EntityStates.DIVING);
@@ -636,8 +639,8 @@ public class EntityFactory {
 		
 		TimeTransitionData attackCooldown = new TimeTransitionData(0.5f);
 		
-		MultiTransition attackTransition = new MultiTransition(Transition.INPUT, attackData)
-				.and(Transition.TIME, attackCooldown);
+		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
+				.and(Transitions.TIME, attackCooldown);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -645,26 +648,26 @@ public class EntityFactory {
 		
 		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
 		
-		MultiTransition ladderTransition = new MultiTransition(Transition.INPUT, ladderInputData)
-				.and(Transition.COLLISION, ladderCollisionData);
+		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
+				.and(Transitions.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
 
-		esm.addTransition(TransitionTag.GROUND_STATE, Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transition.INPUT, runningData, EntityStates.RUNNING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transition.INPUT, jumpData, EntityStates.JUMPING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transition.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transition.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.RUNNING, Transition.INPUT, idleData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transition.INPUT, bothData, EntityStates.IDLING);
+		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.COLLISION, ladderFall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.CLIMBING, Transition.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
+		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions());
 		
 		esm.changeState(EntityStates.IDLING);
@@ -689,38 +692,38 @@ public class EntityFactory {
 		wanderInRange.fov = 180.0f;
 		wanderInRange.inRange = true;
 		
-		MultiTransition wanderToFollow = new MultiTransition(Transition.RANGE, wanderInRange)
-			.and(Transition.LINE_OF_SIGHT, inSightData);
+		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange)
+			.and(Transitions.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData followOutOfRange = new RangeTransitionData();
 		followOutOfRange.distance = 15.0f;
 		followOutOfRange.fov = 180.0f;
 		followOutOfRange.inRange = false;
 
-		MultiTransition followToWander = new MultiTransition(Transition.RANGE, followOutOfRange)
-			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange)
+			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
 		inAttackRange.distance = 1.5f;
 		inAttackRange.fov = 180.0f;
 		inAttackRange.inRange = true;
 		
-		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange)
-			.and(Transition.LINE_OF_SIGHT, inSightData);
+		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange)
+			.and(Transitions.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
 		outOfAttackRange.distance = 2.5f;
 		outOfAttackRange.fov = 180.0f;
 		outOfAttackRange.inRange = false;
 		
-		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange)
-			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange)
+			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
 		
 //		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
 		
 		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
@@ -820,15 +823,15 @@ public class EntityFactory {
 		TimeTransitionData attackCooldown = new TimeTransitionData(2.0f);
 		
 		// Knock Back Transitions
-		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.FLYING);
+		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.FLYING);
 		
 		// Attack Transitions
-		esm.addTransition(EntityStates.FLYING, new MultiTransition(Transition.INPUT, attackInput).and(Transition.TIME, attackCooldown), EntityStates.PROJECTILE_ATTACK);
-		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transition.ANIMATION_FINISHED, EntityStates.FLYING);
+		esm.addTransition(EntityStates.FLYING, new MultiTransition(Transitions.INPUT, attackInput).and(Transitions.TIME, attackCooldown), EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
 
 		// After death
-		esm.addTransition(EntityStates.DYING, Transition.ANIMATION_FINISHED, EntityStates.FLYING);
+		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
 
 		AIStateMachine aism = new  AIStateMachine(entity);
 		aism.createState(AIState.WANDERING);
@@ -864,37 +867,37 @@ public class EntityFactory {
 		wanderInRange.distance = 15.0f;
 		wanderInRange.inRange = true;
 		
-		MultiTransition wanderToFollow = new MultiTransition(Transition.RANGE, wanderInRange);
-//			.and(Transition.LINE_OF_SIGHT, inSightData);
+		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange);
+//			.and(Transitions.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData followOutOfRange = new RangeTransitionData();
 		followOutOfRange.distance = 15.0f;
 		followOutOfRange.inRange = false;
 
-		MultiTransition followToWander = new MultiTransition(Transition.RANGE, followOutOfRange);
-//			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange);
+//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
 		inAttackRange.distance = 5.0f;
 		inAttackRange.fov = 30.0f;
 		inAttackRange.inRange = true;
 		
-		MultiTransition toAttackTransition = new MultiTransition(Transition.RANGE, inAttackRange);
-//			.and(Transition.LINE_OF_SIGHT, inSightData);
+		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange);
+//			.and(Transitions.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
 		outOfAttackRange.distance = 6.0f;
 		outOfAttackRange.fov = 30.0f;
 		outOfAttackRange.inRange = false;
 		
-		MultiTransition fromAttackTransition = new MultiTransition(Transition.RANGE, outOfAttackRange);
-//			.or(Transition.LINE_OF_SIGHT, outOfSightData);
+		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange);
+//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
 		
 //		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
 		
 		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transition.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
+		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
@@ -976,16 +979,16 @@ public class EntityFactory {
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.addAnimation(EntityAnim.LAND);
 		
-		MultiTransition jumpTransition = new MultiTransition(Transition.INPUT, new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build());
+		MultiTransition jumpTransition = new MultiTransition(Transitions.INPUT, new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build());
 		
 		// Knock Back Transitions
-		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transition.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 		
-		esm.addTransition(EntityStates.FALLING, Transition.LANDED, EntityStates.LANDING);
-		esm.addTransition(EntityStates.LANDING, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.LANDING);
+		esm.addTransition(EntityStates.LANDING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.IDLING, jumpTransition, EntityStates.JUMPING);
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transition.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.FALLING, EntityStates.FALLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		slime.add(engine.createComponent(ESMComponent.class).set(esm));
@@ -1066,8 +1069,8 @@ public class EntityFactory {
 		float spawnDelay = stats.get("spawn_delay");
 		RandomTransitionData rtd = new RandomTransitionData(spawnDelay - 0.1f * spawnDelay, spawnDelay + 0.1f * spawnDelay);
 		
-		esm.addTransition(EntityStates.IDLING, Transition.RANDOM, rtd, EntityStates.BASE_ATTACK);
-		esm.addTransition(EntityStates.BASE_ATTACK, Transition.TIME, new TimeTransitionData(0.1f), EntityStates.IDLING);
+		esm.addTransition(EntityStates.IDLING, Transitions.RANDOM, rtd, EntityStates.BASE_ATTACK);
+		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, new TimeTransitionData(0.1f), EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -1173,9 +1176,9 @@ public class EntityFactory {
 		TimeTransitionData timeToBlink = new TimeTransitionData(10.0f);
 		TimeTransitionData timeToDisappear = new TimeTransitionData(5.0f);
 		
-		esm.addTransition(EntityStates.IDLING, Transition.TIME, timeToBlink, EntityStates.DYING);
-		esm.addTransition(EntityStates.DYING, Transition.TIME, timeToDisappear, EntityStates.CLEAN_UP);
-		esm.addTransition(EntityStates.CLEAN_UP, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.IDLING, Transitions.TIME, timeToBlink, EntityStates.DYING);
+		esm.addTransition(EntityStates.DYING, Transitions.TIME, timeToDisappear, EntityStates.CLEAN_UP);
+		esm.addTransition(EntityStates.CLEAN_UP, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		drop.add(engine.createComponent(ESMComponent.class).set(esm));
@@ -1252,8 +1255,8 @@ public class EntityFactory {
 				}
 			});
 		
-		esm.addTransition(EntityStates.IDLING, Transition.ANIMATION_FINISHED, EntityStates.FLYING);
-		esm.addTransition(EntityStates.DYING, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.IDLING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
+		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		spit.add(engine.createComponent(ESMComponent.class).set(esm));
@@ -1291,7 +1294,7 @@ public class EntityFactory {
 				}
 			});
 		
-		esm.addTransition(EntityStates.DYING, Transition.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
