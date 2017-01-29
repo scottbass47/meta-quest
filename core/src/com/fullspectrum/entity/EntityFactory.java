@@ -230,6 +230,7 @@ public class EntityFactory {
 		//	- Animations are chosen randomly but NOT repeated when chaining
 		//	- Swing animations and anticipation frames have to match up
 		//	- Swing always goes to anticipation, which then either goes back to swing or to idle
+		//  - 
 		
 		esm.createState(EntityStates.SWING_ATTACK);
 		esm.createState(EntityStates.SWING_ANTICIPATION);
