@@ -51,6 +51,7 @@ import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
+import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -82,6 +83,7 @@ import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
+import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.MultiTransition;
 import com.fullspectrum.fsm.State;
@@ -100,8 +102,6 @@ import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
-import com.fullspectrum.fsm.transition.Transition;
-import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.game.GameVars;
@@ -230,10 +230,88 @@ public class EntityFactory {
 		//	- Animations are chosen randomly but NOT repeated when chaining
 		//	- Swing animations and anticipation frames have to match up
 		//	- Swing always goes to anticipation, which then either goes back to swing or to idle
-		//  - 
 		
-		esm.createState(EntityStates.SWING_ATTACK);
-		esm.createState(EntityStates.SWING_ANTICIPATION);
+		esm.createState(EntityStates.SWING_ATTACK)
+			.addAnimations(Mappers.knight.get(player).getAttacks()) // CLEANUP See entity state.
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					KnightComponent knightComp = Mappers.knight.get(entity);
+					AnimationComponent animComp = Mappers.animation.get(entity);
+					
+					// Not in a combo yet, pick random attack
+					if(knightComp.first){
+						int random = MathUtils.random(knightComp.numAttacks() - 1);
+						knightComp.index = random;
+						knightComp.first = false;
+					} else{
+						knightComp.index++;
+						if(knightComp.index >= knightComp.numAttacks()) knightComp.index = 0;
+					}
+					
+					float duration = GameVars.UPS_INV;
+					float distance = 0.75f;
+					
+					// Not in combo yet and coming from running state, distance covered is slightly larger
+					if(knightComp.first && prevState == EntityStates.RUNNING){
+						distance = 1.0f;
+					}
+					
+					// Apply force
+					if(knightComp.first){
+						entity.add(Mappers.engine.get(entity).engine.createComponent(ForceComponent.class).set(distance / duration, 0.0f));
+					}
+					else{
+						Body body = Mappers.body.get(entity).body;
+						body.setBullet(true);
+						
+						float toX = knightComp.lungeX;
+						float toY = knightComp.lungeY;
+						
+						float fromX = body.getPosition().x;
+						float fromY = body.getPosition().y;
+						
+						float distanceX = toX - fromX;
+						float distanceY = toY - fromY;
+						
+						ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
+						forceComp.set(distanceX / duration, distanceY / duration);
+						entity.add(forceComp);
+						
+						// CLEANUP VERY FRAGILE... This only works because we know the state machine system updates before the timer and force system
+						Mappers.timer.get(entity).add("lunge_distance", 2 * GameVars.UPS_INV, false, new TimeListener() {
+							@Override
+							public void onTime(Entity entity) {
+								Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+							}
+						});
+					}
+				
+					ESMComponent esmComp = Mappers.esm.get(entity);
+					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+					asm.changeState(knightComp.getAnim(knightComp.index));
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.body.get(entity).body.setBullet(false);
+				}
+			});
+		
+		// NEED to set lunge x and y when doing a combo so proper force can be applied in the swing attack
+		esm.createState(EntityStates.SWING_ANTICIPATION)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					// Set velocity to 0
+					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+				}
+				
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					
+				}
+			});
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

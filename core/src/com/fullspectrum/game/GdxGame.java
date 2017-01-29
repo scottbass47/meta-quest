@@ -51,9 +51,6 @@ public class GdxGame extends Game {
 	// Screens
 	private ArrayMap<ScreenState, Screen> screens;
 
-	// FPS
-	public final static int UPS = 60;
-
 	@Override
 	public void create() {
 		batch = new SpriteBatch();

@@ -20,4 +20,8 @@ public class GameVars {
 	// Physics
 	public final static float GRAVITY = -23f;
 	
+	// FPS
+	public static final int UPS = 60;
+	public static final float UPS_INV = 1.0f / UPS;
+	
 }

@@ -37,7 +37,7 @@ public abstract class AbstractScreen extends ScreenAdapter {
 	@Override
 	public void render(float delta) {
 		lag += delta;
-		while(lag > (1.0f / GdxGame.UPS)){
+		while(lag > (1.0f / GameVars.UPS)){
 			float slowMoFactor = 1.0f;
 			switch (DebugInput.getCycle(DebugCycle.SLOW)){
 			case 0:
@@ -50,8 +50,8 @@ public abstract class AbstractScreen extends ScreenAdapter {
 				slowMoFactor = 5.0f;
 				break;
 			}
-			update(1.0f / GdxGame.UPS / slowMoFactor);
-			lag -= 1.0f / GdxGame.UPS;
+			update(1.0f / GameVars.UPS / slowMoFactor);
+			lag -= 1.0f / GameVars.UPS;
 			input.update();
 			Mouse.update();
 			DebugInput.update();

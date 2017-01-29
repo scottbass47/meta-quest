@@ -24,7 +24,6 @@ import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
-import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
