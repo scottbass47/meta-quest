@@ -7,12 +7,12 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class SwordStatsComponent implements Component, Poolable{
 
-	public ObjectSet<Entity> hitEntities;
+//	public ObjectSet<Entity> hitEntities;
 	public int damage = 0;
 	
-	public SwordStatsComponent() {
-		hitEntities = new ObjectSet<Entity>();
-	}
+//	public SwordStatsComponent() {
+//		hitEntities = new ObjectSet<Entity>();
+//	}
 	
 	public SwordStatsComponent set(int damage){
 		this.damage = damage;
@@ -21,7 +21,7 @@ public class SwordStatsComponent implements Component, Poolable{
 	
 	@Override
 	public void reset() {
-		hitEntities = null;
+//		hitEntities = null;
 		damage = 0;
 	}
 

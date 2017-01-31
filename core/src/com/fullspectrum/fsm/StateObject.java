@@ -65,7 +65,7 @@ public class StateObject {
 		TransitionObject obj = new TransitionObject(transition, data);
 		// Assert that the transition being added is unique if it doesn't allow
 		// multiple transitions of its type
-		if(transitionMap.containsKey(obj) && !transition.allowMultiple()) throw new IllegalArgumentException("Can't add multiple of this transition.");
+		if(transitionMap.containsKey(obj) && !transition.allowMultiple()) throw new IllegalArgumentException("Can't have multiple " + transition + " transitions.");
 		transitionMap.put(obj, toState);
 		transitions.add(transition);
 	}

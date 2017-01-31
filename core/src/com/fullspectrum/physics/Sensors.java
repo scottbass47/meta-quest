@@ -38,36 +38,36 @@ public enum Sensors {
 			collisionComp.bottomContacts--;			
 		}
 	},
-	SWORD{
-		@Override
-		public void beginCollision(Fixture me, Fixture other) {
-			Entity sword = (Entity)me.getBody().getUserData();
-			Entity otherEntity = (Entity)other.getBody().getUserData();
-			Entity swordWielder = Mappers.parent.get(sword).parent;
-			
-			if(!EntityUtils.isValid(otherEntity)) return;
-			
-			// Don't deal damage to an entity of the same type (e.g. no friendly fire)
-			if(!Mappers.type.get(swordWielder).shouldCollide(Mappers.type.get(otherEntity))) return;
-			
-			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
-			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
-			
-			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
-				DamageHandler.dealDamage(otherEntity, swordStats.damage);
-				swordStats.hitEntities.add(otherEntity);
-			}
-		}
-
-		@Override
-		public void endCollision(Fixture me, Fixture other) {
-			Entity sword = (Entity)me.getBody().getUserData();
-			Entity otherEntity = (Entity)other.getBody().getUserData();
-			
-			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
-			swordStats.hitEntities.remove(otherEntity);
-		}
-	},
+//	SWORD{
+//		@Override
+//		public void beginCollision(Fixture me, Fixture other) {
+//			Entity sword = (Entity)me.getBody().getUserData();
+//			Entity otherEntity = (Entity)other.getBody().getUserData();
+//			Entity swordWielder = Mappers.parent.get(sword).parent;
+//			
+//			if(!EntityUtils.isValid(otherEntity)) return;
+//			
+//			// Don't deal damage to an entity of the same type (e.g. no friendly fire)
+//			if(!Mappers.type.get(swordWielder).shouldCollide(Mappers.type.get(otherEntity))) return;
+//			
+//			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
+//			HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
+//			
+//			if(enemyHealth != null && !swordStats.hitEntities.contains(otherEntity) && !otherEntity.equals(Mappers.parent.get(sword).parent)){
+//				DamageHandler.dealDamage(otherEntity, swordStats.damage);
+//				swordStats.hitEntities.add(otherEntity);
+//			}
+//		}
+//
+//		@Override
+//		public void endCollision(Fixture me, Fixture other) {
+//			Entity sword = (Entity)me.getBody().getUserData();
+//			Entity otherEntity = (Entity)other.getBody().getUserData();
+//			
+//			SwordStatsComponent swordStats = Mappers.swordStats.get(sword);
+//			swordStats.hitEntities.remove(otherEntity);
+//		}
+//	},
 	LADDER{
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {

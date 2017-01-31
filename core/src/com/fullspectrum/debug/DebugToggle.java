@@ -10,7 +10,8 @@ public enum DebugToggle {
 	SHOW_COMMANDS(';'),
 	SHOW_RANGE('u'),
 	SHOW_HEALTH('h'),
-	SHOW_FLOW_FIELD(']');
+	SHOW_FLOW_FIELD(']'),
+	SHOW_SWING('.');
 	
 	private final char character;
 	

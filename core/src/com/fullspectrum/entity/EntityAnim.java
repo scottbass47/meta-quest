@@ -20,8 +20,22 @@ public enum EntityAnim implements State{
 	DYING,
 	WALL_SLIDING,
 	DROP_IDLE,
-	DROP_DISAPPEAR;
-
+	DROP_DISAPPEAR,
+	
+	// Knight stuff (so ugly!!)
+	SWING_IDLE_ANTIPATION_1,
+	SWING_IDLE_ANTIPATION_2,
+	SWING_IDLE_ANTIPATION_3,
+	SWING_IDLE_ANTIPATION_4,
+	SWING_ANTICIPATION_1,
+	SWING_ANTICIPATION_2,
+	SWING_ANTICIPATION_3,
+	SWING_ANTICIPATION_4,
+	SWING_1,
+	SWING_2,
+	SWING_3,
+	SWING_4;
+	
 	@Override
 	public int numStates() {
 		return values().length;

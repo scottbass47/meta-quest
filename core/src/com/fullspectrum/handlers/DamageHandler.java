@@ -57,13 +57,14 @@ public class DamageHandler {
 			});
 		}
 
+		// FIXME Barrier is broken
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
 		int dealt = (int) MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
 
 		int healthDown = 0;
 		int shieldDown = 0;
-
+		
 		if (barrierComp != null) {
 			barrierComp.barrier -= dealt;
 			shieldDown = dealt;

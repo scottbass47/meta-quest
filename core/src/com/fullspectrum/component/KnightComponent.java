@@ -8,7 +8,7 @@ import com.fullspectrum.entity.EntityAnim;
 public class KnightComponent implements Component, Poolable{
 
 	// ORDER MATTERS!!!
-	private Array<EntityAnim> attacks;
+	private Array<KnightAttack> attacks;
 	public boolean first = true;
 	public int index = 0;
 	
@@ -18,17 +18,15 @@ public class KnightComponent implements Component, Poolable{
 	
 	
 	public KnightComponent(){
-		attacks = new Array<EntityAnim>();
+		attacks = new Array<KnightAttack>();
 	}
 	
 	/**
 	 * ORDER MATTERS!!!
-	 * @param attack
 	 * @return
 	 */
-	public KnightComponent addAttack(EntityAnim attack){
-		if(attacks.contains(attack, false)) throw new IllegalArgumentException("Duplicate attacks.");
-		attacks.add(attack);
+	public KnightComponent addAttack(EntityAnim idleAnticipation, EntityAnim attackAnticipation, EntityAnim swingAnimation, SwingComponent swingComp){
+		attacks.add(new KnightAttack(idleAnticipation, attackAnticipation, swingAnimation, swingComp));
 		return this;
 	}
 	
@@ -36,15 +34,15 @@ public class KnightComponent implements Component, Poolable{
 		return attacks.size;
 	}
 	
-	public EntityAnim getAnim(int index){
+	public KnightAttack getAttack(int index){
 		return attacks.get(index);
 	}
 	
-	public EntityAnim getCurrentAnim(){
-		return attacks.get(index);
+	public KnightAttack getCurrentAttack(){
+		return getAttack(index);
 	}
 	
-	public Array<EntityAnim> getAttacks(){
+	public Array<KnightAttack> getAttacks(){
 		return attacks;
 	}
 	
@@ -54,5 +52,34 @@ public class KnightComponent implements Component, Poolable{
 		first = true;
 		index = 0;
 	}
+	
+	public class KnightAttack{
+		private EntityAnim idleAnticipation;
+		private EntityAnim attackAnticipation;
+		private EntityAnim swingAnimation;
+		private SwingComponent swingComp;
+		
+		public KnightAttack(EntityAnim idleAnticipation, EntityAnim attackAnticipation, EntityAnim swingAnimation, SwingComponent swingComp) {
+			this.idleAnticipation = idleAnticipation;
+			this.attackAnticipation = attackAnticipation;
+			this.swingAnimation = swingAnimation;
+			this.swingComp = swingComp;
+		}
 
+		public EntityAnim getIdleAnticipation() {
+			return idleAnticipation;
+		}
+
+		public EntityAnim getAnticipationAnimation() {
+			return attackAnticipation;
+		}
+
+		public EntityAnim getSwingAnimation() {
+			return swingAnimation;
+		}
+
+		public SwingComponent getSwingComp() {
+			return swingComp;
+		}
+	}
 }

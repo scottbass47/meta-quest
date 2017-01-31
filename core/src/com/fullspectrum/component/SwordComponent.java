@@ -8,6 +8,7 @@ import com.fullspectrum.entity.EntityManager;
 public class SwordComponent implements Component, Poolable{
 
 	public Entity sword;
+	public boolean shouldSwing;
 	
 	public SwordComponent set(Entity sword){
 		this.sword = sword;
@@ -16,6 +17,7 @@ public class SwordComponent implements Component, Poolable{
 
 	@Override
 	public void reset(){
+		shouldSwing = false;
 		if(sword == null) return;
 		EntityManager.cleanUp(sword);
 		sword = null;

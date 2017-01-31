@@ -14,10 +14,12 @@ public class LevelHelper {
 
 	private final Level level;
 	private Engine engine;
+	private Entity entity;
 	
 	public LevelHelper(Level level, Entity entity){
 		this.level = level;
 		this.engine = Mappers.engine.get(entity).engine;
+		this.entity = entity;
 	}
 	
 	public boolean isOpen(float x, float y){
@@ -39,6 +41,7 @@ public class LevelHelper {
 		return ret;
 	}
 	
+	@SuppressWarnings("unchecked")
 	public Array<Entity> getAliveEntities(EntityType type){
 		Array<Entity> ret = new Array<Entity>();
 		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, TypeComponent.class, HealthComponent.class).get())){
@@ -49,8 +52,15 @@ public class LevelHelper {
 		return ret;
 	}
 	
+	public Array<Entity> getEntities(EntityGrabber grabber){
+		Array<Entity> ret = new Array<Entity>();
+		for(Entity entity : engine.getEntitiesFor(grabber.componentsNeeded())){
+			if(grabber.validEntity(this.entity, entity)) ret.add(entity);
+		}
+		return ret;
+	}
+	
 	public Level getLevel(){
 		return this.level;
 	}
-	
 }

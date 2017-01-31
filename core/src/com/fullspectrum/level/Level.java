@@ -345,8 +345,8 @@ public class Level {
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			if (o.getName().equals("player_spawn")) {
 				playerSpawn = spawnPoint;
-			}else if(o.getName().equals("spawner")){
-				entitySpawns.add(new EntitySpawn(EntityIndex.SPAWNER, spawnPoint));
+			}else {
+				entitySpawns.add(new EntitySpawn(EntityIndex.get(o.getName()), spawnPoint));
 			}
 		}
 	}

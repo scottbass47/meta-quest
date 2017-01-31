@@ -5,24 +5,25 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class SwingComponent implements Component, Poolable {
 
+	public float rx;
+	public float ry;
 	public float startAngle = 0.0f;
-	public float rotationAmount = 0.0f;
-	public float duration = 0.0f;
-	public float time = 0.0f;
+	public float endAngle = 0.0f;
 
-	public SwingComponent set(float startAngle, float rotationAmount, float duration) {
+	public SwingComponent set(float rx, float ry, float startAngle, float endAngle) {
+		this.rx = rx;
+		this.ry = ry;
 		this.startAngle = startAngle;
-		this.rotationAmount = rotationAmount;
-		this.duration = duration;
+		this.endAngle = endAngle;
 		return this;
 	}
 
 	@Override
 	public void reset() {
+		rx = 0.0f;
+		ry = 0.0f;
 		startAngle = 0.0f;
-		rotationAmount = 0.0f;
-		duration = 0.0f;
-		time = 0.0f;
+		endAngle = 0.0f;
 	}
 
 }

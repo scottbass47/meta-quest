@@ -140,4 +140,17 @@ public class PhysicsUtils {
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
+	public static float getDistanceSqr(Body b1, Body b2){
+		return getDistanceSqr(b1.getPosition(), b2.getPosition());
+	}
+	
+	public static float getDistanceSqr(Vector2 vec1, Vector2 vec2){
+		return getDistanceSqr(vec1.x, vec1.y, vec2.x, vec2.y);
+	}
+	
+	public static float getDistanceSqr(float x1, float y1, float x2, float y2){
+		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
+	}
+	
+	
 }

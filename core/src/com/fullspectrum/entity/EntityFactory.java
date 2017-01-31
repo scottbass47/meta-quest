@@ -2,8 +2,11 @@ package com.fullspectrum.entity;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
+import java.util.Comparator;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -13,7 +16,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -52,6 +57,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
+import com.fullspectrum.component.KnightComponent.KnightAttack;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -68,6 +74,7 @@ import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
+import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
@@ -102,12 +109,16 @@ import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
+import com.fullspectrum.fsm.transition.Transition;
+import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
+import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -210,6 +221,22 @@ public class EntityFactory {
 	private static EntityStateMachine createKnight(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats knightStats){
 		Entity sword = createSword(engine, world, level, player, x, y, (int)knightStats.get("sword_damage"));
 		
+		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
+		
+		// Setup swings
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
+		
+		// Setup attacks
+		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
+		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_2, EntityAnim.SWING_ANTICIPATION_2, EntityAnim.SWING_2, swing2);
+		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_3, EntityAnim.SWING_ANTICIPATION_3, EntityAnim.SWING_3, swing3);
+		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_4, EntityAnim.SWING_ANTICIPATION_4, EntityAnim.SWING_4, swing4);
+		
+		player.add(knightComp);
+		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
 			.run(knightStats.get("ground_speed"))
@@ -223,7 +250,6 @@ public class EntityFactory {
 		esm.setDebugName("Knight ESM");
 		
 		// Notes
-		//	- Lower gravity scale (possibly to 0)
 		//	- If transitioning from running, jumping, or falling state skip initial swing animation
 		//	- Move forwards slight amount (more if you're coming from running state)
 		//	- After swing, move towards anticipation state
@@ -231,20 +257,57 @@ public class EntityFactory {
 		//	- Swing animations and anticipation frames have to match up
 		//	- Swing always goes to anticipation, which then either goes back to swing or to idle
 		
-		esm.createState(EntityStates.SWING_ATTACK)
-			.addAnimations(Mappers.knight.get(player).getAttacks()) // CLEANUP See entity state.
+		// Unpack animations
+		Array<EntityAnim> idleToSwingAnims = new Array<EntityAnim>();
+		Array<EntityAnim> anticipationAnims = new Array<EntityAnim>();
+		Array<EntityAnim> swingAnims = new Array<EntityAnim>();
+
+		for(KnightAttack attack : Mappers.knight.get(player).getAttacks()){
+			idleToSwingAnims.add(attack.getIdleAnticipation());
+			anticipationAnims.add(attack.getAnticipationAnimation());
+			swingAnims.add(attack.getSwingAnimation());
+		}
+		
+		esm.createState(EntityStates.IDLE_TO_SWING)
+			.addAnimations(idleToSwingAnims)
+			.addTag(TransitionTag.STATIC_STATE)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					KnightComponent knightComp = Mappers.knight.get(entity);
-					AnimationComponent animComp = Mappers.animation.get(entity);
+					int random = MathUtils.random(knightComp.numAttacks() - 1);
+					knightComp.index = random;
+					knightComp.first = false;
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+				
+			});
+		
+		esm.createState(EntityStates.SWING_ATTACK)
+			.addAnimations(swingAnims) // CLEANUP See entity state.
+			.addTag(TransitionTag.STATIC_STATE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					KnightComponent knightComp = Mappers.knight.get(entity);
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					Body body = bodyComp.body;
+					
+					// Remove gravity and make the player a bullet
+					body.setGravityScale(0.0f);
+					body.setBullet(true);
 					
 					// Not in a combo yet, pick random attack
 					if(knightComp.first){
 						int random = MathUtils.random(knightComp.numAttacks() - 1);
 						knightComp.index = random;
 						knightComp.first = false;
-					} else{
+					}
+					
+					if(prevState != EntityStates.IDLE_TO_SWING){
 						knightComp.index++;
 						if(knightComp.index >= knightComp.numAttacks()) knightComp.index = 0;
 					}
@@ -262,9 +325,6 @@ public class EntityFactory {
 						entity.add(Mappers.engine.get(entity).engine.createComponent(ForceComponent.class).set(distance / duration, 0.0f));
 					}
 					else{
-						Body body = Mappers.body.get(entity).body;
-						body.setBullet(true);
-						
 						float toX = knightComp.lungeX;
 						float toY = knightComp.lungeY;
 						
@@ -277,19 +337,19 @@ public class EntityFactory {
 						ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
 						forceComp.set(distanceX / duration, distanceY / duration);
 						entity.add(forceComp);
-						
-						// CLEANUP VERY FRAGILE... This only works because we know the state machine system updates before the timer and force system
-						Mappers.timer.get(entity).add("lunge_distance", 2 * GameVars.UPS_INV, false, new TimeListener() {
-							@Override
-							public void onTime(Entity entity) {
-								Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
-							}
-						});
 					}
+
+					// CLEANUP VERY FRAGILE... This only works because we know the state machine system updates before the timer and force system
+					Mappers.timer.get(entity).add("lunge_distance", 2 * GameVars.UPS_INV, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+						}
+					});
 				
 					ESMComponent esmComp = Mappers.esm.get(entity);
 					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
-					asm.changeState(knightComp.getAnim(knightComp.index));
+					asm.changeState(knightComp.getCurrentAttack().getSwingAnimation());
 				}
 
 				@Override
@@ -298,8 +358,9 @@ public class EntityFactory {
 				}
 			});
 		
-		// NEED to set lunge x and y when doing a combo so proper force can be applied in the swing attack
 		esm.createState(EntityStates.SWING_ANTICIPATION)
+		.addAnimations(anticipationAnims)
+			.addTag(TransitionTag.STATIC_STATE)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -309,9 +370,102 @@ public class EntityFactory {
 				
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					
+					if(nextState != EntityStates.SWING_ATTACK){
+						// Put things back to normal
+						Mappers.body.get(entity).body.setGravityScale(1.0f);
+					}
 				}
 			});
+		
+		// SWINGING TRANSITIONS
+		// ******************************************
+		
+		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
+		MultiTransition chainAttack = new MultiTransition(Transitions.INPUT, attackPress)
+				.and(new Transition() {
+					// For combo attack, enemy needs to be in range 
+					@Override
+					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+						LevelComponent levelComp = Mappers.level.get(entity);
+						LevelHelper helper = levelComp.levelHelper;
+						
+						Array<Entity> entities = helper.getEntities(new EntityGrabber() {
+							@Override
+							public boolean validEntity(Entity me, Entity other) {
+								if(!Mappers.type.get(other).same(Mappers.type.get(me))) return false;
+								if(Mappers.heatlh.get(other).health <= 0) return false;
+								
+								Body myBody = Mappers.body.get(me).body;
+								Body otherBody = Mappers.body.get(other).body;
+								
+								// Can only chain to enemies in front of you
+								FacingComponent facingComp = Mappers.facing.get(me);
+								
+								float myX = myBody.getPosition().x;
+								float myY = myBody.getPosition().y;
+								float otherX = otherBody.getPosition().x;
+								float otherY = otherBody.getPosition().y;
+
+								float minX = 0.5f;
+								float maxX = 7.5f;
+								float yRange = 1.0f;
+								
+								// Construct box in front of you
+								float closeX = facingComp.facingRight ? myX + minX : myX - minX;
+								float farX = facingComp.facingRight ? myX + maxX : myX - maxX;
+								float top = myY + yRange;
+								float bottom = myY - yRange;
+								
+								// If the enemy is within the box, the last check you need to do is whether or not the enemy is visible
+								if(otherX >= closeX && otherX <= farX && otherY <= top && otherY >= bottom){
+									return Mappers.level.get(me).level.performRayTrace(myX, myY, otherX, otherY);
+								}
+								return false;
+							}
+
+							@SuppressWarnings("unchecked")
+							@Override
+							public Family componentsNeeded() {
+								return Family.all(LevelComponent.class, TypeComponent.class, HealthComponent.class, BodyComponent.class).get();
+							}
+						});
+						
+						final Entity copy = entity;
+						Sort.instance().sort(entities, new Comparator<Entity>() {
+							@Override
+							public int compare(Entity o1, Entity o2) {
+								float d1 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o1).body);
+								float d2 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o2).body);
+								return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+							}
+						});
+						
+						if(entities.size == 0) return false;
+						
+						Entity toChain = entities.first();
+						KnightComponent knightComp = Mappers.knight.get(entity);
+						Vector2 chainPos = Mappers.body.get(toChain).body.getPosition();
+						
+						knightComp.lungeX = chainPos.x;
+						knightComp.lungeY = chainPos.y;
+						
+						return true;
+					}
+					
+					@Override
+					public boolean allowMultiple() {
+						return false;
+					}
+				});
+		
+		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transitions.INPUT, attackPress, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.IDLING, Transitions.INPUT, attackPress, EntityStates.IDLE_TO_SWING);
+		esm.addTransition(EntityStates.IDLE_TO_SWING, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
+		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		// ******************************************
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -353,8 +507,8 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
 //		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.INPUT, diveData, EntityStates.DIVING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transitions.INPUT, attackData, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transitions.INPUT, attackData, EntityStates.SWING_ATTACK);
+//		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
@@ -691,7 +845,7 @@ public class EntityFactory {
 			.fall(stats.get("air_speed"), true)
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true)
 			.climb(stats.get("climb_speed"))
-			.swingAttack(sword, 150f, 210f, 0.6f, 0)
+			.swingAttack(sword, 2.5f, 1.0f, 150f, 270f)
 			.knockBack()
 			.build();
 		

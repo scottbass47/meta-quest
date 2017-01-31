@@ -182,14 +182,13 @@ public class StateFactory {
 		 * @param duration
 		 * @return
 		 */
-		 // CLEANUP TAKE OUT STAMINA
-		public EntityStateBuilder swingAttack(Entity sword, float startAngle, float rotationAmount, float duration, final float staminaCost){
+		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle){
 			esm.createState(EntityStates.SWING_ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
 				.add(engine.createComponent(SwordComponent.class).set(sword))
-				.add(engine.createComponent(SwingComponent.class).set(startAngle, rotationAmount, duration))
+				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle))
 				.addAnimation(EntityAnim.SWING)
 				.addTag(TransitionTag.GROUND_STATE)
 				.addTag(TransitionTag.STATIC_STATE)
@@ -197,39 +196,11 @@ public class StateFactory {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
 						// Setup Sword Swing
-						SwingComponent swingComp = Mappers.swing.get(entity);
-						swingComp.time = 0;
-						
-						SwordComponent swordComp = Mappers.sword.get(entity);
-						SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
-						swordStats.hitEntities.clear();
-						
-						EngineComponent engineComp = Mappers.engine.get(entity);
-						engineComp.engine.addEntity(swordComp.sword);
-						
-						// Lower Stamina
-						BarrierComponent staminaComp = Mappers.barrier.get(entity);
-						if(staminaComp != null){
-							staminaComp.locked = true;
-							staminaComp.timeElapsed = 0;
-							staminaComp.barrier = MathUtils.clamp(staminaComp.barrier - staminaCost, 0, staminaComp.maxBarrier);
-						}
+						Mappers.sword.get(entity).shouldSwing = true;
 					}
 	
 					@Override
 					public void onExit(State nextState, Entity entity) {
-						SwordComponent swordComp = Mappers.sword.get(entity);
-						
-						EngineComponent engineComp = Mappers.engine.get(entity);
-						engineComp.engine.removeEntity(swordComp.sword);
-						
-						Mappers.body.get(swordComp.sword).body.setActive(false);
-						
-						// Unlock Stamina
-						BarrierComponent staminaComp = Mappers.barrier.get(entity);
-						if(staminaComp != null){
-							staminaComp.locked = false;
-						}
 					}
 				});
 			return this;

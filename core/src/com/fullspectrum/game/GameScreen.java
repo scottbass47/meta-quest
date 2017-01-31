@@ -40,6 +40,8 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
@@ -49,7 +51,6 @@ import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
-import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
@@ -400,6 +401,11 @@ public class GameScreen extends AbstractScreen {
 				renderRange(batch, enemy);
 			}
 		}
+		if(DebugInput.isToggled(DebugToggle.SHOW_SWING)){
+			for(Entity entity : engine.getEntitiesFor(Family.all(SwingComponent.class).exclude(BodyComponent.class).get())){
+				renderSwing(batch, entity);
+			}
+		}
 
 		frameBuffer.end();
 
@@ -526,14 +532,14 @@ public class GameScreen extends AbstractScreen {
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
 
-//		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
-//		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
-//		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
-//		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int) (staminaEmptyHeight), false, false);
-//		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
+		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
+		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
+		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
+		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int) (staminaEmptyHeight), false, false);
+		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
 		
 		// new hud
-		batch.draw(newHud, GameVars.SCREEN_WIDTH * 0.5f - newHud.getRegionWidth() * 0.5f, 20.0f, newHud.getRegionWidth() * 0.5f, newHud.getRegionHeight() * 0.5f, newHud.getRegionWidth(), newHud.getRegionHeight(), 2.0f, 2.0f, 0.0f);
+//		batch.draw(newHud, GameVars.SCREEN_WIDTH * 0.5f - newHud.getRegionWidth() * 0.5f, 20.0f, newHud.getRegionWidth() * 0.5f, newHud.getRegionHeight() * 0.5f, newHud.getRegionWidth(), newHud.getRegionHeight(), 2.0f, 2.0f, 0.0f);
 		
 		font.setColor(Color.WHITE);
 //		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 12);
@@ -563,8 +569,63 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.rect(x, y, width * (healthComp.health / healthComp.maxHealth), height);
 		sRenderer.end();
 	}
+
+	private void renderSwing(SpriteBatch batch, Entity entity){
+		PositionComponent posComp = Mappers.position.get(entity);
+		SwingComponent swingComp = Mappers.swing.get(entity);
+		FacingComponent facingComp = Mappers.facing.get(entity);
+
+		float x1 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.startAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.startAngle);
+		float y1 = swingComp.ry * MathUtils.sinDeg(swingComp.startAngle);
+		float x2 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.endAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.endAngle);
+		float y2 = swingComp.ry * MathUtils.sinDeg(swingComp.endAngle);
+		
+		x1 += posComp.x;
+		y1 += posComp.y;
+		x2 += posComp.x;
+		y2 += posComp.y;
+		
+		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+		sRenderer.begin(ShapeType.Line);
+		sRenderer.setColor(Color.PURPLE);
+		sRenderer.line(posComp.x, posComp.y, x1, y1);
+		sRenderer.line(posComp.x, posComp.y, x2, y2);
+		
+		// Render ellipse
+		float stepSize = -0.1f;
+		float prevX = Float.MAX_VALUE;
+		float prevY = Float.MIN_VALUE;
+		for(float t = swingComp.startAngle * MathUtils.degreesToRadians; ; t += stepSize){
+			float cos = MathUtils.cos(facingComp.facingRight ? t : MathUtils.PI - t);
+			float sin = MathUtils.sin(t);
+			float xx = posComp.x + cos;
+			float yy = posComp.y + sin;
+			float angle = MathUtils.atan2(yy - posComp.y, facingComp.facingRight ? xx - posComp.x : posComp.x - xx) * MathUtils.radiansToDegrees;
+			angle = angle < 0 ? 360 + angle : angle; // angle is from 0 - 360
+			
+			float start = swingComp.startAngle;
+			float end = swingComp.endAngle;
+
+			if(angle > start && angle - 360 < end - 360){
+				break;
+			}
+			
+			if(angle <= start || angle - 360 >= end - 360){
+				xx = posComp.x + swingComp.rx * cos;
+				yy = posComp.y + swingComp.ry * sin;
+
+				if(!MathUtils.isEqual(prevX, Float.MAX_VALUE)){
+					sRenderer.line(prevX, prevY, xx, yy);
+				}
+				prevX = xx;
+				prevY = yy;
+			}
+		}
+		
+		sRenderer.end();
+	}
 	
-	public void renderRange(SpriteBatch batch, Entity entity) {
+	private void renderRange(SpriteBatch batch, Entity entity) {
 		AIStateMachineComponent aismComp = Mappers.aism.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		LevelComponent levelComp = Mappers.level.get(entity);
