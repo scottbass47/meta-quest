@@ -37,7 +37,7 @@ public abstract class AbstractScreen extends ScreenAdapter {
 	@Override
 	public void render(float delta) {
 		lag += delta;
-		while(lag > (1.0f / GameVars.UPS)){
+		while(lag > GameVars.UPS_INV){
 			float slowMoFactor = 1.0f;
 			switch (DebugInput.getCycle(DebugCycle.SLOW)){
 			case 0:

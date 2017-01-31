@@ -147,6 +147,19 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, null);
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, null);
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, null);
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, null);
+		animMap.put(EntityAnim.SWING_ANTICIPATION_1, null);
+		animMap.put(EntityAnim.SWING_ANTICIPATION_2, null);
+		animMap.put(EntityAnim.SWING_ANTICIPATION_3, null);
+		animMap.put(EntityAnim.SWING_ANTICIPATION_4, null);
+		animMap.put(EntityAnim.SWING_1, null);
+		animMap.put(EntityAnim.SWING_2, null);
+		animMap.put(EntityAnim.SWING_3, null);
+		animMap.put(EntityAnim.SWING_4, null);
+
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
 				.physics("player.json", x, y, true)
@@ -224,10 +237,10 @@ public class EntityFactory {
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
 		
 		// Setup swings
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -845,7 +858,7 @@ public class EntityFactory {
 			.fall(stats.get("air_speed"), true)
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true)
 			.climb(stats.get("climb_speed"))
-			.swingAttack(sword, 2.5f, 1.0f, 150f, 270f)
+			.swingAttack(sword, 2.5f, 1.0f, 150f, 270f, 0.4f)
 			.knockBack()
 			.build();
 		

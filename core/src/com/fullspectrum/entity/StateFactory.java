@@ -182,13 +182,13 @@ public class StateFactory {
 		 * @param duration
 		 * @return
 		 */
-		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle){
+		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle, float delay){
 			esm.createState(EntityStates.SWING_ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
 				.add(engine.createComponent(SwordComponent.class).set(sword))
-				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle))
+				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle, delay))
 				.addAnimation(EntityAnim.SWING)
 				.addTag(TransitionTag.GROUND_STATE)
 				.addTag(TransitionTag.STATIC_STATE)

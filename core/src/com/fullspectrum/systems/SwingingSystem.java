@@ -39,6 +39,10 @@ public class SwingingSystem extends IteratingSystem{
 		
 		if(!swordComp.shouldSwing || swordComp.sword == null) return;
 		
+		SwingComponent swingComp = Mappers.swing.get(entity);
+		swingComp.timeElapsed += deltaTime;
+		if(swingComp.timeElapsed < swingComp.delay) return;
+		
 		Array<Entity> hitEntities = levelComp.levelHelper.getEntities(new EntityGrabber(){
 			@SuppressWarnings("unchecked")
 			@Override
@@ -90,13 +94,12 @@ public class SwingingSystem extends IteratingSystem{
 		
 		if(DebugInput.isToggled(DebugToggle.SHOW_SWING)){
 			Body body = Mappers.body.get(entity).body;
-			SwingComponent swingComp = Mappers.swing.get(entity);
 			// Create self-destructing swing entity
 			// CLEANUP Move to entity factory
 			Entity swing = new EntityFactory.EntityBuilder(getEngine(), Mappers.world.get(entity).world, levelComp.level).build();
 			swing.add(getEngine().createComponent(PositionComponent.class).set(body.getPosition().x, body.getPosition().y));
 			swing.add(getEngine().createComponent(FacingComponent.class).set(Mappers.facing.get(entity).facingRight));
-			swing.add(getEngine().createComponent(SwingComponent.class).set(swingComp.rx, swingComp.ry, swingComp.startAngle, swingComp.endAngle));
+			swing.add(getEngine().createComponent(SwingComponent.class).set(swingComp.rx, swingComp.ry, swingComp.startAngle, swingComp.endAngle, 0.0f));
 			swing.getComponent(TimerComponent.class).add("self_destruct", 1.0f, false, new TimeListener() {
 				@Override
 				public void onTime(Entity entity) {
@@ -110,6 +113,7 @@ public class SwingingSystem extends IteratingSystem{
 		for(Entity e : hitEntities){
 			DamageHandler.dealDamage(e, swordStats.damage);
 		}
+		swingComp.timeElapsed = 0.0f;
 		swordComp.shouldSwing = false;
 	}
 	
