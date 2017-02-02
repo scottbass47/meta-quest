@@ -170,6 +170,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		E currState = currentState;
 		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName());
 		exitCurrent((S) identifier);
+		currentState = currState;
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}

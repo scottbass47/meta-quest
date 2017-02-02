@@ -237,6 +237,7 @@ public class EntityFactory {
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
 		
 		// Setup swings
+		// INCOMPLETE Fill in swing information
 		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
 		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -291,14 +292,25 @@ public class EntityFactory {
 					int random = MathUtils.random(knightComp.numAttacks() - 1);
 					knightComp.index = random;
 					knightComp.first = false;
+					
+					// Switch to proper animation
+					ESMComponent esmComp = Mappers.esm.get(entity);
+					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+					asm.changeState(knightComp.getCurrentAttack().getIdleAnticipation());
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
+					// Clean up some things if you are interrupted
+					if(nextState != EntityStates.SWING_ATTACK){
+						KnightComponent knightComp = Mappers.knight.get(entity);
+						knightComp.first = true;
+					}
 				}
 				
 			});
 		
+		// FIXME What happens if you get put into a knockback state mid swing?
 		esm.createState(EntityStates.SWING_ATTACK)
 			.addAnimations(swingAnims) // CLEANUP See entity state.
 			.addTag(TransitionTag.STATIC_STATE)
@@ -313,24 +325,24 @@ public class EntityFactory {
 					body.setGravityScale(0.0f);
 					body.setBullet(true);
 					
+					float duration = GameVars.UPS_INV;
+					float distance = 0.75f;
+
 					// Not in a combo yet, pick random attack
 					if(knightComp.first){
 						int random = MathUtils.random(knightComp.numAttacks() - 1);
 						knightComp.index = random;
 						knightComp.first = false;
+						
+						// Slightly larger distance traveled if you're coming from a running state
+						if(prevState == EntityStates.RUNNING){
+							distance = 1.0f;
+						}
 					}
 					
 					if(prevState != EntityStates.IDLE_TO_SWING){
 						knightComp.index++;
 						if(knightComp.index >= knightComp.numAttacks()) knightComp.index = 0;
-					}
-					
-					float duration = GameVars.UPS_INV;
-					float distance = 0.75f;
-					
-					// Not in combo yet and coming from running state, distance covered is slightly larger
-					if(knightComp.first && prevState == EntityStates.RUNNING){
-						distance = 1.0f;
 					}
 					
 					// Apply force
@@ -359,6 +371,12 @@ public class EntityFactory {
 							Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
 						}
 					});
+					
+					// Add swing
+					// CLEANUP Copy swing b/c when removed if the pooled engine is implemented the data will get reset
+					SwingComponent currSwing = knightComp.getCurrentAttack().getSwingComp();
+					Engine engine = Mappers.engine.get(entity).engine;
+					entity.add(engine.createComponent(SwingComponent.class).set(currSwing.rx, currSwing.ry, currSwing.startAngle, currSwing.endAngle, currSwing.delay));
 				
 					ESMComponent esmComp = Mappers.esm.get(entity);
 					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
@@ -368,6 +386,14 @@ public class EntityFactory {
 				@Override
 				public void onExit(State nextState, Entity entity) {
 					Mappers.body.get(entity).body.setBullet(false);
+					Mappers.body.get(entity).body.setGravityScale(0.0f);
+					entity.remove(SwingComponent.class);
+					
+					// Need to do more clean up if the chain attack is interrupted
+					if(nextState != EntityStates.SWING_ANTICIPATION){
+						KnightComponent knightComp = Mappers.knight.get(entity);
+						knightComp.first = true;
+					}
 				}
 			});
 		
@@ -469,6 +495,11 @@ public class EntityFactory {
 					public boolean allowMultiple() {
 						return false;
 					}
+					
+					@Override
+					public String toString() {
+						return "Can Chain";
+					}
 				});
 		
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transitions.INPUT, attackPress, EntityStates.SWING_ATTACK);
@@ -530,7 +561,7 @@ public class EntityFactory {
 		// Knock Back Transition
 		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
 		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
-//		System.out.print(esm.printTransitions(true));
+		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
 	

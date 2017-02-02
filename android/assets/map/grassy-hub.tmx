@@ -3,7 +3,6 @@
  <properties>
   <property name="camera_locked" type="bool" value="true"/>
   <property name="camera_zoom" type="float" value="3"/>
-  <property name="meshes" value="ai_player"/>
  </properties>
  <tileset firstgid="1" name="grassy_tileset" tilewidth="16" tileheight="16" tilecount="3" columns="3">
   <image source="level_tileset.png" width="48" height="16"/>
@@ -44,7 +43,6 @@
  </layer>
  <objectgroup name="spawns">
   <object id="11" name="player_spawn" x="128" y="120" width="16" height="40"/>
-  <object id="13" name="ai_player" x="256" y="120" width="16" height="40"/>
  </objectgroup>
  <objectgroup name="triggers">
   <object id="7" name="level-1" type="trigger" x="64" y="128" width="16" height="16"/>
