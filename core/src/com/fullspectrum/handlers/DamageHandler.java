@@ -39,7 +39,7 @@ public class DamageHandler {
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 
-		if (amount < 1.0f) return;
+		if (amount < 1.0f || (MathUtils.isEqual(healthComp.health, 0.0f) && MathUtils.isEqual(barrierComp.barrier, 0.0f))) return;
 
 		if (Mappers.inviciblity.get(toEntity) != null) return;
 		if (Mappers.player.get(toEntity) != null) {
@@ -57,7 +57,6 @@ public class DamageHandler {
 			});
 		}
 
-		// FIXME Barrier is broken
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
 		int dealt = (int) MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
@@ -66,7 +65,7 @@ public class DamageHandler {
 		int shieldDown = 0;
 		
 		if (barrierComp != null) {
-			barrierComp.barrier -= dealt;
+			barrierComp.barrier = (int)(barrierComp.barrier - dealt);
 			shieldDown = dealt;
 			if (barrierComp.barrier < 0) {
 				shieldDown = dealt - (int) Math.abs(barrierComp.barrier);
