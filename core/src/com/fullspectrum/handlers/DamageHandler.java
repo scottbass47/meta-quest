@@ -101,7 +101,7 @@ public class DamageHandler {
 
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + PhysicsUtils.getAABB(body).height * 0.5f + 0.5f;
-		BitmapFont font = Assets.getInstance().getFont(Assets.font28);
+		BitmapFont font = Assets.getInstance().getFont(Assets.font18);
 		if (shieldDown > 0 && healthDown > 0) {
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
 			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));

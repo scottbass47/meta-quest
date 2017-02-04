@@ -43,6 +43,7 @@ import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
@@ -120,7 +121,7 @@ public class GameScreen extends AbstractScreen {
 //	private FrameBuffer mainBuffer;
 //	private ShaderProgram mellowShader;
 //	private ShaderProgram vignetteShader;
-//	private int previousZoom = 0;
+	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
 
@@ -139,7 +140,7 @@ public class GameScreen extends AbstractScreen {
 		assets.loadHUD();
 		assets.loadSprites();
 		assets.loadFont();
-		font = assets.getFont(Assets.font28);
+		font = assets.getFont(Assets.font12);
 
 		// Setup Shader
 //		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -176,7 +177,7 @@ public class GameScreen extends AbstractScreen {
 		});
 
 		renderer = new RenderingSystem();
-		textRenderer = new TextRenderingSystem();
+		textRenderer = new TextRenderingSystem(hudCamera);
 		engine.addSystem(renderer);
 		engine.addSystem(textRenderer);
 
@@ -227,7 +228,8 @@ public class GameScreen extends AbstractScreen {
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
-		levelManager.switchHub(Theme.GRASSY);
+//		levelManager.switchHub(Theme.GRASSY);
+		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -306,10 +308,10 @@ public class GameScreen extends AbstractScreen {
 //			}
 //		}
 //
-//		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
-//			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
-//			Mappers.camera.get(cameraEntity).zoom = previousZoom + 1;
-//		}
+		if (DebugInput.getCycle(DebugCycle.ZOOM) != previousZoom) {
+			previousZoom = DebugInput.getCycle(DebugCycle.ZOOM);
+			Mappers.camera.get(levelManager.getCameraEntity()).zoom = previousZoom + 1;
+		}
 		
 //		BodyComponent bodyComp = Mappers.body.get(playerOne);
 		
@@ -406,6 +408,7 @@ public class GameScreen extends AbstractScreen {
 				renderSwing(batch, entity);
 			}
 		}
+		textRenderer.render(batch, levelManager.getCameraEntity());
 
 		frameBuffer.end();
 
@@ -446,7 +449,6 @@ public class GameScreen extends AbstractScreen {
 				batch.end();
 			}
 		}
-		textRenderer.render(batch, levelManager.getCameraEntity());
 		renderHUD(batch, levelManager.getPlayer());
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);

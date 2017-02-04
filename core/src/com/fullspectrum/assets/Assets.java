@@ -74,6 +74,8 @@ public class Assets {
 	public static final String manaBombExplosion = "mana_bomb_explosion";
 	
 	// Font
+	public static final String font12 = "font/test12.fnt";
+	public static final String font18 = "font/test18.fnt";
 	public static final String font24 = "font/test24.fnt";
 	public static final String font28 = "font/test28.fnt";
 	
@@ -103,6 +105,8 @@ public class Assets {
 	}
 	
 	public void loadFont(){
+		manager.load(font12, BitmapFont.class);
+		manager.load(font18, BitmapFont.class);
 		manager.load(font24, BitmapFont.class);
 		manager.load(font28, BitmapFont.class);
 		manager.finishLoading();
