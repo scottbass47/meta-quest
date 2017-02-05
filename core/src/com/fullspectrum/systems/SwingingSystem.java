@@ -78,12 +78,11 @@ public class SwingingSystem extends IteratingSystem{
 					// Check to see if angle is valid
 					FacingComponent facingComp = Mappers.facing.get(me);
 					float angle = MathUtils.atan2(y2 - y1, facingComp.facingRight ? x2 - x1 : x1 - x2) * MathUtils.radiansToDegrees;
-					angle = angle < 0 ? 360 + angle : angle; // angle is from 0 - 360
 					
 					float start = swingComp.startAngle;
 					float end = swingComp.endAngle;
 					
-					if(angle <= start || angle - 360 >= end){
+					if(angle <= start && angle >= end){
 						return true;
 					}
 				}

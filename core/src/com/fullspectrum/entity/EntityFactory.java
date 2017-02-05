@@ -55,6 +55,7 @@ import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
+import com.fullspectrum.component.InvincibilityComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
@@ -74,6 +75,7 @@ import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.SwingComponent;
+import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
@@ -135,8 +137,8 @@ public class EntityFactory {
 		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.SHADOW_RUN));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_PLAYER_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_PLAYER_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.SHADOW_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.SHADOW_FALL));
 		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
@@ -145,18 +147,18 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, null);
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, null);
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, null);
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, null);
-		animMap.put(EntityAnim.SWING_ANTICIPATION_1, null);
-		animMap.put(EntityAnim.SWING_ANTICIPATION_2, null);
-		animMap.put(EntityAnim.SWING_ANTICIPATION_3, null);
-		animMap.put(EntityAnim.SWING_ANTICIPATION_4, null);
-		animMap.put(EntityAnim.SWING_1, null);
-		animMap.put(EntityAnim.SWING_2, null);
-		animMap.put(EntityAnim.SWING_3, null);
-		animMap.put(EntityAnim.SWING_4, null);
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
+		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
 
 		Entity player = new EntityBuilder(engine, world, level)
 				.animation(animMap)
@@ -186,7 +188,7 @@ public class EntityFactory {
 		playerStateMachine.createState(PlayerState.KNIGHT)
 			.add(engine.createComponent(HealthComponent.class).set(knightStats.get("health"), knightStats.get("health")))
 			.add(engine.createComponent(ESMComponent.class).set(knightESM))
-			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
+//			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
 			.add(engine.createComponent(AbilityComponent.class))
 			.addSubstateMachine(knightESM);
 		
@@ -235,11 +237,10 @@ public class EntityFactory {
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
 		
 		// Setup swings
-		// INCOMPLETE Fill in swing information
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(0.0f, 0.0f, 0.0f, 0.0f, 0.0f);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -248,6 +249,7 @@ public class EntityFactory {
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_4, EntityAnim.SWING_ANTICIPATION_4, EntityAnim.SWING_4, swing4);
 		
 		player.add(knightComp);
+		player.add(engine.createComponent(SwordComponent.class).set(sword));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
 			.idle()
@@ -255,7 +257,6 @@ public class EntityFactory {
 			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true)
 			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
-//			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.knockBack(EntityStates.IDLING)
 			.build();
 		
@@ -292,9 +293,15 @@ public class EntityFactory {
 					knightComp.first = false;
 					
 					// Switch to proper animation
-					ESMComponent esmComp = Mappers.esm.get(entity);
-					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
-					asm.changeState(knightComp.getCurrentAttack().getIdleAnticipation());
+					// CLEANUP GROSS!!! 
+					Mappers.timer.get(entity).add("anim_timer", 0.0f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							ESMComponent esmComp = Mappers.esm.get(entity);
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getIdleAnticipation());
+						}
+					});
 				}
 
 				@Override
@@ -318,25 +325,29 @@ public class EntityFactory {
 					KnightComponent knightComp = Mappers.knight.get(entity);
 					BodyComponent bodyComp = Mappers.body.get(entity);
 					Body body = bodyComp.body;
+					FacingComponent facingComp = Mappers.facing.get(entity);
 					
 					// Remove gravity and make the player a bullet
-					body.setGravityScale(0.0f);
+					body.setGravityScale(0.2f);
 					body.setBullet(true);
 					
-					float duration = GameVars.UPS_INV;
-					float distance = 0.75f;
+					float duration = 0.1f;
+					float distance = 1.5f;
+					boolean first = knightComp.first;
 
 					// Not in a combo yet, pick random attack
-					if(knightComp.first){
+					if(first){
 						int random = MathUtils.random(knightComp.numAttacks() - 1);
 						knightComp.index = random;
 						knightComp.first = false;
 						
 						// Slightly larger distance traveled if you're coming from a running state
 						if(prevState == EntityStates.RUNNING){
-							distance = 1.0f;
+							distance = 2.0f;
 						}
 					}
+					
+					distance *= facingComp.facingRight ? 1 : -1;
 					
 					if(prevState != EntityStates.IDLE_TO_SWING){
 						knightComp.index++;
@@ -344,7 +355,7 @@ public class EntityFactory {
 					}
 					
 					// Apply force
-					if(knightComp.first){
+					if(first || prevState == EntityStates.IDLE_TO_SWING){
 						entity.add(Mappers.engine.get(entity).engine.createComponent(ForceComponent.class).set(distance / duration, 0.0f));
 					}
 					else{
@@ -357,13 +368,11 @@ public class EntityFactory {
 						float distanceX = toX - fromX;
 						float distanceY = toY - fromY;
 						
-						ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
-						forceComp.set(distanceX / duration, distanceY / duration);
-						entity.add(forceComp);
+						entity.add(Mappers.engine.get(entity).engine.createComponent(ForceComponent.class).set(distanceX / duration, distanceY / duration));
 					}
 
 					// CLEANUP VERY FRAGILE... This only works because we know the state machine system updates before the timer and force system
-					Mappers.timer.get(entity).add("lunge_distance", 2 * GameVars.UPS_INV, false, new TimeListener() {
+					Mappers.timer.get(entity).add("lunge_distance", 0.1f + GameVars.UPS_INV, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
 							Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
@@ -374,17 +383,23 @@ public class EntityFactory {
 					// CLEANUP Copy swing b/c when removed if the pooled engine is implemented the data will get reset
 					SwingComponent currSwing = knightComp.getCurrentAttack().getSwingComp();
 					Engine engine = Mappers.engine.get(entity).engine;
-					entity.add(engine.createComponent(SwingComponent.class).set(currSwing.rx, currSwing.ry, currSwing.startAngle, currSwing.endAngle, currSwing.delay));
+					entity.add(engine.createComponent(SwingComponent.class).set(currSwing.rx, currSwing.ry, currSwing.startAngle, currSwing.endAngle, currSwing.delay + GameVars.UPS_INV + 0.1f));
+					Mappers.sword.get(entity).shouldSwing = true;
 				
-					ESMComponent esmComp = Mappers.esm.get(entity);
-					AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
-					asm.changeState(knightComp.getCurrentAttack().getSwingAnimation());
+					// CLEANUP GROSS!!! 
+					Mappers.timer.get(entity).add("anim_timer", 0.0f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							ESMComponent esmComp = Mappers.esm.get(entity);
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getSwingAnimation());
+						}
+					});
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
 					Mappers.body.get(entity).body.setBullet(false);
-					Mappers.body.get(entity).body.setGravityScale(0.0f);
 					entity.remove(SwingComponent.class);
 					
 					// Need to do more clean up if the chain attack is interrupted
@@ -403,6 +418,17 @@ public class EntityFactory {
 				public void onEnter(State prevState, Entity entity) {
 					// Set velocity to 0
 					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+					entity.add(Mappers.engine.get(entity).engine.createComponent(InvincibilityComponent.class));
+					
+					// CLEANUP GROSS!!! 
+					Mappers.timer.get(entity).add("anim_timer", 0.0f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							ESMComponent esmComp = Mappers.esm.get(entity);
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getAnticipationAnimation());
+						}
+					});
 				}
 				
 				@Override
@@ -410,6 +436,8 @@ public class EntityFactory {
 					if(nextState != EntityStates.SWING_ATTACK){
 						// Put things back to normal
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
+						Mappers.knight.get(entity).first = true;
+						entity.remove(InvincibilityComponent.class);
 					}
 				}
 			});
@@ -417,7 +445,7 @@ public class EntityFactory {
 		// SWINGING TRANSITIONS
 		// ******************************************
 		
-		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
+		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		MultiTransition chainAttack = new MultiTransition(Transitions.INPUT, attackPress)
 				.and(new Transition() {
 					// For combo attack, enemy needs to be in range 
@@ -429,7 +457,7 @@ public class EntityFactory {
 						Array<Entity> entities = helper.getEntities(new EntityGrabber() {
 							@Override
 							public boolean validEntity(Entity me, Entity other) {
-								if(!Mappers.type.get(other).same(Mappers.type.get(me))) return false;
+								if(Mappers.type.get(other).same(Mappers.type.get(me))) return false;
 								if(Mappers.heatlh.get(other).health <= 0) return false;
 								
 								Body myBody = Mappers.body.get(me).body;
@@ -444,8 +472,8 @@ public class EntityFactory {
 								float otherY = otherBody.getPosition().y;
 
 								float minX = 0.5f;
-								float maxX = 7.5f;
-								float yRange = 1.0f;
+								float maxX = 15.0f;
+								float yRange = 1.5f;
 								
 								// Construct box in front of you
 								float closeX = facingComp.facingRight ? myX + minX : myX - minX;
@@ -454,7 +482,8 @@ public class EntityFactory {
 								float bottom = myY - yRange;
 								
 								// If the enemy is within the box, the last check you need to do is whether or not the enemy is visible
-								if(otherX >= closeX && otherX <= farX && otherY <= top && otherY >= bottom){
+								if((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX) 
+										&& otherY <= top && otherY >= bottom){
 									return Mappers.level.get(me).level.performRayTrace(myX, myY, otherX, otherY);
 								}
 								return false;
@@ -505,7 +534,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.IDLE_TO_SWING, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.TIME, new TimeTransitionData(0.3f), EntityStates.IDLING);
 		
 		// ******************************************
 				
@@ -548,14 +577,10 @@ public class EntityFactory {
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
-//		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.INPUT, diveData, EntityStates.DIVING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), Transitions.INPUT, attackData, EntityStates.SWING_ATTACK);
-//		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		
-//		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
 	

@@ -192,6 +192,7 @@ public class MultiTransition {
 	}
 	
 	@Override
+	// CLEANUP Improve multi transition toString (use || and && with parentheses to show hierarchy)
 	public String toString() {
 		return transitionObjects.toString();
 	}

@@ -38,6 +38,24 @@ public class Assets {
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_ATTACK_OVERHEAD = "knight_attack_overhead";
 	
+	// Knight Chain
+	public static final String KNIGHT_CHAIN1_IDLE_ANTICIPATION = "knight_chain1_idle_anticipation";
+	public static final String KNIGHT_CHAIN1_SWING = "knight_chain1_swing";
+	public static final String KNIGHT_CHAIN1_ANTICIPATION = "knight_chain1_anticipation";
+	public static final String KNIGHT_CHAIN2_IDLE_ANTICIPATION = "knight_chain2_idle_anticipation";
+	public static final String KNIGHT_CHAIN2_SWING = "knight_chain2_swing";
+	public static final String KNIGHT_CHAIN2_ANTICIPATION = "knight_chain2_anticipation";
+	public static final String KNIGHT_CHAIN3_IDLE_ANTICIPATION = "knight_chain3_idle_anticipation";
+	public static final String KNIGHT_CHAIN3_SWING = "knight_chain3_swing";
+	public static final String KNIGHT_CHAIN3_ANTICIPATION = "knight_chain3_anticipation";
+	public static final String KNIGHT_CHAIN4_IDLE_ANTICIPATION = "knight_chain4_idle_anticipation";
+	public static final String KNIGHT_CHAIN4_SWING = "knight_chain4_swing";
+	public static final String KNIGHT_CHAIN4_ANTICIPATION = "knight_chain4_anticipation";
+	
+	// Knight Player
+	public static final String KNIGHT_PLAYER_RUN = "knight_run";
+	public static final String KNIGHT_PLAYER_IDLE = "knight_player_idle";
+	
 	// Shadow Player
 	public static final String SHADOW_IDLE = "temp_player_idle";
 	public static final String SHADOW_RUN = "temp_player_run";

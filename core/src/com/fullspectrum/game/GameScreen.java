@@ -140,7 +140,7 @@ public class GameScreen extends AbstractScreen {
 		assets.loadHUD();
 		assets.loadSprites();
 		assets.loadFont();
-		font = assets.getFont(Assets.font12);
+		font = assets.getFont(Assets.font24);
 
 		// Setup Shader
 //		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -229,7 +229,7 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
 //		levelManager.switchHub(Theme.GRASSY);
-		levelManager.switchLevel(Theme.GRASSY, 1, 1);
+		levelManager.switchHub(Theme.GRASSY);
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -544,7 +544,7 @@ public class GameScreen extends AbstractScreen {
 //		batch.draw(newHud, GameVars.SCREEN_WIDTH * 0.5f - newHud.getRegionWidth() * 0.5f, 20.0f, newHud.getRegionWidth() * 0.5f, newHud.getRegionHeight() * 0.5f, newHud.getRegionWidth(), newHud.getRegionHeight(), 2.0f, 2.0f, 0.0f);
 		
 		font.setColor(Color.WHITE);
-//		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 12);
+		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 12);
 		
 		
 		
@@ -576,7 +576,7 @@ public class GameScreen extends AbstractScreen {
 		PositionComponent posComp = Mappers.position.get(entity);
 		SwingComponent swingComp = Mappers.swing.get(entity);
 		FacingComponent facingComp = Mappers.facing.get(entity);
-
+		
 		float x1 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.startAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.startAngle);
 		float y1 = swingComp.ry * MathUtils.sinDeg(swingComp.startAngle);
 		float x2 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.endAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.endAngle);
@@ -598,30 +598,27 @@ public class GameScreen extends AbstractScreen {
 		float prevX = Float.MAX_VALUE;
 		float prevY = Float.MIN_VALUE;
 		for(float t = swingComp.startAngle * MathUtils.degreesToRadians; ; t += stepSize){
-			float cos = MathUtils.cos(facingComp.facingRight ? t : MathUtils.PI - t);
-			float sin = MathUtils.sin(t);
+			float cos = (float) Math.cos(facingComp.facingRight ? t : MathUtils.PI - t);
+			float sin = (float) Math.sin(t);
 			float xx = posComp.x + cos;
 			float yy = posComp.y + sin;
-			float angle = MathUtils.atan2(yy - posComp.y, facingComp.facingRight ? xx - posComp.x : posComp.x - xx) * MathUtils.radiansToDegrees;
-			angle = angle < 0 ? 360 + angle : angle; // angle is from 0 - 360
+			float angle = (float) (Math.toDegrees(Math.atan2(yy - posComp.y, facingComp.facingRight ? xx - posComp.x : posComp.x - xx)));
 			
 			float start = swingComp.startAngle;
 			float end = swingComp.endAngle;
 
-			if(angle > start && angle - 360 < end - 360){
+			if(angle - 0.1f > start || angle < end){
 				break;
 			}
 			
-			if(angle <= start || angle - 360 >= end - 360){
-				xx = posComp.x + swingComp.rx * cos;
-				yy = posComp.y + swingComp.ry * sin;
+			xx = posComp.x + swingComp.rx * cos;
+			yy = posComp.y + swingComp.ry * sin;
 
-				if(!MathUtils.isEqual(prevX, Float.MAX_VALUE)){
-					sRenderer.line(prevX, prevY, xx, yy);
-				}
-				prevX = xx;
-				prevY = yy;
+			if(!MathUtils.isEqual(prevX, Float.MAX_VALUE)){
+				sRenderer.line(prevX, prevY, xx, yy);
 			}
+			prevX = xx;
+			prevY = yy;
 		}
 		
 		sRenderer.end();

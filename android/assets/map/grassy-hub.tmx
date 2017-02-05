@@ -4,24 +4,7 @@
   <property name="camera_locked" type="bool" value="true"/>
   <property name="camera_zoom" type="float" value="3"/>
  </properties>
- <tileset firstgid="1" name="grassy_tileset" tilewidth="16" tileheight="16" tilecount="3" columns="3">
-  <image source="level_tileset.png" width="48" height="16"/>
-  <tile id="0">
-   <properties>
-    <property name="type" value="ground"/>
-   </properties>
-  </tile>
-  <tile id="1">
-   <properties>
-    <property name="type" value="ground"/>
-   </properties>
-  </tile>
-  <tile id="2">
-   <properties>
-    <property name="type" value="ladder"/>
-   </properties>
-  </tile>
- </tileset>
+ <tileset firstgid="1" source="main.tsx"/>
  <layer name="ground" width="27" height="15">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -34,11 +17,11 @@
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,
 2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,
-2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2,2
+18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
+18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
+18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,
+18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18,18
 </data>
  </layer>
  <objectgroup name="spawns">

@@ -12,7 +12,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
-import com.fullspectrum.component.InvicibilityComponent;
+import com.fullspectrum.component.InvincibilityComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -39,18 +39,18 @@ public class DamageHandler {
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 
-		if (amount < 1.0f || (MathUtils.isEqual(healthComp.health, 0.0f) && MathUtils.isEqual(barrierComp.barrier, 0.0f))) return;
+		if (amount < 1.0f || (MathUtils.isEqual(healthComp.health, 0.0f))) return;
 
 		if (Mappers.inviciblity.get(toEntity) != null) return;
 		if (Mappers.player.get(toEntity) != null) {
 			float duration = 1.0f;
-			toEntity.add(engineComp.engine.createComponent(InvicibilityComponent.class));
+			toEntity.add(engineComp.engine.createComponent(InvincibilityComponent.class));
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class).addBlink(duration, 0.15f));
 			TimerComponent timerComp = Mappers.timer.get(toEntity);
 			timerComp.add("invincibility", duration, false, new TimeListener() {
 				@Override
 				public void onTime(Entity entity) {
-					entity.remove(InvicibilityComponent.class);
+					entity.remove(InvincibilityComponent.class);
 					entity.remove(BlinkComponent.class);
 					if (entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
 				}

@@ -98,7 +98,8 @@ public class Tile {
 	public enum TileType{
 		AIR(false),
 		GROUND(true),
-		LADDER(false);
+		LADDER(false),
+		DECOR(false);
 		
 		private final boolean isSolid;
 
