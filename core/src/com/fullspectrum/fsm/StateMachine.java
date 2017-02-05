@@ -37,6 +37,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 	private String debugName = "";
 	private boolean debugOutput = false;
 	
+	// Transition Table
+	private TransitionTable table;
+	
 	public StateMachine(Entity entity, StateCreator<E> creator, Class<S> stateClazz, Class<E> stateObjectClazz) {
 		this.entity = entity;
 		this.creator = creator;
@@ -44,6 +47,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		this.stateObjectClazz = stateObjectClazz;
 		substateMachines = new ArrayMap<E, Array<StateMachine<? extends State, ? extends StateObject>>>();
 		states = new ArrayMap<S, E>();
+		table = new TransitionTable(this);
 	}
 
 	public E createState(S key) {
@@ -60,6 +64,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 		state.addTag(TransitionTag.ALL);
 		state.bits.set(((Tag) key).getIndex());
 		states.put(key, state);
+		table.addState(key);
 		return state;
 	}
 
@@ -216,16 +221,22 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	public void addTransition(S fromState, Transition transition, S toState) {
-		states.get(fromState).addTransition(transition, null, toState);
+		Builder builder = all(fromState);
+		table.addTransition(new TransitionDef(builder.all, builder.one, builder.exclude, toState, transition, null));
+//		states.get(fromState).addTransition(transition, null, toState);
 	}
 
 	public void addTransition(S fromState, Transition transition, TransitionData data, S toState) {
-		states.get(fromState).addTransition(transition, data, toState);
+		Builder builder = all(fromState);
+		table.addTransition(new TransitionDef(builder.all, builder.one, builder.exclude, toState, transition, data));
+//		states.get(fromState).addTransition(transition, data, toState);
 	}
 
 	public void addTransition(S fromState, MultiTransition multiTransition, S toState) {
 		if (multiTransition.isEmpty()) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
-		states.get(fromState).addMultiTransition(multiTransition, toState);
+		Builder builder = all(fromState);
+		table.addTransition(new MultiTransitionDef(builder.all, builder.one, builder.exclude, toState, multiTransition));
+//		states.get(fromState).addMultiTransition(multiTransition, toState);
 	}
 
 	public void addTransition(S fromState, Array<MultiTransition> multiTransitions, S toState) {
@@ -239,23 +250,27 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	public void addTransition(TransitionTag fromTag, Transition transition, TransitionData data, S toState) {
-		Iterator<Entry<S, E>> iter = states.iterator();
-		while (iter.hasNext()) {
-			Entry<S, E> entry = iter.next();
-			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
-				addTransition(entry.key, transition, data, toState);
-			}
-		}
+//		Iterator<Entry<S, E>> iter = states.iterator();
+//		while (iter.hasNext()) {
+//			Entry<S, E> entry = iter.next();
+//			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
+//				addTransition(entry.key, transition, data, toState);
+//			}
+//		}
+		Builder builder = all(fromTag);
+		table.addTransition(new TransitionDef(builder.all, builder.one, builder.exclude, toState, transition, data));
 	}
 
 	public void addTransition(TransitionTag fromTag, MultiTransition multiTransition, S toState) {
 		if (multiTransition.transitionObjects.size == 0) throw new IllegalArgumentException("MultiTransition must have at least 1 transition!");
-		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
-			Entry<S, E> entry = iter.next();
-			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
-				addTransition(entry.key, multiTransition, toState);
-			}
-		}
+//		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
+//			Entry<S, E> entry = iter.next();
+//			if (entry.value.bits.get(fromTag.getIndex() + bitOffset)) {
+//				addTransition(entry.key, multiTransition, toState);
+//			}
+//		}
+		Builder builder = all(fromTag);
+		table.addTransition(new MultiTransitionDef(builder.all, builder.one, builder.exclude, toState, multiTransition));
 	}
 
 	public void addTransition(TransitionTag fromTag, Array<MultiTransition> multiTransitions, S toState) {
@@ -269,38 +284,40 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 
 	public void addTransition(Builder builder, Transition transition, TransitionData data, S toState) {
-		Iterator<Entry<S, E>> iter = states.iterator();
-		while (iter.hasNext()) {
-			Entry<S, E> entry = iter.next();
-			E state = entry.value;
-			if (!state.bits.containsAll(builder.all)) {
-				continue;
-			}
-			if (!builder.one.isEmpty() && !builder.one.intersects(state.bits)) {
-				continue;
-			}
-			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
-				continue;
-			}
-			addTransition(entry.key, transition, data, toState);
-		}
+//		Iterator<Entry<S, E>> iter = states.iterator();
+//		while (iter.hasNext()) {
+//			Entry<S, E> entry = iter.next();
+//			E state = entry.value;
+//			if (!state.bits.containsAll(builder.all)) {
+//				continue;
+//			}
+//			if (!builder.one.isEmpty() && !builder.one.intersects(state.bits)) {
+//				continue;
+//			}
+//			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
+//				continue;
+//			}
+//			addTransition(entry.key, transition, data, toState);
+//		}
+		table.addTransition(new TransitionDef(builder.all, builder.one, builder.exclude, toState, transition, data));
 	}
 
 	public void addTransition(Builder builder, MultiTransition multiTransition, S toState) {
-		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
-			Entry<S, E> entry = iter.next();
-			E state = entry.value;
-			if (!state.bits.containsAll(builder.all)) {
-				continue;
-			}
-			if (!builder.one.isEmpty() && !builder.one.intersects(state.bits)) {
-				continue;
-			}
-			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
-				continue;
-			}
-			addTransition(entry.key, multiTransition, toState);
-		}
+//		for (Iterator<Entry<S, E>> iter = states.iterator(); iter.hasNext();) {
+//			Entry<S, E> entry = iter.next();
+//			E state = entry.value;
+//			if (!state.bits.containsAll(builder.all)) {
+//				continue;
+//			}
+//			if (!builder.one.isEmpty() && !builder.one.intersects(state.bits)) {
+//				continue;
+//			}
+//			if (!builder.exclude.isEmpty() && builder.exclude.intersects(state.bits)) {
+//				continue;
+//			}
+//			addTransition(entry.key, multiTransition, toState);
+//		}
+		table.addTransition(new MultiTransitionDef(builder.all, builder.one, builder.exclude, toState, multiTransition));
 	}
 
 	public void addTransition(Builder builder, Array<MultiTransition> multiTransitions, S toState) {

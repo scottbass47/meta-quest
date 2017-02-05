@@ -6,7 +6,7 @@ import com.fullspectrum.entity.EntityStates;
 
 public class EntityStateMachine extends StateMachine<EntityStates, EntityState> {
 
-	public EntityStateMachine(Entity entity/*, String bodyPath*/) {
+	public EntityStateMachine(Entity entity) {
 		super(entity, new EntityStateCreator(), EntityStates.class, EntityState.class);
 		this.states = new ArrayMap<EntityStates, EntityState>();
 	}

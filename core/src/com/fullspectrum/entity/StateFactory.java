@@ -3,7 +3,6 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
-import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.ForceComponent;
@@ -16,7 +15,6 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
-import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.WallComponent;
@@ -24,6 +22,7 @@ import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
+import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
@@ -227,7 +226,7 @@ public class StateFactory {
 			return this;
 		}
 		
-		public EntityStateBuilder knockBack(){
+		public EntityStateBuilder knockBack(EntityStates returnToState){
 			esm.createState(EntityStates.KNOCK_BACK)
 //			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 //			.add(engine.createComponent(DirectionComponent.class))
@@ -258,6 +257,11 @@ public class StateFactory {
 					
 				}
 			});
+			
+			// Add Knockback Transition
+			// CLEANUP HACK -> Hard-coded dying state as the one state you can't be knocked back from
+			esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+			esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), returnToState);
 			return this;
 		}
 		

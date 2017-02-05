@@ -166,6 +166,7 @@ public class FlowField {
 		return true;
 	}
 	
+	// INCOMPLETE Local optima need to be removed
 	private void vecField(){
 		for(FlowNode node : fieldNodes){
 			FlowNode right = getAdjacentNode(node, Direction.RIGHT);

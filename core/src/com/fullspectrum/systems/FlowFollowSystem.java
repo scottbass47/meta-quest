@@ -30,6 +30,7 @@ public class FlowFollowSystem extends IteratingSystem{
 		FlowField field = flowFieldComp.field;
 		if(field == null) return;
 		
+		// INCOMPLETE Enemies can get stuck against walls (hitbox bigger than tile)
 		AIController controller = aiControllerComp.controller;
 		Body body = bodyComp.body;
 		

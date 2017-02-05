@@ -58,7 +58,6 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
-import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -101,7 +100,6 @@ import com.fullspectrum.fsm.StateObjectCreator;
 import com.fullspectrum.fsm.transition.AbilityTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
-import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
@@ -258,7 +256,7 @@ public class EntityFactory {
 			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
-			.knockBack()
+			.knockBack(EntityStates.IDLING)
 			.build();
 		
 		esm.setDebugName("Knight ESM");
@@ -557,11 +555,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		
-		// CLEANUP Knockback state with transitions should be more global
-		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
-		System.out.print(esm.printTransitions(true));
+//		System.out.print(esm.printTransitions(true));
 		return esm;
 	}
 	
@@ -598,7 +592,7 @@ public class EntityFactory {
 			.fall(rogueStats.get("air_speed"), true)
 			.climb(rogueStats.get("climb_speed"))
 			.wallSlide()
-			.knockBack()
+			.knockBack(EntityStates.IDLING)
 			.build();
 		
 		esm.setDebugName("Rogue ESM");
@@ -740,9 +734,6 @@ public class EntityFactory {
 		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transitions.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
-		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onLeftWallData, EntityStates.FALLING);
 //		System.out.print(esm.printTransitions(false));
@@ -758,7 +749,7 @@ public class EntityFactory {
 			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true)
 			.fall(mageStats.get("air_speed"), true)
 			.climb(mageStats.get("climb_speed"))
-			.knockBack()
+			.knockBack(EntityStates.IDLING)
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
 		
@@ -836,9 +827,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 //		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
-		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions(true));
 
 //		fsm.disableState(EntityStates.DIVING);
@@ -890,7 +878,7 @@ public class EntityFactory {
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true)
 			.climb(stats.get("climb_speed"))
 			.swingAttack(sword, 2.5f, 1.0f, 150f, 270f, 0.4f)
-			.knockBack()
+			.knockBack(EntityStates.IDLING)
 			.build();
 		
 		esm.setDebugName("AI ESM");
@@ -941,9 +929,6 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-		// Knock Back Transition
-		esm.addTransition(esm.all(TransitionTag.ALL), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 //		System.out.print(esm.printTransitions());
 		
 		esm.changeState(EntityStates.IDLING);
@@ -1045,7 +1030,7 @@ public class EntityFactory {
 		engine.addEntity(wings);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity)
-			.knockBack()
+			.knockBack(EntityStates.FLYING)
 			.build();
 		esm.setDebugName("Spitter ESM");
 		
@@ -1098,17 +1083,13 @@ public class EntityFactory {
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		TimeTransitionData attackCooldown = new TimeTransitionData(2.0f);
 		
-		// Knock Back Transitions
-		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.FLYING);
-		
 		// Attack Transitions
 		esm.addTransition(EntityStates.FLYING, new MultiTransition(Transitions.INPUT, attackInput).and(Transitions.TIME, attackCooldown), EntityStates.PROJECTILE_ATTACK);
 		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
 
 		// After death
 		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
-
+		
 		AIStateMachine aism = new  AIStateMachine(entity);
 		aism.createState(AIState.WANDERING);
 		aism.createState(AIState.FOLLOWING)
@@ -1216,8 +1197,10 @@ public class EntityFactory {
 				.idle()
 				.fall(SPEED, true)
 				.jump(JUMP_FORCE, SPEED, false)
-				.knockBack()
+				.knockBack(EntityStates.IDLING)
 				.build();
+		
+		esm.setDebugName("Slime ESM");
 		
 		esm.getState(EntityStates.JUMPING)
 				.addChangeListener(new StateChangeListener() {
@@ -1256,10 +1239,6 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.LAND);
 		
 		MultiTransition jumpTransition = new MultiTransition(Transitions.INPUT, new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build());
-		
-		// Knock Back Transitions
-		esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-		esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), EntityStates.IDLING);
 		
 		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.LANDING);
 		esm.addTransition(EntityStates.LANDING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
@@ -1308,7 +1287,6 @@ public class EntityFactory {
 		
 		aism.changeState(AIState.WANDERING);
 		slime.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
-		
 		return slime;
 	}
 	
