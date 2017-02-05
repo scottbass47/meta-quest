@@ -475,7 +475,6 @@ public class EntityFactory {
 								float otherX = otherBody.getPosition().x;
 								float otherY = otherBody.getPosition().y;
 
-								// FIXME Player locks on to enemies that are way above him sometimes
 								float minX = 0.5f;
 								float maxX = 7.0f;
 								float yRange = 1.5f;
@@ -487,7 +486,7 @@ public class EntityFactory {
 								float bottom = myY - yRange;
 								
 								// If the enemy is within the box, the last check you need to do is whether or not the enemy is visible
-								if((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX) 
+								if(((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX)) 
 										&& otherY <= top && otherY >= bottom){
 									
 									// Ray Trace
