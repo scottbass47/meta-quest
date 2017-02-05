@@ -5,6 +5,8 @@ import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
 import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
 import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
 
+import java.util.Comparator;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
@@ -24,11 +26,14 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -41,8 +46,10 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugToggle;
@@ -57,6 +64,7 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
+import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -99,6 +107,7 @@ import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WallSlideSystem;
 import com.fullspectrum.systems.WanderingSystem;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class GameScreen extends AbstractScreen {
 
@@ -702,11 +711,87 @@ public class GameScreen extends AbstractScreen {
 			float top = myY + yRange;
 			float bottom = myY - yRange;
 			
+			// Draw Raytraces
+			// Ray Trace
+			Array<Entity> entities = Mappers.level.get(player).levelHelper.getEntities(new EntityGrabber() {
+				@Override
+				public boolean validEntity(Entity me, Entity other) {
+					if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+					return true;
+				}
+				
+				@Override
+				public Family componentsNeeded() {
+					return Family.all(HealthComponent.class, TypeComponent.class).get();
+				}
+			});
+			if(entities.size == 0) return;
+		
+			final Entity copy = player;
+			Sort.instance().sort(entities, new Comparator<Entity>() {
+				@Override
+				public int compare(Entity o1, Entity o2) {
+					float d1 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o1).body);
+					float d2 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o2).body);
+					return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+				}
+			});
+			
+			Body otherBody = Mappers.body.get(entities.first()).body;
+			float otherX = otherBody.getPosition().x;
+			float otherY = otherBody.getPosition().y;
+			
+			float angle = MathUtils.atan2(otherY - myY, otherX - myX) * MathUtils.radiansToDegrees;
+			
+			// Check to see what quadrant the angle is in and select two vertices of hit box
+			Rectangle myHitbox = Mappers.body.get(player).getAABB();
+			Rectangle otherHitbox = Mappers.body.get(entities.first()).getAABB();
+			
+			float x1 = 0.0f;
+			float y1 = 0.0f;
+			float x2 = 0.0f;
+			float y2 = 0.0f;
+			
+			float off = 0.25f;
+			
+			float toX1 = 0.0f;
+			float toY1 = 0.0f;
+			float toX2 = 0.0f;
+			float toY2 = 0.0f;
+
+			// Quadrant 1 or 3
+			if((angle >= 0 && angle <= 90) || (angle >= -180 && angle <= -90)){
+				// Use upper left and lower right
+				x1 = myX - myHitbox.width * 0.5f + off;
+				y1 = myY + myHitbox.height * 0.5f - off;
+				x2 = myX + myHitbox.width * 0.5f - off;
+				y2 = myY - myHitbox.height * 0.5f + off;
+				toX1 = otherX - otherHitbox.width * 0.5f;
+				toY1 = otherY + otherHitbox.height * 0.5f;
+				toX2 = otherX + otherHitbox.width * 0.5f;
+				toY2 = otherY - otherHitbox.height * 0.5f;
+			}
+			// Quadrant 2 or 4
+			else{
+				// Use lower left and upper right
+				x1 = myX - myHitbox.width * 0.5f + off;
+				y1 = myY - myHitbox.height * 0.5f + off;
+				x2 = myX + myHitbox.width * 0.5f - off;
+				y2 = myY + myHitbox.height * 0.5f - off;
+				toX1 = otherX - otherHitbox.width * 0.5f;
+				toY1 = otherY - otherHitbox.height * 0.5f;
+				toX2 = otherX + otherHitbox.width * 0.5f;
+				toY2 = otherY + otherHitbox.height * 0.5f;
+			}
+			
 			sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
 			sRenderer.begin(ShapeType.Line);
 			sRenderer.setColor(Color.CYAN);
 			sRenderer.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
+			sRenderer.line(x1, y1, toX1, toY1);
+			sRenderer.line(x2, y2, toX2, toY2);
 			sRenderer.end();
+			
 		}
 	}
 

@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
@@ -490,8 +491,91 @@ public class EntityFactory {
 										&& otherY <= top && otherY >= bottom){
 									
 									// Ray Trace
+									float angle = MathUtils.atan2(otherY - myY, otherX - myX) * MathUtils.radiansToDegrees;
 									
-									return Mappers.level.get(me).level.performRayTrace(myX, myY, otherX, otherY);
+									// Check to see what quadrant the angle is in and select two vertices of hit box
+									Rectangle myHitbox = Mappers.body.get(me).getAABB();
+									Rectangle otherHitbox = Mappers.body.get(other).getAABB();
+									
+									float x1 = 0.0f;
+									float y1 = 0.0f;
+									float x2 = 0.0f;
+									float y2 = 0.0f;
+									
+									float off = 0.25f;
+									
+									float toX1 = 0.0f;
+									float toY1 = 0.0f;
+									float toX2 = 0.0f;
+									float toY2 = 0.0f;
+
+									// Quadrant 1 or 3
+									if((angle >= 0 && angle <= 90) || (angle >= -180 && angle <= -90)){
+										// Use upper left and lower right
+										x1 = myX - myHitbox.width * 0.5f + off;
+										y1 = myY + myHitbox.height * 0.5f - off;
+										x2 = myX + myHitbox.width * 0.5f - off;
+										y2 = myY - myHitbox.height * 0.5f + off;
+										toX1 = otherX - otherHitbox.width * 0.5f;
+										toY1 = otherY + otherHitbox.height * 0.5f;
+										toX2 = otherX + otherHitbox.width * 0.5f;
+										toY2 = otherY - otherHitbox.height * 0.5f;
+									}
+									// Quadrant 2 or 4
+									else{
+										// Use lower left and upper right
+										x1 = myX - myHitbox.width * 0.5f + off;
+										y1 = myY - myHitbox.height * 0.5f + off;
+										x2 = myX + myHitbox.width * 0.5f - off;
+										y2 = myY + myHitbox.height * 0.5f - off;
+										toX1 = otherX - otherHitbox.width * 0.5f;
+										toY1 = otherY - otherHitbox.height * 0.5f;
+										toX2 = otherX + otherHitbox.width * 0.5f;
+										toY2 = otherY + otherHitbox.height * 0.5f;
+									}
+									
+//									// Slope of normal line is undefined
+//									if(MathUtils.isEqual(myY - otherY, 0.0f)){
+//										toX1 = otherX;
+//										toY1 = y1;
+//										toX2 = otherX;
+//										toY2 = y2;
+//									}else if(MathUtils.isEqual(myX - otherX, 0.0f)){
+//										toX1 = x1;
+//										toY1 = otherY;
+//										toX2 = x2;
+//										toY2 = otherY;
+//									}
+//									else{
+//										// Negative reciprocal b/c its the slope of the normal line
+//										float slope = (myY - otherY) / (myX - otherX);
+//										float slopeNorm = -1.0f / slope;
+//										
+//										// Find intersect
+//										// y - y1 = m(x - x1)
+//										// y = mx - mx1 + y1
+//										// b = -mx1 + y1
+//										float b1 = -slope * x1 + y1;
+//										float b2 = -slope * x2 + y2;
+//										float bNorm = -slopeNorm * otherX + otherY;
+//										
+//										// y1 = slope * x1 + b1
+//										// y2 = slope * x2 + b2
+//										// yNorm = slopeNorm * x? + bNorm
+//										
+//										// slopeNorm * x + bNorm = slope * x + b1
+//										// slopeNorm * x - slope * x = b1 - bNorm
+//										// x * (slopeNorm - slope) = b1 - bNorm
+//										// x = (b1 - bNorm) / (slopeNorm - slope)
+//										
+//										toX1 = (b1 - bNorm) / (slopeNorm - slope);
+//										toY1 = slopeNorm * toX1 + bNorm;
+//										toX2 = (b2 - bNorm) / (slopeNorm - slope);
+//										toY2 = slopeNorm * toX2 + bNorm;
+//									}
+									
+									Level level = Mappers.level.get(me).level;
+									return level.performRayTrace(x1, y1, toX1, toY1) && level.performRayTrace(x2, y2, toX2, toY2);
 								}
 								return false;
 							}
@@ -503,6 +587,7 @@ public class EntityFactory {
 							}
 						});
 						
+						if(entities.size == 0) return false;
 						final Entity copy = entity;
 						Sort.instance().sort(entities, new Comparator<Entity>() {
 							@Override
@@ -512,8 +597,6 @@ public class EntityFactory {
 								return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
 							}
 						});
-						
-						if(entities.size == 0) return false;
 						
 						Entity toChain = entities.first();
 						KnightComponent knightComp = Mappers.knight.get(entity);
