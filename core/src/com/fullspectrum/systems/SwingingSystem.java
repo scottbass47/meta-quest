@@ -1,9 +1,14 @@
 package com.fullspectrum.systems;
 
+import java.awt.Shape;
+import java.awt.geom.Arc2D;
+import java.awt.geom.Rectangle2D;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.BodyComponent;
@@ -43,6 +48,20 @@ public class SwingingSystem extends IteratingSystem{
 		swingComp.timeElapsed += deltaTime;
 		if(swingComp.timeElapsed < swingComp.delay) return;
 		
+		final Body myBody = Mappers.body.get(entity).body;
+		final FacingComponent facingComp = Mappers.facing.get(entity);
+		
+		// Center
+		float x1 = myBody.getPosition().x;
+		float y1 = myBody.getPosition().y;
+		
+		final Shape ellipse = new Rectangle2D.Float(x1 - swingComp.rx, y1 - swingComp.ry, swingComp.rx * 2.0f, swingComp.ry * 2.0f);
+		final Arc2D swingArc = new Arc2D.Float(
+				(Rectangle2D)ellipse, 
+				facingComp.facingRight ? swingComp.endAngle: 180 - swingComp.startAngle, 
+				swingComp.startAngle - swingComp.endAngle, 
+				Arc2D.PIE);
+		
 		Array<Entity> hitEntities = levelComp.levelHelper.getEntities(new EntityGrabber(){
 			@SuppressWarnings("unchecked")
 			@Override
@@ -58,36 +77,15 @@ public class SwingingSystem extends IteratingSystem{
 				// Don't deal damage to entities that aren't compatible
 				if(!swordTypeComp.shouldCollide(otherTypeComp)) return false;
 				
-				SwingComponent swingComp = Mappers.swing.get(me);
-				Body myBody = Mappers.body.get(me).body;
 				Body otherBody = Mappers.body.get(other).body;
+				Rectangle aabb = Mappers.body.get(other).getAABB();
 				
-				float x1 = myBody.getPosition().x;
-				float y1 = myBody.getPosition().y;
-				float x2 = otherBody.getPosition().x;
-				float y2 = otherBody.getPosition().y;
-				
-				// Construct ellipse
-				float rx2 = swingComp.rx * swingComp.rx;
-				float ry2 = swingComp.ry * swingComp.ry;
-				float xx = (x1 - x2) * (x1 - x2);
-				float yy = (y1 - y2) * (y1 - y2);
-				
-				// Entity inside ellipse
-				if(xx / rx2 + yy / ry2 <= 1.0){
-					// Check to see if angle is valid
-					FacingComponent facingComp = Mappers.facing.get(me);
-					float angle = MathUtils.atan2(y2 - y1, facingComp.facingRight ? x2 - x1 : x1 - x2) * MathUtils.radiansToDegrees;
-					
-					float start = swingComp.startAngle;
-					float end = swingComp.endAngle;
-					
-					if(angle <= start && angle >= end){
-						return true;
-					}
-				}
-				
-				return false;
+				// Bottom Left
+				float x2 = otherBody.getPosition().x - aabb.width * 0.5f;
+				float y2 = otherBody.getPosition().y - aabb.height * 0.5f;
+
+				Shape shape = new Rectangle2D.Float(x2, y2, aabb.width, aabb.height);
+				return swingArc.intersects((Rectangle2D)shape);
 			}
 		});
 		
@@ -116,51 +114,38 @@ public class SwingingSystem extends IteratingSystem{
 		swordComp.shouldSwing = false;
 	}
 	
-//	@Override
-//	protected void processEntity(Entity entity, float deltaTime) {
-//		SwordComponent swordComp = Mappers.sword.get(entity);
-//		SwingComponent swingComp = Mappers.swing.get(entity);
+//	/**
+//	 * X and Y are the coordinates being tested. EX and EY are the coordinates of the center of the 
+//	 * ellipse. RX and RY are the radius values for the ellipse. Start and end angles are in range of
+//	 * 180 to -180 where an arc is created from start to end, clockwise. 
+//	 * 
+//	 * @param x
+//	 * @param y
+//	 * @param ex
+//	 * @param ey
+//	 * @param rx
+//	 * @param ry
+//	 * @param startAngle
+//	 * @param endAngle
+//	 * @param facingRight
+//	 * @return
+//	 */
+//	private boolean inEllipse(float x, float y, float ex, float ey, float rx, float ry, float startAngle, float endAngle, boolean facingRight){
+//		// Construct ellipse
+//		float rx2 = rx * rx;
+//		float ry2 = ry * ry;
+//		float xx = (x - ex) * (x - ex);
+//		float yy = (y - ey) * (y - ey);
 //		
-//		if(swordComp == null || !EntityUtils.isValid(swordComp.sword)){
-//			Gdx.app.log("Swinging System", "sword isn't a valid entity.");
-//			return;
+//		// Entity inside ellipse
+//		if(xx / rx2 + yy / ry2 <= 1.0){
+//			// Check to see if angle is valid
+//			float angle = MathUtils.atan2(y - ey, facingRight ? x - ex : x - ex) * MathUtils.radiansToDegrees;
+//			
+//			if(angle <= startAngle && angle >= endAngle){
+//				return true;
+//			}
 //		}
-//		
-//		swingComp.time += deltaTime;
-//		if(swingComp.time > swingComp.duration){
-//			swingComp.time = 0;
-//			return;
-//		}
-//		
-//		BodyComponent swordBodyComp = Mappers.body.get(swordComp.sword);
-//		
-//		if(swordBodyComp == null || swordBodyComp.body == null){
-//			Gdx.app.log("Swinging System", "sword doesn't have a valid physics body.");
-//		}
-//		
-//		Body swordBody = swordBodyComp.body;
-//		if(!swordBody.isActive()) {
-//			swordBody.setActive(true);
-//		}
-//		FacingComponent facingComp = Mappers.facing.get(entity);
-//		
-//		float degrees = 0.0f;
-//		if(facingComp.facingRight){
-//			degrees = swingComp.startAngle;
-//			degrees -= swingComp.time * (swingComp.rotationAmount / swingComp.duration);
-//		}
-//		else{
-//			degrees = 180 - swingComp.startAngle;
-//			degrees += swingComp.time * (swingComp.rotationAmount / swingComp.duration);
-//		}
-//		degrees *= MathUtils.degreesToRadians;
-//		swordBody.setTransform(swordBody.getPosition(), degrees);
-//		
-//		float dx = facingComp.facingRight ? -20 * GameVars.PPM_INV * 0.5f : -(-20 * GameVars.PPM_INV * 0.5f);
-//		float dy = 0;
-//		float radius = (float)Math.sqrt(dx * dx + dy * dy);
-//		swordBody.setTransform(swordBody.getPosition().x + dx + radius * MathUtils.cos(degrees), swordBody.getPosition().y + dy + radius * MathUtils.sin(degrees), degrees);
-//		
+//		return false;
 //	}
-	
 }

@@ -11,7 +11,8 @@ public enum DebugToggle {
 	SHOW_RANGE('u'),
 	SHOW_HEALTH('h'),
 	SHOW_FLOW_FIELD(']'),
-	SHOW_SWING('.');
+	SHOW_SWING('.'),
+	SHOW_CHAIN_BOX('/');
 	
 	private final char character;
 	

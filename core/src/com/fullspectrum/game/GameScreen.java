@@ -49,6 +49,7 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -229,7 +230,7 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
 //		levelManager.switchHub(Theme.GRASSY);
-		levelManager.switchHub(Theme.GRASSY);
+		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -407,6 +408,10 @@ public class GameScreen extends AbstractScreen {
 			for(Entity entity : engine.getEntitiesFor(Family.all(SwingComponent.class).exclude(BodyComponent.class).get())){
 				renderSwing(batch, entity);
 			}
+		}
+		if(DebugInput.isToggled(DebugToggle.SHOW_CHAIN_BOX)){
+			Entity player = levelManager.getPlayer();
+			renderChainBox(batch, player);
 		}
 		textRenderer.render(batch, levelManager.getCameraEntity());
 
@@ -676,6 +681,33 @@ public class GameScreen extends AbstractScreen {
 		sRenderer.setColor(color);
 		sRenderer.line(x1, y1, x2, y2);
 		sRenderer.end();
+	}
+	
+	private void renderChainBox(SpriteBatch batch, Entity player){
+		BodyComponent bodyComp = Mappers.body.get(player);
+		FacingComponent facingComp = Mappers.facing.get(player);
+		
+		if(Mappers.esm.get(player).esm.getCurrentState() == EntityStates.SWING_ANTICIPATION || true){
+			Vector2 pos = bodyComp.body.getPosition();
+			
+			float myX = pos.x;
+			float myY = pos.y;
+			float minX = 0.5f;
+			float maxX = 7.0f;
+			float yRange = 1.5f;
+			
+			// Construct box in front of you
+			float closeX = facingComp.facingRight ? myX + minX : myX - minX;
+			float farX = facingComp.facingRight ? myX + maxX : myX - maxX;
+			float top = myY + yRange;
+			float bottom = myY - yRange;
+			
+			sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
+			sRenderer.begin(ShapeType.Line);
+			sRenderer.setColor(Color.CYAN);
+			sRenderer.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
+			sRenderer.end();
+		}
 	}
 
 	@Override

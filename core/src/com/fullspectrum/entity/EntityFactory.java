@@ -281,6 +281,8 @@ public class EntityFactory {
 			swingAnims.add(attack.getSwingAnimation());
 		}
 		
+		// INCOMPLETE Damage modifier when continuously chaining
+		// INCOMPLETE Limit chaining
 		esm.createState(EntityStates.IDLE_TO_SWING)
 			.addAnimations(idleToSwingAnims)
 			.addTag(TransitionTag.STATIC_STATE)
@@ -445,6 +447,7 @@ public class EntityFactory {
 		// SWINGING TRANSITIONS
 		// ******************************************
 		
+		// CLEANUP Can only chain after successfully hitting an enemy first
 		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		MultiTransition chainAttack = new MultiTransition(Transitions.INPUT, attackPress)
 				.and(new Transition() {
@@ -471,8 +474,9 @@ public class EntityFactory {
 								float otherX = otherBody.getPosition().x;
 								float otherY = otherBody.getPosition().y;
 
+								// FIXME Player locks on to enemies that are way above him sometimes
 								float minX = 0.5f;
-								float maxX = 15.0f;
+								float maxX = 7.0f;
 								float yRange = 1.5f;
 								
 								// Construct box in front of you
@@ -484,6 +488,9 @@ public class EntityFactory {
 								// If the enemy is within the box, the last check you need to do is whether or not the enemy is visible
 								if((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX) 
 										&& otherY <= top && otherY >= bottom){
+									
+									// Ray Trace
+									
 									return Mappers.level.get(me).level.performRayTrace(myX, myY, otherX, otherY);
 								}
 								return false;

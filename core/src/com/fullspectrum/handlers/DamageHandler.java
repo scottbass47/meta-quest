@@ -23,7 +23,6 @@ import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityFactory;
-import com.fullspectrum.utils.PhysicsUtils;
 
 public class DamageHandler {
 
