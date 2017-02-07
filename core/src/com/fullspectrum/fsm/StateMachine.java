@@ -11,6 +11,7 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
@@ -91,6 +92,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 					pool.reset();
 				}
 			}
+//			System.out.println("Reset -- Removing State Machine: " + getDebugName());
 			StateMachineSystem.getInstance().removeStateMachine(this);
 			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
 			if (machines != null) {
@@ -155,7 +157,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
-			StateMachineSystem.getInstance().removeStateMachine(this);
+			if(newState == null){
+//				System.out.println("Exit Current -- Removing State Machine: " + getDebugName());
+				StateMachineSystem.getInstance().removeStateMachine(this);
+			}
 			Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(currentState);
 			if (machines != null) {
 				for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
@@ -174,6 +179,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 		if (newState == currentState) return;
 		E currState = currentState;
 		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName());
+		if(currentState == null){
+//			System.out.println("Change State -- Adding State Machine: " + getDebugName());
+			StateMachineSystem.getInstance().addStateMachine(this);
+		}
 		exitCurrent((S) identifier);
 		currentState = currState;
 		for (Component c : newState.getComponents()) {
@@ -184,7 +193,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 		} else {
 			newState.onEnter(null);
 		}
-		StateMachineSystem.getInstance().addStateMachine(this);
 		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(newState);
 		if (machines != null) {
 			for (StateMachine<? extends State, ? extends StateObject> machine : machines) {

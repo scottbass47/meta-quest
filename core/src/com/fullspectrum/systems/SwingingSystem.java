@@ -7,7 +7,6 @@ import java.awt.geom.Rectangle2D;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
@@ -93,7 +92,7 @@ public class SwingingSystem extends IteratingSystem{
 			Body body = Mappers.body.get(entity).body;
 			// Create self-destructing swing entity
 			// CLEANUP Move to entity factory
-			Entity swing = new EntityFactory.EntityBuilder(getEngine(), Mappers.world.get(entity).world, levelComp.level).build();
+			Entity swing = new EntityFactory.EntityBuilder("swing_debug", getEngine(), Mappers.world.get(entity).world, levelComp.level).build();
 			swing.add(getEngine().createComponent(PositionComponent.class).set(body.getPosition().x, body.getPosition().y));
 			swing.add(getEngine().createComponent(FacingComponent.class).set(Mappers.facing.get(entity).facingRight));
 			swing.add(getEngine().createComponent(SwingComponent.class).set(swingComp.rx, swingComp.ry, swingComp.startAngle, swingComp.endAngle, 0.0f));

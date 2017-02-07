@@ -2,19 +2,19 @@ package com.fullspectrum.fsm;
 
 import java.util.Iterator;
 
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionSystem;
 
 public class StateMachineSystem extends TransitionSystem {
 
 	private static StateMachineSystem instance;
-	private Array<StateMachine<? extends State, ? extends StateObject>> toRemove;
-	private Array<StateMachine<? extends State, ? extends StateObject>> toAdd;
+	private ObjectSet<StateMachine<? extends State, ? extends StateObject>> toRemove;
+	private ObjectSet<StateMachine<? extends State, ? extends StateObject>> toAdd;
 
 	private StateMachineSystem(){
-		toRemove = new Array<StateMachine<? extends State,? extends StateObject>>();
-		toAdd = new Array<StateMachine<? extends State,? extends StateObject>>();
+		toRemove = new ObjectSet<StateMachine<? extends State,? extends StateObject>>();
+		toAdd = new ObjectSet<StateMachine<? extends State,? extends StateObject>>();
 	}
 	
 	public static StateMachineSystem getInstance() {
@@ -39,12 +39,7 @@ public class StateMachineSystem extends TransitionSystem {
 		// Only add/remove after all machines have updated
 		for(Iterator<StateMachine<? extends State, ? extends StateObject>> iter = toRemove.iterator(); iter.hasNext();){
 			StateMachine<? extends State, ? extends StateObject> machine = iter.next();
-			// BUG Fails to remove machines seemingly randomly...
-			try{
-				machines.removeIndex(machines.indexOf(machine, false));
-			}catch(Exception e){
-				System.out.println("Failed to remove machine: " + machine);
-			}
+			machines.remove(machine);
 			iter.remove();
 		}
 		for(Iterator<StateMachine<? extends State, ? extends StateObject>> iter = toAdd.iterator(); iter.hasNext();){
@@ -60,6 +55,10 @@ public class StateMachineSystem extends TransitionSystem {
 	
 	@Override
 	public void removeStateMachine(StateMachine<? extends State, ? extends StateObject> machine) {
+		if(toAdd.contains(machine)){
+			toAdd.remove(machine);
+			return;
+		}
 		toRemove.add(machine);
 	}
 	

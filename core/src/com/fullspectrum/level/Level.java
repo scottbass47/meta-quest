@@ -360,7 +360,7 @@ public class Level {
 			float height = (Float) o.getProperties().get("height");
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			
-			Entity entity = new EntityFactory.EntityBuilder(engine, world, this)
+			Entity entity = new EntityFactory.EntityBuilder("level_trigger", engine, world, this)
 					.physics("level_trigger.json", spawnPoint.x, spawnPoint.y, false)
 					.build();
 			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));

@@ -46,6 +46,7 @@ import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.EngineComponent;
+import com.fullspectrum.component.EntityComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FlowFieldComponent;
@@ -161,7 +162,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
 
-		Entity player = new EntityBuilder(engine, world, level)
+		Entity player = new EntityBuilder("player", engine, world, level)
 				.animation(animMap)
 				.physics("player.json", x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
@@ -185,6 +186,7 @@ public class EntityFactory {
 		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player, rogueStats);
 
 		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
+		playerStateMachine.setDebugName("Player SM");
 		
 		playerStateMachine.createState(PlayerState.KNIGHT)
 			.add(engine.createComponent(HealthComponent.class).set(knightStats.get("health"), knightStats.get("health")))
@@ -252,7 +254,7 @@ public class EntityFactory {
 		player.add(knightComp);
 		player.add(engine.createComponent(SwordComponent.class).set(sword));
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Knight ESM", engine, player)
 			.idle()
 			.run(knightStats.get("ground_speed"))
 			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true)
@@ -260,8 +262,6 @@ public class EntityFactory {
 			.climb(5.0f)
 			.knockBack(EntityStates.IDLING)
 			.build();
-		
-		esm.setDebugName("Knight ESM");
 		
 		// Notes
 		//	- If transitioning from running, jumping, or falling state skip initial swing animation
@@ -331,7 +331,7 @@ public class EntityFactory {
 					FacingComponent facingComp = Mappers.facing.get(entity);
 					
 					// Remove gravity and make the player a bullet
-					body.setGravityScale(0.2f);
+					body.setGravityScale(0.0f);
 					body.setBullet(true);
 					
 					float duration = 0.1f;
@@ -403,6 +403,7 @@ public class EntityFactory {
 				@Override
 				public void onExit(State nextState, Entity entity) {
 					Mappers.body.get(entity).body.setBullet(false);
+					Mappers.body.get(entity).body.setGravityScale(0.2f);
 					entity.remove(SwingComponent.class);
 					
 					// Need to do more clean up if the chain attack is interrupted
@@ -677,6 +678,7 @@ public class EntityFactory {
 		final float projectileSpeed = rogueStats.get("projectile_speed");
 		final float projectileDamage = rogueStats.get("projectile_damage");
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
+		rogueSM.setDebugName("Rogue Attack SM");
 		rogueSM.createState(EntityStates.IDLING);
 		rogueSM.createState(EntityStates.PROJECTILE_ATTACK)
 			.addChangeListener(new StateChangeListener(){
@@ -699,7 +701,7 @@ public class EntityFactory {
 	}
 	
 	private static EntityStateMachine createRogue(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats rogueStats){
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, player)
 			.idle()
 			.run(rogueStats.get("ground_speed"))
 			.jump(rogueStats.get("jump_force"), rogueStats.get("air_speed"), true)
@@ -708,8 +710,6 @@ public class EntityFactory {
 			.wallSlide()
 			.knockBack(EntityStates.IDLING)
 			.build();
-		
-		esm.setDebugName("Rogue ESM");
 		
 		// CLEANUP Remove wall jumping
 		esm.createState(EntityStates.WALL_JUMP)
@@ -857,7 +857,7 @@ public class EntityFactory {
 	private static EntityStateMachine createMage(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats mageStats){
 //		Entity sword = createSword(engine, world, level, player, x, y, 100);
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, player)
 			.idle()
 			.run(mageStats.get("ground_speed"))
 			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true)
@@ -866,8 +866,6 @@ public class EntityFactory {
 			.knockBack(EntityStates.IDLING)
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
-		
-		esm.setDebugName("Mage ESM");
 		
 		esm.createState(EntityStates.PROJECTILE_ATTACK)
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
@@ -970,7 +968,7 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		
 		// Setup Player
-		Entity player = new EntityBuilder(engine, world, level)
+		Entity player = new EntityBuilder(EntityIndex.AI_PLAYER.getName(), engine, world, level)
 				.animation(animMap)
 				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.physics("player.json", x, y, true)
@@ -985,7 +983,7 @@ public class EntityFactory {
 
 		Entity sword = createSword(engine, world, level, player, x, y, (int)stats.get("sword_damage"));
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, player)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("AI Player ESM", engine, player)
 			.idle()
 			.run(stats.get("ground_speed"))
 			.fall(stats.get("air_speed"), true)
@@ -995,8 +993,6 @@ public class EntityFactory {
 			.knockBack(EntityStates.IDLING)
 			.build();
 		
-		esm.setDebugName("AI ESM");
-			
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
@@ -1050,6 +1046,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		AIStateMachine aism = new AIStateMachine(player);
+		aism.setDebugName("AI Player AISM");
 		aism.createState(AIState.WANDERING)
 			.add(engine.createComponent(WanderingComponent.class).set(20, 1.5f));
 		
@@ -1117,7 +1114,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
 		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.spitterAttack));
 		AIController controller = new AIController();
-		Entity entity = new EntityBuilder(engine, world, level)
+		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName(), engine, world, level)
 				.animation(animMap)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.physics("spitter.json", x, y, false)
@@ -1143,10 +1140,9 @@ public class EntityFactory {
 		entity.add(engine.createComponent(WingComponent.class).set(wings));
 		engine.addEntity(wings);
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, entity)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spitter ESM", engine, entity)
 			.knockBack(EntityStates.FLYING)
 			.build();
-		esm.setDebugName("Spitter ESM");
 		
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
@@ -1205,6 +1201,7 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
 		
 		AIStateMachine aism = new  AIStateMachine(entity);
+		aism.setDebugName("Spitter AISM");
 		aism.createState(AIState.WANDERING);
 		aism.createState(AIState.FOLLOWING)
 			.add(engine.createComponent(FlowFollowComponent.class))
@@ -1231,8 +1228,8 @@ public class EntityFactory {
 				}
 			});
 		
-		LOSTransitionData inSightData = new LOSTransitionData(true);
-		LOSTransitionData outOfSightData = new LOSTransitionData(false);
+//		LOSTransitionData inSightData = new LOSTransitionData(true);
+//		LOSTransitionData outOfSightData = new LOSTransitionData(false);
 		
 		RangeTransitionData wanderInRange = new RangeTransitionData();
 		wanderInRange.distance = 15.0f;
@@ -1292,7 +1289,7 @@ public class EntityFactory {
 		
 		AIController controller = new AIController();
 		
-		Entity slime = new EntityBuilder(engine, world, level)
+		Entity slime = new EntityBuilder(EntityIndex.SLIME.getName(), engine, world, level)
 				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.physics("slime.json", x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
@@ -1307,14 +1304,12 @@ public class EntityFactory {
 		final float SPEED = stats.get("air_speed");
 		final float JUMP_FORCE = stats.get("jump_force");
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, slime)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Slime ESM", engine, slime)
 				.idle()
 				.fall(SPEED, true)
 				.jump(JUMP_FORCE, SPEED, false)
 				.knockBack(EntityStates.IDLING)
 				.build();
-		
-		esm.setDebugName("Slime ESM");
 		
 		esm.getState(EntityStates.JUMPING)
 				.addChangeListener(new StateChangeListener() {
@@ -1363,6 +1358,7 @@ public class EntityFactory {
 		slime.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		AIStateMachine aism = new AIStateMachine(slime);
+		aism.setDebugName("Slime AISM");
 		aism.createState(AIState.WANDERING)
 				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
 					@Override
@@ -1408,7 +1404,7 @@ public class EntityFactory {
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
 		
-		Entity spawner = new EntityBuilder(engine, world, level)
+		Entity spawner = new EntityBuilder(EntityIndex.SPAWNER.getName(), engine, world, level)
 				.physics("spawner.json", x, y, false)
 				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.build();
@@ -1428,7 +1424,7 @@ public class EntityFactory {
 		
 		Mappers.body.get(spawner).body.setSleepingAllowed(false);
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, spawner).build();
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spawner ESM", engine, spawner).build();
 		
 		esm.createState(EntityStates.IDLING);
 		esm.createState(EntityStates.BASE_ATTACK)
@@ -1449,7 +1445,7 @@ public class EntityFactory {
 	public static Entity createWings(Engine engine, World world, Level level, Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, flapping);
-		Entity wings = new EntityBuilder(engine, world, level)
+		Entity wings = new EntityBuilder("wings of " + Mappers.entity.get(owner).name, engine, world, level)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.animation(animMap)
 				.build();
@@ -1461,7 +1457,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
-		Entity sword = new EntityBuilder(engine, world, level)
+		Entity sword = new EntityBuilder("sword of " + Mappers.entity.get(owner).name, engine, world, level)
 				.physics("sword.json", x, y, false)
 				.build();
 		sword.add(engine.createComponent(ParentComponent.class).set(owner));
@@ -1497,7 +1493,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
 		animMap.put(EntityAnim.DROP_DISAPPEAR, dropDisappear);
 		
-		Entity drop = new EntityBuilder(engine, world, level)
+		Entity drop = new EntityBuilder(type.name().toLowerCase(), engine, world, level)
 				.animation(animMap)
 				.physics(physicsBody, x, y, false)
 				.render(dropIdle.getKeyFrame(0), false)
@@ -1515,7 +1511,7 @@ public class EntityFactory {
 			}
 		});
 		
-		EntityStateMachine esm = new EntityStateMachine(drop);
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Drop ESM", engine, drop).build();
 		esm.createState(EntityStates.IDLING)
 			.add(engine.createComponent(DropMovementComponent.class))
 			.addAnimation(EntityAnim.DROP_IDLE);
@@ -1562,7 +1558,8 @@ public class EntityFactory {
 	}
 	
 	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float y, boolean isArc, EntityType type){
-		Entity projectile = new EntityBuilder(engine, world, level)
+		// CLEANUP Better naming for projectiles
+		Entity projectile = new EntityBuilder(physicsBody.substring(0, physicsBody.indexOf('.')), engine, world, level)
 				.physics(physicsBody, x, y, false)
 				.build();
 		projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
@@ -1611,7 +1608,7 @@ public class EntityFactory {
 			}
 		});
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, spit).build();
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spit ESM", engine, spit).build();
 		
 		esm.createState(EntityStates.IDLING)
 			.addAnimation(EntityAnim.IDLE);
@@ -1653,7 +1650,7 @@ public class EntityFactory {
 				.build();
 		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, radius * 2f, damage, damageDropOffRate));
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder(engine, explosive).build();
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Explosive ESM", engine, explosive).build();
 		
 		esm.createState(EntityStates.IDLING)
 			.addAnimation(EntityAnim.IDLE);
@@ -1709,7 +1706,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
-		Entity entity = new EntityBuilder(engine, world, level).build();
+		Entity entity = new EntityBuilder("damage text", engine, world, level).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
@@ -1733,10 +1730,11 @@ public class EntityFactory {
 		 * @param world
 		 * @param level
 		 */
-		public EntityBuilder(Engine engine, World world, Level level){
+		public EntityBuilder(String name, Engine engine, World world, Level level){
 			this.engine = engine;
 			this.world = world;
 			entity = engine.createEntity();
+			entity.add(engine.createComponent(EntityComponent.class).set(name));
 			entity.add(engine.createComponent(EngineComponent.class).set(engine));
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));

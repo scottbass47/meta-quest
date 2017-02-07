@@ -34,9 +34,10 @@ public class StateFactory {
 		private Engine engine;
 		private EntityStateMachine esm;
 		
-		public EntityStateBuilder(Engine engine, Entity entity){
+		public EntityStateBuilder(String debugName, Engine engine, Entity entity){
 			this.engine = engine;
 			esm = new EntityStateMachine(entity);
+			esm.setDebugName(debugName);
 		}
 		
 		/**
