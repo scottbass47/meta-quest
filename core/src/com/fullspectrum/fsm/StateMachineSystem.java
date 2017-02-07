@@ -39,6 +39,7 @@ public class StateMachineSystem extends TransitionSystem {
 		// Only add/remove after all machines have updated
 		for(Iterator<StateMachine<? extends State, ? extends StateObject>> iter = toRemove.iterator(); iter.hasNext();){
 			StateMachine<? extends State, ? extends StateObject> machine = iter.next();
+			// BUG Fails to remove machines seemingly randomly...
 			try{
 				machines.removeIndex(machines.indexOf(machine, false));
 			}catch(Exception e){

@@ -9,19 +9,19 @@ import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.DropSpawnComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.WorldComponent;
-import com.fullspectrum.entity.DropType;
+import com.fullspectrum.entity.DropFactory;
 import com.fullspectrum.entity.EntityFactory;
 
 public class DamageHandler {
@@ -80,7 +80,10 @@ public class DamageHandler {
 		healthComp.health -= dealt;
 
 		if (healthComp.health <= 0) {
-			toEntity.add(engineComp.engine.createComponent(DropSpawnComponent.class).set(DropType.COIN));
+			MoneyComponent moneyComp = Mappers.money.get(toEntity);
+			if(moneyComp != null && moneyComp.money > 0){
+				DropFactory.spawnCoins(toEntity);
+			}
 		}
 
 		if (knockBackDistance > 0 && knockBackSpeed > 0) {

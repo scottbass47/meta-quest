@@ -18,21 +18,7 @@ public enum Collisions {
 	DROP {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
-			Entity coin = (Entity)me.getBody().getUserData();
-			Entity entity = (Entity)other.getBody().getUserData();
-			if(entity == null || !EntityUtils.isValid(entity) || Mappers.player.get(entity) == null) return;
 			
-			MoneyComponent moneyComp = Mappers.money.get(entity);
-//			TypeComponent myTypeComp = Mappers.type.get(coin);
-//			TypeComponent otherTypeComp = Mappers.type.get(entity);
-//
-//			if(moneyComp == null || !myTypeComp.shouldCollide(otherTypeComp))return;
-			
-			MoneyComponent coinAmount = Mappers.money.get(coin);
-			
-			moneyComp.money += coinAmount.money;
-			coinAmount.money = 0;
-			Mappers.death.get(coin).triggerDeath();
 		}
 
 		@Override
@@ -42,10 +28,20 @@ public enum Collisions {
 
 		@Override
 		public void preSolve(Fixture me, Fixture other, Contact contact) {
+			Entity coin = (Entity)me.getBody().getUserData();
 			Entity entity = (Entity)other.getBody().getUserData();
+
 			if(entity == null || !EntityUtils.isValid(entity)) return;
-			
 			contact.setEnabled(false);
+			
+			if(Mappers.player.get(entity) == null || !Mappers.drop.get(coin).canPickUp) return;
+			
+			MoneyComponent moneyComp = Mappers.money.get(entity);
+			MoneyComponent coinAmount = Mappers.money.get(coin);
+			
+			moneyComp.money += coinAmount.money;
+			coinAmount.money = 0;
+			Mappers.death.get(coin).triggerDeath();
 		}
 
 		@Override

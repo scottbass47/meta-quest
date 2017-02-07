@@ -43,7 +43,7 @@ import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropMovementComponent;
-import com.fullspectrum.component.DropTypeComponent;
+import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FSMComponent;
@@ -1504,9 +1504,17 @@ public class EntityFactory {
 				.build();
 		
 		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
-		drop.add(engine.createComponent(DropTypeComponent.class).set(type));
+		drop.add(engine.createComponent(DropComponent.class).set(type));
 		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL).setCollideWith(EntityType.FRIENDLY));
 
+		drop.getComponent(DropComponent.class).canPickUp = false;
+		drop.getComponent(TimerComponent.class).add("pickup_delay", 0.5f, false, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Mappers.drop.get(entity).canPickUp = true;
+			}
+		});
+		
 		EntityStateMachine esm = new EntityStateMachine(drop);
 		esm.createState(EntityStates.IDLING)
 			.add(engine.createComponent(DropMovementComponent.class))

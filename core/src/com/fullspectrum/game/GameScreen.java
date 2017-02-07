@@ -46,7 +46,6 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TypeComponent;
@@ -83,7 +82,6 @@ import com.fullspectrum.systems.CombustibleSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.DropMovementSystem;
-import com.fullspectrum.systems.DropSpawnSystem;
 import com.fullspectrum.systems.FacingSystem;
 import com.fullspectrum.systems.FlowFieldSystem;
 import com.fullspectrum.systems.FlowFollowSystem;
@@ -207,7 +205,6 @@ public class GameScreen extends AbstractScreen {
 		// Other Systems
 		engine.addSystem(new AbilitySystem());
 		engine.addSystem(new TimerSystem());
-		engine.addSystem(new DropSpawnSystem());
 		engine.addSystem(new SpawnerSystem());
 		engine.addSystem(new AnimationSystem());
 		engine.addSystem(new JumpSystem());
