@@ -997,7 +997,7 @@ public class EntityFactory {
 			.fall(stats.get("air_speed"), true)
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true)
 			.climb(stats.get("climb_speed"))
-			.swingAttack(sword, 2.5f, 1.0f, 150f, 270f, 0.4f)
+			.swingAttack(sword, 2.5f, 1.0f, 150f, -90f, 0.4f)
 			.knockBack(EntityStates.IDLING)
 			.build();
 		
