@@ -16,6 +16,7 @@ import com.fullspectrum.component.WorldComponent;
 public class EntityManager {
 
 	private static Array<Entity> toDie = new Array<Entity>();
+	private static Array<Entity> toAdd = new Array<Entity>();
 	
 	public static void cleanUp(Entity entity) {
 		EngineComponent engineComp = Mappers.engine.get(entity);
@@ -37,11 +38,23 @@ public class EntityManager {
 		}
 	}
 	
+	public static void addEntity(Entity entity){
+		toAdd.add(entity);
+	}
+	
 	public static void update(float delta){
+		// Delayed death
 		for(Iterator<Entity> iter = toDie.iterator(); iter.hasNext();){
 			Entity entity = iter.next();
 			DeathComponent deathComp = Mappers.death.get(entity);
 			deathComp.triggerDeath();
+			iter.remove();
+		}
+		
+		// Delayed adding
+		for(Iterator<Entity> iter = toAdd.iterator(); iter.hasNext();){
+			Entity entity = iter.next();
+			Mappers.engine.get(entity).engine.addEntity(entity);
 			iter.remove();
 		}
 	}

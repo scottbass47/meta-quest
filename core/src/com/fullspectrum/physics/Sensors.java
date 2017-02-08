@@ -11,7 +11,6 @@ import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
-import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;

@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
+// CLEANUP Consistent naming for static final strings
 public class Assets {
 
 	// Asset Manager
@@ -30,13 +31,13 @@ public class Assets {
 	public static final String SPRITES = "sprites/entity_assets.atlas";
 	
 	// Knight
-	public static final String KNIGHT_IDLE = "knight_idle";
-	public static final String KNIGHT_WALK = "knight_walk";
-	public static final String KNIGHT_RISE = "knight_rise";
-	public static final String KNIGHT_JUMP = "knight_jump";
-	public static final String KNIGHT_FALL = "knight_fall";
-	public static final String KNIGHT_APEX = "knight_apex";
-	public static final String KNIGHT_ATTACK_OVERHEAD = "knight_attack_overhead";
+	public static final String AI_PLAYER_IDLE = "ai_player_idle";
+	public static final String AI_PLAYER_WALK = "ai_player_walk";
+	public static final String AI_PLAYER_RISE = "ai_player_rise";
+	public static final String AI_PLAYER_JUMP = "ai_player_jump";
+	public static final String AI_PLAYER_FALL = "ai_player_fall";
+	public static final String AI_PLAYER_APEX = "ai_player_apex";
+	public static final String AI_PLAYER_ATTACK_OVERHEAD = "ai_player_attack_overhead";
 	
 	// Knight Chain
 	public static final String KNIGHT_CHAIN1_IDLE_ANTICIPATION = "knight_chain1_idle_anticipation";
@@ -53,8 +54,14 @@ public class Assets {
 	public static final String KNIGHT_CHAIN4_ANTICIPATION = "knight_chain4_anticipation";
 	
 	// Knight Player
-	public static final String KNIGHT_PLAYER_RUN = "knight_run";
-	public static final String KNIGHT_PLAYER_IDLE = "knight_player_idle";
+	public static final String KNIGHT_RUN = "knight_run";
+	public static final String KNIGHT_IDLE = "knight_idle";
+	public static final String KNIGHT_JUMP = "knight_jump";
+	public static final String KNIGHT_RISE = "knight_rise";
+	public static final String KNIGHT_APEX = "knight_apex";
+	public static final String KNIGHT_FALL = "knight_fall";
+	public static final String KNIGHT_LAND = "knight_land";
+
 	
 	// Shadow Player
 	public static final String SHADOW_IDLE = "temp_player_idle";

@@ -15,8 +15,10 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.RemoveComponent;
+import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.LevelInfo.LevelType;
@@ -46,21 +48,8 @@ public class LevelManager {
 		this.input = input;
 		
 		// Create Camera
-		camera = engine.createEntity();
-		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
-		cameraComp.locked = true;
-		cameraComp.camera = worldCamera;
-		cameraComp.x = worldCamera.position.x;
-		cameraComp.y = worldCamera.position.y;
-		cameraComp.minX = 0f;
-		cameraComp.minY = 0f;
-		cameraComp.windowMinX = -2f;
-		cameraComp.windowMinY = 0f;
-		cameraComp.windowMaxX = 2f;
-		cameraComp.windowMaxY = 0f;
-		cameraComp.zoom = 3.0f;
-		camera.add(cameraComp);
-		engine.addEntity(camera);
+		camera = EntityFactory.createCamera(engine, world, null, worldCamera);
+		EntityManager.addEntity(camera);
 	}
 	
 	// SWITCHING LEVELS

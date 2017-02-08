@@ -9,6 +9,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -35,6 +36,7 @@ import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
+import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DamageComponent;
@@ -42,8 +44,8 @@ import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
 import com.fullspectrum.component.DirectionComponent;
-import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.DropComponent;
+import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.EntityComponent;
@@ -139,14 +141,15 @@ public class EntityFactory {
 		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_PLAYER_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_PLAYER_RUN));
-		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.SHADOW_JUMP));
-		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.SHADOW_FALL));
-		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
-		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.SHADOW_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.SHADOW_APEX));
-		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
+		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
+		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
@@ -627,6 +630,9 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.TIME, new TimeTransitionData(0.3f), EntityStates.IDLING);
 		
 		// ******************************************
+		
+		esm.createState(EntityStates.LANDING)
+			.addAnimation(EntityAnim.LAND);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -664,7 +670,8 @@ public class EntityFactory {
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.LANDING);
+		esm.addTransition(EntityStates.LANDING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
@@ -954,15 +961,15 @@ public class EntityFactory {
 		
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_WALK));
-		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
-		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
-		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
-		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.KNIGHT_ATTACK_OVERHEAD));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.AI_PLAYER_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.AI_PLAYER_WALK));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.AI_PLAYER_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.AI_PLAYER_FALL));
+		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.AI_PLAYER_IDLE));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.AI_PLAYER_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.AI_PLAYER_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.AI_PLAYER_IDLE));
+		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.AI_PLAYER_ATTACK_OVERHEAD));
 		
 		// Controller
 		AIController controller = new AIController();
@@ -1138,7 +1145,7 @@ public class EntityFactory {
 		
 		Entity wings = createWings(engine, world, level, entity, x, y, -0.8f, 0.5f, assets.getSpriteAnimation(Assets.spitterWings));
 		entity.add(engine.createComponent(WingComponent.class).set(wings));
-		engine.addEntity(wings);
+		EntityManager.addEntity(wings);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spitter ESM", engine, entity)
 			.knockBack(EntityStates.FLYING)
@@ -1717,6 +1724,24 @@ public class EntityFactory {
 			}
 		});
 		return entity;
+	}
+	
+	public static Entity createCamera(Engine engine, World world, Level level, OrthographicCamera worldCamera){
+		Entity camera = new EntityBuilder("camera", engine, world, level).build();
+		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
+		cameraComp.locked = true;
+		cameraComp.camera = worldCamera;
+		cameraComp.x = worldCamera.position.x;
+		cameraComp.y = worldCamera.position.y;
+		cameraComp.minX = 0f;
+		cameraComp.minY = 0f;
+		cameraComp.windowMinX = -2f;
+		cameraComp.windowMinY = 0f;
+		cameraComp.windowMaxX = 2f;
+		cameraComp.windowMaxY = 0f;
+		cameraComp.zoom = 3.0f;
+		camera.add(cameraComp);
+		return camera;
 	}
 	
 	public static class EntityBuilder{

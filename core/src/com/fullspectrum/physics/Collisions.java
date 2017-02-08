@@ -13,6 +13,11 @@ import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.handlers.DamageHandler;
 
+// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
+// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
+// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
+// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
+// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
 public enum Collisions {
 
 	DROP {
@@ -42,7 +47,6 @@ public enum Collisions {
 			moneyComp.money += coinAmount.money;
 			coinAmount.money = 0;
 			
-			// BUG IsLocked() == false crash when mage uses mana bomb
 			Mappers.death.get(coin).triggerDeath();
 		}
 

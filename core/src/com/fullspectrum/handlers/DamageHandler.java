@@ -23,6 +23,7 @@ import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.DropFactory;
 import com.fullspectrum.entity.EntityFactory;
+import com.fullspectrum.entity.EntityManager;
 
 public class DamageHandler {
 
@@ -82,6 +83,7 @@ public class DamageHandler {
 		if (healthComp.health <= 0) {
 			MoneyComponent moneyComp = Mappers.money.get(toEntity);
 			if(moneyComp != null && moneyComp.money > 0){
+				// BUG When damage is dealt from collision callback, IsLocked() == false crash occurs b/c coins have physics bodies
 				DropFactory.spawnCoins(toEntity);
 			}
 		}
@@ -104,14 +106,14 @@ public class DamageHandler {
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font18);
 		if (shieldDown > 0 && healthDown > 0) {
-			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
-			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));
 		}
 		else if (shieldDown > 0) {
-			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x, y, 2.0f));
 		}
 		else {
-			engineComp.engine.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x, y, 2.0f));
 		}
 	}
 

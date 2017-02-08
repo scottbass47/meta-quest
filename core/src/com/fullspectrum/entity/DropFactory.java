@@ -16,7 +16,7 @@ public class DropFactory {
 	private final static int MIN_COIN_DROPS = 3;
 	
 	public static void spawnCoin(Engine engine, World world, Level level, float x, float y, float fx, float fy, int amount){
-		engine.addEntity(EntityFactory.createCoin(engine, world, level, x, y, fx, fy, amount));
+		EntityManager.addEntity(EntityFactory.createCoin(engine, world, level, x, y, fx, fy, amount));
 	}
 	
 	public static void spawnCoins(Entity entity){
