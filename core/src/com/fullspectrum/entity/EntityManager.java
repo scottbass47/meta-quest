@@ -12,11 +12,14 @@ import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.physics.PhysicsDef;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityManager {
 
 	private static Array<Entity> toDie = new Array<Entity>();
 	private static Array<Entity> toAdd = new Array<Entity>();
+	private static Array<PhysicsDef> toLoadPhysics = new Array<PhysicsDef>();
 	
 	public static void cleanUp(Entity entity) {
 		EngineComponent engineComp = Mappers.engine.get(entity);
@@ -42,12 +45,24 @@ public class EntityManager {
 		toAdd.add(entity);
 	}
 	
+	public static void addPhysicsLoad(PhysicsDef def){
+		toLoadPhysics.add(def);
+	}
+	
 	public static void update(float delta){
 		// Delayed death
 		for(Iterator<Entity> iter = toDie.iterator(); iter.hasNext();){
 			Entity entity = iter.next();
 			DeathComponent deathComp = Mappers.death.get(entity);
 			deathComp.triggerDeath();
+			iter.remove();
+		}
+		
+		// Delayed physics loading
+		for(Iterator<PhysicsDef> iter = toLoadPhysics.iterator(); iter.hasNext();){
+			PhysicsDef def = iter.next();
+			Entity entity = def.getEntity();
+			entity.add(Mappers.engine.get(entity).engine.createComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(def)));
 			iter.remove();
 		}
 		

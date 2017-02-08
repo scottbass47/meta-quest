@@ -124,6 +124,7 @@ import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
+import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
@@ -1124,7 +1125,7 @@ public class EntityFactory {
 		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName(), engine, world, level)
 				.animation(animMap)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
-				.physics("spitter.json", x, y, false)
+				.physics("spitter.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
 				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.build();
 		
@@ -1193,7 +1194,6 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.FLYING);
 		
-		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		entity.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		// Attack Input
@@ -1412,7 +1412,7 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		
 		Entity spawner = new EntityBuilder(EntityIndex.SPAWNER.getName(), engine, world, level)
-				.physics("spawner.json", x, y, false)
+				.physics("spawner.json", new BodyProperties.Builder().setSleepingAllowed(false).build(), x, y, false)
 				.mob(controller, EntityType.ENEMY, stats.get("health"))
 				.build();
 		
@@ -1428,8 +1428,6 @@ public class EntityFactory {
 				spawnerPool.add(index, stats.get(attr));
 			}
 		}
-		
-		Mappers.body.get(spawner).body.setSleepingAllowed(false);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spawner ESM", engine, spawner).build();
 		
@@ -1465,13 +1463,13 @@ public class EntityFactory {
 	
 	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
 		Entity sword = new EntityBuilder("sword of " + Mappers.entity.get(owner).name, engine, world, level)
-				.physics("sword.json", x, y, false)
+				.physics("sword.json", 
+						new BodyProperties.Builder().setGravityScale(0.0f).setActive(false).build(),
+						x, y, false)
 				.build();
 		sword.add(engine.createComponent(ParentComponent.class).set(owner));
 		sword.add(engine.createComponent(OffsetComponent.class).set(16.0f * PPM_INV, 0.0f * PPM_INV, true));
 		sword.add(engine.createComponent(SwordStatsComponent.class).set(damage));
-		sword.getComponent(BodyComponent.class).body.setActive(false);
-		sword.getComponent(BodyComponent.class).body.setGravityScale(0.0f);
 		
 		return sword;
 	}
@@ -1567,15 +1565,11 @@ public class EntityFactory {
 	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float y, boolean isArc, EntityType type){
 		// CLEANUP Better naming for projectiles
 		Entity projectile = new EntityBuilder(physicsBody.substring(0, physicsBody.indexOf('.')), engine, world, level)
-				.physics(physicsBody, x, y, false)
+				.physics(physicsBody, new BodyProperties.Builder().setGravityScale(isArc ? 1.0f : 0.0f).build(), x, y, false)
 				.build();
 		projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 		projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
 		projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, isArc));
-		
-		Body body = projectile.getComponent(BodyComponent.class).body;
-		if(isArc) body.setGravityScale(1.0f);
-		projectile.getComponent(BodyComponent.class).set(body);
 		
 		return projectile;
 	}
@@ -1810,13 +1804,26 @@ public class EntityFactory {
 		 * @param collideable
 		 * @return
 		 */
-		public EntityBuilder physics(String physicsBody, float x, float y, boolean collideable){
+		public EntityBuilder physics(String physicsBody, BodyProperties properties, float x, float y, boolean collideable){
 			entity.add(engine.createComponent(BodyComponent.class)
-					.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/" + physicsBody), world, new Vector2(x, y), entity, true)));
+					.set(PhysicsUtils.createPhysicsBody(Gdx.files.internal("body/" + physicsBody), world, new Vector2(x, y), entity, properties)));
 			entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 			entity.add(engine.createComponent(VelocityComponent.class));
 			if(collideable) entity.add(engine.createComponent(CollisionComponent.class));
 			return this;
+		}
+		
+		/**
+		 * Adds Body, Position, Velocity and optional Collision components. 
+		 * 
+		 * @param physicsBody
+		 * @param x
+		 * @param y
+		 * @param collideable
+		 * @return
+		 */
+		public EntityBuilder physics(String physicsBody, float x, float y, boolean collideable){
+			return physics(physicsBody, null, x, y, collideable);
 		}
 		
 		/**

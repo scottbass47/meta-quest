@@ -21,18 +21,41 @@ import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.CollisionBits;
+import com.fullspectrum.physics.PhysicsDef;
 
 public class PhysicsUtils {
 	
-	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, Entity entity, boolean withFixtures){
+	public static Body createPhysicsBody(PhysicsDef def){
+		return createPhysicsBody(def.getFile(), def.getWorld(), def.getPosition(), def.getEntity(), def.getProperties());
+	}
+	
+	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, Entity entity){
+		return createPhysicsBody(file, world, position, entity, null);
+	}
+	
+	public static Body createPhysicsBody(FileHandle file, World world, Vector2 position, Entity entity, BodyProperties properties){
+		if(world.isLocked()){
+			EntityManager.addPhysicsLoad(new PhysicsDef(file, world, position, entity, properties));
+			return null;
+		}
 		String jsonString = file.readString();
 		JsonReader reader = new JsonReader();
 		JsonValue root = reader.parse(jsonString);
 		
 		Body body = loadBodyDef(root.get("BodyDef"), world, position);
 		body.setUserData(entity);
-		if(withFixtures) loadFixtures(root.get("Fixtures"), body);
+
+		// Load Properties
+		if(properties != null){
+			body.setGravityScale(properties.getGravityScale());
+			body.setSleepingAllowed(properties.isSleepingAllowed());
+			body.setActive(properties.isActive());
+		}
+		
+		loadFixtures(root.get("Fixtures"), body);
 		return body;
 	}
 	

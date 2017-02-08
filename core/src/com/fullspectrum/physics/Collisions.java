@@ -13,11 +13,6 @@ import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.handlers.DamageHandler;
 
-// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
-// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
-// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
-// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
-// IMPORTANT Add in DELAYED tasks for physics system to prevent physics bodies from being created from inside collision callback
 public enum Collisions {
 
 	DROP {

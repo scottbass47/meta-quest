@@ -83,7 +83,6 @@ public class DamageHandler {
 		if (healthComp.health <= 0) {
 			MoneyComponent moneyComp = Mappers.money.get(toEntity);
 			if(moneyComp != null && moneyComp.money > 0){
-				// BUG When damage is dealt from collision callback, IsLocked() == false crash occurs b/c coins have physics bodies
 				DropFactory.spawnCoins(toEntity);
 			}
 		}
