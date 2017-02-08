@@ -7,6 +7,9 @@ import java.awt.geom.Rectangle2D;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
@@ -16,16 +19,13 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
-import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.level.EntityGrabber;
 
@@ -89,20 +89,51 @@ public class SwingingSystem extends IteratingSystem{
 		});
 		
 		if(DebugInput.isToggled(DebugToggle.SHOW_SWING)){
-			Body body = Mappers.body.get(entity).body;
-			// Create self-destructing swing entity
-			// CLEANUP Move to entity factory
-			Entity swing = new EntityFactory.EntityBuilder("swing_debug", getEngine(), Mappers.world.get(entity).world, levelComp.level).build();
-			swing.add(getEngine().createComponent(PositionComponent.class).set(body.getPosition().x, body.getPosition().y));
-			swing.add(getEngine().createComponent(FacingComponent.class).set(Mappers.facing.get(entity).facingRight));
-			swing.add(getEngine().createComponent(SwingComponent.class).set(swingComp.rx, swingComp.ry, swingComp.startAngle, swingComp.endAngle, 0.0f));
-			swing.getComponent(TimerComponent.class).add("self_destruct", 1.0f, false, new TimeListener() {
-				@Override
-				public void onTime(Entity entity) {
-					entity.add(new RemoveComponent());
+			PositionComponent posComp = Mappers.position.get(entity);
+			float duration = 1.0f;
+			
+			x1 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.startAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.startAngle);
+			y1 = swingComp.ry * MathUtils.sinDeg(swingComp.startAngle);
+			float x2 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.endAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.endAngle);
+			float y2 = swingComp.ry * MathUtils.sinDeg(swingComp.endAngle);
+			
+			x1 += posComp.x;
+			y1 += posComp.y;
+			x2 += posComp.x;
+			y2 += posComp.y;
+			
+			DebugRender.setType(ShapeType.Line);
+			DebugRender.setColor(Color.PURPLE);
+			DebugRender.line(posComp.x, posComp.y, x1, y1, duration);
+			DebugRender.line(posComp.x, posComp.y, x2, y2, duration);
+			
+			// Render ellipse
+			float stepSize = -0.1f;
+			float prevX = Float.MAX_VALUE;
+			float prevY = Float.MIN_VALUE;
+			for(float t = swingComp.startAngle * MathUtils.degreesToRadians; ; t += stepSize){
+				float cos = (float) Math.cos(facingComp.facingRight ? t : MathUtils.PI - t);
+				float sin = (float) Math.sin(t);
+				float xx = posComp.x + cos;
+				float yy = posComp.y + sin;
+				float angle = (float) (Math.toDegrees(Math.atan2(yy - posComp.y, facingComp.facingRight ? xx - posComp.x : posComp.x - xx)));
+				
+				float start = swingComp.startAngle;
+				float end = swingComp.endAngle;
+
+				if(angle - 0.1f > start || angle < end){
+					break;
 				}
-			});
-			getEngine().addEntity(swing);
+				
+				xx = posComp.x + swingComp.rx * cos;
+				yy = posComp.y + swingComp.ry * sin;
+
+				if(!MathUtils.isEqual(prevX, Float.MAX_VALUE)){
+					DebugRender.line(prevX, prevY, xx, yy, duration);
+				}
+				prevX = xx;
+				prevY = yy;
+			}
 		}
 		
 		SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
@@ -111,6 +142,7 @@ public class SwingingSystem extends IteratingSystem{
 		}
 		swingComp.timeElapsed = 0.0f;
 		swordComp.shouldSwing = false;
+		
 	}
 	
 //	/**

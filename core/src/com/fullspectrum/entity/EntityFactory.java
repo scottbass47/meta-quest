@@ -538,6 +538,13 @@ public class EntityFactory {
 										toY2 = otherY + otherHitbox.height * 0.5f;
 									}
 									
+//									if(DebugInput.isToggled(DebugToggle.SHOW_CHAIN_BOX)){
+//										DebugRender.setType(ShapeType.Line);
+//										DebugRender.setColor(Color.CYAN);
+//										DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
+//										DebugRender.line(x1, y1, toX1, toY1);
+//										DebugRender.line(x2, y2, toX2, toY2);
+//									}
 //									// Slope of normal line is undefined
 //									if(MathUtils.isEqual(myY - otherY, 0.0f)){
 //										toX1 = otherX;
@@ -1104,11 +1111,11 @@ public class EntityFactory {
 		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
 		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
 		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
+		aism.addTransition(AIState.FOLLOWING, toAttackTransition, AIState.ATTACKING);
 		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
 		
 		aism.changeState(AIState.WANDERING);
-//		System.out.println(aism.printTransitions());
+		System.out.println(aism.printTransitions());
 		player.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return player;
 	}

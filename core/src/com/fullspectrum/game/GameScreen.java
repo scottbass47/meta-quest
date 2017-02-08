@@ -23,7 +23,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
@@ -45,12 +44,12 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
-import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugRender;
+import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.EntityIndex;
@@ -110,7 +109,6 @@ import com.fullspectrum.utils.PhysicsUtils;
 public class GameScreen extends AbstractScreen {
 
 	// Debug Graphics
-	private ShapeRenderer sRenderer;
 	private Box2DDebugRenderer b2dr;
 
 	// Ashley
@@ -133,13 +131,11 @@ public class GameScreen extends AbstractScreen {
 	private Assets assets;
 	private BitmapFont font;
 
-	// Coin Stuff
-//	private int ups = 0;
+	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		assets = Assets.getInstance();
-		sRenderer = new ShapeRenderer();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		world.setContactListener(new WorldCollision());
@@ -281,14 +277,16 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-//		ups++;
-		
+		ups++;
+		DebugRender.update(delta);
+		DebugRender.setMode(RenderMode.UPDATE);
+
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
 		engine.update(delta);
 		world.step(delta, 6, 2);
 		EntityManager.update(delta);
-//		if (input.isJustPressed(Actions.SELECT)) {
+		//		if (input.isJustPressed(Actions.SELECT)) {
 //			changePlayer();
 //		}
 
@@ -370,6 +368,7 @@ public class GameScreen extends AbstractScreen {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render() {
+		DebugRender.setMode(RenderMode.RENDER);
 //		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
 //		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
@@ -381,9 +380,8 @@ public class GameScreen extends AbstractScreen {
 
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
-
+		
 		levelManager.render();
-		renderer.render(batch);
 		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
 				NavMesh.get(EntityIndex.AI_PLAYER).render(batch);
@@ -410,15 +408,9 @@ public class GameScreen extends AbstractScreen {
 				renderRange(batch, enemy);
 			}
 		}
-		if(DebugInput.isToggled(DebugToggle.SHOW_SWING)){
-			for(Entity entity : engine.getEntitiesFor(Family.all(SwingComponent.class).exclude(BodyComponent.class).get())){
-				renderSwing(batch, entity);
-			}
-		}
-		if(DebugInput.isToggled(DebugToggle.SHOW_CHAIN_BOX)){
-			Entity player = levelManager.getPlayer();
-			renderChainBox(batch, player);
-		}
+
+		DebugRender.render(batch);
+		renderer.render(batch);
 		textRenderer.render(batch, levelManager.getCameraEntity());
 
 		frameBuffer.end();
@@ -572,68 +564,15 @@ public class GameScreen extends AbstractScreen {
 		float x = bodyComp.body.getPosition().x - width * 0.5f;
 		float y = bodyComp.body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.1f;
 
-		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-		sRenderer.begin(ShapeType.Filled);
+		DebugRender.setType(ShapeType.Filled);
 		// sRenderer.setColor(Color.BLACK);
 		// sRenderer.rect(x, y, width, height);
-		sRenderer.setColor(Color.WHITE);
-		sRenderer.rect(x, y, width, height);
-		sRenderer.setColor(Color.valueOf("e43b44"));
-		sRenderer.rect(x, y, width * (healthComp.health / healthComp.maxHealth), height);
-		sRenderer.end();
+		DebugRender.setColor(Color.WHITE);
+		DebugRender.rect(x, y, width, height);
+		DebugRender.setColor(Color.valueOf("e43b44"));
+		DebugRender.rect(x, y, width * (healthComp.health / healthComp.maxHealth), height);
 	}
 
-	private void renderSwing(SpriteBatch batch, Entity entity){
-		PositionComponent posComp = Mappers.position.get(entity);
-		SwingComponent swingComp = Mappers.swing.get(entity);
-		FacingComponent facingComp = Mappers.facing.get(entity);
-		
-		float x1 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.startAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.startAngle);
-		float y1 = swingComp.ry * MathUtils.sinDeg(swingComp.startAngle);
-		float x2 = facingComp.facingRight ? swingComp.rx * MathUtils.cosDeg(swingComp.endAngle) : swingComp.rx * MathUtils.cosDeg(180 - swingComp.endAngle);
-		float y2 = swingComp.ry * MathUtils.sinDeg(swingComp.endAngle);
-		
-		x1 += posComp.x;
-		y1 += posComp.y;
-		x2 += posComp.x;
-		y2 += posComp.y;
-		
-		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-		sRenderer.begin(ShapeType.Line);
-		sRenderer.setColor(Color.PURPLE);
-		sRenderer.line(posComp.x, posComp.y, x1, y1);
-		sRenderer.line(posComp.x, posComp.y, x2, y2);
-		
-		// Render ellipse
-		float stepSize = -0.1f;
-		float prevX = Float.MAX_VALUE;
-		float prevY = Float.MIN_VALUE;
-		for(float t = swingComp.startAngle * MathUtils.degreesToRadians; ; t += stepSize){
-			float cos = (float) Math.cos(facingComp.facingRight ? t : MathUtils.PI - t);
-			float sin = (float) Math.sin(t);
-			float xx = posComp.x + cos;
-			float yy = posComp.y + sin;
-			float angle = (float) (Math.toDegrees(Math.atan2(yy - posComp.y, facingComp.facingRight ? xx - posComp.x : posComp.x - xx)));
-			
-			float start = swingComp.startAngle;
-			float end = swingComp.endAngle;
-
-			if(angle - 0.1f > start || angle < end){
-				break;
-			}
-			
-			xx = posComp.x + swingComp.rx * cos;
-			yy = posComp.y + swingComp.ry * sin;
-
-			if(!MathUtils.isEqual(prevX, Float.MAX_VALUE)){
-				sRenderer.line(prevX, prevY, xx, yy);
-			}
-			prevX = xx;
-			prevY = yy;
-		}
-		
-		sRenderer.end();
-	}
 	
 	private void renderRange(SpriteBatch batch, Entity entity) {
 		AIStateMachineComponent aismComp = Mappers.aism.get(entity);
@@ -671,22 +610,20 @@ public class GameScreen extends AbstractScreen {
 		if(d <= r && inFov){
 			color = new Color(0, 1, 0, 1);
 		}
-		sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-		sRenderer.begin(ShapeType.Line);
-		sRenderer.setColor(color);
+		DebugRender.setType(ShapeType.Line);
+		DebugRender.setColor(color);
 		if(MathUtils.isEqual(rtd.fov, 360)){
-			sRenderer.circle(x1, y1, rtd.distance, 32);
+			DebugRender.circle(x1, y1, rtd.distance);
 		}else{
-			sRenderer.arc(x1, y1, rtd.distance, facingComp.facingRight ? 360 - halfFov : 180 - halfFov, rtd.fov, 16);
+			DebugRender.arc(x1, y1, rtd.distance, facingComp.facingRight ? 360 - halfFov : 180 - halfFov, rtd.fov);
 		}
 		
 		color = new Color(1, 0, 0, 1);
 		if(levelComp.level.performRayTrace(x1, y1, x2, y2)){
 			color = new Color(0, 1, 0, 1);
 		}
-		sRenderer.setColor(color);
-		sRenderer.line(x1, y1, x2, y2);
-		sRenderer.end();
+		DebugRender.setColor(color);
+		DebugRender.line(x1, y1, x2, y2);
 	}
 	
 	private void renderChainBox(SpriteBatch batch, Entity player){
@@ -781,13 +718,11 @@ public class GameScreen extends AbstractScreen {
 				toY2 = otherY + otherHitbox.height * 0.5f;
 			}
 			
-			sRenderer.setProjectionMatrix(batch.getProjectionMatrix());
-			sRenderer.begin(ShapeType.Line);
-			sRenderer.setColor(Color.CYAN);
-			sRenderer.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
-			sRenderer.line(x1, y1, toX1, toY1);
-			sRenderer.line(x2, y2, toX2, toY2);
-			sRenderer.end();
+			DebugRender.setType(ShapeType.Line);
+			DebugRender.setColor(Color.CYAN);
+			DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
+			DebugRender.line(x1, y1, toX1, toY1);
+			DebugRender.line(x2, y2, toX2, toY2);
 			
 		}
 	}
@@ -800,7 +735,6 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void dispose() {
 		super.dispose();
-		sRenderer.dispose();
 		frameBuffer.dispose();
 	}
 }

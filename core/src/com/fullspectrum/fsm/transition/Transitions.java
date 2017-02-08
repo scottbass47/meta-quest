@@ -200,7 +200,8 @@ public enum Transitions implements Transition{
 			float x2 = b2.getPosition().x;
 			float y2 = b2.getPosition().y;
 			
-			return (ltd.inSight && levelComp.level.performRayTrace(x1, y1, x2, y2)) || (!ltd.inSight && !levelComp.level.performRayTrace(x1, y1, x2, y2));
+			boolean rayTrace = levelComp.level.performRayTrace(x1, y1, x2, y2);
+			return (ltd.inSight && rayTrace || (!ltd.inSight && !rayTrace));
 		}
 
 		@Override
