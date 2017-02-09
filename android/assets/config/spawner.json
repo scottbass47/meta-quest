@@ -2,7 +2,7 @@
 	// Base Stats
 	money: 50.0,
 	health: 100000.0,
-	spawn_delay: 1.0f,
+	spawn_delay: 100.0f,
 	
 	// Spawner
 	ai_player: 0.5,

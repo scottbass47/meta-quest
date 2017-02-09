@@ -166,7 +166,6 @@ public class FlowField {
 		return true;
 	}
 	
-	// INCOMPLETE Local optima need to be removed
 	private void vecField(){
 		for(FlowNode node : fieldNodes){
 			FlowNode right = getAdjacentNode(node, Direction.RIGHT);
@@ -180,6 +179,13 @@ public class FlowField {
 			float rightCost = right == null ? node.distance + wallCost : (!fieldNodes.contains(right) ? node.distance + 1 : right.distance);
 			float upCost = up == null ? node.distance + wallCost : (!fieldNodes.contains(up) ? node.distance + 1 : up.distance);
 			float downCost = down == null ? node.distance + wallCost : (!fieldNodes.contains(down) ? node.distance + 1 : down.distance);
+			
+			if(leftCost == rightCost && leftCost < node.distance){
+				leftCost++;
+			}
+			if(downCost == upCost && downCost < node.distance){
+				downCost++;
+			}
 			
 			node.vec.x = leftCost - rightCost;
 			node.vec.y = downCost - upCost;

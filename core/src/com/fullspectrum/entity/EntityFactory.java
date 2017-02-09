@@ -339,7 +339,7 @@ public class EntityFactory {
 					body.setBullet(true);
 					
 					float duration = 0.1f;
-					float distance = 1.5f;
+					float distance = 0.5f;
 					boolean first = knightComp.first;
 
 					// Not in a combo yet, pick random attack
@@ -350,7 +350,7 @@ public class EntityFactory {
 						
 						// Slightly larger distance traveled if you're coming from a running state
 						if(prevState == EntityStates.RUNNING){
-							distance = 2.0f;
+							distance = 0.75f;
 						}
 					}
 					
@@ -1738,7 +1738,7 @@ public class EntityFactory {
 		entity.add(engine.createComponent(StateComponent.class).set(EntityAnim.JUMP));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		
-		Mappers.timer.get(entity).add("life", animation.getAnimationDuration(), false, new TimeListener() {
+		Mappers.timer.get(entity).add("particle_life", animation.getAnimationDuration(), false, new TimeListener() {
 			@Override
 			public void onTime(Entity entity) {
 				Mappers.death.get(entity).triggerDeath();
@@ -1861,7 +1861,7 @@ public class EntityFactory {
 		 * @param type
 		 * @param health
 		 * @return
-		 */
+		 */ 
 		public EntityBuilder mob(Input input, EntityType type, float health){
 			entity.add(engine.createComponent(InputComponent.class).set(input));
 			entity.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
