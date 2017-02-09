@@ -104,6 +104,9 @@ public class Assets {
 	public static final String font24 = "font/test24.fnt";
 	public static final String font28 = "font/test28.fnt";
 	
+	// Particles
+	public static final String JUMP_PARTICLE = "jump_particle";
+	
 	public static final float ANIM_SPEED = 0.1f;
 	
 	private Assets() {

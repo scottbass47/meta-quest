@@ -3,32 +3,32 @@
  <image source="grassy_tileset.png" width="256" height="256"/>
  <tile id="0">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="1">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="2">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="3">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="4">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="5">
   <properties>
-   <property name="type" value="ground"/>
+   <property name="type" value="decor"/>
   </properties>
  </tile>
  <tile id="16">
@@ -87,6 +87,36 @@
   </properties>
  </tile>
  <tile id="37">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="48">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="49">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="50">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="51">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="52">
+  <properties>
+   <property name="type" value="ground"/>
+  </properties>
+ </tile>
+ <tile id="53">
   <properties>
    <property name="type" value="ground"/>
   </properties>

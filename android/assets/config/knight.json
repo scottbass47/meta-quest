@@ -8,6 +8,6 @@
 	ground_speed: 5.0,
 	air_speed: 5.0,
 	climb_speed: 5.0,
-	jump_force: 14.0,
+	jump_force: 12.0,
 	
 }

@@ -113,7 +113,7 @@ public class StateFactory {
 		 * @param withStateChangeListener 
 		 * @return
 		 */
-		public EntityStateBuilder jump(float jumpForce, float airSpeed, boolean withStateChangeListener){
+		public EntityStateBuilder jump(float jumpForce, float airSpeed, boolean withStateChangeListener, final boolean jumpParticle){
 			EntityState state = esm.createState(EntityStates.JUMPING)
 				.add(engine.createComponent(SpeedComponent.class).set(airSpeed))
 				.add(engine.createComponent(DirectionComponent.class))
@@ -130,6 +130,7 @@ public class StateFactory {
 						JumpComponent jumpComp = Mappers.jump.get(entity);
 						InputComponent inputComp = Mappers.input.get(entity);						
 						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
+						if(jumpParticle) ParticleFactory.spawnJumpParticle(entity);
 					}
 					@Override
 					public void onExit(State nextState, Entity entity) {
