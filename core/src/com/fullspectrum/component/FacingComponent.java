@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class FacingComponent implements Component, Poolable {
 
 	public boolean facingRight = true;
+	public boolean locked = false;
 
 	public FacingComponent set(boolean facingRight){
 		this.facingRight = facingRight;
@@ -15,6 +16,7 @@ public class FacingComponent implements Component, Poolable {
 	@Override
 	public void reset() {
 		facingRight = true;
+		locked = false;
 	}
 	
 }

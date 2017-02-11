@@ -11,13 +11,13 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
+// TODO Allow for modification of transition data after adding transitions
 public class StateMachine<S extends State, E extends StateObject> {
 
 	// State

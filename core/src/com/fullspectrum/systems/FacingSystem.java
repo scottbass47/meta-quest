@@ -21,6 +21,8 @@ public class FacingSystem extends IteratingSystem {
 		FacingComponent facingComp = Mappers.facing.get(entity);
 		InputComponent inputComp = Mappers.input.get(entity);
 
+		if(facingComp.locked) return;
+		
 		float dx = 0.0f;
 		if (inputComp != null){
 			dx = inputComp.input.getValue(Actions.MOVE_RIGHT) - inputComp.input.getValue(Actions.MOVE_LEFT);

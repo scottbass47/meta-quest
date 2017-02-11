@@ -49,6 +49,10 @@ public class EntityManager {
 		toLoadPhysics.add(def);
 	}
 	
+	public static void sendToDie(Entity entity){
+		toDie.add(entity);
+	}
+	
 	public static void update(float delta){
 		// Delayed death
 		for(Iterator<Entity> iter = toDie.iterator(); iter.hasNext();){
@@ -74,8 +78,5 @@ public class EntityManager {
 		}
 	}
 	
-	public static void sendToDie(Entity entity){
-		toDie.add(entity);
-	}
 
 }

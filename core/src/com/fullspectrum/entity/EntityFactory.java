@@ -216,7 +216,6 @@ public class EntityFactory {
 					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")))
 			.addSubstateMachine(mageESM);
 		
-		
 		InputTransitionData rightCycleData = new InputTransitionData(Type.ALL, true);
 		rightCycleData.triggers.add(new InputTrigger(Actions.CYCLE_RIGHT, true));
 		
@@ -419,7 +418,7 @@ public class EntityFactory {
 			});
 		
 		esm.createState(EntityStates.SWING_ANTICIPATION)
-		.addAnimations(anticipationAnims)
+			.addAnimations(anticipationAnims)
 			.addTag(TransitionTag.STATIC_STATE)
 			.addChangeListener(new StateChangeListener() {
 				@Override
