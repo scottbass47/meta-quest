@@ -1,5 +1,10 @@
 {
 	
+	// Shield
+	shield: 100,
+	shield_rate: 25.0,
+	shield_delay: 2.0,
+	
 	// Health
 	health: 100,
 

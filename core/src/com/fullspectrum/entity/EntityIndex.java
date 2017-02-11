@@ -8,28 +8,28 @@ import com.fullspectrum.level.Level;
 public enum EntityIndex {
 
 	// Player
-	PLAYER {
-		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createPlayer(engine, world, level, null, x, y);
-		}
-	},
+//	PLAYER {
+//		@Override
+//		public Entity create(Engine engine, World world, Level level, float x, float y) {
+//			return EntityFactory.createPlayer(engine, world, level, null, x, y);
+//		}
+//	},
 	KNIGHT {
 		@Override
 		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return null;
+			return EntityFactory.createKnight(engine, world, level, x, y);
 		}
 	},
 	ROGUE {
 		@Override
 		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return null;
+			return EntityFactory.createRogue(engine, world, level, x, y);
 		}
 	},
 	MAGE {
 		@Override
 		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return null;
+			return EntityFactory.createMage(engine, world, level, x, y);
 		}
 	},
 	

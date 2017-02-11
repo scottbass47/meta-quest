@@ -24,7 +24,7 @@ import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.LevelInfo.LevelType;
 import com.fullspectrum.systems.FlowFieldSystem;
 
-public class LevelManager {
+public class LevelManager{
 
 	private Engine engine;
 	private World world;
@@ -100,7 +100,7 @@ public class LevelManager {
 		// 6. Spawn in player
 		Entity player = null;
 		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
-			player = EntityIndex.PLAYER.create(engine, world, newLevel, newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
+			player = EntityIndex.KNIGHT.create(engine, world, newLevel, newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
 			player.getComponent(InputComponent.class).set(input);
 			engine.addEntity(player);
 			this.player = player;
@@ -199,6 +199,23 @@ public class LevelManager {
 	
 	public Entity getPlayer(){
 		return player;
+	}
+	
+	// CLEANUP Only for debug purposes
+	public void switchPlayer(EntityIndex index){
+		System.out.println("Switching player to " + index.getName());
+		Body body = Mappers.body.get(player).body;
+	
+		float x = body.getPosition().x;
+		float y = body.getPosition().y;
+		
+		EntityManager.cleanUp(player);
+		
+		player = index.create(engine, world, currentLevel, x, y);
+		player.getComponent(InputComponent.class).set(input);
+		engine.addEntity(player);
+
+		 Mappers.camera.get(camera).toFollow = player;
 	}
 	
 }
