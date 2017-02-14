@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.ESMComponent;
-import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.TextureComponent;

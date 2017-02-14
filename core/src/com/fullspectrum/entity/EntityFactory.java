@@ -43,6 +43,7 @@ import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
+import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.DropMovementComponent;
@@ -346,7 +347,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getIdleAnticipation());
 						}
 					});
@@ -439,7 +440,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getSwingAnimation());
 						}
 					});
@@ -474,7 +475,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getAnticipationAnimation());
 						}
 					});
@@ -817,6 +818,39 @@ public class EntityFactory {
 			.wallSlide()
 			.knockBack(EntityStates.IDLING)
 			.build();
+		
+		// RUNNING TO BACK PEDALLING AND VICE VERSA TRANSITION
+		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
+		runningASM.addTransition(EntityAnim.RUNNING, new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				FacingComponent facingComp = Mappers.facing.get(entity);
+				DirectionComponent directionComp = Mappers.direction.get(entity);
+				
+				boolean facingRight = facingComp.facingRight;
+				return (facingRight && directionComp.direction == Direction.LEFT) || (!facingRight && directionComp.direction == Direction.RIGHT);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+		}, EntityAnim.BACK_PEDALLING);
+		runningASM.addTransition(EntityAnim.BACK_PEDALLING, new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				FacingComponent facingComp = Mappers.facing.get(entity);
+				DirectionComponent directionComp = Mappers.direction.get(entity);
+				
+				boolean facingRight = facingComp.facingRight;
+				return (facingRight && directionComp.direction == Direction.RIGHT) || (!facingRight && directionComp.direction == Direction.LEFT);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+		}, EntityAnim.RUNNING);
 		
 		// CLEANUP Remove wall jumping
 		esm.createState(EntityStates.WALL_JUMP)
