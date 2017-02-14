@@ -33,7 +33,6 @@ public class Mappers {
 	public static final ComponentMapper<DropMovementComponent> dropMovement = ComponentMapper.getFor(DropMovementComponent.class);
 	public static final ComponentMapper<FlyingComponent> flying = ComponentMapper.getFor(FlyingComponent.class);
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
-	public static final ComponentMapper<AIStateMachineComponent> aism = ComponentMapper.getFor(AIStateMachineComponent.class);
 
 	// Positioning / Physics
 	public static final ComponentMapper<PositionComponent> position =  ComponentMapper.getFor(PositionComponent.class);
@@ -52,13 +51,17 @@ public class Mappers {
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 	public static final ComponentMapper<TextRenderComponent> textRender =  ComponentMapper.getFor(TextRenderComponent.class);
 	
+	// State Machine
+	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);
+	public static final ComponentMapper<ESMComponent> esm =  ComponentMapper.getFor(ESMComponent.class);
+	public static final ComponentMapper<AISMComponent> aism = ComponentMapper.getFor(AISMComponent.class);
+	public static final ComponentMapper<ASMComponent> asm = ComponentMapper.getFor(ASMComponent.class);
+	
 	// Other
 	public static final ComponentMapper<StateComponent> state =  ComponentMapper.getFor(StateComponent.class);
 	public static final ComponentMapper<InputComponent> input =  ComponentMapper.getFor(InputComponent.class);
 	public static final ComponentMapper<JumpComponent> jump = ComponentMapper.getFor(JumpComponent.class);
 	public static final ComponentMapper<CameraComponent> camera = ComponentMapper.getFor(CameraComponent.class);
-	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);
-	public static final ComponentMapper<ESMComponent> esm =  ComponentMapper.getFor(ESMComponent.class);
 	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
 	public static final ComponentMapper<SwordComponent> sword = ComponentMapper.getFor(SwordComponent.class);
 	public static final ComponentMapper<SwingComponent> swing = ComponentMapper.getFor(SwingComponent.class);

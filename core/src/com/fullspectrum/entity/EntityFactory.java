@@ -26,7 +26,6 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
-import com.fullspectrum.component.AIStateMachineComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
@@ -43,14 +42,13 @@ import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
-import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DirectionComponent;
+import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.EntityComponent;
-import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FlowFieldComponent;
 import com.fullspectrum.component.FlowFollowComponent;
@@ -347,7 +345,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
+							AnimationStateMachine asm = esmComp.first().getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getIdleAnticipation());
 						}
 					});
@@ -440,7 +438,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
+							AnimationStateMachine asm = esmComp.first().getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getSwingAnimation());
 						}
 					});
@@ -475,7 +473,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
+							AnimationStateMachine asm = esmComp.first().getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getAnticipationAnimation());
 						}
 					});
@@ -729,7 +727,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
-		knight.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		return knight;
 	}
@@ -807,7 +804,7 @@ public class EntityFactory {
 		rogue.add(engine.createComponent(AbilityComponent.class));
 		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		
-		rogue.add(engine.createComponent(FSMComponent.class).set(createRogueAttackMachine(rogue, rogueStats)));
+		createRogueAttackMachine(rogue, rogueStats);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, rogue)
 			.idle()
@@ -990,7 +987,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
 		esm.changeState(EntityStates.IDLING);
-		rogue.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onLeftWallData, EntityStates.FALLING);
@@ -1131,7 +1127,6 @@ public class EntityFactory {
 //		System.out.print(esm.printTransitions(true));
 
 		esm.changeState(EntityStates.IDLING);
-		mage.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 //		fsm.disableState(EntityStates.DIVING);
 //		esm.changeState(EntityStates.IDLING);
@@ -1235,8 +1230,6 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		
-		player.add(engine.createComponent(ESMComponent.class).set(esm));
-		
 		AIStateMachine aism = new AIStateMachine(player);
 		aism.setDebugName("AI Player AISM");
 		aism.createState(AIState.WANDERING)
@@ -1293,7 +1286,6 @@ public class EntityFactory {
 		
 		aism.changeState(AIState.WANDERING);
 //		System.out.println(aism.printTransitions());
-		player.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return player;
 	}
 	
@@ -1324,7 +1316,7 @@ public class EntityFactory {
 			public void onDeath(Entity entity) {
 				Mappers.body.get(entity).body.setActive(false);
 				Mappers.wing.get(entity).wings.add(new RemoveComponent());
-				Mappers.esm.get(entity).esm.changeState(EntityStates.DYING);
+				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
 			}
 		});
 		
@@ -1377,8 +1369,6 @@ public class EntityFactory {
 			});
 		
 		esm.changeState(EntityStates.FLYING);
-		
-		entity.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		// Attack Input
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
@@ -1462,7 +1452,6 @@ public class EntityFactory {
 		
 		aism.changeState(AIState.WANDERING);
 
-		entity.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return entity;
 	}
 	
@@ -1546,7 +1535,6 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.FALLING, EntityStates.FALLING);
 		
 		esm.changeState(EntityStates.IDLING);
-		slime.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		AIStateMachine aism = new AIStateMachine(slime);
 		aism.setDebugName("Slime AISM");
@@ -1554,7 +1542,7 @@ public class EntityFactory {
 				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
 					@Override
 					public void update(Entity entity, float deltaTime) {
-						if(Mappers.esm.get(entity).esm.getCurrentState() != EntityStates.IDLING) return;
+						if(Mappers.esm.get(entity).first().getCurrentState() != EntityStates.IDLING) return;
 						
 						TimerComponent timerComp = Mappers.timer.get(entity);
 						if(!timerComp.timers.containsKey("jump_delay")){
@@ -1587,7 +1575,6 @@ public class EntityFactory {
 		
 		
 		aism.changeState(AIState.WANDERING);
-		slime.add(engine.createComponent(AIStateMachineComponent.class).set(aism));
 		return slime;
 	}
 	
@@ -1627,7 +1614,6 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		
-		spawner.add(engine.createComponent(ESMComponent.class).set(esm));
 		return spawner;
 	}
 	
@@ -1742,7 +1728,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLEAN_UP, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
-		drop.add(engine.createComponent(ESMComponent.class).set(esm));
 		return drop;
 	}
 	
@@ -1789,7 +1774,7 @@ public class EntityFactory {
 			@Override
 			public void onDeath(Entity entity) {
 				Mappers.body.get(entity).body.setActive(false);
-				Mappers.esm.get(entity).esm.changeState(EntityStates.DYING);
+				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
 			}
 		});
 		
@@ -1817,7 +1802,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
-		spit.add(engine.createComponent(ESMComponent.class).set(esm));
 		
 		return spit;
 	}
@@ -1856,12 +1840,10 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		
-		explosive.add(engine.createComponent(ESMComponent.class).set(esm));
-		
 		explosive.getComponent(DeathComponent.class).set(new DeathBehavior() {
 			@Override
 			public void onDeath(Entity entity) {
-				Mappers.esm.get(entity).esm.changeState(EntityStates.DYING);
+				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
 				CombustibleComponent combustibleComp = Mappers.combustible.get(entity);
 				float time = combustibleComp.radius / combustibleComp.speed;
 				TimerComponent timerComp = Mappers.timer.get(entity);

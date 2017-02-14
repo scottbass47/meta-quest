@@ -63,7 +63,7 @@ public enum Transitions implements Transition{
 			AnimationComponent animComp = Mappers.animation.get(entity);
 			ESMComponent esmComp = Mappers.esm.get(entity);
 			if (animComp == null || esmComp == null) return false;
-			EntityStateMachine esm = esmComp.esm;
+			EntityStateMachine esm = esmComp.first();
 			if (esm.getAnimationTime() >= animComp.animations.get(esm.getAnimation()).getAnimationDuration() - 2 * deltaTime) {
 				return true;
 			}

@@ -3,23 +3,17 @@ package com.fullspectrum.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FlowFieldComponent;
 import com.fullspectrum.component.FlowFollowComponent;
-import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.FlowField;
 import com.fullspectrum.level.FlowNode;
-import com.fullspectrum.level.Level;
 
 public class FlowFollowSystem extends IteratingSystem {
 
@@ -96,16 +90,38 @@ public class FlowFollowSystem extends IteratingSystem {
 //			ray1 = level.performRayTrace(x1, y1, toX1, toY1); 
 //			ray2 = level.performRayTrace(x2, y2, toX2, toY2);
 //			
-//			System.out.println("Testing Angle: " + angle);
-//			// Ray 1 is the upper ray
-//			if(!ray1){
-//				angle += interval;
+//			// One of the ray traces failed
+//			if(!ray1 || !ray2){
+//				// Quadrant 1
+//				if(angle >= 0 && angle < 90){
+//					// Looking up, move down
+//					if(!ray1) angle += interval;
+//					else      angle -= interval;
+//				}
+//				// Quadrant 2
+//				else if(angle <= 180 && angle >= 90){
+//					// Looking up, move down
+//					if(!ray1) angle -= interval;
+//					else      angle += interval;
+//				}
+//				// Quadrant 3
+//				else if(angle >= -180 && angle <= -90){
+//					// Looking down, move up
+//					if(!ray1) angle += interval;
+//					else      angle -= interval;
+//				}
+//				// Quadrant 4
+//				else{
+//					// Looking down, move up
+//					if(!ray1) angle -= interval;
+//					else      angle += interval;
+//				}
 //				if(angle > 180) angle -= 360;
+//				if(angle <= -180) angle += 360;
 //			}
-//			if(!ray2){
-//				angle -= interval;
-//				if(angle < -180) angle += 360;
-//			}
+//			
+//			System.out.println("Testing Angle: " + angle);
+//			
 //			if(counter >= 30) break;
 //		}while(!ray1 || !ray2);
 //		
@@ -116,6 +132,8 @@ public class FlowFollowSystem extends IteratingSystem {
 //		DebugRender.setColor(Color.RED);
 //		DebugRender.line(x1, y1, toX1, toY1);
 //		DebugRender.line(x2, y2, toX2, toY2);
+//		DebugRender.setType(ShapeType.Filled);
+//		DebugRender.rect(myX - 0.05f, myY - 0.05f, 0.1f, 0.1f, 5.0f);
 		
 		float xx = MathUtils.cosDeg(angle);
 		float yy = MathUtils.sinDeg(angle);

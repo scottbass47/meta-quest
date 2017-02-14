@@ -34,7 +34,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.assets.Assets;
-import com.fullspectrum.component.AIStateMachineComponent;
+import com.fullspectrum.component.AISMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
@@ -429,7 +429,7 @@ public class GameScreen extends AbstractScreen {
 		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
 		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)){
-			for(Entity enemy : engine.getEntitiesFor(Family.all(AIStateMachineComponent.class).get())){
+			for(Entity enemy : engine.getEntitiesFor(Family.all(AISMComponent.class).get())){
 				renderRange(batch, enemy);
 			}
 		}
@@ -600,11 +600,11 @@ public class GameScreen extends AbstractScreen {
 
 	
 	private void renderRange(SpriteBatch batch, Entity entity) {
-		AIStateMachineComponent aismComp = Mappers.aism.get(entity);
+		AISMComponent aismComp = Mappers.aism.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		LevelComponent levelComp = Mappers.level.get(entity);
 
-		TransitionObject obj = aismComp.aism.getCurrentStateObject().getFirstData(Transitions.RANGE);
+		TransitionObject obj = aismComp.first().getCurrentStateObject().getFirstData(Transitions.RANGE);
 		if(obj == null) return;
 		TargetComponent targetComp = Mappers.target.get(entity);
 		RangeTransitionData rtd = (RangeTransitionData) obj.data;
@@ -655,7 +655,7 @@ public class GameScreen extends AbstractScreen {
 		BodyComponent bodyComp = Mappers.body.get(player);
 		FacingComponent facingComp = Mappers.facing.get(player);
 		
-		if(Mappers.esm.get(player).esm.getCurrentState() == EntityStates.SWING_ANTICIPATION || true){
+		if(Mappers.esm.get(player).first().getCurrentState() == EntityStates.SWING_ANTICIPATION || true){
 			Vector2 pos = bodyComp.body.getPosition();
 			
 			float myX = pos.x;

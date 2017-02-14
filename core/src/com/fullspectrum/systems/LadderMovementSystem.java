@@ -41,8 +41,8 @@ public class LadderMovementSystem extends IteratingSystem{
 	
 		if(MathUtils.isEqual(vx, 0) && MathUtils.isEqual(vy, 0)){
 			ESMComponent esmComp = Mappers.esm.get(entity);
-			if(esmComp == null || esmComp.esm == null) return;
-			esmComp.esm.addAnimationTime(-deltaTime);
+			if(esmComp == null || esmComp.size() == 0) return;
+			esmComp.first().addAnimationTime(-deltaTime);
 		}
 	}
 	
