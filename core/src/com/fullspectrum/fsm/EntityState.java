@@ -65,7 +65,7 @@ public class EntityState extends StateObject{
 		animations.time += time;
 	}
 	
-	public AnimationStateMachine getAnimationStateMachine(){
+	public AnimationStateMachine getASM(){
 		return animations;
 	}
 	

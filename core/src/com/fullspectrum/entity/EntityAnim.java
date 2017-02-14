@@ -8,6 +8,7 @@ public enum EntityAnim implements State{
 	IDLE,
 	RANDOM_IDLE,
 	RUNNING,
+	BACK_PEDALLING,
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
 	FALLING,

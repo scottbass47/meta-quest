@@ -9,8 +9,6 @@
 	        <action name="JUMP"><key code="Space"/></action>
 	            
 	        <!-- Action Controls -->
-	        <action name="CYCLE_RIGHT"><key code="D"/></action>
-	        <action name="CYCLE_LEFT"><key code="A"/></action>
 	        <action name="ATTACK"><key code="F"/></action>
 	        <action name="BLOCK"><key code="X"/></action>
 	        <action name="MOVEMENT"><key code="C"/></action>

@@ -5,7 +5,10 @@ import com.badlogic.gdx.Input.Keys;
 public enum DebugKeys {
 
 	SPAWN(Keys.I),
-	SHOOT(Keys.G);
+	SHOOT(Keys.G),
+	KNIGHT(Keys.NUM_1),
+	ROGUE(Keys.NUM_2),
+	MAGE(Keys.NUM_3);
 	
 	private final int key;
 	

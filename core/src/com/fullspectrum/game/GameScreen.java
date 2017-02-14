@@ -48,6 +48,7 @@ import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
@@ -286,6 +287,30 @@ public class GameScreen extends AbstractScreen {
 		engine.update(delta);
 		world.step(delta, 6, 2);
 		EntityManager.update(delta);
+		
+		if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
+			Entity player = levelManager.getPlayer();
+			
+			// If you're not the knight currently, then switch
+			if(!Mappers.entity.get(player).name.equals("knight")){
+				levelManager.switchPlayer(EntityIndex.KNIGHT);
+			}
+		} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
+			Entity player = levelManager.getPlayer();
+			
+			// If you're not the rogue currently, then switch
+			if(!Mappers.entity.get(player).name.equals("rogue")){
+				levelManager.switchPlayer(EntityIndex.ROGUE);
+			}
+		} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
+			Entity player = levelManager.getPlayer();
+			
+			// If you're not the mage currently, then switch
+			if(!Mappers.entity.get(player).name.equals("mage")){
+				levelManager.switchPlayer(EntityIndex.MAGE);
+			}
+		}
+		
 		//		if (input.isJustPressed(Actions.SELECT)) {
 //			changePlayer();
 //		}

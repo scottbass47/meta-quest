@@ -43,6 +43,7 @@ import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
 import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
+import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.DropMovementComponent;
@@ -133,26 +134,123 @@ public class EntityFactory {
 	
 	private EntityFactory(){}
 	
-	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
-		// Stats
-		EntityStats playerStats = EntityLoader.get(EntityIndex.PLAYER);
-		EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
-		EntityStats rogueStats = EntityLoader.get(EntityIndex.ROGUE);
-		EntityStats mageStats = EntityLoader.get(EntityIndex.MAGE);
+//	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
+//		// Stats
+//		EntityStats playerStats = EntityLoader.get(EntityIndex.PLAYER);
+//		EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
+//		EntityStats rogueStats = EntityLoader.get(EntityIndex.ROGUE);
+//		EntityStats mageStats = EntityLoader.get(EntityIndex.MAGE);
+//		
+//		// Setup Animations
+//		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+//		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+//		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+//		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
+//		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
+//		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+//		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
+//		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
+//		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
+//		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+//		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
+//		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
+//		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_IDLE_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_ANTICIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_ANTICIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_ANTICIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_ANTICIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_ANTICIPATION));
+//		animMap.put(EntityAnim.SWING_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+//		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
+//		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+//		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
+//
+//		Entity player = new EntityBuilder("player", engine, world, level)
+//				.animation(animMap)
+//				.physics("player.json", x, y, true)
+//				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
+//				.build();
+//		player.add(engine.createComponent(MoneyComponent.class));
+//		player.add(engine.createComponent(PlayerComponent.class));
+//		player.add(engine.createComponent(InputComponent.class).set(input));
+//		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY).setCollideWith(EntityType.FRIENDLY.getOpposite()));
+//		player.add(engine.createComponent(BarrierComponent.class).set(playerStats.get("shield"), playerStats.get("shield"), playerStats.get("shield_rate"), playerStats.get("shield_delay")));
+//		player.getComponent(DeathComponent.class).set(new DeathBehavior(){
+//			@Override
+//			public void onDeath(Entity entity) {
+//				Mappers.heatlh.get(entity).health = Mappers.heatlh.get(entity).maxHealth;
+//				Mappers.death.get(entity).makeAlive();
+//			}
+//		});
+//
+//		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player, knightStats);
+//		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player, rogueStats);
+//		EntityStateMachine mageESM = createMage(engine, world, level, x, y, player, mageStats);
+//		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player, rogueStats);
+//
+//		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
+//		playerStateMachine.setDebugName("Player SM");
+//		
+//		playerStateMachine.createState(PlayerState.KNIGHT)
+//			.add(engine.createComponent(HealthComponent.class).set(knightStats.get("health"), knightStats.get("health")))
+//			.add(engine.createComponent(ESMComponent.class).set(knightESM))
+////			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
+//			.add(engine.createComponent(AbilityComponent.class))
+//			.addSubstateMachine(knightESM);
+//		
+//		playerStateMachine.createState(PlayerState.ROGUE)
+//			.add(engine.createComponent(HealthComponent.class).set(rogueStats.get("health"), rogueStats.get("health")))
+//			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
+////			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
+//			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
+//			.add(engine.createComponent(AbilityComponent.class))
+//			.addSubstateMachine(rogueESM)
+//			.addSubstateMachine(rogueAttackFSM);
+//		
+//		playerStateMachine.createState(PlayerState.MAGE)
+//			.add(engine.createComponent(HealthComponent.class).set(mageStats.get("health"), mageStats.get("health")))
+//			.add(engine.createComponent(ESMComponent.class).set(mageESM))
+//			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
+//			.add(engine.createComponent(AbilityComponent.class)
+//					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")))
+//			.addSubstateMachine(mageESM);
+//		
+//		InputTransitionData rightCycleData = new InputTransitionData(Type.ALL, true);
+//		rightCycleData.triggers.add(new InputTrigger(Actions.CYCLE_RIGHT, true));
+//		
+//		InputTransitionData leftCycleData = new InputTransitionData(Type.ALL, true);
+//		leftCycleData.triggers.add(new InputTrigger(Actions.CYCLE_LEFT, true));
+//		
+//		// Knight, Rogue, Mage
+//		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, rightCycleData, PlayerState.ROGUE);
+//		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, leftCycleData, PlayerState.MAGE);
+//		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, rightCycleData, PlayerState.MAGE);
+//		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, leftCycleData, PlayerState.KNIGHT);
+//		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, rightCycleData, PlayerState.KNIGHT);
+//		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, leftCycleData, PlayerState.ROGUE);
+//		
+//		playerStateMachine.setDebugName("Player FSM");
+////		System.out.println(playerStateMachine.printTransitions(true));
+//		playerStateMachine.changeState(PlayerState.KNIGHT);
+//		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
+//		return player;
+//	}
+	
+	public static Entity createKnight(Engine engine, World world, Level level, float x, float y){
+		final EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
 		
-		// Setup Animations
+		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
-		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
 		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
 		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.SWING, assets.getSpriteAnimation(Assets.SHADOW_PUNCH));
-		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.SHADOW_IDLE));
 		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
 		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
 		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
@@ -165,80 +263,25 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
-
-		Entity player = new EntityBuilder("player", engine, world, level)
-				.animation(animMap)
-				.physics("player.json", x, y, true)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
-				.build();
-		player.add(engine.createComponent(MoneyComponent.class));
-		player.add(engine.createComponent(PlayerComponent.class));
-		player.add(engine.createComponent(InputComponent.class).set(input));
-		player.add(engine.createComponent(TypeComponent.class).set(EntityType.FRIENDLY).setCollideWith(EntityType.FRIENDLY.getOpposite()));
-		player.add(engine.createComponent(BarrierComponent.class).set(playerStats.get("shield"), playerStats.get("shield"), playerStats.get("shield_rate"), playerStats.get("shield_delay")));
-		player.getComponent(DeathComponent.class).set(new DeathBehavior(){
-			@Override
-			public void onDeath(Entity entity) {
-				Mappers.heatlh.get(entity).health = Mappers.heatlh.get(entity).maxHealth;
-				Mappers.death.get(entity).makeAlive();
-			}
-		});
-
-		EntityStateMachine knightESM = createKnight(engine, world, level, x, y, player, knightStats);
-		EntityStateMachine rogueESM = createRogue(engine, world, level, x, y, player, rogueStats);
-		EntityStateMachine mageESM = createMage(engine, world, level, x, y, player, mageStats);
-		StateMachine<EntityStates, StateObject> rogueAttackFSM = createRogueAttackMachine(player, rogueStats);
-
-		StateMachine<PlayerState, StateObject> playerStateMachine = new StateMachine<PlayerState, StateObject>(player, new StateObjectCreator(), PlayerState.class, StateObject.class);
-		playerStateMachine.setDebugName("Player SM");
 		
-		playerStateMachine.createState(PlayerState.KNIGHT)
-			.add(engine.createComponent(HealthComponent.class).set(knightStats.get("health"), knightStats.get("health")))
-			.add(engine.createComponent(ESMComponent.class).set(knightESM))
-//			.add(engine.createComponent(TintComponent.class).set(new Color(123 / 255f, 123 / 255f, 184 / 255f, 1.0f)))
-			.add(engine.createComponent(AbilityComponent.class))
-			.addSubstateMachine(knightESM);
+		Entity knight = new EntityBuilder("knight", engine, world, level)
+			.animation(animMap)
+			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+			.physics("player.json", x, y, true)
+			.mob(null, EntityType.FRIENDLY, knightStats.get("health"))
+			.build();
 		
-		playerStateMachine.createState(PlayerState.ROGUE)
-			.add(engine.createComponent(HealthComponent.class).set(rogueStats.get("health"), rogueStats.get("health")))
-			.add(engine.createComponent(ESMComponent.class).set(rogueESM))
-//			.add(engine.createComponent(FSMComponent.class).set(rogueAttackFSM))
-			.add(engine.createComponent(TintComponent.class).set(new Color(176 / 255f, 47 / 255f, 42 / 255f, 1.0f)))
-			.add(engine.createComponent(AbilityComponent.class))
-			.addSubstateMachine(rogueESM)
-			.addSubstateMachine(rogueAttackFSM);
+		// Player Related Components
+		knight.add(engine.createComponent(MoneyComponent.class));
+		knight.add(engine.createComponent(PlayerComponent.class));
+		knight.add(engine.createComponent(BarrierComponent.class)
+				.set(knightStats.get("shield"), 
+					 knightStats.get("shield"), 
+					 knightStats.get("shield_rate"), 
+					 knightStats.get("shield_delay")));
+		knight.add(engine.createComponent(AbilityComponent.class));
 		
-		playerStateMachine.createState(PlayerState.MAGE)
-			.add(engine.createComponent(HealthComponent.class).set(mageStats.get("health"), mageStats.get("health")))
-			.add(engine.createComponent(ESMComponent.class).set(mageESM))
-			.add(engine.createComponent(TintComponent.class).set(new Color(165 / 255f, 65 / 255f, 130 / 255f, 1.0f)))
-			.add(engine.createComponent(AbilityComponent.class)
-					.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")))
-			.addSubstateMachine(mageESM);
-		
-		InputTransitionData rightCycleData = new InputTransitionData(Type.ALL, true);
-		rightCycleData.triggers.add(new InputTrigger(Actions.CYCLE_RIGHT, true));
-		
-		InputTransitionData leftCycleData = new InputTransitionData(Type.ALL, true);
-		leftCycleData.triggers.add(new InputTrigger(Actions.CYCLE_LEFT, true));
-		
-		// Knight, Rogue, Mage
-		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, rightCycleData, PlayerState.ROGUE);
-		playerStateMachine.addTransition(PlayerState.KNIGHT, Transitions.INPUT, leftCycleData, PlayerState.MAGE);
-		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, rightCycleData, PlayerState.MAGE);
-		playerStateMachine.addTransition(PlayerState.ROGUE, Transitions.INPUT, leftCycleData, PlayerState.KNIGHT);
-		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, rightCycleData, PlayerState.KNIGHT);
-		playerStateMachine.addTransition(PlayerState.MAGE, Transitions.INPUT, leftCycleData, PlayerState.ROGUE);
-		
-		playerStateMachine.setDebugName("Player FSM");
-//		System.out.println(playerStateMachine.printTransitions(true));
-		playerStateMachine.changeState(PlayerState.KNIGHT);
-		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
-		return player;
-	}
-	
-	private static EntityStateMachine createKnight(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats knightStats){
-		Entity sword = createSword(engine, world, level, player, x, y, (int)knightStats.get("sword_damage"));
+		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
 		
@@ -254,10 +297,10 @@ public class EntityFactory {
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_3, EntityAnim.SWING_ANTICIPATION_3, EntityAnim.SWING_3, swing3);
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_4, EntityAnim.SWING_ANTICIPATION_4, EntityAnim.SWING_4, swing4);
 		
-		player.add(knightComp);
-		player.add(engine.createComponent(SwordComponent.class).set(sword));
+		knight.add(knightComp);
+		knight.add(engine.createComponent(SwordComponent.class).set(sword));
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Knight ESM", engine, player)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Knight ESM", engine, knight)
 			.idle()
 			.run(knightStats.get("ground_speed"))
 			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true, true)
@@ -279,7 +322,7 @@ public class EntityFactory {
 		Array<EntityAnim> anticipationAnims = new Array<EntityAnim>();
 		Array<EntityAnim> swingAnims = new Array<EntityAnim>();
 
-		for(KnightAttack attack : Mappers.knight.get(player).getAttacks()){
+		for(KnightAttack attack : Mappers.knight.get(knight).getAttacks()){
 			idleToSwingAnims.add(attack.getIdleAnticipation());
 			anticipationAnims.add(attack.getAnticipationAnimation());
 			swingAnims.add(attack.getSwingAnimation());
@@ -304,7 +347,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getIdleAnticipation());
 						}
 					});
@@ -397,7 +440,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getSwingAnimation());
 						}
 					});
@@ -432,7 +475,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							ESMComponent esmComp = Mappers.esm.get(entity);
-							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getAnimationStateMachine();
+							AnimationStateMachine asm = esmComp.esm.getCurrentStateObject().getASM();
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getAnticipationAnimation());
 						}
 					});
@@ -685,7 +728,10 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 		
-		return esm;
+		esm.changeState(EntityStates.IDLING);
+		knight.add(engine.createComponent(ESMComponent.class).set(esm));
+		
+		return knight;
 	}
 	
 	private static StateMachine<EntityStates, StateObject> createRogueAttackMachine(Entity player, final EntityStats rogueStats){
@@ -711,11 +757,59 @@ public class EntityFactory {
 		rogueSM.addTransition(EntityStates.IDLING, Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
 		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
+		rogueSM.changeState(EntityStates.IDLING);
+		
 		return rogueSM;
 	}
 	
-	private static EntityStateMachine createRogue(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats rogueStats){
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, player)
+	public static Entity createRogue(Engine engine, World world, Level level, float x, float y){
+		final EntityStats rogueStats = EntityLoader.get(EntityIndex.ROGUE);
+		
+		// Animations
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
+		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
+		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
+		
+		Entity rogue = new EntityBuilder("rogue", engine, world, level)
+			.animation(animMap)
+			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+			.physics("player.json", x, y, true)
+			.mob(null, EntityType.FRIENDLY, rogueStats.get("health"))
+			.build();
+		
+		// Player Related Components
+		rogue.add(engine.createComponent(MoneyComponent.class));
+		rogue.add(engine.createComponent(PlayerComponent.class));
+		rogue.add(engine.createComponent(BarrierComponent.class)
+				.set(rogueStats.get("shield"), 
+					 rogueStats.get("shield"), 
+					 rogueStats.get("shield_rate"), 
+					 rogueStats.get("shield_delay")));
+		rogue.add(engine.createComponent(AbilityComponent.class));
+		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
+		
+		rogue.add(engine.createComponent(FSMComponent.class).set(createRogueAttackMachine(rogue, rogueStats)));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, rogue)
 			.idle()
 			.run(rogueStats.get("ground_speed"))
 			.jump(rogueStats.get("jump_force"), rogueStats.get("air_speed"), true, true)
@@ -724,6 +818,39 @@ public class EntityFactory {
 			.wallSlide()
 			.knockBack(EntityStates.IDLING)
 			.build();
+		
+		// RUNNING TO BACK PEDALLING AND VICE VERSA TRANSITION
+		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
+		runningASM.addTransition(EntityAnim.RUNNING, new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				FacingComponent facingComp = Mappers.facing.get(entity);
+				DirectionComponent directionComp = Mappers.direction.get(entity);
+				
+				boolean facingRight = facingComp.facingRight;
+				return (facingRight && directionComp.direction == Direction.LEFT) || (!facingRight && directionComp.direction == Direction.RIGHT);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+		}, EntityAnim.BACK_PEDALLING);
+		runningASM.addTransition(EntityAnim.BACK_PEDALLING, new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				FacingComponent facingComp = Mappers.facing.get(entity);
+				DirectionComponent directionComp = Mappers.direction.get(entity);
+				
+				boolean facingRight = facingComp.facingRight;
+				return (facingRight && directionComp.direction == Direction.RIGHT) || (!facingRight && directionComp.direction == Direction.LEFT);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+		}, EntityAnim.RUNNING);
 		
 		// CLEANUP Remove wall jumping
 		esm.createState(EntityStates.WALL_JUMP)
@@ -862,16 +989,64 @@ public class EntityFactory {
 		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transitions.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
+		esm.changeState(EntityStates.IDLING);
+		rogue.add(engine.createComponent(ESMComponent.class).set(esm));
+		
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onRightWallData, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.DASH, Transitions.COLLISION, onLeftWallData, EntityStates.FALLING);
 //		System.out.print(esm.printTransitions(false));
-		return esm;
+		return rogue;
 	}
 	
-	private static EntityStateMachine createMage(Engine engine, World world, Level level, float x, float y, Entity player, final EntityStats mageStats){
+	public static Entity createMage(Engine engine, World world, Level level, float x, float y){
 //		Entity sword = createSword(engine, world, level, player, x, y, 100);
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, player)
+		final EntityStats mageStats = EntityLoader.get(EntityIndex.MAGE);
+		
+		// Animations
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
+		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
+		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
+		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_IDLE_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_ANTICIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
+		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
+		
+		Entity mage = new EntityBuilder("mage", engine, world, level)
+			.animation(animMap)
+			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+			.physics("player.json", x, y, true)
+			.mob(null, EntityType.FRIENDLY, mageStats.get("health"))
+			.build();
+		
+		// Player Related Components
+		mage.add(engine.createComponent(MoneyComponent.class));
+		mage.add(engine.createComponent(PlayerComponent.class));
+		mage.add(engine.createComponent(BarrierComponent.class)
+				.set(mageStats.get("shield"), 
+					 mageStats.get("shield"), 
+					 mageStats.get("shield_rate"), 
+					 mageStats.get("shield_delay")));
+		mage.add(engine.createComponent(AbilityComponent.class)
+			.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")));
+		mage.add(engine.createComponent(TintComponent.class).set(Color.PURPLE));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()
 			.run(mageStats.get("ground_speed"))
 			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true, true)
@@ -885,7 +1060,7 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(GroundMovementComponent.class))
-			.addAnimation(EntityAnim.SWING)
+			.addAnimation(EntityAnim.SWING_1)
 			.addTag(TransitionTag.STATIC_STATE)
 			.addChangeListener(new StateChangeListener(){
 				@Override
@@ -955,9 +1130,12 @@ public class EntityFactory {
 		
 //		System.out.print(esm.printTransitions(true));
 
+		esm.changeState(EntityStates.IDLING);
+		mage.add(engine.createComponent(ESMComponent.class).set(esm));
+		
 //		fsm.disableState(EntityStates.DIVING);
 //		esm.changeState(EntityStates.IDLING);
-		return esm;
+		return mage;
 	}
 	
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y) {
