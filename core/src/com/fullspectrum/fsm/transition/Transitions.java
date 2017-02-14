@@ -4,18 +4,18 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
-import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.entity.EntityUtils;
-import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.utils.StringUtils;
@@ -61,11 +61,12 @@ public enum Transitions implements Transition{
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			AnimationComponent animComp = Mappers.animation.get(entity);
-			ESMComponent esmComp = Mappers.esm.get(entity);
-			if (animComp == null || esmComp == null) return false;
-			EntityStateMachine esm = esmComp.first();
-			if (esm.getAnimationTime() >= animComp.animations.get(esm.getAnimation()).getAnimationDuration() - 2 * deltaTime) {
-				return true;
+			ASMComponent asmComp = Mappers.asm.get(entity);
+			if (animComp == null || asmComp == null) return false;
+			for(AnimationStateMachine machine : asmComp.getMachines()){
+				if (machine.getAnimationTime() >= animComp.animations.get(machine.getCurrentAnimation()).getAnimationDuration() - 2 * deltaTime) {
+					return true;
+				}
 			}
 			return false;
 		}

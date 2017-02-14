@@ -203,7 +203,6 @@ public class LevelManager{
 	
 	// CLEANUP Only for debug purposes
 	public void switchPlayer(EntityIndex index){
-		System.out.println("Switching player to " + index.getName());
 		Body body = Mappers.body.get(player).body;
 	
 		float x = body.getPosition().x;

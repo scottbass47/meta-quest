@@ -5,11 +5,12 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LadderComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.input.Actions;
 
 public class LadderMovementSystem extends IteratingSystem{
@@ -40,9 +41,9 @@ public class LadderMovementSystem extends IteratingSystem{
 		bodyComp.body.applyLinearImpulse(cx * body.getMass(), cy * body.getMass(), bodyComp.body.getWorldCenter().x, bodyComp.body.getWorldCenter().y, true);
 	
 		if(MathUtils.isEqual(vx, 0) && MathUtils.isEqual(vy, 0)){
-			ESMComponent esmComp = Mappers.esm.get(entity);
-			if(esmComp == null || esmComp.size() == 0) return;
-			esmComp.first().addAnimationTime(-deltaTime);
+			ASMComponent asmComp = Mappers.asm.get(entity);
+			if(asmComp == null || asmComp.size() == 0) return;
+			for(AnimationStateMachine machine : asmComp.getMachines()) machine.addTime(-deltaTime);
 		}
 	}
 	

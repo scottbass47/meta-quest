@@ -61,9 +61,9 @@ public class EntityState extends StateObject{
 		return animations.getAnimationTime();
 	}
 	
-	public void addAnimationTime(float time){
-		animations.time += time;
-	}
+//	public void addAnimationTime(float time){
+//		animations.time += time;
+//	}
 	
 	public AnimationStateMachine getASM(){
 		return animations;

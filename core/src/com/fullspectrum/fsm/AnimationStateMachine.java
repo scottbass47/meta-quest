@@ -5,7 +5,7 @@ import com.badlogic.ashley.core.Entity;
 public class AnimationStateMachine extends StateMachine<State, StateObject>{
 	
 	// Time
-	protected float time = 0.0f;
+	private float time = 0.0f;
 
 	public AnimationStateMachine(Entity entity, StateCreator<StateObject> creator) {
 		super(entity, creator, State.class, StateObject.class);
@@ -21,5 +21,17 @@ public class AnimationStateMachine extends StateMachine<State, StateObject>{
 	public float getAnimationTime(){
 		return time;
 	}
+	
+	public void setTime(float time){
+		this.time = time;
+	}
 
+	public void addTime(float time){
+		this.time += time;
+	}
+	
+	public State getCurrentAnimation(){
+		return getCurrentState();
+	}
+	
 }
