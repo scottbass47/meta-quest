@@ -35,6 +35,18 @@ public abstract class AbstractSMComponent<T extends StateMachine<? extends State
 		if(machines == null) return null;
 		return machines.get(index);
 	}
+	
+	/**
+	 * Returns the first machine that contains the specified state.
+	 * @param state
+	 * @return
+	 */
+	public T get(State state){
+		for(T machine : machines){
+			if(machine.hasState(state)) return machine;
+		}
+		return null;
+	}
 
 	public void remove(T machine){
 		if(machines == null) return;

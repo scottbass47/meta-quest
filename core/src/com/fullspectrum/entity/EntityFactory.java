@@ -26,6 +26,7 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AIControllerComponent;
+import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
@@ -73,6 +74,7 @@ import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.RogueComponent;
 import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -493,7 +495,7 @@ public class EntityFactory {
 		// SWINGING TRANSITIONS
 		// ******************************************
 		
-		// CLEANUP Can only chain after successfully hitting an enemy first
+		// INCOMPLETE Can only chain after successfully hitting an enemy first
 		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		MultiTransition chainAttack = new MultiTransition(Transitions.INPUT, attackPress)
 				.and(new Transition() {
@@ -737,11 +739,24 @@ public class EntityFactory {
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
 		rogueSM.setDebugName("Rogue Attack SM");
 		rogueSM.createState(EntityStates.IDLING);
+		rogueSM.createState(EntityStates.CLEAN_UP)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.facing.get(entity).locked = false;
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
 		rogueSM.createState(EntityStates.PROJECTILE_ATTACK)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage);
+					Mappers.rogue.get(entity).doThrowingAnim = true;
+					Mappers.facing.get(entity).locked = true;
 				}
 
 				@Override
@@ -750,12 +765,14 @@ public class EntityFactory {
 			});
 		
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
+		InputTransitionData notAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 		
-		rogueSM.addTransition(EntityStates.IDLING, Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
+		rogueSM.addTransition(rogueSM.one(EntityStates.CLEAN_UP, EntityStates.IDLING), Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
 		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
+		rogueSM.addTransition(rogueSM.one(EntityStates.PROJECTILE_ATTACK, EntityStates.IDLING), Transitions.INPUT, notAttacking, EntityStates.CLEAN_UP);
 		
 		rogueSM.changeState(EntityStates.IDLING);
-		
+//		rogueSM.setDebugOutput(true);
 		return rogueSM;
 	}
 	
@@ -785,6 +802,10 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
+		animMap.put(EntityAnim.BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.ARMS_BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.ARMS_RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
+		animMap.put(EntityAnim.THROWING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		
 		Entity rogue = new EntityBuilder("rogue", engine, world, level)
 			.animation(animMap)
@@ -803,6 +824,7 @@ public class EntityFactory {
 					 rogueStats.get("shield_delay")));
 		rogue.add(engine.createComponent(AbilityComponent.class));
 		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
+		rogue.add(engine.createComponent(RogueComponent.class));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -816,8 +838,10 @@ public class EntityFactory {
 			.knockBack(EntityStates.IDLING)
 			.build();
 		
-		// RUNNING TO BACK PEDALLING AND VICE VERSA TRANSITION
+		// RUNNING TO BACK PEDALING AND VICE VERSA TRANSITION
 		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
+		runningASM.createState(EntityAnim.BACK_PEDALING);
+		
 		runningASM.addTransition(EntityAnim.RUNNING, new Transition() {
 			@Override
 			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
@@ -832,8 +856,8 @@ public class EntityFactory {
 			public boolean allowMultiple() {
 				return false;
 			}
-		}, EntityAnim.BACK_PEDALLING);
-		runningASM.addTransition(EntityAnim.BACK_PEDALLING, new Transition() {
+		}, EntityAnim.BACK_PEDALING);
+		runningASM.addTransition(EntityAnim.BACK_PEDALING, new Transition() {
 			@Override
 			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 				FacingComponent facingComp = Mappers.facing.get(entity);
@@ -849,32 +873,134 @@ public class EntityFactory {
 			}
 		}, EntityAnim.RUNNING);
 		
-		// CLEANUP Remove wall jumping
-		esm.createState(EntityStates.WALL_JUMP)
-			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
-			.addAnimation(EntityAnim.JUMP)
-			.addAnimation(EntityAnim.RISE)
-			.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
-			.addTag(TransitionTag.AIR_STATE)
-			.addChangeListener(new StateChangeListener(){
+		// ***************************
+		// * Upper Body Throwing ASM *
+		// ***************************
+		
+		AnimationStateMachine throwingASM = new AnimationStateMachine(rogue, new StateObjectCreator());
+		throwingASM.createState(EntityAnim.ARMS_RUNNING)
+			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					EngineComponent engineComp = Mappers.engine.get(entity);
-					CollisionComponent collisionComp = Mappers.collision.get(entity);
-					FacingComponent facingComp = Mappers.facing.get(entity);
-					
-					// Get the jump force and remove the component
-					float fx = Mappers.speed.get(entity).maxSpeed;
-					float fy = 15.0f;
-					if(collisionComp.onRightWall()) fx = -fx;
-					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
-					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
-				}
+					ASMComponent asmComp = Mappers.asm.get(entity);
+					AnimationStateMachine machine = asmComp.get(EntityAnim.ARMS_RUNNING);
 
+					// INCOMPLETE Sync animation to running
+					machine.setTime(0.0f);
+				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
 				}
 			});
+		throwingASM.createState(EntityAnim.ARMS_BACK_PEDALING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					ASMComponent asmComp = Mappers.asm.get(entity);
+					AnimationStateMachine machine = asmComp.get(EntityAnim.ARMS_BACK_PEDALING);
+
+					// INCOMPLETE Sync animation to running
+					machine.setTime(0.0f);
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
+		throwingASM.createState(EntityAnim.THROWING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.rogue.get(entity).doThrowingAnim = false;
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
+		
+		// Throwing to running arms
+		MultiTransition throwingToRunning = new MultiTransition(Transitions.ANIMATION_FINISHED)
+				.and(new Transition() {
+					@Override
+					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+						ASMComponent asmComp = Mappers.asm.get(entity);
+
+						// You know this will not be null because the throwing state machine will always
+						// be parallel to the running state machine
+						AnimationStateMachine machine = asmComp.get(EntityAnim.RUNNING); 
+						return machine.getCurrentState() == EntityAnim.RUNNING;
+					}
+					
+					@Override
+					public boolean allowMultiple() {
+						return false;
+					}
+				});
+		
+		// Throwing to back-pedaling arms
+		MultiTransition throwingToBackpedaling = new MultiTransition(Transitions.ANIMATION_FINISHED)
+				.and(new Transition(){
+					@Override
+					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+						ASMComponent asmComp = Mappers.asm.get(entity);
+
+						// You know this will not be null because the throwing state machine will always
+						// be parallel to the running state machine
+						AnimationStateMachine machine = asmComp.get(EntityAnim.RUNNING); 
+						return machine.getCurrentState() == EntityAnim.BACK_PEDALING;
+					}
+
+					@Override
+					public boolean allowMultiple() {
+						return false;
+					}
+				});
+		
+		// Throwing to not-throwing
+		throwingASM.addTransition(EntityAnim.THROWING, throwingToRunning, EntityAnim.ARMS_RUNNING);
+		throwingASM.addTransition(EntityAnim.THROWING, throwingToBackpedaling, EntityAnim.ARMS_BACK_PEDALING);
+		throwingASM.addTransition(throwingASM.one(EntityAnim.ARMS_RUNNING, EntityAnim.ARMS_BACK_PEDALING), new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.rogue.get(entity).doThrowingAnim;
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+		}, EntityAnim.THROWING);
+		
+		// Add the new animation state machine as a substate machine of the running entity state (should handle initial state change)
+		esm.getState(EntityStates.RUNNING).addSubstateMachine(throwingASM);
+		
+		// ********************************************
+		
+		// CLEANUP Remove wall jumping
+//		esm.createState(EntityStates.WALL_JUMP)
+//			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
+//			.addAnimation(EntityAnim.JUMP)
+//			.addAnimation(EntityAnim.RISE)
+//			.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
+//			.addTag(TransitionTag.AIR_STATE)
+//			.addChangeListener(new StateChangeListener(){
+//				@Override
+//				public void onEnter(State prevState, Entity entity) {
+//					EngineComponent engineComp = Mappers.engine.get(entity);
+//					CollisionComponent collisionComp = Mappers.collision.get(entity);
+//					FacingComponent facingComp = Mappers.facing.get(entity);
+//					
+//					// Get the jump force and remove the component
+//					float fx = Mappers.speed.get(entity).maxSpeed;
+//					float fy = 15.0f;
+//					if(collisionComp.onRightWall()) fx = -fx;
+//					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
+//					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
+//				}
+//
+//				@Override
+//				public void onExit(State nextState, Entity entity) {
+//				}
+//			});
 		
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.SWING)
@@ -938,38 +1064,38 @@ public class EntityFactory {
 			.and(Transitions.COLLISION, ladderCollisionData);
 		
 		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
-		CollisionTransitionData onRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
-		CollisionTransitionData onLeftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
-		CollisionTransitionData offRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, false);
-		CollisionTransitionData offLeftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, false);
-
-		InputTransitionData rightWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).build();
-		InputTransitionData leftWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_LEFT).build();
+//		CollisionTransitionData onRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
+//		CollisionTransitionData onLeftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
+//		CollisionTransitionData offRightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, false);
+//		CollisionTransitionData offLeftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, false);
+//
+//		InputTransitionData rightWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).build();
+//		InputTransitionData leftWallInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_LEFT).build();
+//		
+//		MultiTransition rightSlideTransition = new MultiTransition(Transitions.FALLING)
+//			.and(Transitions.COLLISION, onRightWallData)
+//			.and(Transitions.INPUT, rightWallInput);
+//		
+//		MultiTransition leftSlideTransition = new MultiTransition(Transitions.FALLING)
+//			.and(Transitions.FALLING)
+//			.and(Transitions.COLLISION, onLeftWallData)
+//			.and(Transitions.INPUT, leftWallInput);
 		
-		MultiTransition rightSlideTransition = new MultiTransition(Transitions.FALLING)
-			.and(Transitions.COLLISION, onRightWallData)
-			.and(Transitions.INPUT, rightWallInput);
+//		MultiTransition wallSlideTransition = new MultiTransition(rightSlideTransition).or(leftSlideTransition);
+//		
+//		InputTransitionData offRightWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).build();
+//		InputTransitionData offLeftWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_LEFT).build();
 		
-		MultiTransition leftSlideTransition = new MultiTransition(Transitions.FALLING)
-			.and(Transitions.FALLING)
-			.and(Transitions.COLLISION, onLeftWallData)
-			.and(Transitions.INPUT, leftWallInput);
-		
-		MultiTransition wallSlideTransition = new MultiTransition(rightSlideTransition).or(leftSlideTransition);
-		
-		InputTransitionData offRightWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).build();
-		InputTransitionData offLeftWallInput = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_LEFT).build();
-		
-		MultiTransition offRightWall = new MultiTransition(Transitions.COLLISION, onRightWallData)
-				.and(Transitions.INPUT, offRightWallInput);
-		MultiTransition offLeftWall = new MultiTransition(Transitions.COLLISION, onLeftWallData)
-				.and(Transitions.INPUT, offLeftWallInput);
+//		MultiTransition offRightWall = new MultiTransition(Transitions.COLLISION, onRightWallData)
+//				.and(Transitions.INPUT, offRightWallInput);
+//		MultiTransition offLeftWall = new MultiTransition(Transitions.COLLISION, onLeftWallData)
+//				.and(Transitions.INPUT, offLeftWallInput);
 		
 		// (offWallLeft && offWallRight) || (onWallLeft && offInputLeft) || (onWallRight && offInputRight)
-		MultiTransition offWall = new MultiTransition(new MultiTransition(Transitions.COLLISION, offRightWallData)
-				.and(Transitions.COLLISION, offLeftWallData))
-				.or(offRightWall)
-				.or(offLeftWall);
+//		MultiTransition offWall = new MultiTransition(new MultiTransition(Transitions.COLLISION, offRightWallData)
+//				.and(Transitions.COLLISION, offLeftWallData))
+//				.or(offRightWall)
+//				.or(offLeftWall);
 		
 		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
@@ -980,10 +1106,10 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.FALLING, wallSlideTransition, EntityStates.WALL_SLIDING);
-		esm.addTransition(EntityStates.WALL_SLIDING, offWall, EntityStates.FALLING);
-		esm.addTransition(EntityStates.WALL_SLIDING, Transitions.INPUT, jumpData, EntityStates.WALL_JUMP);
-		esm.addTransition(esm.one(EntityStates.JUMPING, EntityStates.WALL_JUMP), Transitions.INPUT, dashData, EntityStates.DASH);
+//		esm.addTransition(EntityStates.FALLING, wallSlideTransition, EntityStates.WALL_SLIDING);
+//		esm.addTransition(EntityStates.WALL_SLIDING, offWall, EntityStates.FALLING);
+//		esm.addTransition(EntityStates.WALL_SLIDING, Transitions.INPUT, jumpData, EntityStates.WALL_JUMP);
+		esm.addTransition(EntityStates.JUMPING, Transitions.INPUT, dashData, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
 		esm.changeState(EntityStates.IDLING);

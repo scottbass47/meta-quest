@@ -25,11 +25,15 @@ public class AnimationSystem extends IteratingSystem {
 		StateComponent stateComp = Mappers.state.get(entity);
 
 		if (asmComp != null) {
+			// Grow / shrink texture region array
+			while(asmComp.size() > texComp.numTextures()) texComp.getRegions().add(null);
+			while(asmComp.size() < texComp.numTextures()) texComp.getRegions().removeIndex(texComp.numTextures() - 1);
+			
 			for(int i = 0; i < asmComp.size(); i++){
 				AnimationStateMachine machine = asmComp.get(i);
 				machine.addTime(deltaTime);
 				Animation animation = animComp.animations.get(machine.getCurrentAnimation());
-				texComp.regions.set(i, animation == null ? null : animation.getKeyFrame(machine.getAnimationTime()));
+				texComp.getRegions().set(i, animation == null ? null : animation.getKeyFrame(machine.getAnimationTime()));
 			}
 		}
 		else {

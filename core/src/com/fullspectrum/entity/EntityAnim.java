@@ -8,7 +8,7 @@ public enum EntityAnim implements State{
 	IDLE,
 	RANDOM_IDLE,
 	RUNNING,
-	BACK_PEDALLING,
+	BACK_PEDALING,
 	JUMP, // Jump refers to the initial few frames of jumping
 	RISE, // Rise refers to the still frame once in the air 
 	FALLING,
@@ -35,7 +35,12 @@ public enum EntityAnim implements State{
 	SWING_1,
 	SWING_2,
 	SWING_3,
-	SWING_4;
+	SWING_4,
+	
+	// Rogue stuff
+	THROWING,
+	ARMS_RUNNING,
+	ARMS_BACK_PEDALING;
 	
 	@Override
 	public int numStates() {

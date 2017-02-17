@@ -57,6 +57,10 @@ public class Mappers {
 	public static final ComponentMapper<AISMComponent> aism = ComponentMapper.getFor(AISMComponent.class);
 	public static final ComponentMapper<ASMComponent> asm = ComponentMapper.getFor(ASMComponent.class);
 	
+	// Player
+	public static final ComponentMapper<KnightComponent> knight = ComponentMapper.getFor(KnightComponent.class);
+	public static final ComponentMapper<RogueComponent> rogue = ComponentMapper.getFor(RogueComponent.class);
+	
 	// Other
 	public static final ComponentMapper<StateComponent> state =  ComponentMapper.getFor(StateComponent.class);
 	public static final ComponentMapper<InputComponent> input =  ComponentMapper.getFor(InputComponent.class);
@@ -88,7 +92,6 @@ public class Mappers {
 	public static final ComponentMapper<SpawnComponent> spawn = ComponentMapper.getFor(SpawnComponent.class);
 	public static final ComponentMapper<SpawnerPoolComponent> spawnerPool = ComponentMapper.getFor(SpawnerPoolComponent.class);
 	public static final ComponentMapper<LevelSwitchComponent> levelSwitch = ComponentMapper.getFor(LevelSwitchComponent.class);
-	public static final ComponentMapper<KnightComponent> knight = ComponentMapper.getFor(KnightComponent.class);
 
 }
 
