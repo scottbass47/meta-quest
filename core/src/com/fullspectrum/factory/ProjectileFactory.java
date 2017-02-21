@@ -1,4 +1,4 @@
-package com.fullspectrum.entity;
+package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
@@ -8,6 +8,7 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.game.GameVars;
 
 public class ProjectileFactory {
@@ -52,6 +53,15 @@ public class ProjectileFactory {
 		ProjectileData data = initProjectile(entity, xOff, yOff, angle);
 
 		EntityManager.addEntity(EntityFactory.createBullet(engineComp.engine, worldComp.world, levelComp.level, speed, data.angle, data.x, data.y, damage, false, Mappers.type.get(entity).type));
+	}
+	
+	public static void spawnThrowingKnife(Entity entity, float xOff, float yOff, float speed, float damage, float angle) {
+		EngineComponent engineComp = Mappers.engine.get(entity);
+		WorldComponent worldComp = Mappers.world.get(entity);
+		LevelComponent levelComp = Mappers.level.get(entity);
+		ProjectileData data = initProjectile(entity, xOff, yOff, angle);
+
+		EntityManager.addEntity(EntityFactory.createThrowingKnife(engineComp.engine, worldComp.world, levelComp.level, speed, data.angle, data.x, data.y, damage, Mappers.type.get(entity).type));
 	}
 
 	public static void spawnExplosiveProjectile(Entity entity, float xOff, float yOff, float speed, float damage, float angle, float explosionRadius, float damageDropOffRate) {

@@ -6,7 +6,7 @@
 	
 	// Base Stats
 	health: 100,
-	sword_damage: 200,
+	sword_damage: 50,
 
 	// Movement
 	ground_speed: 5.0,

@@ -1,4 +1,4 @@
-package com.fullspectrum.entity;
+package com.fullspectrum.factory;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
@@ -94,6 +94,15 @@ import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.entity.AbilityType;
+import com.fullspectrum.entity.CoinType;
+import com.fullspectrum.entity.DropType;
+import com.fullspectrum.entity.EntityAnim;
+import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.entity.EntityLoader;
+import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityStates;
+import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.AnimationStateMachine;
@@ -308,6 +317,34 @@ public class EntityFactory {
 			.climb(5.0f)
 			.knockBack(EntityStates.IDLING)
 			.build();
+		
+//		esm.getState(EntityStates.RUNNING)
+//			.addChangeListener(new StateChangeListener() {
+//				@Override
+//				public void onEnter(State prevState, Entity entity) {
+//					Mappers.timer.get(entity).add("run_particle_timer", 0.5f, true, new TimeListener() {
+//						@Override
+//						public void onTime(Entity entity) {
+//							ParticleFactory.spawnRunParticle(entity);
+//						}
+//					});
+//					Mappers.timer.get(entity).add("change_direction", GameVars.UPS_INV, true, new TimeListener() {
+//						@Override
+//						public void onTime(Entity entity) {
+//							Input input = Mappers.input.get(entity).input;
+//							boolean facingRight = Mappers.facing.get(entity).facingRight;
+//							
+//							if(input.isPressed(Actions.MOVE_RIGHT) && !facingRight || input.isJustPressed(Actions.MOVE_LEFT) && facingRight){
+//								ParticleFactory.spawnRunParticle(entity);
+//							}
+//						}
+//					});
+//				}
+//				@Override
+//				public void onExit(State nextState, Entity entity) {
+//					Mappers.timer.get(entity).remove("run_particle_timer");
+//				}
+//			});
 		
 		// Notes
 		//	- If transitioning from running, jumping, or falling state skip initial swing animation
@@ -754,7 +791,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnBullet(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage);
+					ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage, 0.0f);
 					Mappers.rogue.get(entity).doThrowingAnim = true;
 					Mappers.facing.get(entity).locked = true;
 				}
@@ -774,6 +811,14 @@ public class EntityFactory {
 		rogueSM.changeState(EntityStates.IDLING);
 //		rogueSM.setDebugOutput(true);
 		return rogueSM;
+	}
+	
+	private static boolean isBackpedaling(Entity rogue){
+		FacingComponent facingComp = Mappers.facing.get(rogue);
+		DirectionComponent directionComp = Mappers.direction.get(rogue);
+		
+		boolean facingRight = facingComp.facingRight;
+		return (facingRight && directionComp.direction == Direction.LEFT) || (!facingRight && directionComp.direction == Direction.RIGHT);
 	}
 	
 	public static Entity createRogue(Engine engine, World world, Level level, float x, float y){
@@ -805,7 +850,8 @@ public class EntityFactory {
 		animMap.put(EntityAnim.BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
 		animMap.put(EntityAnim.ARMS_BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
 		animMap.put(EntityAnim.ARMS_RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
-		animMap.put(EntityAnim.THROWING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.THROWING_RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.THROWING_BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		
 		Entity rogue = new EntityBuilder("rogue", engine, world, level)
 			.animation(animMap)
@@ -838,40 +884,49 @@ public class EntityFactory {
 			.knockBack(EntityStates.IDLING)
 			.build();
 		
+		Transition backpedalingTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return isBackpedaling(entity);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Backpedaling";
+			}
+		};
+		
+		Transition notBackpedalingTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return !isBackpedaling(entity);
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Not Backpedaling";
+			}
+		};
+		
 		// RUNNING TO BACK PEDALING AND VICE VERSA TRANSITION
 		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
 		runningASM.createState(EntityAnim.BACK_PEDALING);
 		
-		runningASM.addTransition(EntityAnim.RUNNING, new Transition() {
-			@Override
-			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-				FacingComponent facingComp = Mappers.facing.get(entity);
-				DirectionComponent directionComp = Mappers.direction.get(entity);
-				
-				boolean facingRight = facingComp.facingRight;
-				return (facingRight && directionComp.direction == Direction.LEFT) || (!facingRight && directionComp.direction == Direction.RIGHT);
-			}
-			
-			@Override
-			public boolean allowMultiple() {
-				return false;
-			}
-		}, EntityAnim.BACK_PEDALING);
-		runningASM.addTransition(EntityAnim.BACK_PEDALING, new Transition() {
-			@Override
-			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-				FacingComponent facingComp = Mappers.facing.get(entity);
-				DirectionComponent directionComp = Mappers.direction.get(entity);
-				
-				boolean facingRight = facingComp.facingRight;
-				return (facingRight && directionComp.direction == Direction.RIGHT) || (!facingRight && directionComp.direction == Direction.LEFT);
-			}
-			
-			@Override
-			public boolean allowMultiple() {
-				return false;
-			}
-		}, EntityAnim.RUNNING);
+		runningASM.addTransition(EntityAnim.RUNNING, backpedalingTransition, EntityAnim.BACK_PEDALING);
+		runningASM.addTransition(EntityAnim.BACK_PEDALING, notBackpedalingTransition, EntityAnim.RUNNING);
+		
+		runningASM.setDebugName("Running ASM");
+		System.out.println(runningASM.printTransitions());
 		
 		// ***************************
 		// * Upper Body Throwing ASM *
@@ -883,10 +938,10 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ASMComponent asmComp = Mappers.asm.get(entity);
-					AnimationStateMachine machine = asmComp.get(EntityAnim.ARMS_RUNNING);
+					AnimationStateMachine throwingASM = asmComp.get(EntityAnim.ARMS_RUNNING);
+					AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUNNING);
 
-					// INCOMPLETE Sync animation to running
-					machine.setTime(0.0f);
+					throwingASM.setTime(runningASM.getAnimationTime());
 				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
@@ -897,16 +952,26 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ASMComponent asmComp = Mappers.asm.get(entity);
-					AnimationStateMachine machine = asmComp.get(EntityAnim.ARMS_BACK_PEDALING);
+					AnimationStateMachine throwingASM = asmComp.get(EntityAnim.ARMS_BACK_PEDALING);
+					AnimationStateMachine runningASM = asmComp.get(EntityAnim.BACK_PEDALING);
 
-					// INCOMPLETE Sync animation to running
-					machine.setTime(0.0f);
+					throwingASM.setTime(runningASM.getAnimationTime());
 				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
 				}
 			});
-		throwingASM.createState(EntityAnim.THROWING)
+		throwingASM.createState(EntityAnim.THROWING_RUNNING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.rogue.get(entity).doThrowingAnim = false;
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+				}
+			});
+		throwingASM.createState(EntityAnim.THROWING_BACK_PEDALING)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -917,48 +982,8 @@ public class EntityFactory {
 				}
 			});
 		
-		// Throwing to running arms
-		MultiTransition throwingToRunning = new MultiTransition(Transitions.ANIMATION_FINISHED)
-				.and(new Transition() {
-					@Override
-					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-						ASMComponent asmComp = Mappers.asm.get(entity);
-
-						// You know this will not be null because the throwing state machine will always
-						// be parallel to the running state machine
-						AnimationStateMachine machine = asmComp.get(EntityAnim.RUNNING); 
-						return machine.getCurrentState() == EntityAnim.RUNNING;
-					}
-					
-					@Override
-					public boolean allowMultiple() {
-						return false;
-					}
-				});
-		
-		// Throwing to back-pedaling arms
-		MultiTransition throwingToBackpedaling = new MultiTransition(Transitions.ANIMATION_FINISHED)
-				.and(new Transition(){
-					@Override
-					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-						ASMComponent asmComp = Mappers.asm.get(entity);
-
-						// You know this will not be null because the throwing state machine will always
-						// be parallel to the running state machine
-						AnimationStateMachine machine = asmComp.get(EntityAnim.RUNNING); 
-						return machine.getCurrentState() == EntityAnim.BACK_PEDALING;
-					}
-
-					@Override
-					public boolean allowMultiple() {
-						return false;
-					}
-				});
-		
-		// Throwing to not-throwing
-		throwingASM.addTransition(EntityAnim.THROWING, throwingToRunning, EntityAnim.ARMS_RUNNING);
-		throwingASM.addTransition(EntityAnim.THROWING, throwingToBackpedaling, EntityAnim.ARMS_BACK_PEDALING);
-		throwingASM.addTransition(throwingASM.one(EntityAnim.ARMS_RUNNING, EntityAnim.ARMS_BACK_PEDALING), new Transition() {
+		// Throwing transition
+		Transition throwTransition = new Transition() {
 			@Override
 			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 				return Mappers.rogue.get(entity).doThrowingAnim;
@@ -968,7 +993,22 @@ public class EntityFactory {
 			public boolean allowMultiple() {
 				return false;
 			}
-		}, EntityAnim.THROWING);
+			
+			@Override
+			public String toString() {
+				return "Throw";
+			}
+		};
+		
+		throwingASM.addTransition(EntityAnim.THROWING_RUNNING, Transitions.ANIMATION_FINISHED, EntityAnim.ARMS_RUNNING);
+		throwingASM.addTransition(EntityAnim.THROWING_BACK_PEDALING, Transitions.ANIMATION_FINISHED, EntityAnim.ARMS_BACK_PEDALING);
+		throwingASM.addTransition(EntityAnim.ARMS_RUNNING, throwTransition, EntityAnim.THROWING_RUNNING);
+		throwingASM.addTransition(EntityAnim.ARMS_BACK_PEDALING, throwTransition, EntityAnim.THROWING_BACK_PEDALING);
+		throwingASM.addTransition(EntityAnim.ARMS_RUNNING, backpedalingTransition, EntityAnim.ARMS_BACK_PEDALING);
+		throwingASM.addTransition(EntityAnim.ARMS_BACK_PEDALING, notBackpedalingTransition, EntityAnim.ARMS_RUNNING);
+		
+		throwingASM.setDebugName("Throwing ASM");
+		System.out.println(throwingASM.printTransitions());
 		
 		// Add the new animation state machine as a substate machine of the running entity state (should handle initial state change)
 		esm.getState(EntityStates.RUNNING).addSubstateMachine(throwingASM);
@@ -1873,6 +1913,23 @@ public class EntityFactory {
 		Entity bullet = createProjectile(engine, world, level, "bullet.json", speed, angle, x, y, isArc, type);
 		bullet.add(engine.createComponent(BulletStatsComponent.class).set(damage));
 		return bullet;
+	}
+	
+	// CLEANUP Should be an option to create bullets with animations
+	public static Entity createThrowingKnife(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, EntityType type){
+		Entity knife = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
+		
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE));
+		
+		knife = new EntityBuilder(knife)
+			.render(animMap.get(EntityAnim.ATTACK).getKeyFrame(0.0f), true)
+			.animation(animMap)
+			.build();
+		
+		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.ATTACK));
+		
+		return knife;
 	}
 	
 	public static Entity createSpitProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, float airTime, EntityType type){

@@ -1,4 +1,4 @@
-package com.fullspectrum.entity;
+package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -18,6 +18,8 @@ import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.WallComponent;
+import com.fullspectrum.entity.EntityAnim;
+import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.State;

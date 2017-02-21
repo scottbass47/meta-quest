@@ -30,7 +30,7 @@ public class Assets {
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
 	
-	// Knight
+	// AI Player
 	public static final String AI_PLAYER_IDLE = "ai_player_idle";
 	public static final String AI_PLAYER_WALK = "ai_player_walk";
 	public static final String AI_PLAYER_RISE = "ai_player_rise";
@@ -61,6 +61,9 @@ public class Assets {
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_FALL = "knight_fall";
 	public static final String KNIGHT_LAND = "knight_land";
+	
+	// Rogue Player
+	public static final String ROGUE_PROJECTILE = "rogue_projectile";
 
 	
 	// Shadow Player
@@ -106,6 +109,7 @@ public class Assets {
 	
 	// Particles
 	public static final String JUMP_PARTICLE = "jump_particle";
+	public static final String RUN_PARTICLE = "run_particle";
 	
 	public static final float ANIM_SPEED = 0.1f;
 	

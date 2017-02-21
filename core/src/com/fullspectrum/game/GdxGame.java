@@ -31,6 +31,7 @@ import com.fullspectrum.input.RawInput;
  * TODO Add audio system to handle sound effects and music
  * TODO Add in chain transitions
  * TODO Add entity type to type component (i.e. Player, Slime, Spitter, etc... different from Friendly, Neutral, and Enemy)
+ * TODO Add in wave system for testing abilities and upgrades
  */
 public class GdxGame extends Game {
 	// Rendering

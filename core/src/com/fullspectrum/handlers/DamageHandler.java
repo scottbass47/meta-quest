@@ -20,12 +20,15 @@ import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TimerComponent.Timer;
+import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.WorldComponent;
-import com.fullspectrum.entity.DropFactory;
-import com.fullspectrum.entity.EntityFactory;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.factory.DropFactory;
+import com.fullspectrum.factory.EntityFactory;
 
 public class DamageHandler {
+	
+	private final static Color hitColor = new Color(210f / 255f, 20f / 255f, 60f / 255f, 1.0f);
 
 	private DamageHandler() {
 	}
@@ -53,6 +56,14 @@ public class DamageHandler {
 					entity.remove(InvincibilityComponent.class);
 					entity.remove(BlinkComponent.class);
 					if (entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
+				}
+			});
+		} else {
+			toEntity.add(engineComp.engine.createComponent(TintComponent.class).set(hitColor));
+			Mappers.timer.get(toEntity).add("red_tint", 0.15f, false, new TimeListener() {
+				@Override
+				public void onTime(Entity entity) {
+					entity.remove(TintComponent.class);
 				}
 			});
 		}

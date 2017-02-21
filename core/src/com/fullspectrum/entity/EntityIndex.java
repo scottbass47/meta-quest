@@ -3,6 +3,7 @@ package com.fullspectrum.entity;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.World;
+import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.Level;
 
 public enum EntityIndex {

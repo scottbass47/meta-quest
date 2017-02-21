@@ -27,6 +27,10 @@ public class TimerComponent implements Component, Poolable{
 		timers = null;
 	}
 	
+	public void remove(String name){
+		timers.removeKey(name.toLowerCase());
+	}
+	
 	public static class Timer{
 		private float time;
 		private boolean looping;

@@ -1,4 +1,4 @@
-package com.fullspectrum.entity;
+package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
@@ -9,6 +9,8 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
+import com.fullspectrum.entity.CoinType;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.level.Level;
 
 public class DropFactory {

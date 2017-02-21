@@ -38,7 +38,8 @@ public enum EntityAnim implements State{
 	SWING_4,
 	
 	// Rogue stuff
-	THROWING,
+	THROWING_RUNNING,
+	THROWING_BACK_PEDALING,
 	ARMS_RUNNING,
 	ARMS_BACK_PEDALING;
 	
