@@ -253,7 +253,7 @@ public class EntityFactory {
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
@@ -791,9 +791,14 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage, 0.0f);
 					Mappers.rogue.get(entity).doThrowingAnim = true;
 					Mappers.facing.get(entity).locked = true;
+					Mappers.timer.get(entity).add("delayed_throw", 0.2f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 0.0f, projectileSpeed, projectileDamage, 0.0f);
+						}
+					});
 				}
 
 				@Override
@@ -805,7 +810,7 @@ public class EntityFactory {
 		InputTransitionData notAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 		
 		rogueSM.addTransition(rogueSM.one(EntityStates.CLEAN_UP, EntityStates.IDLING), Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
-		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(2.0f), EntityStates.IDLING);
 		rogueSM.addTransition(rogueSM.one(EntityStates.PROJECTILE_ATTACK, EntityStates.IDLING), Transitions.INPUT, notAttacking, EntityStates.CLEAN_UP);
 		
 		rogueSM.changeState(EntityStates.IDLING);
@@ -827,7 +832,6 @@ public class EntityFactory {
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
@@ -847,11 +851,12 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
-		animMap.put(EntityAnim.BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
-		animMap.put(EntityAnim.ARMS_BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
-		animMap.put(EntityAnim.ARMS_RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
-		animMap.put(EntityAnim.THROWING_RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
-		animMap.put(EntityAnim.THROWING_BACK_PEDALING, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
+		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.ROGUE_RUN));
+		animMap.put(EntityAnim.RUN_ARMS, assets.getSpriteAnimation(Assets.ROGUE_RUN_ARMS));
+		animMap.put(EntityAnim.RUN_THROW, assets.getSpriteAnimation(Assets.ROGUE_RUN_THROW));
+		animMap.put(EntityAnim.BACK_PEDAL, assets.getSpriteAnimation(Assets.ROGUE_BACK_PEDAL));
+		animMap.put(EntityAnim.BACK_PEDAL_ARMS, assets.getSpriteAnimation(Assets.ROGUE_BACK_PEDAL_ARMS));
+		animMap.put(EntityAnim.BACK_PEDAL_THROW, assets.getSpriteAnimation(Assets.ROGUE_BACK_PEDAL_THROW));
 		
 		Entity rogue = new EntityBuilder("rogue", engine, world, level)
 			.animation(animMap)
@@ -869,7 +874,7 @@ public class EntityFactory {
 					 rogueStats.get("shield_rate"), 
 					 rogueStats.get("shield_delay")));
 		rogue.add(engine.createComponent(AbilityComponent.class));
-		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
+//		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		rogue.add(engine.createComponent(RogueComponent.class));
 		
 		createRogueAttackMachine(rogue, rogueStats);
@@ -918,12 +923,12 @@ public class EntityFactory {
 			}
 		};
 		
-		// RUNNING TO BACK PEDALING AND VICE VERSA TRANSITION
+		// RUNNING TO BACK PEDALING AND VICE VERSA TRANSITIONS
 		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
-		runningASM.createState(EntityAnim.BACK_PEDALING);
+		runningASM.createState(EntityAnim.BACK_PEDAL);
 		
-		runningASM.addTransition(EntityAnim.RUNNING, backpedalingTransition, EntityAnim.BACK_PEDALING);
-		runningASM.addTransition(EntityAnim.BACK_PEDALING, notBackpedalingTransition, EntityAnim.RUNNING);
+		runningASM.addTransition(EntityAnim.RUN, backpedalingTransition, EntityAnim.BACK_PEDAL);
+		runningASM.addTransition(EntityAnim.BACK_PEDAL, notBackpedalingTransition, EntityAnim.RUN);
 		
 		runningASM.setDebugName("Running ASM");
 		System.out.println(runningASM.printTransitions());
@@ -933,45 +938,61 @@ public class EntityFactory {
 		// ***************************
 		
 		AnimationStateMachine throwingASM = new AnimationStateMachine(rogue, new StateObjectCreator());
-		throwingASM.createState(EntityAnim.ARMS_RUNNING)
+		throwingASM.createState(EntityAnim.RUN_ARMS)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ASMComponent asmComp = Mappers.asm.get(entity);
-					AnimationStateMachine throwingASM = asmComp.get(EntityAnim.ARMS_RUNNING);
-					AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUNNING);
+					final AnimationStateMachine throwingASM = asmComp.get(EntityAnim.RUN_ARMS);
+					final AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUN);
 
-					throwingASM.setTime(runningASM.getAnimationTime());
+					// CLEANUP More 0 second timers....
+					Mappers.timer.get(entity).add("delayed_time_set", 0.0f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							throwingASM.setTime(runningASM.getAnimationTime());							
+						}
+					});
 				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
+					
 				}
 			});
-		throwingASM.createState(EntityAnim.ARMS_BACK_PEDALING)
+		throwingASM.createState(EntityAnim.BACK_PEDAL_ARMS)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ASMComponent asmComp = Mappers.asm.get(entity);
-					AnimationStateMachine throwingASM = asmComp.get(EntityAnim.ARMS_BACK_PEDALING);
-					AnimationStateMachine runningASM = asmComp.get(EntityAnim.BACK_PEDALING);
+					final AnimationStateMachine throwingASM = asmComp.get(EntityAnim.RUN_ARMS);
+					final AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUN);
 
-					throwingASM.setTime(runningASM.getAnimationTime());
+					// CLEANUP More 0 second timers....
+					Mappers.timer.get(entity).add("delayed_time_set", 0.0f, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							throwingASM.setTime(runningASM.getAnimationTime());							
+						}
+					});
 				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
+					
 				}
 			});
-		throwingASM.createState(EntityAnim.THROWING_RUNNING)
+		throwingASM.createState(EntityAnim.RUN_THROW)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
+//					AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.RUN_THROW);
+//					System.out.println("Time After Changing: " + asm.getAnimationTime());
 					Mappers.rogue.get(entity).doThrowingAnim = false;
 				}
 				@Override
 				public void onExit(State nextState, Entity entity) {
 				}
 			});
-		throwingASM.createState(EntityAnim.THROWING_BACK_PEDALING)
+		throwingASM.createState(EntityAnim.BACK_PEDAL_THROW)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -1000,12 +1021,12 @@ public class EntityFactory {
 			}
 		};
 		
-		throwingASM.addTransition(EntityAnim.THROWING_RUNNING, Transitions.ANIMATION_FINISHED, EntityAnim.ARMS_RUNNING);
-		throwingASM.addTransition(EntityAnim.THROWING_BACK_PEDALING, Transitions.ANIMATION_FINISHED, EntityAnim.ARMS_BACK_PEDALING);
-		throwingASM.addTransition(EntityAnim.ARMS_RUNNING, throwTransition, EntityAnim.THROWING_RUNNING);
-		throwingASM.addTransition(EntityAnim.ARMS_BACK_PEDALING, throwTransition, EntityAnim.THROWING_BACK_PEDALING);
-		throwingASM.addTransition(EntityAnim.ARMS_RUNNING, backpedalingTransition, EntityAnim.ARMS_BACK_PEDALING);
-		throwingASM.addTransition(EntityAnim.ARMS_BACK_PEDALING, notBackpedalingTransition, EntityAnim.ARMS_RUNNING);
+		throwingASM.addTransition(EntityAnim.RUN_THROW, Transitions.ANIMATION_FINISHED, EntityAnim.RUN_ARMS);
+		throwingASM.addTransition(EntityAnim.BACK_PEDAL_THROW, Transitions.ANIMATION_FINISHED, EntityAnim.BACK_PEDAL_ARMS);
+		throwingASM.addTransition(EntityAnim.RUN_ARMS, throwTransition, EntityAnim.RUN_THROW);
+		throwingASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, throwTransition, EntityAnim.BACK_PEDAL_THROW);
+		throwingASM.addTransition(EntityAnim.RUN_ARMS, backpedalingTransition, EntityAnim.BACK_PEDAL_ARMS);
+		throwingASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, notBackpedalingTransition, EntityAnim.RUN_ARMS);
 		
 		throwingASM.setDebugName("Throwing ASM");
 		System.out.println(throwingASM.printTransitions());
@@ -1168,7 +1189,7 @@ public class EntityFactory {
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
@@ -1308,7 +1329,7 @@ public class EntityFactory {
 		// Setup Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.AI_PLAYER_IDLE));
-		animMap.put(EntityAnim.RUNNING, assets.getSpriteAnimation(Assets.AI_PLAYER_WALK));
+		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.AI_PLAYER_WALK));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.AI_PLAYER_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.AI_PLAYER_FALL));
 		animMap.put(EntityAnim.RANDOM_IDLE, assets.getSpriteAnimation(Assets.AI_PLAYER_IDLE));

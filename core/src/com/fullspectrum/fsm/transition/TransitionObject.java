@@ -12,7 +12,7 @@ public class TransitionObject {
 	
 	@Override
 	public String toString() {
-		return transition.toString() + ", " + (data == null ? "" : data.toString());
+		return transition.toString() + (data == null ? "" : ", " + data.toString());
 	}
 	
 	

@@ -9,6 +9,7 @@ import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
@@ -62,10 +63,20 @@ public enum Transitions implements Transition{
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			AnimationComponent animComp = Mappers.animation.get(entity);
 			ASMComponent asmComp = Mappers.asm.get(entity);
+			ESMComponent esmComp = Mappers.esm.get(entity);
 			if (animComp == null || asmComp == null) return false;
 			for(AnimationStateMachine machine : asmComp.getMachines()){
-				if (machine.getAnimationTime() >= animComp.animations.get(machine.getCurrentAnimation()).getAnimationDuration() - 2 * deltaTime) {
-					return true;
+				// CLEANUP MESSY!! How to handle ESMs and ASMs both having Animation Finished transitions???
+				// CLEANUP MESSY!! How to handle ESMs and ASMs both having Animation Finished transitions???
+				// CLEANUP MESSY!! How to handle ESMs and ASMs both having Animation Finished transitions???
+				// CLEANUP MESSY!! How to handle ESMs and ASMs both having Animation Finished transitions???
+				if(machine.getCurrentStateObject().getAllTransitionObjects().contains(obj) ||
+					(esmComp != null && esmComp.first() != null && 
+					esmComp.first().getCurrentStateObject().getAllTransitionObjects().contains(obj))) {
+					
+					if (machine.getAnimationTime() >= animComp.animations.get(machine.getCurrentAnimation()).getAnimationDuration() - 2 * deltaTime) {
+						return true;
+					}
 				}
 			}
 			return false;

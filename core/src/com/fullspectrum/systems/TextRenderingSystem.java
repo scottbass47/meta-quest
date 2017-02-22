@@ -35,6 +35,7 @@ public class TextRenderingSystem extends EntitySystem{
 		
 	}
 	
+	// BUG Text rendering doesn't work full screen
 	public void render(SpriteBatch batch, Entity camera){
 		CameraComponent cameraComp = Mappers.camera.get(camera);
 		batch.setProjectionMatrix(hudCam.combined);
@@ -43,6 +44,8 @@ public class TextRenderingSystem extends EntitySystem{
 			PositionComponent positionComp = Mappers.position.get(e);
 			TextRenderComponent textRenderComp = Mappers.textRender.get(e);
 			Vector3 coords = cameraComp.camera.project(new Vector3(positionComp.x, positionComp.y, 0.0f));
+			
+//			System.out.println(coords);
 			
 			textRenderComp.font.setColor(textRenderComp.color);
 			textRenderComp.font.getData().setScale(cameraComp.zoom);

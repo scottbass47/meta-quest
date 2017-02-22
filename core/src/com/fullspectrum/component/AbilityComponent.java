@@ -57,11 +57,16 @@ public class AbilityComponent implements Component, Poolable{
 		private TextureRegion icon;
 		private float rechargeTime;
 		private float elapsed = 0.0f;
+		private float time;
 		
 		public Ability(TextureRegion icon, float rechargeTIme){
 			this.icon = icon;
 			this.rechargeTime = rechargeTIme;
 		}
+		
+	}
+	
+	public static interface AbilityBehavior{
 		
 	}
 

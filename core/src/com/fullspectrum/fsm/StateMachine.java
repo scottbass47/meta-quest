@@ -204,6 +204,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	public boolean changeState(TransitionObject obj) {
 		if (currentState.getState(obj) != null) {
+			if(debugOutput) Gdx.app.log(debugName, "state change caused by " + obj.toString());
 			changeState(currentState.getState(obj));
 			return true;
 		}
@@ -213,6 +214,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 				multi.set(obj, true);
 				if (multi.shouldTransition()) {
 					multi.resetMap();
+					if(debugOutput) Gdx.app.log(debugName, "state change caused by " + multi.toString());
 					changeState(currentState.getState(multi));
 					return true;
 				}

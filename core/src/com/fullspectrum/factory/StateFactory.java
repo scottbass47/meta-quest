@@ -72,7 +72,7 @@ public class StateFactory {
 				.add(engine.createComponent(SpeedComponent.class).set(speed))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.addAnimation(EntityAnim.RUNNING)
+				.addAnimation(EntityAnim.RUN)
 				.addTag(TransitionTag.GROUND_STATE);
 			return this;
 		}

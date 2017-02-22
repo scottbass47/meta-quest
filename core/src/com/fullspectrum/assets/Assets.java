@@ -64,7 +64,12 @@ public class Assets {
 	
 	// Rogue Player
 	public static final String ROGUE_PROJECTILE = "rogue_projectile";
-
+	public static final String ROGUE_RUN = "rogue_run";
+	public static final String ROGUE_RUN_ARMS = "rogue_run_arms";
+	public static final String ROGUE_RUN_THROW = "rogue_run_throw";
+	public static final String ROGUE_BACK_PEDAL = "rogue_back_pedal";
+	public static final String ROGUE_BACK_PEDAL_ARMS = "rogue_back_pedal_arms";
+	public static final String ROGUE_BACK_PEDAL_THROW = "rogue_back_pedal_throw";
 	
 	// Shadow Player
 	public static final String SHADOW_IDLE = "temp_player_idle";

@@ -13,7 +13,7 @@
 	projectile_speed: 25.0,
 	
 	// Movement
-	ground_speed: 10.0,
+	ground_speed: 4.0,
 	air_speed: 10.0,
 	climb_speed: 6.0,
 	jump_force: 15.0,
