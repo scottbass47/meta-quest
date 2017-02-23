@@ -109,7 +109,7 @@ public enum Sensors {
 			if(!Mappers.type.get(entity).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
-			DamageHandler.dealDamage(otherEntity, bulletStatsComp.damage);
+			DamageHandler.dealDamage(entity, otherEntity, bulletStatsComp.damage);
 			
 			EntityManager.sendToDie(entity);
 		}
@@ -154,7 +154,7 @@ public enum Sensors {
 			float knockBackDistance = combustibleComp.radius - distanceTraveled;
 			float knockBackSpeed = speed * (1 - (distanceTraveled / combustibleComp.radius));
 			
-			DamageHandler.dealDamage(otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, knockBackSpeed, projectileComp.angle);
+			DamageHandler.dealDamage(entity, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, knockBackSpeed, projectileComp.angle);
 		}
 
 		@Override

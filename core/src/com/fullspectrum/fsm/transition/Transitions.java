@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.ASMComponent;
-import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
@@ -23,7 +22,7 @@ import com.fullspectrum.utils.StringUtils;
 
 public enum Transitions implements Transition{
 
-	FALLING() {
+	FALLING {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			BodyComponent bodyComp = Mappers.body.get(entity);
@@ -41,7 +40,7 @@ public enum Transitions implements Transition{
 		}
 
 	},
-	RANDOM() {
+	RANDOM {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			RandomTransitionData rtd = (RandomTransitionData) obj.data;
@@ -58,7 +57,7 @@ public enum Transitions implements Transition{
 			return true;
 		}
 	},
-	ANIMATION_FINISHED() {
+	ANIMATION_FINISHED {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			AnimationComponent animComp = Mappers.animation.get(entity);
@@ -87,7 +86,7 @@ public enum Transitions implements Transition{
 			return false;
 		}
 	},
-	LANDED() {
+	LANDED {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			CollisionComponent collisionComp = Mappers.collision.get(entity);
@@ -103,7 +102,7 @@ public enum Transitions implements Transition{
 			return false;
 		}
 	},
-	INPUT() {
+	INPUT {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			InputComponent inputComp = Mappers.input.get(entity);
@@ -148,7 +147,7 @@ public enum Transitions implements Transition{
 			}
 		}
 	},
-	RANGE() {
+	RANGE {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			LevelComponent levelComp = Mappers.level.get(entity);
@@ -191,7 +190,7 @@ public enum Transitions implements Transition{
 			return true;
 		}
 	},
-	LINE_OF_SIGHT(){
+	LINE_OF_SIGHT{
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			LevelComponent levelComp = Mappers.level.get(entity);
@@ -222,7 +221,7 @@ public enum Transitions implements Transition{
 		}
 		
 	},
-	INVALID_ENTITY() {
+	INVALID_ENTITY {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			TargetComponent targetComp = Mappers.target.get(entity);
@@ -236,7 +235,7 @@ public enum Transitions implements Transition{
 			return false;
 		}
 	},
-	TIME() {
+	TIME {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			TimeTransitionData ttd = (TimeTransitionData) obj.data;
@@ -252,7 +251,7 @@ public enum Transitions implements Transition{
 			return false;
 		}
 	},
-	COLLISION() {
+	COLLISION {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			CollisionComponent collisionComp = Mappers.collision.get(entity);
@@ -285,7 +284,7 @@ public enum Transitions implements Transition{
 			return true;
 		}
 	},
-	COMPONENT() {
+	COMPONENT {
 		@Override
 		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 			ComponentTransitionData ctd = (ComponentTransitionData)obj.data;
@@ -298,23 +297,8 @@ public enum Transitions implements Transition{
 		public boolean allowMultiple() {
 			return true;
 		}
-	},
-	ABILITY(){
-		@Override
-		public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-			AbilityComponent abilityComp = Mappers.ability.get(entity);
-			if(abilityComp == null) return false;
-			AbilityTransitionData atd = (AbilityTransitionData) obj.data;
-			if(atd == null) return false;
-			return abilityComp.isAbilityReady(atd.type);
-		}
-		
-		@Override
-		public boolean allowMultiple() {
-			return true;
-		}
 	};
-	
+
 	public String toString() {
 		return StringUtils.toTitleCase(name());
 	}

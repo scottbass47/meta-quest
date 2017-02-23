@@ -1,12 +1,5 @@
 package com.fullspectrum.game;
 
-import static com.fullspectrum.game.GameVars.FRAMEBUFFER_HEIGHT;
-import static com.fullspectrum.game.GameVars.FRAMEBUFFER_WIDTH;
-import static com.fullspectrum.game.GameVars.SCREEN_HEIGHT;
-import static com.fullspectrum.game.GameVars.SCREEN_WIDTH;
-
-import java.util.Comparator;
-
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
@@ -25,14 +18,13 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.badlogic.gdx.utils.Sort;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AISMComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -45,17 +37,14 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugRender;
-import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.entity.AbilityType;
+import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -63,7 +52,6 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
-import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -105,7 +93,6 @@ import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WallSlideSystem;
 import com.fullspectrum.systems.WanderingSystem;
-import com.fullspectrum.utils.PhysicsUtils;
 
 public class GameScreen extends AbstractScreen {
 
@@ -161,7 +148,7 @@ public class GameScreen extends AbstractScreen {
 //		vignetteShader.end();
 
 		// Setup Frame Buffer
-		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, false);
+		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, GameVars.FRAMEBUFFER_WIDTH, GameVars.FRAMEBUFFER_HEIGHT, false);
 		frameBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
 //		mainBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, SCREEN_WIDTH, SCREEN_HEIGHT, false);
 //		mainBuffer.getColorBufferTexture().setFilter(Texture.TextureFilter.Nearest, Texture.TextureFilter.Nearest);
@@ -216,6 +203,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new WallSlideSystem());
 		
+		// INSERT KNOCKBACK SYSTEM HERE
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
@@ -452,7 +440,7 @@ public class GameScreen extends AbstractScreen {
 //		batch.setProjectionMatrix(batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 //		mellowShader.setUniformf("u_textureSizes", FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 1.0f, 0.0f);
 //		mellowShader.setUniformf("u_sampleProperties", camera.subpixelX, camera.subpixelY, camera.upscaleOffsetX, camera.upscaleOffsetY);
-		batch.draw(frameBuffer.getColorBufferTexture(), 0, SCREEN_HEIGHT, SCREEN_WIDTH, -SCREEN_HEIGHT);
+		batch.draw(frameBuffer.getColorBufferTexture(), 0, GameVars.SCREEN_HEIGHT, GameVars.SCREEN_WIDTH, -GameVars.SCREEN_HEIGHT);
 		batch.end();
 		
 //		batch.setShader(vignetteShader);
@@ -515,22 +503,23 @@ public class GameScreen extends AbstractScreen {
 		TextureRegion newHud = assets.getHUDElement(Assets.newHud);
 		TextureRegion coin = assets.getSpriteAnimation(Assets.goldCoin).getKeyFrame(0);
 		
-		float scale = 4.0f;
+		float scale = 3.0f;
 
 		batch.begin();
 		// Abilities
 		float abilityY = 150;
 		float tallestIcon = 0.0f;
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
-			TextureRegion icon = abilityComp.getIcon(type);
+			Ability ability = abilityComp.getAbility(type);
+			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
 			float iconWidth = icon.getRegionWidth();
 			float iconHeight = icon.getRegionHeight();
 			float x = GameVars.SCREEN_WIDTH * 0.5f - iconWidth * 0.5f;
 			if(iconHeight > tallestIcon) tallestIcon = iconHeight;
 			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
-			if(!abilityComp.isAbilityReady(type)){
-				int timeLeft = (int)(abilityComp.getRechargeTime(type) - abilityComp.getElapsed(type) + 0.5f);
+			if(!ability.isReady()){
+				int timeLeft = (int)(ability.getCooldown() - ability.getTimeElapsed() + 0.5f);
 				font.setColor(Color.WHITE);
 				font.draw(batch, "" + timeLeft, x - 4.0f, abilityY + 8.0f);
 			}
@@ -539,7 +528,7 @@ public class GameScreen extends AbstractScreen {
 		// Health
 		float healthEmptyWidth = healthEmpty.getRegionWidth();
 		float healthEmptyHeight = healthEmpty.getRegionHeight();
-		float healthY = abilityY - (tallestIcon + healthEmptyHeight) * scale;
+		float healthY = abilityY - tallestIcon * scale + 4.0f;
 
 		int healthSrcX = healthFull.getRegionX();
 		int healthSrcY = healthFull.getRegionY();
@@ -573,8 +562,6 @@ public class GameScreen extends AbstractScreen {
 		
 		font.setColor(Color.WHITE);
 		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 12);
-		
-		
 		
 		batch.end();
 	}
@@ -651,106 +638,106 @@ public class GameScreen extends AbstractScreen {
 		DebugRender.line(x1, y1, x2, y2);
 	}
 	
-	private void renderChainBox(SpriteBatch batch, Entity player){
-		BodyComponent bodyComp = Mappers.body.get(player);
-		FacingComponent facingComp = Mappers.facing.get(player);
-		
-		if(Mappers.esm.get(player).first().getCurrentState() == EntityStates.SWING_ANTICIPATION || true){
-			Vector2 pos = bodyComp.body.getPosition();
-			
-			float myX = pos.x;
-			float myY = pos.y;
-			float minX = 0.5f;
-			float maxX = 7.0f;
-			float yRange = 1.5f;
-			
-			// Construct box in front of you
-			float closeX = facingComp.facingRight ? myX + minX : myX - minX;
-			float farX = facingComp.facingRight ? myX + maxX : myX - maxX;
-			float top = myY + yRange;
-			float bottom = myY - yRange;
-			
-			// Draw Raytraces
-			// Ray Trace
-			Array<Entity> entities = Mappers.level.get(player).levelHelper.getEntities(new EntityGrabber() {
-				@Override
-				public boolean validEntity(Entity me, Entity other) {
-					if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
-					return true;
-				}
-				
-				@Override
-				public Family componentsNeeded() {
-					return Family.all(HealthComponent.class, TypeComponent.class).get();
-				}
-			});
-			if(entities.size == 0) return;
-		
-			final Entity copy = player;
-			Sort.instance().sort(entities, new Comparator<Entity>() {
-				@Override
-				public int compare(Entity o1, Entity o2) {
-					float d1 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o1).body);
-					float d2 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o2).body);
-					return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
-				}
-			});
-			
-			Body otherBody = Mappers.body.get(entities.first()).body;
-			float otherX = otherBody.getPosition().x;
-			float otherY = otherBody.getPosition().y;
-			
-			float angle = MathUtils.atan2(otherY - myY, otherX - myX) * MathUtils.radiansToDegrees;
-			
-			// Check to see what quadrant the angle is in and select two vertices of hit box
-			Rectangle myHitbox = Mappers.body.get(player).getAABB();
-			Rectangle otherHitbox = Mappers.body.get(entities.first()).getAABB();
-			
-			float x1 = 0.0f;
-			float y1 = 0.0f;
-			float x2 = 0.0f;
-			float y2 = 0.0f;
-			
-			float off = 0.25f;
-			
-			float toX1 = 0.0f;
-			float toY1 = 0.0f;
-			float toX2 = 0.0f;
-			float toY2 = 0.0f;
-
-			// Quadrant 1 or 3
-			if((angle >= 0 && angle <= 90) || (angle >= -180 && angle <= -90)){
-				// Use upper left and lower right
-				x1 = myX - myHitbox.width * 0.5f + off;
-				y1 = myY + myHitbox.height * 0.5f - off;
-				x2 = myX + myHitbox.width * 0.5f - off;
-				y2 = myY - myHitbox.height * 0.5f + off;
-				toX1 = otherX - otherHitbox.width * 0.5f;
-				toY1 = otherY + otherHitbox.height * 0.5f;
-				toX2 = otherX + otherHitbox.width * 0.5f;
-				toY2 = otherY - otherHitbox.height * 0.5f;
-			}
-			// Quadrant 2 or 4
-			else{
-				// Use lower left and upper right
-				x1 = myX - myHitbox.width * 0.5f + off;
-				y1 = myY - myHitbox.height * 0.5f + off;
-				x2 = myX + myHitbox.width * 0.5f - off;
-				y2 = myY + myHitbox.height * 0.5f - off;
-				toX1 = otherX - otherHitbox.width * 0.5f;
-				toY1 = otherY - otherHitbox.height * 0.5f;
-				toX2 = otherX + otherHitbox.width * 0.5f;
-				toY2 = otherY + otherHitbox.height * 0.5f;
-			}
-			
-			DebugRender.setType(ShapeType.Line);
-			DebugRender.setColor(Color.CYAN);
-			DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
-			DebugRender.line(x1, y1, toX1, toY1);
-			DebugRender.line(x2, y2, toX2, toY2);
-			
-		}
-	}
+//	private void renderChainBox(SpriteBatch batch, Entity player){
+//		BodyComponent bodyComp = Mappers.body.get(player);
+//		FacingComponent facingComp = Mappers.facing.get(player);
+//		
+//		if(Mappers.esm.get(player).first().getCurrentState() == EntityStates.SWING_ANTICIPATION || true){
+//			Vector2 pos = bodyComp.body.getPosition();
+//			
+//			float myX = pos.x;
+//			float myY = pos.y;
+//			float minX = 0.5f;
+//			float maxX = 7.0f;
+//			float yRange = 1.5f;
+//			
+//			// Construct box in front of you
+//			float closeX = facingComp.facingRight ? myX + minX : myX - minX;
+//			float farX = facingComp.facingRight ? myX + maxX : myX - maxX;
+//			float top = myY + yRange;
+//			float bottom = myY - yRange;
+//			
+//			// Draw Raytraces
+//			// Ray Trace
+//			Array<Entity> entities = Mappers.level.get(player).levelHelper.getEntities(new EntityGrabber() {
+//				@Override
+//				public boolean validEntity(Entity me, Entity other) {
+//					if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+//					return true;
+//				}
+//				
+//				@Override
+//				public Family componentsNeeded() {
+//					return Family.all(HealthComponent.class, TypeComponent.class).get();
+//				}
+//			});
+//			if(entities.size == 0) return;
+//		
+//			final Entity copy = player;
+//			Sort.instance().sort(entities, new Comparator<Entity>() {
+//				@Override
+//				public int compare(Entity o1, Entity o2) {
+//					float d1 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o1).body);
+//					float d2 = PhysicsUtils.getDistanceSqr(Mappers.body.get(copy).body, Mappers.body.get(o2).body);
+//					return d1 == d2 ? 0 : (d1 < d2 ? -1 : 1);
+//				}
+//			});
+//			
+//			Body otherBody = Mappers.body.get(entities.first()).body;
+//			float otherX = otherBody.getPosition().x;
+//			float otherY = otherBody.getPosition().y;
+//			
+//			float angle = MathUtils.atan2(otherY - myY, otherX - myX) * MathUtils.radiansToDegrees;
+//			
+//			// Check to see what quadrant the angle is in and select two vertices of hit box
+//			Rectangle myHitbox = Mappers.body.get(player).getAABB();
+//			Rectangle otherHitbox = Mappers.body.get(entities.first()).getAABB();
+//			
+//			float x1 = 0.0f;
+//			float y1 = 0.0f;
+//			float x2 = 0.0f;
+//			float y2 = 0.0f;
+//			
+//			float off = 0.25f;
+//			
+//			float toX1 = 0.0f;
+//			float toY1 = 0.0f;
+//			float toX2 = 0.0f;
+//			float toY2 = 0.0f;
+//
+//			// Quadrant 1 or 3
+//			if((angle >= 0 && angle <= 90) || (angle >= -180 && angle <= -90)){
+//				// Use upper left and lower right
+//				x1 = myX - myHitbox.width * 0.5f + off;
+//				y1 = myY + myHitbox.height * 0.5f - off;
+//				x2 = myX + myHitbox.width * 0.5f - off;
+//				y2 = myY - myHitbox.height * 0.5f + off;
+//				toX1 = otherX - otherHitbox.width * 0.5f;
+//				toY1 = otherY + otherHitbox.height * 0.5f;
+//				toX2 = otherX + otherHitbox.width * 0.5f;
+//				toY2 = otherY - otherHitbox.height * 0.5f;
+//			}
+//			// Quadrant 2 or 4
+//			else{
+//				// Use lower left and upper right
+//				x1 = myX - myHitbox.width * 0.5f + off;
+//				y1 = myY - myHitbox.height * 0.5f + off;
+//				x2 = myX + myHitbox.width * 0.5f - off;
+//				y2 = myY + myHitbox.height * 0.5f - off;
+//				toX1 = otherX - otherHitbox.width * 0.5f;
+//				toY1 = otherY - otherHitbox.height * 0.5f;
+//				toX2 = otherX + otherHitbox.width * 0.5f;
+//				toY2 = otherY + otherHitbox.height * 0.5f;
+//			}
+//			
+//			DebugRender.setType(ShapeType.Line);
+//			DebugRender.setColor(Color.CYAN);
+//			DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom);
+//			DebugRender.line(x1, y1, toX1, toY1);
+//			DebugRender.line(x2, y2, toX2, toY2);
+//			
+//		}
+//	}
 
 	@Override
 	protected void destroy() {

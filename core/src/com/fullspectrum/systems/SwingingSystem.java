@@ -138,7 +138,7 @@ public class SwingingSystem extends IteratingSystem{
 		
 		SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
 		for(Entity e : hitEntities){
-			DamageHandler.dealDamage(e, swordStats.damage);
+			DamageHandler.dealDamage(entity, e, swordStats.damage);
 		}
 		swingComp.timeElapsed = 0.0f;
 		swordComp.shouldSwing = false;

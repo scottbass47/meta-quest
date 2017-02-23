@@ -27,6 +27,9 @@ public class Assets {
 	public static final String staminaBarFull = "staminabar_full";
 	public static final String newHud = "new_hud";
 	
+	// Abilities
+	public static final String ANTI_MAGNETIC_ARMOR_ICON = "anti_magnetic_armor_icon";
+	
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
 	

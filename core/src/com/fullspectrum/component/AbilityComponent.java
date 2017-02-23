@@ -1,10 +1,10 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.fullspectrum.entity.AbilityType;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityType;
 
 public class AbilityComponent implements Component, Poolable{
 
@@ -14,34 +14,38 @@ public class AbilityComponent implements Component, Poolable{
 		abilityMap = new ArrayMap<AbilityType, Ability>();
 	}
 
-	public AbilityComponent add(AbilityType type, TextureRegion icon, float rechargeTime){
-		abilityMap.put(type, new Ability(icon, rechargeTime));
+	public AbilityComponent add(Ability ability){
+		abilityMap.put(ability.getType(), ability);
 		return this;
 	}
 	
-	public float getElapsed(AbilityType type){
-		return abilityMap.get(type).elapsed;
+	public Ability getAbility(AbilityType type){
+		return abilityMap.get(type);
 	}
 	
-	public float getRechargeTime(AbilityType type){
-		return abilityMap.get(type).rechargeTime;
-	}
-	
-	public TextureRegion getIcon(AbilityType type){
-		return abilityMap.get(type).icon;
-	}
-	
-	public boolean isAbilityReady(AbilityType type){
-		return abilityMap.get(type).elapsed >= abilityMap.get(type).rechargeTime;
-	}
-	
-	public void addTime(AbilityType type, float amount){
-		abilityMap.get(type).elapsed += amount;
-	}
-	
-	public void resetTime(AbilityType type){
-		abilityMap.get(type).elapsed = 0.0f;
-	}
+//	public float getElapsed(AbilityType type){
+//		return abilityMap.get(type).getTimeElapsed();
+//	}
+//	
+//	public float getCooldown(AbilityType type){
+//		return abilityMap.get(type).getCooldown();
+//	}
+//	
+//	public TextureRegion getIcon(AbilityType type){
+//		return abilityMap.get(type).getIcon();
+//	}
+//	
+//	public boolean isReady(AbilityType type){
+//		return abilityMap.get(type).isReady();
+//	}
+//	
+//	public void addTime(AbilityType type, float amount){
+//		abilityMap.get(type).addTime(amount);
+//	}
+//	
+//	public void resetTime(AbilityType type){
+//		abilityMap.get(type).elapsed = 0.0f;
+//	}
 	
 	public ArrayMap<AbilityType, Ability> getAbilityMap(){
 		return abilityMap;
@@ -51,23 +55,4 @@ public class AbilityComponent implements Component, Poolable{
 	public void reset() {
 		abilityMap = null;
 	}
-	
-	public static class Ability{
-		
-		private TextureRegion icon;
-		private float rechargeTime;
-		private float elapsed = 0.0f;
-		private float time;
-		
-		public Ability(TextureRegion icon, float rechargeTIme){
-			this.icon = icon;
-			this.rechargeTime = rechargeTIme;
-		}
-		
-	}
-	
-	public static interface AbilityBehavior{
-		
-	}
-
 }

@@ -106,7 +106,7 @@ public enum Collisions {
 			if(healthComp == null) return;
 			
 			DamageComponent damageComp = Mappers.damage.get(entity);
-			DamageHandler.dealDamage(otherEntity, damageComp.damage);
+			DamageHandler.dealDamage(entity, otherEntity, damageComp.damage);
 		}
 
 		@Override

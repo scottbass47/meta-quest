@@ -19,6 +19,6 @@ public class CircleDef extends DebugRenderDef{
 
 	@Override
 	public void render(ShapeRenderer renderer) {
-		renderer.circle(x, y, radius);
+		renderer.circle(x, y, radius, 32);
 	}
 }

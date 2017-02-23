@@ -21,6 +21,8 @@ import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.CollisionBits;
@@ -130,9 +132,13 @@ public class PhysicsUtils {
 	}
 	
 	public static Rectangle getAABB(Body body){
+		return getAABB(body, false);
+	}
+	
+	public static Rectangle getAABB(Body body, boolean includeSensors){
 		float maxX = 0, maxY = 0, minX = 0, minY = 0;
 		for(Fixture fixture : body.getFixtureList()){
-			if(fixture.isSensor()) continue;
+			if(fixture.isSensor() && !includeSensors) continue;
 			Type type = fixture.getShape().getType();
 			switch(type){
 			case Circle:
@@ -161,6 +167,21 @@ public class PhysicsUtils {
 			}
 		}
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+	}
+	
+	public static Vector2 getPos(Entity e1){
+		if(Mappers.body.get(e1) == null || Mappers.body.get(e1).body == null){
+			PositionComponent posComp = Mappers.position.get(e1);
+			return new Vector2(posComp.x, posComp.y);
+		}
+		return Mappers.body.get(e1).body.getPosition();
+	}
+	
+	public static float getDistanceSqr(Entity e1, Entity e2){
+		if(Mappers.body.get(e1) == null || Mappers.body.get(e1).body == null || Mappers.body.get(e1) == null || Mappers.body.get(e2).body == null){
+			return getDistanceSqr(getPos(e1), getPos(e2));
+		}
+		return getDistanceSqr(Mappers.body.get(e1).body, Mappers.body.get(e2).body);
 	}
 	
 	public static float getDistanceSqr(Body b1, Body b2){

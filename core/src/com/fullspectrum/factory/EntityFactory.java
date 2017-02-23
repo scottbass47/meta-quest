@@ -21,6 +21,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
+import com.fullspectrum.ability.AntiMagneticAbility;
+import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -94,7 +96,6 @@ import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
-import com.fullspectrum.entity.AbilityType;
 import com.fullspectrum.entity.CoinType;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
@@ -113,7 +114,6 @@ import com.fullspectrum.fsm.StateChangeListener;
 import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.fsm.StateObjectCreator;
-import com.fullspectrum.fsm.transition.AbilityTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.InputTransitionData;
@@ -288,7 +288,10 @@ public class EntityFactory {
 					 knightStats.get("shield"), 
 					 knightStats.get("shield_rate"), 
 					 knightStats.get("shield_delay")));
-		knight.add(engine.createComponent(AbilityComponent.class));
+		knight.add(engine.createComponent(AbilityComponent.class).add(
+				new AntiMagneticAbility(1.0f, 
+						new InputTransitionData.Builder(Type.ALL, true).add(Actions.BLOCK).build(), 1.0f, Float.MAX_VALUE)));
+		knight.add(engine.createComponent(InvincibilityComponent.class));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
@@ -876,6 +879,7 @@ public class EntityFactory {
 		rogue.add(engine.createComponent(AbilityComponent.class));
 //		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		rogue.add(engine.createComponent(RogueComponent.class));
+		rogue.add(engine.createComponent(InvincibilityComponent.class));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1036,7 +1040,6 @@ public class EntityFactory {
 		
 		// ********************************************
 		
-		// CLEANUP Remove wall jumping
 //		esm.createState(EntityStates.WALL_JUMP)
 //			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
 //			.addAnimation(EntityAnim.JUMP)
@@ -1226,8 +1229,10 @@ public class EntityFactory {
 					 mageStats.get("shield_rate"), 
 					 mageStats.get("shield_delay")));
 		mage.add(engine.createComponent(AbilityComponent.class)
-			.add(AbilityType.MANA_BOMB, assets.getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), mageStats.get("mana_bomb_cooldown")));
+			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"),
+				 new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build())));
 		mage.add(engine.createComponent(TintComponent.class).set(Color.PURPLE));
+		mage.add(engine.createComponent(InvincibilityComponent.class));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()
@@ -1249,8 +1254,6 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, mageStats.get("mana_bomb_speed"), mageStats.get("mana_bomb_damage"), 45f, 5.0f, 5.0f);
-					AbilityComponent abilityComp = Mappers.ability.get(entity);
-					abilityComp.resetTime(AbilityType.MANA_BOMB);
 				}
 
 				@Override
@@ -1278,10 +1281,10 @@ public class EntityFactory {
 //		diveData.triggers.add(new InputTrigger(Actions.MOVE_DOWN));
 		
 		// Attack
-		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-		AbilityTransitionData manaBombAbility = new AbilityTransitionData(AbilityType.MANA_BOMB);
-		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
-				.and(Transitions.ABILITY, manaBombAbility);
+//		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
+//		AbilityTransitionData manaBombAbility = new AbilityTransitionData(AbilityType.MANA_BOMB);
+//		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
+//				.and(Transitions.ABILITY, manaBombAbility);
 		
 		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
 		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
@@ -1307,7 +1310,7 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.PROJECTILE_ATTACK), attackTransition, EntityStates.PROJECTILE_ATTACK);
+//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.PROJECTILE_ATTACK), attackTransition, EntityStates.PROJECTILE_ATTACK);
 		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 //		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
 		
@@ -1614,7 +1617,7 @@ public class EntityFactory {
 //			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
 		
 		RangeTransitionData inAttackRange = new RangeTransitionData();
-		inAttackRange.distance = 5.0f;
+		inAttackRange.distance = 8.0f;
 		inAttackRange.fov = 30.0f;
 		inAttackRange.inRange = true;
 		
@@ -1622,7 +1625,7 @@ public class EntityFactory {
 //			.and(Transitions.LINE_OF_SIGHT, inSightData);
 		
 		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-		outOfAttackRange.distance = 6.0f;
+		outOfAttackRange.distance = 9.0f;
 		outOfAttackRange.fov = 30.0f;
 		outOfAttackRange.inRange = false;
 		

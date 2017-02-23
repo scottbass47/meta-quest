@@ -1,6 +1,6 @@
 package com.fullspectrum.fsm.transition;
 
-import com.fullspectrum.entity.AbilityType;
+import com.fullspectrum.ability.AbilityType;
 
 public class AbilityTransitionData implements TransitionData{
 

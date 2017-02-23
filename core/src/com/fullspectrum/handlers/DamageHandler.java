@@ -11,7 +11,7 @@ import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
-import com.fullspectrum.component.InvincibilityComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -33,7 +33,7 @@ public class DamageHandler {
 	private DamageHandler() {
 	}
 
-	public static void dealDamage(Entity toEntity, float amount, float knockBackDistance, float knockBackSpeed, float knockBackAngle) {
+	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackSpeed, float knockBackAngle) {
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
 		WorldComponent worldComp = Mappers.world.get(toEntity);
 		LevelComponent levelComp = Mappers.level.get(toEntity);
@@ -44,16 +44,18 @@ public class DamageHandler {
 
 		if (amount < 1.0f || (MathUtils.isEqual(healthComp.health, 0.0f))) return;
 
-		if (Mappers.inviciblity.get(toEntity) != null) return;
+		if (Mappers.inviciblity.get(toEntity) != null){
+			if(Mappers.inviciblity.get(toEntity).isInvincible(toEntity, fromEntity)) return;
+		}
 		if (Mappers.player.get(toEntity) != null) {
 			float duration = 1.0f;
-			toEntity.add(engineComp.engine.createComponent(InvincibilityComponent.class));
+			Mappers.inviciblity.get(toEntity).add(InvincibilityType.ALL);
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class).addBlink(duration, 0.15f));
 			TimerComponent timerComp = Mappers.timer.get(toEntity);
 			timerComp.add("invincibility", duration, false, new TimeListener() {
 				@Override
 				public void onTime(Entity entity) {
-					entity.remove(InvincibilityComponent.class);
+					Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 					entity.remove(BlinkComponent.class);
 					if (entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
 				}
@@ -127,8 +129,8 @@ public class DamageHandler {
 		}
 	}
 
-	public static void dealDamage(Entity toEntity, float amount) {
-		DamageHandler.dealDamage(toEntity, amount, 0, 0, 0);
+	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount) {
+		DamageHandler.dealDamage(fromEntity, toEntity, amount, 0, 0, 0);
 	}
 
 }
