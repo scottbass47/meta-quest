@@ -64,6 +64,7 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.InvincibilityComponent;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -289,8 +290,10 @@ public class EntityFactory {
 					 knightStats.get("shield_rate"), 
 					 knightStats.get("shield_delay")));
 		knight.add(engine.createComponent(AbilityComponent.class).add(
-				new AntiMagneticAbility(1.0f, 
-						new InputTransitionData.Builder(Type.ALL, true).add(Actions.BLOCK).build(), 1.0f, Float.MAX_VALUE)));
+				new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
+						new InputTransitionData.Builder(Type.ALL, true).add(Actions.BLOCK).build(),
+						1.0f, 
+						knightStats.get("anti_magnetic_duration"))));
 		knight.add(engine.createComponent(InvincibilityComponent.class));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
@@ -508,7 +511,7 @@ public class EntityFactory {
 				public void onEnter(State prevState, Entity entity) {
 					// Set velocity to 0
 					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
-					entity.add(Mappers.engine.get(entity).engine.createComponent(InvincibilityComponent.class));
+					Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 					
 					// CLEANUP GROSS!!! 
 					Mappers.timer.get(entity).add("anim_timer", 0.0f, false, new TimeListener() {
@@ -527,7 +530,7 @@ public class EntityFactory {
 						// Put things back to normal
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
 						Mappers.knight.get(entity).first = true;
-						entity.remove(InvincibilityComponent.class);
+						Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 					}
 				}
 			});

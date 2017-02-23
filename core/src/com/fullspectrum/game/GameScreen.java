@@ -13,6 +13,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
@@ -132,7 +133,7 @@ public class GameScreen extends AbstractScreen {
 		assets.loadHUD();
 		assets.loadSprites();
 		assets.loadFont();
-		font = assets.getFont(Assets.font24);
+		font = assets.getFont(Assets.font28);
 
 		// Setup Shader
 //		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -509,6 +510,7 @@ public class GameScreen extends AbstractScreen {
 		// Abilities
 		float abilityY = 150;
 		float tallestIcon = 0.0f;
+		GlyphLayout layout = new GlyphLayout();
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
 			Ability ability = abilityComp.getAbility(type);
 			TextureRegion icon = ability.getIcon();
@@ -517,12 +519,19 @@ public class GameScreen extends AbstractScreen {
 			float iconHeight = icon.getRegionHeight();
 			float x = GameVars.SCREEN_WIDTH * 0.5f - iconWidth * 0.5f;
 			if(iconHeight > tallestIcon) tallestIcon = iconHeight;
-			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
-			if(!ability.isReady()){
-				int timeLeft = (int)(ability.getCooldown() - ability.getTimeElapsed() + 0.5f);
-				font.setColor(Color.WHITE);
-				font.draw(batch, "" + timeLeft, x - 4.0f, abilityY + 8.0f);
+			if(ability.isReady()){
+				batch.setColor(Color.WHITE);
+			} else{
+				batch.setColor(Color.DARK_GRAY);
 			}
+			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
+			if(!ability.isReady() && !ability.isLocked()){
+				int timeLeft = (int)(ability.getCooldown() - ability.getTimeElapsed() + 0.99f);
+				String num = "" + timeLeft;
+				layout.setText(font, num);
+				font.setColor(Color.WHITE);
+				font.draw(batch, num, x + iconWidth * 0.5f - layout.width * 0.5f, abilityY + iconHeight * 0.5f + layout.height * 0.5f);
+			} 
 		}
 		
 		// Health
@@ -547,21 +556,24 @@ public class GameScreen extends AbstractScreen {
 		// healthComp.maxHealth));
 		int staminaBarWidth = (int)(staminaEmptyWidth * (staminaComp.barrier / staminaComp.maxBarrier));
 
+		float coinX = GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20;
 		float coinY = staminaY - coin.getRegionHeight() * scale - 4 * scale;
 		float coinWidth = coin.getRegionWidth();
 		float coinHeight = coin.getRegionHeight();
 
+		batch.setColor(Color.WHITE);
 		batch.draw(healthEmpty, GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthEmptyWidth, healthEmptyHeight, scale, scale, 0.0f);
 		batch.draw(healthFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - healthEmptyWidth * 0.5f, healthY, healthEmptyWidth * 0.5f, healthEmptyHeight * 0.5f, healthBarWidth, healthEmptyHeight, scale, scale, 0.0f, healthSrcX, healthSrcY, healthBarWidth, (int) (healthEmptyHeight), false, false);
 		batch.draw(staminaEmpty, GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaEmptyWidth, staminaEmptyHeight, scale, scale, 0.0f);
 		batch.draw(staminaFull.getTexture(), GameVars.SCREEN_WIDTH * 0.5f - staminaEmptyWidth * 0.5f, staminaY, staminaEmptyWidth * 0.5f, staminaEmptyHeight * 0.5f, staminaBarWidth, staminaEmptyHeight, scale, scale, 0.0f, staminaSrcX, staminaSrcY, staminaBarWidth, (int) (staminaEmptyHeight), false, false);
-		batch.draw(coin, GameVars.SCREEN_WIDTH * 0.5f - coin.getRegionWidth() * scale - 20, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
+		batch.draw(coin, coinX, coinY, coinWidth * 0.5f, coinHeight * 0.5f, coinWidth, coinHeight, scale, scale, 0.0f);
 		
 		// new hud
 //		batch.draw(newHud, GameVars.SCREEN_WIDTH * 0.5f - newHud.getRegionWidth() * 0.5f, 20.0f, newHud.getRegionWidth() * 0.5f, newHud.getRegionHeight() * 0.5f, newHud.getRegionWidth(), newHud.getRegionHeight(), 2.0f, 2.0f, 0.0f);
 		
 		font.setColor(Color.WHITE);
-		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + 12);
+		layout.setText(font, "" + moneyComp.money);
+		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + layout.height * 0.5f + 2.0f);
 		
 		batch.end();
 	}

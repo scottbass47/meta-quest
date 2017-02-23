@@ -6,12 +6,12 @@ import com.fullspectrum.fsm.transition.InputTransitionData;
 
 public abstract class TimedAbility extends Ability{
 
-	private float time;
+	private float duration;
 	private float elapsed;
 	
-	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData, float time) {
+	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData, float duration) {
 		super(type, icon, cooldown, inputData);
-		this.time = time;
+		this.duration = duration;
 	}
 
 	/** Called once per update */ 
@@ -21,7 +21,7 @@ public abstract class TimedAbility extends Ability{
 	public void update(Entity entity, float delta) {
 		onUpdate(entity, delta);
 		elapsed += delta;
-		if(elapsed >= time){
+		if(elapsed >= duration){
 			setDone(true);
 			elapsed = 0.0f;
 		}

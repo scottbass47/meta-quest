@@ -47,7 +47,6 @@
   <object id="9" name="spawner" type="spawner" x="772" y="248" width="24" height="24"/>
   <object id="10" name="spawner" type="spawner" x="492" y="376" width="24" height="24"/>
   <object id="11" name="spawner" type="spawner" x="780" y="376" width="24" height="24"/>
-  <object id="21" name="spitter" x="631" y="283.833" width="18" height="20.5"/>
  </objectgroup>
  <objectgroup name="triggers">
   <object id="12" name="next" x="1246" y="279" width="4" height="4"/>
