@@ -47,8 +47,8 @@ public class AntiMagneticAbility extends TimedAbility{
 		Body myBody = Mappers.body.get(entity).body;
 		final float r = radius;
 
-		DebugRender.setColor(Color.RED);
-		DebugRender.circle(myBody.getPosition().x, myBody.getPosition().y, r);
+//		DebugRender.setColor(Color.RED);
+//		DebugRender.circle(myBody.getPosition().x, myBody.getPosition().y, r);
 		
 		Array<Entity> projectiles = helper.getEntities(new EntityGrabber() {
 			@Override
@@ -63,8 +63,8 @@ public class AntiMagneticAbility extends TimedAbility{
 				
 				if(PhysicsUtils.getDistanceSqr(myBody, otherBody) > (r * r + l * l + 2 * l)) return false;
 				
-				DebugRender.setColor(Color.PURPLE);
-				DebugRender.circle(otherBody.getPosition().x, otherBody.getPosition().y, l, 1.0f);
+//				DebugRender.setColor(Color.PURPLE);
+//				DebugRender.circle(otherBody.getPosition().x, otherBody.getPosition().y, l, 1.0f);
 				return true;
 			}
 			
@@ -95,17 +95,17 @@ public class AntiMagneticAbility extends TimedAbility{
 				Mappers.render.get(projectile).rotation = reflection;
 				
 				// Render tangent line
-				float tanX = myBody.getPosition().x + r * MathUtils.cosDeg(posAngle);
-				float tanY = myBody.getPosition().y + r * MathUtils.sinDeg(posAngle);
-				
-				float l = 2.0f;
-				float x1 = tanX + l * MathUtils.cosDeg(normal);
-				float y1 = tanY + l * MathUtils.sinDeg(normal);
-				float x2 = tanX - l * MathUtils.cosDeg(normal);
-				float y2 = tanY - l * MathUtils.sinDeg(normal);
-				
-				DebugRender.setColor(Color.GREEN);
-				DebugRender.line(x1, y1, x2, y2, 1.0f);
+//				float tanX = myBody.getPosition().x + r * MathUtils.cosDeg(posAngle);
+//				float tanY = myBody.getPosition().y + r * MathUtils.sinDeg(posAngle);
+//				
+//				float l = 2.0f;
+//				float x1 = tanX + l * MathUtils.cosDeg(normal);
+//				float y1 = tanY + l * MathUtils.sinDeg(normal);
+//				float x2 = tanX - l * MathUtils.cosDeg(normal);
+//				float y2 = tanY - l * MathUtils.sinDeg(normal);
+//				
+//				DebugRender.setColor(Color.GREEN);
+//				DebugRender.line(x1, y1, x2, y2, 1.0f);
 				
 				Mappers.type.get(projectile).set(EntityType.FRIENDLY);
 				Mappers.type.get(projectile).setCollideWith(EntityType.ENEMY);

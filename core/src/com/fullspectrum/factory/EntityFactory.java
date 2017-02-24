@@ -292,7 +292,7 @@ public class EntityFactory {
 		knight.add(engine.createComponent(AbilityComponent.class).add(
 				new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
 						new InputTransitionData.Builder(Type.ALL, true).add(Actions.BLOCK).build(),
-						1.0f, 
+						knightStats.get("anti_magnetic_radius"), 
 						knightStats.get("anti_magnetic_duration"))));
 		knight.add(engine.createComponent(InvincibilityComponent.class));
 		
@@ -837,7 +837,7 @@ public class EntityFactory {
 		
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.ROGUE_IDLE));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
@@ -938,7 +938,7 @@ public class EntityFactory {
 		runningASM.addTransition(EntityAnim.BACK_PEDAL, notBackpedalingTransition, EntityAnim.RUN);
 		
 		runningASM.setDebugName("Running ASM");
-		System.out.println(runningASM.printTransitions());
+//		System.out.println(runningASM.printTransitions());
 		
 		// ***************************
 		// * Upper Body Throwing ASM *
@@ -1036,7 +1036,7 @@ public class EntityFactory {
 		throwingASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, notBackpedalingTransition, EntityAnim.RUN_ARMS);
 		
 		throwingASM.setDebugName("Throwing ASM");
-		System.out.println(throwingASM.printTransitions());
+//		System.out.println(throwingASM.printTransitions());
 		
 		// Add the new animation state machine as a substate machine of the running entity state (should handle initial state change)
 		esm.getState(EntityStates.RUNNING).addSubstateMachine(throwingASM);
@@ -1194,8 +1194,8 @@ public class EntityFactory {
 		
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.KNIGHT_RUN));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.MAGE_IDLE));
+		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.MAGE_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getSpriteAnimation(Assets.KNIGHT_JUMP));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
@@ -1234,7 +1234,6 @@ public class EntityFactory {
 		mage.add(engine.createComponent(AbilityComponent.class)
 			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"),
 				 new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build())));
-		mage.add(engine.createComponent(TintComponent.class).set(Color.PURPLE));
 		mage.add(engine.createComponent(InvincibilityComponent.class));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)

@@ -21,6 +21,7 @@ public abstract class Ability {
 		this.type = type;
 		this.icon = icon;
 		this.cooldown = cooldown;
+		this.elapsed = cooldown;
 		this.inputData = inputData;
 	}
 	

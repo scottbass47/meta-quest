@@ -65,7 +65,8 @@ public class Assets {
 	public static final String KNIGHT_FALL = "knight_fall";
 	public static final String KNIGHT_LAND = "knight_land";
 	
-	// Rogue Player
+	// Rogue
+	public static final String ROGUE_IDLE = "rogue_idle";
 	public static final String ROGUE_PROJECTILE = "rogue_projectile";
 	public static final String ROGUE_RUN = "rogue_run";
 	public static final String ROGUE_RUN_ARMS = "rogue_run_arms";
@@ -73,6 +74,10 @@ public class Assets {
 	public static final String ROGUE_BACK_PEDAL = "rogue_back_pedal";
 	public static final String ROGUE_BACK_PEDAL_ARMS = "rogue_back_pedal_arms";
 	public static final String ROGUE_BACK_PEDAL_THROW = "rogue_back_pedal_throw";
+	
+	// Mage
+	public static final String MAGE_IDLE = "mage_idle";
+	public static final String MAGE_RUN = "mage_run";
 	
 	// Shadow Player
 	public static final String SHADOW_IDLE = "temp_player_idle";
