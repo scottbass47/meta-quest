@@ -42,8 +42,8 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugRender;
-import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugRender.RenderMode;
+import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
@@ -115,7 +115,7 @@ public class GameScreen extends AbstractScreen {
 	private FrameBuffer frameBuffer;
 //	private FrameBuffer mainBuffer;
 //	private ShaderProgram mellowShader;
-//	private ShaderProgram vignetteShader;
+//	private ShaderProgram glowShader;
 	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
@@ -140,13 +140,11 @@ public class GameScreen extends AbstractScreen {
 //		if (!mellowShader.isCompiled()) {
 //			throw new GdxRuntimeException(mellowShader.getLog());
 //		}
-//		vignetteShader = new ShaderProgram(Gdx.files.internal("shaders/vignette.vsh"), Gdx.files.internal("shaders/vignette.fsh"));
-//		if (!vignetteShader.isCompiled()) {
-//			throw new GdxRuntimeException(vignetteShader.getLog());
+//		glowShader = new ShaderProgram(Gdx.files.internal("shaders/glow.vsh"), Gdx.files.internal("shaders/glow.fsh"));
+//		if (!glowShader.isCompiled()) {
+//			throw new GdxRuntimeException(glowShader.getLog());
 //		}
-//		vignetteShader.begin();
-//		vignetteShader.setUniformf("u_resolution", 1280, 720);
-//		vignetteShader.end();
+//		ShaderProgram.pedantic = false;
 
 		// Setup Frame Buffer
 		frameBuffer = new FrameBuffer(Pixmap.Format.RGBA8888, GameVars.FRAMEBUFFER_WIDTH, GameVars.FRAMEBUFFER_HEIGHT, false);
@@ -437,6 +435,7 @@ public class GameScreen extends AbstractScreen {
 //		mainBuffer.begin();
 		batch.begin();
 //		batch.setShader(mellowShader);
+//		batch.setShader(glowShader);
 		batch.setProjectionMatrix(hudCamera.combined);
 //		batch.setProjectionMatrix(batch.getProjectionMatrix().setToOrtho2D(0, 0, Gdx.graphics.getWidth(), Gdx.graphics.getHeight()));
 //		mellowShader.setUniformf("u_textureSizes", FRAMEBUFFER_WIDTH, FRAMEBUFFER_HEIGHT, 1.0f, 0.0f);
@@ -509,16 +508,19 @@ public class GameScreen extends AbstractScreen {
 		batch.begin();
 		// Abilities
 		float abilityY = 150;
-		float tallestIcon = 0.0f;
+		float iconWidth = 18.0f;
+		float iconHeight = 18.0f;
 		GlyphLayout layout = new GlyphLayout();
+		float spacing = 3;
+		int numIcons = 3;
+		float totalWidth = (numIcons * iconWidth + spacing * (numIcons - 1)) * scale;
+		float startX = GameVars.SCREEN_WIDTH * 0.5f - totalWidth * 0.5f;
+		int counter = 0;
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
 			Ability ability = abilityComp.getAbility(type);
 			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
-			float iconWidth = icon.getRegionWidth();
-			float iconHeight = icon.getRegionHeight();
-			float x = GameVars.SCREEN_WIDTH * 0.5f - iconWidth * 0.5f;
-			if(iconHeight > tallestIcon) tallestIcon = iconHeight;
+			float x = startX + (iconWidth + spacing) * counter * spacing;
 			if(ability.isReady()){
 				batch.setColor(Color.WHITE);
 			} else{
@@ -532,12 +534,13 @@ public class GameScreen extends AbstractScreen {
 				font.setColor(Color.WHITE);
 				font.draw(batch, num, x + iconWidth * 0.5f - layout.width * 0.5f, abilityY + iconHeight * 0.5f + layout.height * 0.5f);
 			} 
+			counter++;
 		}
 		
 		// Health
 		float healthEmptyWidth = healthEmpty.getRegionWidth();
 		float healthEmptyHeight = healthEmpty.getRegionHeight();
-		float healthY = abilityY - tallestIcon * scale + 4.0f;
+		float healthY = abilityY - iconHeight * scale + 4.0f;
 
 		int healthSrcX = healthFull.getRegionX();
 		int healthSrcY = healthFull.getRegionY();

@@ -23,6 +23,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.ManaBombAbility;
+import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -62,9 +63,9 @@ import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.InvincibilityComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
-import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -90,7 +91,6 @@ import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.VelocityComponent;
@@ -273,6 +273,8 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
+		animMap.put(EntityAnim.PARRY, assets.getSpriteAnimation(Assets.KNIGHT_PARRY));
+		animMap.put(EntityAnim.PARRY_SWING, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_SWING));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -280,6 +282,16 @@ public class EntityFactory {
 			.physics("player.json", x, y, true)
 			.mob(null, EntityType.FRIENDLY, knightStats.get("health"))
 			.build();
+		
+		// Abilities
+		AntiMagneticAbility antiMagneticAbility = new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
+				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_1).build(),
+				knightStats.get("anti_magnetic_radius"), 
+				knightStats.get("anti_magnetic_duration"));
+		
+		ParryAbility parryAbility = new ParryAbility(knightStats.get("parry_cooldown"), 
+				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_2).build(),
+				knightStats.get("parry_max_time"));
 		
 		// Player Related Components
 		knight.add(engine.createComponent(MoneyComponent.class));
@@ -289,12 +301,9 @@ public class EntityFactory {
 					 knightStats.get("shield"), 
 					 knightStats.get("shield_rate"), 
 					 knightStats.get("shield_delay")));
-		knight.add(engine.createComponent(AbilityComponent.class).add(
-				new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
-						new InputTransitionData.Builder(Type.ALL, true).add(Actions.BLOCK).build(),
-						knightStats.get("anti_magnetic_radius"), 
-						knightStats.get("anti_magnetic_duration"))));
-		knight.add(engine.createComponent(InvincibilityComponent.class));
+		knight.add(engine.createComponent(AbilityComponent.class)
+				.add(antiMagneticAbility)
+				.add(parryAbility));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
@@ -726,6 +735,12 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.LANDING)
 			.addAnimation(EntityAnim.LAND);
+		
+		esm.createState(EntityStates.PARRY)
+			.addAnimation(EntityAnim.PARRY);
+		
+		esm.createState(EntityStates.PARRY_SWING)
+			.addAnimation(EntityStates.PARRY_SWING);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -882,7 +897,6 @@ public class EntityFactory {
 		rogue.add(engine.createComponent(AbilityComponent.class));
 //		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		rogue.add(engine.createComponent(RogueComponent.class));
-		rogue.add(engine.createComponent(InvincibilityComponent.class));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1117,7 +1131,7 @@ public class EntityFactory {
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
-		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
+		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_1, true).build();
 		TimeTransitionData dashTime = new TimeTransitionData(0.1f);
 		
 		InputTransitionData ladderInputData = new InputTransitionData.Builder(Type.ANY_ONE, true)
@@ -1234,7 +1248,6 @@ public class EntityFactory {
 		mage.add(engine.createComponent(AbilityComponent.class)
 			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"),
 				 new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build())));
-		mage.add(engine.createComponent(InvincibilityComponent.class));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()
@@ -2223,7 +2236,7 @@ public class EntityFactory {
 		}
 		
 		/**
-		 * Adds Input, Type and Health components.
+		 * Adds Input, Type, Health and Invincibility components.
 		 * 
 		 * @param input
 		 * @param type
@@ -2234,6 +2247,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(InputComponent.class).set(input));
 			entity.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
+			entity.add(engine.createComponent(InvincibilityComponent.class));
 			return this;
 		}
 		

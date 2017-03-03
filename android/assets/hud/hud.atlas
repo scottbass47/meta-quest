@@ -1,11 +1,11 @@
 hud.png
-size: 180, 180
+size: 191, 190
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 anti_magnetic_armor_icon
   rotate: false
-  xy: 0, 20
+  xy: 173, 10
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
@@ -26,9 +26,16 @@ healthbar_full
   index: -1
 new_hud
   rotate: false
-  xy: 20, 20
+  xy: 20, 30
   size: 160, 160
   orig: 160, 160
+  offset: 0, 0
+  index: -1
+parry_icon
+  rotate: false
+  xy: 0, 30
+  size: 18, 18
+  orig: 18, 18
   offset: 0, 0
   index: -1
 staminabar_empty

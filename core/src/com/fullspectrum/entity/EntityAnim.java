@@ -22,6 +22,8 @@ public enum EntityAnim implements State{
 	WALL_SLIDING,
 	DROP_IDLE,
 	DROP_DISAPPEAR,
+	PARRY,
+	PARRY_SWING,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

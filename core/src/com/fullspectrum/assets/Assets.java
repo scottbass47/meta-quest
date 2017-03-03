@@ -29,6 +29,7 @@ public class Assets {
 	
 	// Abilities
 	public static final String ANTI_MAGNETIC_ARMOR_ICON = "anti_magnetic_armor_icon";
+	public static final String PARRY_ICON = "parry_icon";
 	
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
@@ -64,6 +65,8 @@ public class Assets {
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_FALL = "knight_fall";
 	public static final String KNIGHT_LAND = "knight_land";
+	public static final String KNIGHT_PARRY = "knight_parry";
+	public static final String KNIGHT_PARRY_SWING = "knight_parry_swing";
 	
 	// Rogue
 	public static final String ROGUE_IDLE = "rogue_idle";

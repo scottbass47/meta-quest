@@ -1,8 +1,6 @@
 package com.fullspectrum.entity;
 
 import com.badlogic.ashley.core.Entity;
-import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TimerComponent;
 
 public class EntityUtils {
 	

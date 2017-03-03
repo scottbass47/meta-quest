@@ -15,8 +15,11 @@
 	jump_force: 12.0,
 	
 	// Anti Magnetic Armor
-	anti_magnetic_cooldown: 5.0,
+	anti_magnetic_cooldown: 2.0,
 	anti_magnetic_duration: 5.0,
-	anti_magnetic_radius: 1.0
+	anti_magnetic_radius: 1.0,
 	
+	// Parry
+	parry_cooldown: 2.0,
+	parry_max_time: 1.0
 }

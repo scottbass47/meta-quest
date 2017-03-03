@@ -1,7 +1,5 @@
 package com.fullspectrum.level;
 
-import com.fullspectrum.utils.StringUtils;
-
 public enum Theme {
 
 	GRASSY(WorldType.SURFACE),

@@ -2,7 +2,6 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -17,7 +16,6 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.VelocityComponent;
-import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.LevelHelper;

@@ -15,6 +15,7 @@ public class ManaBombAbility extends InstantAbility{
 
 	@Override
 	public void onUse(Entity entity) {
+		// CLEANUP Move ability's logic out of state machine and into here
 		ESMComponent esmComp = Mappers.esm.get(entity);
 		esmComp.get(EntityStates.PROJECTILE_ATTACK).changeState(EntityStates.PROJECTILE_ATTACK);
 	}

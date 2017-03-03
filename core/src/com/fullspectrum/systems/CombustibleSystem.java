@@ -9,9 +9,6 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.RemoveComponent;
-import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.factory.ProjectileFactory;
 import com.fullspectrum.game.GameVars;
 

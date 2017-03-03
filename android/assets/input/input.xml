@@ -10,9 +10,9 @@
 	            
 	        <!-- Action Controls -->
 	        <action name="ATTACK"><key code="F"/></action>
-	        <action name="BLOCK"><key code="X"/></action>
-	        <action name="MOVEMENT"><key code="C"/></action>
-	        <action name="CHARGE"><key code="V"/></action>
+	        <action name="ABILITY_1"><key code="X"/></action>
+	        <action name="ABILITY_2"><key code="C"/></action>
+	        <action name="ABILITY_3"><key code="V"/></action>
 	            
 	        <!-- Menu Controls -->
 	        <action name="SELECT"><key code="Enter"/></action>
@@ -31,9 +31,9 @@
 	            
 	        <!-- Action Controls -->
 	        <action name="ATTACK"><button name="X"/></action>
-	        <action name="BLOCK"><button name="B"/></action>
-	        <action name="MOVEMENT"><button name="Y"/></action>
-	        <action name="CHARGE"><button name="RIGHT_BUMPER"/></action>
+	        <action name="ABILITY_1"><button name="B"/></action>
+	        <action name="ABILITY_2"><button name="Y"/></action>
+	        <action name="ABILITY_3"><button name="RIGHT_BUMPER"/></action>
 	            
 	        <!-- Menu Controls -->
 	        <action name="SELECT"><button name="LEFT_BUMPER"/></action>

@@ -2,7 +2,6 @@ package com.fullspectrum.ai;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
-import java.awt.Point;
 import java.util.Comparator;
 import java.util.HashSet;
 import java.util.Set;

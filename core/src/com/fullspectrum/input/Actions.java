@@ -9,9 +9,9 @@ public enum Actions {
 	CYCLE_LEFT,
 	JUMP,
 	ATTACK,
-	BLOCK,
-	MOVEMENT,
-	CHARGE,
+	ABILITY_1,
+	ABILITY_2,
+	ABILITY_3,
 	SELECT,
 	PAUSE;
 	

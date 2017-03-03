@@ -9,6 +9,7 @@ import java.util.Iterator;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
@@ -17,6 +18,7 @@ import com.badlogic.gdx.maps.tiled.TiledMap;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
 import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader;
+import com.badlogic.gdx.maps.tiled.TmxMapLoader.Parameters;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -76,7 +78,11 @@ public class Level {
 	}
 
 	public void loadMap(SpriteBatch batch) {
-		map = loader.load("map/" + info.toFileFormatExtension());
+		Parameters params = new Parameters();
+		params.textureMagFilter = TextureFilter.Nearest;
+		params.textureMinFilter = TextureFilter.Nearest;
+		
+		map = loader.load("map/" + info.toFileFormatExtension(), params);
 		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
 		if(map.getProperties().containsKey("meshes")){
 			String meshList = (String) map.getProperties().get("meshes");

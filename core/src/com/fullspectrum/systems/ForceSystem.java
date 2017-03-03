@@ -7,7 +7,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.game.GameVars;
 
 public class ForceSystem extends IteratingSystem{
 
