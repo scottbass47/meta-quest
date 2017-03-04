@@ -12,16 +12,15 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
-import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.DropFactory;
 import com.fullspectrum.factory.EntityFactory;
@@ -103,17 +102,10 @@ public class DamageHandler {
 		if (knockBackDistance > 0 && knockBackSpeed > 0) {
 			// CLEANUP Entities should be checked for whether or not they accept knockback
 			if (Mappers.spawnerPool.get(toEntity) == null) {
-				if (toEntity.getComponent(KnockBackComponent.class) != null) {
-					TimerComponent timerComp = Mappers.timer.get(toEntity);
-					Timer timer = timerComp.get("knockBack_life");
-					timer.resetElapsed();
-				}
-				else {
-					toEntity.add(engineComp.engine.createComponent(KnockBackComponent.class).set(knockBackDistance, knockBackSpeed, knockBackAngle));
-				}
+				Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
 			}
 		}
-
+		
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font18);

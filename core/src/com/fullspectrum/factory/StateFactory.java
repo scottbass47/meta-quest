@@ -2,21 +2,15 @@ package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.math.MathUtils;
 import com.fullspectrum.component.DirectionComponent;
-import com.fullspectrum.component.EngineComponent;
-import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.JumpComponent;
-import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LadderComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
-import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.WallComponent;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityStates;
@@ -24,7 +18,6 @@ import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
-import com.fullspectrum.fsm.transition.ComponentTransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
@@ -185,13 +178,13 @@ public class StateFactory {
 		 * @param duration
 		 * @return
 		 */
-		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle, float delay){
+		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle, float delay, float knockBackDistance){
 			esm.createState(EntityStates.SWING_ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
 				.add(engine.createComponent(SwordComponent.class).set(sword))
-				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle, delay))
+				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle, delay, knockBackDistance))
 				.addAnimation(EntityAnim.SWING)
 				.addTag(TransitionTag.GROUND_STATE)
 				.addTag(TransitionTag.STATIC_STATE)
@@ -230,44 +223,44 @@ public class StateFactory {
 			return this;
 		}
 		
-		public EntityStateBuilder knockBack(EntityStates returnToState){
-			esm.createState(EntityStates.KNOCK_BACK)
-//			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-//			.add(engine.createComponent(DirectionComponent.class))
-//			.add(engine.createComponent(GroundMovementComponent.class))
-			.addAnimation(EntityAnim.IDLE)
-			.addTag(TransitionTag.STATIC_STATE)
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					KnockBackComponent knockBackComp = Mappers.knockBack.get(entity);
-					EngineComponent engineComp = Mappers.engine.get(entity);
-					float fx = knockBackComp.speed * MathUtils.cosDeg(knockBackComp.angle);
-					float fy = knockBackComp.speed * MathUtils.sinDeg(knockBackComp.angle);
-					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
-					
-					float time = knockBackComp.distance / knockBackComp.speed;
-					TimerComponent timerComp = Mappers.timer.get(entity);
-					timerComp.add("knockBack_life", time, false, new TimeListener(){
-						@Override
-						public void onTime(Entity entity) {
-							entity.remove(KnockBackComponent.class);
-						}
-					});
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					
-				}
-			});
-			
-			// Add Knockback Transition
-			// CLEANUP HACK -> Hard-coded dying state as the one state you can't be knocked back from
-			esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
-			esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), returnToState);
-			return this;
-		}
+//		public EntityStateBuilder knockBack(EntityStates returnToState){
+//			esm.createState(EntityStates.KNOCK_BACK)
+////			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+////			.add(engine.createComponent(DirectionComponent.class))
+////			.add(engine.createComponent(GroundMovementComponent.class))
+//			.addAnimation(EntityAnim.IDLE)
+//			.addTag(TransitionTag.STATIC_STATE)
+//			.addChangeListener(new StateChangeListener(){
+//				@Override
+//				public void onEnter(State prevState, Entity entity) {
+//					KnockBackComponent knockBackComp = Mappers.knockBack.get(entity);
+//					EngineComponent engineComp = Mappers.engine.get(entity);
+//					float fx = knockBackComp.speed * MathUtils.cosDeg(knockBackComp.angle);
+//					float fy = knockBackComp.speed * MathUtils.sinDeg(knockBackComp.angle);
+//					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
+//					
+//					float time = knockBackComp.distance / knockBackComp.speed;
+//					TimerComponent timerComp = Mappers.timer.get(entity);
+//					timerComp.add("knockBack_life", time, false, new TimeListener(){
+//						@Override
+//						public void onTime(Entity entity) {
+//							entity.remove(KnockBackComponent.class);
+//						}
+//					});
+//				}
+//
+//				@Override
+//				public void onExit(State nextState, Entity entity) {
+//					
+//				}
+//			});
+//			
+//			// Add Knockback Transition
+//			// CLEANUP HACK -> Hard-coded dying state as the one state you can't be knocked back from
+//			esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
+//			esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), returnToState);
+//			return this;
+//		}
 		
 		public EntityStateMachine build(){
 			return esm;

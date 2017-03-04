@@ -42,6 +42,7 @@ public class Mappers {
 	public static final ComponentMapper<OffsetComponent> offset = ComponentMapper.getFor(OffsetComponent.class);
 	public static final ComponentMapper<ParentComponent> parent = ComponentMapper.getFor(ParentComponent.class);
 	public static final ComponentMapper<DirectionComponent> direction =  ComponentMapper.getFor(DirectionComponent.class);
+	public static final ComponentMapper<EaseComponent> ease =  ComponentMapper.getFor(EaseComponent.class);
 
 	// Render
 	public static final ComponentMapper<RenderComponent> render =  ComponentMapper.getFor(RenderComponent.class);

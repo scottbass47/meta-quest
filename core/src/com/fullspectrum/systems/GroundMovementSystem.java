@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.DirectionComponent;
+import com.fullspectrum.component.EaseComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
@@ -28,6 +29,17 @@ public class GroundMovementSystem extends IteratingSystem{
 			speedComp.multiplier = Math.abs(inputComp.input.getValue(Actions.MOVE_LEFT) - inputComp.input.getValue(Actions.MOVE_RIGHT));
 		}
 		float vx = speedComp.multiplier * speedComp.maxSpeed * directionComp.direction.getDirection();
+		
+		EaseComponent easeComp = Mappers.ease.get(entity);
+		
+		if(easeComp != null) {
+			float prevX = easeComp.prevX;
+			float accel = easeComp.accel * deltaTime;
+			vx = prevX < vx ? prevX + accel : prevX - accel;
+			easeComp.prevX = vx;
+		}
+		
+		
 		bodyComp.body.applyLinearImpulse(vx - bodyComp.body.getLinearVelocity().x, 0, bodyComp.body.getWorldCenter().x, bodyComp.body.getWorldCenter().y, true);
 	}
 	

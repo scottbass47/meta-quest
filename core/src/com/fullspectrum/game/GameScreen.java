@@ -79,6 +79,7 @@ import com.fullspectrum.systems.FollowingSystem;
 import com.fullspectrum.systems.ForceSystem;
 import com.fullspectrum.systems.GroundMovementSystem;
 import com.fullspectrum.systems.JumpSystem;
+import com.fullspectrum.systems.KnockBackSystem;
 import com.fullspectrum.systems.LadderMovementSystem;
 import com.fullspectrum.systems.LevelSwitchSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
@@ -120,7 +121,7 @@ public class GameScreen extends AbstractScreen {
 	private Assets assets;
 	private BitmapFont font;
 
-	private int ups = 0;
+//	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -202,7 +203,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new WallSlideSystem());
 		
-		// INSERT KNOCKBACK SYSTEM HERE
+		engine.addSystem(new KnockBackSystem()); // order matters, knockback has to come after movement systems
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new PositioningSystem());
 		engine.addSystem(new FacingSystem());
@@ -265,7 +266,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-		ups++;
+//		ups++;
 		DebugRender.update(delta);
 		DebugRender.setMode(RenderMode.UPDATE);
 

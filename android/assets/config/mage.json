@@ -15,7 +15,7 @@
 	health: 100,
 	
 	// Ability Cooldowns
-	mana_bomb_cooldown: 1.0,
+	mana_bomb_cooldown: 0.0,
 	
 	// Ability Stats
 	mana_bomb_damage: 50.0,

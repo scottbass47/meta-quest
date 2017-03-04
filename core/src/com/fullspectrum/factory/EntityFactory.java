@@ -309,11 +309,12 @@ public class EntityFactory {
 		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
 		
+		float knockBack = 2.5f;
 		// Setup swings
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, knockBack);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, knockBack);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, knockBack);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, knockBack);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -330,7 +331,6 @@ public class EntityFactory {
 			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true, true)
 			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
-			.knockBack(EntityStates.IDLING)
 			.build();
 		
 //		esm.getState(EntityStates.RUNNING)
@@ -484,7 +484,13 @@ public class EntityFactory {
 					// CLEANUP Copy swing b/c when removed if the pooled engine is implemented the data will get reset
 					SwingComponent currSwing = knightComp.getCurrentAttack().getSwingComp();
 					Engine engine = Mappers.engine.get(entity).engine;
-					entity.add(engine.createComponent(SwingComponent.class).set(currSwing.rx, currSwing.ry, currSwing.startAngle, currSwing.endAngle, currSwing.delay + GameVars.UPS_INV + 0.1f));
+					entity.add(engine.createComponent(SwingComponent.class).set(
+							currSwing.rx, 
+							currSwing.ry, 
+							currSwing.startAngle, 
+							currSwing.endAngle, 
+							currSwing.delay + GameVars.UPS_INV + 0.1f, 
+							currSwing.knockBackDistance));
 					Mappers.sword.get(entity).shouldSwing = true;
 				
 					// CLEANUP GROSS!!! 
@@ -907,7 +913,6 @@ public class EntityFactory {
 			.fall(rogueStats.get("air_speed"), true)
 			.climb(rogueStats.get("climb_speed"))
 			.wallSlide()
-			.knockBack(EntityStates.IDLING)
 			.build();
 		
 		Transition backpedalingTransition = new Transition() {
@@ -1255,7 +1260,6 @@ public class EntityFactory {
 			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true, true)
 			.fall(mageStats.get("air_speed"), true)
 			.climb(mageStats.get("climb_speed"))
-			.knockBack(EntityStates.IDLING)
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
 		
@@ -1268,7 +1272,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, mageStats.get("mana_bomb_speed"), mageStats.get("mana_bomb_damage"), 45f, 5.0f, 5.0f);
+					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, mageStats.get("mana_bomb_speed"), mageStats.get("mana_bomb_damage"), 0.0f, 5.0f, 5.0f);
 				}
 
 				@Override
@@ -1381,8 +1385,7 @@ public class EntityFactory {
 			.fall(stats.get("air_speed"), true)
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true, true)
 			.climb(stats.get("climb_speed"))
-			.swingAttack(sword, 2.5f, 1.0f, 150f, -90f, 0.4f)
-			.knockBack(EntityStates.IDLING)
+			.swingAttack(sword, 2.5f, 1.0f, 150f, -90f, 0.4f, 2.0f)
 			.build();
 		
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
@@ -1530,7 +1533,6 @@ public class EntityFactory {
 		EntityManager.addEntity(wings);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spitter ESM", engine, entity)
-			.knockBack(EntityStates.FLYING)
 			.build();
 		
 		esm.createState(EntityStates.FLYING)
@@ -1693,7 +1695,6 @@ public class EntityFactory {
 				.idle()
 				.fall(SPEED, true)
 				.jump(JUMP_FORCE, SPEED, false, false)
-				.knockBack(EntityStates.IDLING)
 				.build();
 		
 		esm.getState(EntityStates.JUMPING)

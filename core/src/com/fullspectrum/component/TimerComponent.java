@@ -70,6 +70,10 @@ public class TimerComponent implements Component, Poolable{
 		public float getElapsed(){
 			return elapsed;
 		}
+		
+		public float getTotalTime(){
+			return time;
+		}
 	}
 	
 }

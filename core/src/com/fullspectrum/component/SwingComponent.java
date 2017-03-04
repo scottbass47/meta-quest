@@ -10,14 +10,16 @@ public class SwingComponent implements Component, Poolable {
 	public float startAngle = 0.0f;
 	public float endAngle = 0.0f;
 	public float delay;
+	public float knockBackDistance;
 	public float timeElapsed;
 
-	public SwingComponent set(float rx, float ry, float startAngle, float endAngle, float delay) {
+	public SwingComponent set(float rx, float ry, float startAngle, float endAngle, float delay, float knockBackDistance) {
 		this.rx = rx;
 		this.ry = ry;
 		this.startAngle = startAngle;
 		this.endAngle = endAngle;
 		this.delay = delay;
+		this.knockBackDistance = knockBackDistance;
 		return this;
 	}
 
@@ -28,6 +30,7 @@ public class SwingComponent implements Component, Poolable {
 		startAngle = 0.0f;
 		endAngle = 0.0f;
 		delay = 0.0f;
+		knockBackDistance = 0.0f;
 		timeElapsed = 0.0f;
 	}
 
