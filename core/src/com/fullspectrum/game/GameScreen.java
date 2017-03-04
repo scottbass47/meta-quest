@@ -201,7 +201,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new GroundMovementSystem());
 		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new LadderMovementSystem());
-		engine.addSystem(new WallSlideSystem());
+//		engine.addSystem(new WallSlideSystem());
 		
 		engine.addSystem(new KnockBackSystem()); // order matters, knockback has to come after movement systems
 		engine.addSystem(new VelocitySystem());

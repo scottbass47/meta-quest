@@ -22,7 +22,7 @@ public class KnockBackEffect extends Effect{
     private float getTime(){
     	// vf^2 = v0^2 + 2ax
     	// (vf^2 - v0^2) / (2x) = a
-    	float vf = SPEED * 0.0f;
+    	float vf = 0.0f;
     	float v0 = SPEED;
     	float accel = ((float)Math.pow(vf, 2) - (float)Math.pow(v0, 2)) / (2 * distance);
     	
@@ -33,14 +33,18 @@ public class KnockBackEffect extends Effect{
     
 	@Override
 	public void give() {
-		toEntity.add(Mappers.engine.get(toEntity).engine.createComponent(KnockBackComponent.class).set(distance, SPEED, angle));
+		toEntity.add(Mappers.engine.get(toEntity).engine.createComponent(KnockBackComponent.class).set(distance, angle));
 	}
 	
 	@Override
 	public void cleanUp() {
 		Body body = Mappers.body.get(toEntity).body;
-		body.setLinearVelocity(0.0f, body.getLinearVelocity().y); // CLEANUP Temporary (flying enemies, ladders, etc...)
-		Effects.giveEase(toEntity, 0.5f, 10.0f);
+		if(Mappers.flying.get(toEntity) != null){
+			body.setLinearVelocity(0.0f, 0.0f);
+		}else if(Mappers.groundMovement.get(toEntity) != null){
+			body.setLinearVelocity(0.0f, body.getLinearVelocity().y);
+			Effects.giveEase(toEntity, 0.5f, 10.0f);
+		}
 		toEntity.remove(KnockBackComponent.class);
 	}
 	

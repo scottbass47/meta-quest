@@ -8,6 +8,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimerComponent.Timer;
+import com.fullspectrum.effects.KnockBackEffect;
 import com.fullspectrum.game.GameVars;
 
 public class KnockBackSystem extends IteratingSystem{
@@ -21,20 +22,19 @@ public class KnockBackSystem extends IteratingSystem{
 		KnockBackComponent knockBackComp = Mappers.knockBack.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		
-//		float dx = MathUtils.cosDeg(knockBackComp.angle) * knockBackComp.speed;
-//		float dy = MathUtils.sinDeg(knockBackComp.angle) * knockBackComp.speed;
-		
 		Timer timer = Mappers.timer.get(entity).get("knockback_effect");
 		float elapsed = timer.getElapsed();
 		float total = timer.getTotalTime();
+		float knockUp = 5.0f;
 		
-//		float dx = MathUtils.cosDeg(knockBackComp.angle) * knockBackComp.speed * ((total - elapsed) / (2 * total) + 0.5f);
-		float dx = MathUtils.cosDeg(knockBackComp.angle) * knockBackComp.speed * ((total - elapsed) / total);
-		float dy = bodyComp.body.getLinearVelocity().y;
+		float dx = MathUtils.cosDeg(knockBackComp.angle) * KnockBackEffect.SPEED * ((total - elapsed) / total);
+		float dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp : -knockUp;
 		
-		if(elapsed <= GameVars.PPM_INV){
-			float knockUp = 5.0f;
-			dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp : -knockUp;
+		if(Mappers.groundMovement.get(entity) != null){
+			// One time knock upwards
+			if(elapsed > GameVars.PPM_INV){
+				dy = bodyComp.body.getLinearVelocity().y;
+			}
 		}
 		bodyComp.body.setLinearVelocity(dx, dy);
 	}

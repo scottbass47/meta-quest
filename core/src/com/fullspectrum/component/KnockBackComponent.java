@@ -6,12 +6,10 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class KnockBackComponent implements Component, Poolable {
 
 	public float distance;
-	public float speed;
 	public float angle;
 	
-	public KnockBackComponent set(float distance, float speed, float angle){
+	public KnockBackComponent set(float distance, float angle){
 		this.distance = distance;
-		this.speed = speed;
 		this.angle = angle;
 		return this;
 	}
@@ -19,8 +17,6 @@ public class KnockBackComponent implements Component, Poolable {
 	@Override
 	public void reset() {
 		distance = 0.0f;
-		speed = 0.0f;
 		angle = 0.0f;
 	}
-
 }

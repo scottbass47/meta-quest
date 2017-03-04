@@ -5,5 +5,5 @@
 	spawn_delay: 4.0f,
 	
 	// Spawner
-	ai_player: 1.0
+	spitter: 1.0
 }
