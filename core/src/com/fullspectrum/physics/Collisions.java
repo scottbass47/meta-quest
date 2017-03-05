@@ -105,7 +105,10 @@ public enum Collisions {
 			HealthComponent healthComp = Mappers.heatlh.get(otherEntity);
 			if(healthComp == null) return;
 			
+			// If entity is stunned, they won't have the damage component
 			DamageComponent damageComp = Mappers.damage.get(entity);
+			if(damageComp == null) return;
+			
 			DamageHandler.dealDamage(entity, otherEntity, damageComp.damage);
 		}
 

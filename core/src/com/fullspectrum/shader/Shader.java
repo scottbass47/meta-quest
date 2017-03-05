@@ -20,9 +20,7 @@ public abstract class Shader {
 	public abstract void passUniforms(Entity entity);
 	
 	public void setUniforms(Entity entity){
-		program.begin();
 		passUniforms(entity);
-		program.end();
 	}
 	
 	public ShaderProgram getProgram() {

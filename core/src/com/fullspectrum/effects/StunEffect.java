@@ -4,13 +4,17 @@ import java.util.Iterator;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.AbstractSMComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
+import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DeathComponent;
+import com.fullspectrum.component.EffectComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.EntityComponent;
 import com.fullspectrum.component.FacingComponent;
@@ -19,13 +23,17 @@ import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
+import com.fullspectrum.component.OffsetComponent;
+import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimerComponent;
+import com.fullspectrum.component.TimerComponent.Timer;
 import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateMachine;
@@ -53,9 +61,12 @@ public class StunEffect extends Effect{
 				MoneyComponent.class,
 				FacingComponent.class,
 				CollisionComponent.class,
-				TintComponent.class,
 				ShaderComponent.class,
 				TypeComponent.class,
+				OffsetComponent.class,
+				ParentComponent.class,
+				WingComponent.class,
+				EffectComponent.class,
 				
 				// Global Components (always required)
 				TimerComponent.class,
@@ -67,10 +78,12 @@ public class StunEffect extends Effect{
 		);
 	}
 	
-	// BUG When rendering entities are sometimes invisible
 	public StunEffect(Entity toEntity, float duration) {
-		super(toEntity, duration, true);
-		delayed = true;
+		this(toEntity, duration, false);
+	}
+	
+    public StunEffect(Entity toEntity, float duration, boolean delayed) {
+    	super(toEntity, duration, delayed);
 		removed = new ObjectSet<Component>();
 		removedMachines = new Array<StateMachine<? extends State, ? extends StateObject>>();
 	}
@@ -79,17 +92,36 @@ public class StunEffect extends Effect{
 	protected void give() {
 		for(int i = 0; i < toEntity.getComponents().size(); i++){
 			Component comp = toEntity.getComponents().get(i);
+			
+			// Pause timers
+			if(comp instanceof TimerComponent){
+				TimerComponent timerComp = (TimerComponent) comp;
+				for(String name : timerComp.timers.keys()){
+					if(name.contains("_effect")) continue;
+					timerComp.get(name).pause();
+				}
+			}
+			if(comp instanceof TintComponent){
+				TintComponent tintComp = (TintComponent)comp;
+				tintComp.tint = Color.WHITE;
+			}
 			if(requiredComponents.contains(comp.getClass())) continue;
 			if(comp instanceof AbstractSMComponent<?>){
 				AbstractSMComponent<StateMachine<? extends State,? extends StateObject>> smComp = (AbstractSMComponent<StateMachine<? extends State,? extends StateObject>>)comp;
 				removedMachines.addAll(smComp.getMachines());
 				StateMachineSystem.getInstance().removeStateMachines(smComp.getMachines());
 			}
+			if(comp instanceof ChildrenComponent){
+				ChildrenComponent childrenComp = (ChildrenComponent) comp;
+				for(Entity child : childrenComp.getChildren()){
+					Effects.giveImmediateStun(child, duration);
+				}
+			}
 			removed.add(toEntity.remove(comp.getClass()));
 			i--;
 		}
 		StateMachineSystem.getInstance().updateMachines();
-		Mappers.body.get(toEntity).body.setLinearVelocity(0.0f, 0.0f);
+		if(Mappers.body.get(toEntity) != null) Mappers.body.get(toEntity).body.setLinearVelocity(0.0f, 0.0f);
 		Mappers.shader.get(toEntity).shader = shader;
 	}
 
@@ -101,7 +133,14 @@ public class StunEffect extends Effect{
 		}
 		StateMachineSystem.getInstance().addStateMachines(removedMachines);
 		removedMachines.clear();
-		Effects.giveEase(toEntity, 0.5f, 10.0f);
+		if(Mappers.body.get(toEntity) != null) {
+			Effects.giveEase(toEntity, 0.5f, 10.0f);
+		}
+		// Unpause timer
+		TimerComponent timerComp = Mappers.timer.get(toEntity);
+		for(int i = 0; i < timerComp.timers.size; i++){
+			timerComp.get(timerComp.timers.getKeyAt(i)).unpause();
+		}
 		StateMachineSystem.getInstance().updateMachines();
 		Mappers.shader.get(toEntity).shader = null;
 	}

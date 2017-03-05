@@ -36,6 +36,7 @@ public class TimerComponent implements Component, Poolable{
 		private boolean looping;
 		private float elapsed = 0.0f;
 		private TimeListener listener;
+		private boolean paused = false;
 		
 		public Timer(float time, boolean looping, TimeListener listener){
 			this.time = time;
@@ -45,6 +46,18 @@ public class TimerComponent implements Component, Poolable{
 		
 		public boolean isDone(){
 			return elapsed >= time;
+		}
+		
+		public void pause(){
+			paused = true;
+		}
+		
+		public void unpause(){
+			paused = false;
+		}
+		
+		public boolean isPaused(){
+			return paused;
 		}
 		
 		public void resetElapsed(){

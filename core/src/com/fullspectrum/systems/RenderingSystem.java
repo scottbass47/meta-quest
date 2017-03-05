@@ -22,12 +22,12 @@ import com.fullspectrum.component.TintComponent;
 public class RenderingSystem extends EntitySystem {
 
 	private ImmutableArray<Entity> entities;
-
+	
 	@Override
 	public void addedToEngine(Engine engine) {
 		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, RenderComponent.class, TextureComponent.class).get());
 	}
-
+	
 	@Override
 	public void update(float deltaTime) {
 		
@@ -43,11 +43,12 @@ public class RenderingSystem extends EntitySystem {
 			RenderComponent renderComp = Mappers.render.get(entity);
 			ShaderComponent shaderComp = Mappers.shader.get(entity);
 			if(shaderComp != null && shaderComp.shader != null){
-				shaderComp.shader.setUniforms(entity);
 				batch.setShader(shaderComp.shader.getProgram());
+				shaderComp.shader.setUniforms(entity);
 			} else{
 				batch.setShader(null);
 			}
+			
 			if(textureComp.getRegions() == null || textureComp.getRegions().size == 0) return;
 			
 			for(TextureRegion region : textureComp.getRegions()){

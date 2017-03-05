@@ -40,6 +40,7 @@ import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CameraComponent;
+import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DamageComponent;
@@ -51,6 +52,7 @@ import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DropComponent;
 import com.fullspectrum.component.DropMovementComponent;
 import com.fullspectrum.component.ESMComponent;
+import com.fullspectrum.component.EffectComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.EntityComponent;
 import com.fullspectrum.component.FacingComponent;
@@ -61,13 +63,13 @@ import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.InvincibilityComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
-import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -420,7 +422,6 @@ public class EntityFactory {
 				
 			});
 		
-		// FIXME What happens if you get put into a knockback state mid swing?
 		esm.createState(EntityStates.SWING_ATTACK)
 			.addAnimations(swingAnims) // CLEANUP See entity state.
 			.addTag(TransitionTag.STATIC_STATE)
@@ -1509,6 +1510,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitterIdle));
 		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitterDeath));
 		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.spitterAttack));
+//		animMap.put(EntityAnim.FLAPPING, assets.getSpriteAnimation(Assets.spitterWings));
 		AIController controller = new AIController();
 		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName(), engine, world, level)
 				.animation(animMap)
@@ -1534,10 +1536,16 @@ public class EntityFactory {
 		
 		Entity wings = createWings(engine, world, level, entity, x, y, -0.8f, 0.5f, assets.getSpriteAnimation(Assets.spitterWings));
 		entity.add(engine.createComponent(WingComponent.class).set(wings));
+		entity.add(engine.createComponent(ChildrenComponent.class).add(wings));
 		EntityManager.addEntity(wings);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spitter ESM", engine, entity)
 			.build();
+		
+		// Wings
+//		AnimationStateMachine wingsASM = new AnimationStateMachine(entity, new StateObjectCreator());
+//		wingsASM.createState(EntityAnim.FLAPPING);
+//		wingsASM.changeState(EntityAnim.FLAPPING);
 		
 		esm.createState(EntityStates.FLYING)
 			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
@@ -1571,6 +1579,8 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
+					// Remove wings
+//					Mappers.asm.get(entity).remove(Mappers.asm.get(entity).get(EntityAnim.FLAPPING));
 				}
 
 				@Override
@@ -1839,6 +1849,7 @@ public class EntityFactory {
 		wings.add(engine.createComponent(StateComponent.class).set(EntityAnim.IDLE));
 		wings.add(engine.createComponent(ParentComponent.class).set(owner));
 		wings.add(engine.createComponent(OffsetComponent.class).set(xOff, yOff, true));
+		wings.add(engine.createComponent(EffectComponent.class));
 		return wings;
 	}
 	
@@ -2254,7 +2265,7 @@ public class EntityFactory {
 		}
 		
 		/**
-		 * Adds Input, Type, Health and Invincibility components.
+		 * Adds Input, Type, Health, Effect and Invincibility components.
 		 * 
 		 * @param input
 		 * @param type
@@ -2266,6 +2277,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
 			entity.add(engine.createComponent(InvincibilityComponent.class));
+			entity.add(engine.createComponent(EffectComponent.class));
 			return this;
 		}
 		

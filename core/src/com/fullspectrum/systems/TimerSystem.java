@@ -21,6 +21,7 @@ public class TimerSystem extends IteratingSystem{
 		if(timerComp.timers.size == 0) return;
 		for(Iterator<String> iter = timerComp.timers.keys().iterator(); iter.hasNext();){
 			Timer timer = timerComp.get(iter.next());
+			if(timer.isPaused()) continue;
 			timer.addTime(deltaTime);
 			if(timer.isDone()){
 				timer.onTime(entity);

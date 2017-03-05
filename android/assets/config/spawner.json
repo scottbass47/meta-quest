@@ -5,5 +5,7 @@
 	spawn_delay: 4.0f,
 	
 	// Spawner
-	ai_player: 1.0
+	slime: 0.5,
+	spitter: 0.2,
+	ai_player: 0.3
 }

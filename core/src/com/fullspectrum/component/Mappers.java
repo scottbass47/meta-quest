@@ -41,6 +41,7 @@ public class Mappers {
 	public static final ComponentMapper<SpeedComponent> speed =  ComponentMapper.getFor(SpeedComponent.class);
 	public static final ComponentMapper<OffsetComponent> offset = ComponentMapper.getFor(OffsetComponent.class);
 	public static final ComponentMapper<ParentComponent> parent = ComponentMapper.getFor(ParentComponent.class);
+	public static final ComponentMapper<ChildrenComponent> children = ComponentMapper.getFor(ChildrenComponent.class); 
 	public static final ComponentMapper<DirectionComponent> direction =  ComponentMapper.getFor(DirectionComponent.class);
 	public static final ComponentMapper<EaseComponent> ease =  ComponentMapper.getFor(EaseComponent.class);
 
@@ -95,6 +96,7 @@ public class Mappers {
 	public static final ComponentMapper<SpawnerPoolComponent> spawnerPool = ComponentMapper.getFor(SpawnerPoolComponent.class);
 	public static final ComponentMapper<LevelSwitchComponent> levelSwitch = ComponentMapper.getFor(LevelSwitchComponent.class);
 	public static final ComponentMapper<ImmuneComponent> immune = ComponentMapper.getFor(ImmuneComponent.class);
+	public static final ComponentMapper<EffectComponent> effect = ComponentMapper.getFor(EffectComponent.class);
 
 }
 

@@ -107,7 +107,10 @@ public class EntityManager {
 		// Delayed effects
 		for(Iterator<Effect> iter = effects.iterator(); iter.hasNext();){
 			Effect effect = iter.next();
-			if(EntityUtils.isValid(effect.getEntity())) effect.apply();
+			if(EntityUtils.isValid(effect.getEntity())){
+				Mappers.effect.get(effect.getEntity()).add(effect);
+				effect.apply();
+			}
 			iter.remove();
 		}
 		

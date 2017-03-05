@@ -6,6 +6,7 @@ import com.badlogic.ashley.systems.IteratingSystem;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.effects.Effects;
 
 public class DeathSystem extends IteratingSystem {
 
@@ -22,6 +23,7 @@ public class DeathSystem extends IteratingSystem {
 		}
 		
 		if (deathComp.shouldDie()) {
+			Effects.clearAll(entity);
 			deathComp.onDeath.onDeath(entity);
 			deathComp.makeDead();
 		}

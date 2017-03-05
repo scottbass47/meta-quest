@@ -20,9 +20,10 @@ public abstract class Effect {
 
 	public void apply() {
 		// Don't apply the effect if its already applied
-		if (Mappers.heatlh.get(toEntity).health <= 0.0f) return;
+		if (Mappers.heatlh.get(toEntity) != null && Mappers.heatlh.get(toEntity).health <= 0.0f) return;
 		if (Mappers.timer.get(toEntity).timers.containsKey(getName() + "_effect")) return;
 		if (Mappers.immune.get(toEntity) != null && Mappers.immune.get(toEntity).isImmuneTo(getType())) return;
+		final Effect effect = this;
 		if (delayed) {
 			EntityManager.addDelayedAction(new DelayedAction(toEntity) {
 				@Override
@@ -35,6 +36,7 @@ public abstract class Effect {
 								@Override
 								public void onAction() {
 									cleanUp();
+									Mappers.effect.get(toEntity).remove(effect);
 								}
 							});
 						}
@@ -47,6 +49,7 @@ public abstract class Effect {
 				@Override
 				public void onTime(Entity entity) {
 					cleanUp();
+					Mappers.effect.get(toEntity).remove(effect);
 				}
 			});
 		}
