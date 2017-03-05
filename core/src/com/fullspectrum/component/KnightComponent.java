@@ -1,7 +1,9 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.entity.EntityAnim;
 
@@ -11,6 +13,10 @@ public class KnightComponent implements Component, Poolable{
 	private Array<KnightAttack> attacks;
 	public boolean first = true;
 	public int index = 0;
+	public int maxChains;
+	public int chains = 0;
+	public boolean hitAnEnemy = false;
+	public ObjectSet<Entity> hitEnemies;
 	
 	// Chaining
 	public float lungeX;
@@ -19,6 +25,12 @@ public class KnightComponent implements Component, Poolable{
 	
 	public KnightComponent(){
 		attacks = new Array<KnightAttack>();
+		hitEnemies = new ObjectSet<Entity>();
+	}
+	
+	public KnightComponent set(int maxChains){
+		this.maxChains = maxChains;
+		return this;
 	}
 	
 	/**
@@ -51,6 +63,10 @@ public class KnightComponent implements Component, Poolable{
 		attacks = null;
 		first = true;
 		index = 0;
+		maxChains = 0;
+		chains = 0;
+		hitAnEnemy = false;
+		hitEnemies = null;
 	}
 	
 	public class KnightAttack{

@@ -5,7 +5,6 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.Mappers;
 
-// INCOMPLETE Knockback doesn't work properly on flying enemies and on ladders
 public class KnockBackEffect extends Effect{
 
 	public static final float SPEED = 15.0f;

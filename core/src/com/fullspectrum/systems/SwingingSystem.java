@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
@@ -26,8 +27,6 @@ import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.effects.Effects;
-import com.fullspectrum.effects.KnockBackEffect;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.level.EntityGrabber;
 
@@ -142,43 +141,15 @@ public class SwingingSystem extends IteratingSystem{
 		for(Entity e : hitEntities){
 			DamageHandler.dealDamage(entity, e, swordStats.damage, swingComp.knockBackDistance, facingComp.facingRight ? 0.0f : 180);
 		}
+		
+		// Knight stuff
+		KnightComponent knightComp = Mappers.knight.get(entity);
+		if(knightComp != null){
+			knightComp.hitAnEnemy = hitEntities.size > 0;
+			knightComp.hitEnemies.addAll(hitEntities);
+		}
 		swingComp.timeElapsed = 0.0f;
 		swordComp.shouldSwing = false;
 		
 	}
-	
-//	/**
-//	 * X and Y are the coordinates being tested. EX and EY are the coordinates of the center of the 
-//	 * ellipse. RX and RY are the radius values for the ellipse. Start and end angles are in range of
-//	 * 180 to -180 where an arc is created from start to end, clockwise. 
-//	 * 
-//	 * @param x
-//	 * @param y
-//	 * @param ex
-//	 * @param ey
-//	 * @param rx
-//	 * @param ry
-//	 * @param startAngle
-//	 * @param endAngle
-//	 * @param facingRight
-//	 * @return
-//	 */
-//	private boolean inEllipse(float x, float y, float ex, float ey, float rx, float ry, float startAngle, float endAngle, boolean facingRight){
-//		// Construct ellipse
-//		float rx2 = rx * rx;
-//		float ry2 = ry * ry;
-//		float xx = (x - ex) * (x - ex);
-//		float yy = (y - ey) * (y - ey);
-//		
-//		// Entity inside ellipse
-//		if(xx / rx2 + yy / ry2 <= 1.0){
-//			// Check to see if angle is valid
-//			float angle = MathUtils.atan2(y - ey, facingRight ? x - ex : x - ex) * MathUtils.radiansToDegrees;
-//			
-//			if(angle <= startAngle && angle >= endAngle){
-//				return true;
-//			}
-//		}
-//		return false;
-//	}
 }

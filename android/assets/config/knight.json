@@ -7,6 +7,11 @@
 	// Base Stats
 	health: 100,
 	sword_damage: 50,
+	
+	// Chaining
+	max_chains: 0,
+	chain_max_horizontal_range: 10.0,
+	chain_max_vertical_range: 1.5,
 
 	// Movement
 	ground_speed: 5.0,

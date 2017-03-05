@@ -23,5 +23,6 @@ public class GameVars {
 	// FPS
 	public static final int UPS = 60;
 	public static final float UPS_INV = 1.0f / UPS;
+	public static final float ANIM_FRAME = 0.1f;
 	
 }

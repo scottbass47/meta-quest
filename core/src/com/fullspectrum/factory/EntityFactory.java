@@ -313,7 +313,7 @@ public class EntityFactory {
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
-		KnightComponent knightComp = engine.createComponent(KnightComponent.class);
+		KnightComponent knightComp = engine.createComponent(KnightComponent.class).set((int)knightStats.get("max_chains"));
 		
 		float knockBack = 2.5f;
 		// Setup swings
@@ -339,34 +339,6 @@ public class EntityFactory {
 			.climb(5.0f)
 			.build();
 		
-//		esm.getState(EntityStates.RUNNING)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					Mappers.timer.get(entity).add("run_particle_timer", 0.5f, true, new TimeListener() {
-//						@Override
-//						public void onTime(Entity entity) {
-//							ParticleFactory.spawnRunParticle(entity);
-//						}
-//					});
-//					Mappers.timer.get(entity).add("change_direction", GameVars.UPS_INV, true, new TimeListener() {
-//						@Override
-//						public void onTime(Entity entity) {
-//							Input input = Mappers.input.get(entity).input;
-//							boolean facingRight = Mappers.facing.get(entity).facingRight;
-//							
-//							if(input.isPressed(Actions.MOVE_RIGHT) && !facingRight || input.isJustPressed(Actions.MOVE_LEFT) && facingRight){
-//								ParticleFactory.spawnRunParticle(entity);
-//							}
-//						}
-//					});
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//					Mappers.timer.get(entity).remove("run_particle_timer");
-//				}
-//			});
-		
 		// Notes
 		//	- If transitioning from running, jumping, or falling state skip initial swing animation
 		//	- Move forwards slight amount (more if you're coming from running state)
@@ -387,7 +359,6 @@ public class EntityFactory {
 		}
 		
 		// INCOMPLETE Damage modifier when continuously chaining
-		// INCOMPLETE Limit chaining
 		esm.createState(EntityStates.IDLE_TO_SWING)
 			.addAnimations(idleToSwingAnims)
 			.addTag(TransitionTag.STATIC_STATE)
@@ -437,7 +408,7 @@ public class EntityFactory {
 					body.setGravityScale(0.0f);
 					body.setBullet(true);
 					
-					float duration = 0.1f;
+					float duration = GameVars.ANIM_FRAME;
 					float distance = 0.5f;
 					boolean first = knightComp.first;
 
@@ -478,7 +449,7 @@ public class EntityFactory {
 					}
 
 					// CLEANUP VERY FRAGILE... This only works because we know the state machine system updates before the timer and force system
-					Mappers.timer.get(entity).add("lunge_distance", 0.1f + GameVars.UPS_INV, false, new TimeListener() {
+					Mappers.timer.get(entity).add("lunge_distance", GameVars.ANIM_FRAME + GameVars.UPS_INV, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
 							Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
@@ -494,7 +465,7 @@ public class EntityFactory {
 							currSwing.ry, 
 							currSwing.startAngle, 
 							currSwing.endAngle, 
-							currSwing.delay + GameVars.UPS_INV + 0.1f, 
+							currSwing.delay + GameVars.UPS_INV + GameVars.ANIM_FRAME, 
 							currSwing.knockBackDistance));
 					Mappers.sword.get(entity).shouldSwing = true;
 				
@@ -548,9 +519,16 @@ public class EntityFactory {
 				public void onExit(State nextState, Entity entity) {
 					if(nextState != EntityStates.SWING_ATTACK){
 						// Put things back to normal
+						KnightComponent knightComp = Mappers.knight.get(entity);
+						knightComp.first = true;
+						knightComp.chains = 0;
+						knightComp.hitAnEnemy = false;
+						knightComp.hitEnemies.clear();
+						
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
-						Mappers.knight.get(entity).first = true;
 						Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+					}else{
+						Mappers.knight.get(entity).chains++;
 					}
 				}
 			});
@@ -558,7 +536,6 @@ public class EntityFactory {
 		// SWINGING TRANSITIONS
 		// ******************************************
 		
-		// INCOMPLETE Can only chain after successfully hitting an enemy first
 		InputTransitionData attackPress = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		MultiTransition chainAttack = new MultiTransition(Transitions.INPUT, attackPress)
 				.and(new Transition() {
@@ -567,12 +544,17 @@ public class EntityFactory {
 					public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 						LevelComponent levelComp = Mappers.level.get(entity);
 						LevelHelper helper = levelComp.levelHelper;
+						KnightComponent knightComp = Mappers.knight.get(entity);
+						
+						// You can't chain if you've hit your max number of chains or haven't hit an enemy
+						if(knightComp.chains >= knightComp.maxChains || !knightComp.hitAnEnemy) return false;
 						
 						Array<Entity> entities = helper.getEntities(new EntityGrabber() {
 							@Override
 							public boolean validEntity(Entity me, Entity other) {
 								if(Mappers.type.get(other).same(Mappers.type.get(me))) return false;
 								if(Mappers.heatlh.get(other).health <= 0) return false;
+								if(Mappers.knight.get(me).hitEnemies.contains(other)) return false;
 								
 								Body myBody = Mappers.body.get(me).body;
 								Body otherBody = Mappers.body.get(other).body;
@@ -586,8 +568,8 @@ public class EntityFactory {
 								float otherY = otherBody.getPosition().y;
 
 								float minX = 0.5f;
-								float maxX = 7.0f;
-								float yRange = 1.5f;
+								float maxX = knightStats.get("chain_max_horizontal_range");
+								float yRange = knightStats.get("chain_max_vertical_range");
 								
 								// Construct box in front of you
 								float closeX = facingComp.facingRight ? myX + minX : myX - minX;
@@ -715,7 +697,6 @@ public class EntityFactory {
 						});
 						
 						Entity toChain = entities.first();
-						KnightComponent knightComp = Mappers.knight.get(entity);
 						Vector2 chainPos = Mappers.body.get(toChain).body.getPosition();
 						
 						knightComp.lungeX = chainPos.x;
@@ -735,12 +716,50 @@ public class EntityFactory {
 					}
 				});
 		
+		Transition enemyNotHit = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return !Mappers.knight.get(entity).hitAnEnemy;
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Enemy Not Hit";
+			}
+		};
+		
+		Transition maxChain = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.knight.get(entity).chains >= Mappers.knight.get(entity).maxChains;
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Max Chain";
+			}
+		};
+		
+		MultiTransition exitChaining = new MultiTransition(maxChain).or(enemyNotHit).or(Transitions.TIME, new TimeTransitionData(0.3f));
+		
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transitions.INPUT, attackPress, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.IDLING, Transitions.INPUT, attackPress, EntityStates.IDLE_TO_SWING);
 		esm.addTransition(EntityStates.IDLE_TO_SWING, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.TIME, new TimeTransitionData(0.3f), EntityStates.IDLING);
+		esm.addTransition(EntityStates.SWING_ANTICIPATION, exitChaining, EntityStates.IDLING);
+		
+		System.out.println(esm.printTransitions());
 		
 		// ******************************************
 		

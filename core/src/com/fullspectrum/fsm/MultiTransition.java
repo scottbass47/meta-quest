@@ -74,7 +74,7 @@ public class MultiTransition {
 	
 	public MultiTransition and(MultiTransition multiTransition){
 		addTransition(multiTransition);
-		operationTypes.add(OperationType.OR);
+		operationTypes.add(OperationType.AND);
 		return this;
 	}
 	
@@ -85,7 +85,7 @@ public class MultiTransition {
 	}
 	
 	public MultiTransition or(Transition transition){
-		return and(transition, null);
+		return or(transition, null);
 	}
 	
 	public MultiTransition or(MultiTransition multiTransition){
@@ -192,9 +192,33 @@ public class MultiTransition {
 	}
 	
 	@Override
-	// CLEANUP Improve multi transition toString (use || and && with parentheses to show hierarchy)
 	public String toString() {
-		return transitionObjects.toString();
+		StringBuilder builder = new StringBuilder();
+		Object first = operationObjects.get(0);
+		if(first instanceof TransitionObject){
+			TransitionObject obj = (TransitionObject) first;
+			builder.append(obj);
+		}else{
+			MultiTransition multi = (MultiTransition) first;
+			builder.append("(" + multi + ")");
+		}
+		for(int i = 0; i < operationTypes.size; i++){
+			OperationType type = operationTypes.get(i);
+			Object object = operationObjects.get(i + 1);
+			if(type == OperationType.AND){
+				builder.append(" && ");
+			}else if(type == OperationType.OR){
+				builder.append(" || ");
+			}
+			if(object instanceof TransitionObject){
+				TransitionObject obj = (TransitionObject) object;
+				builder.append(obj);
+			}else{
+				MultiTransition multi = (MultiTransition) object;
+				builder.append("(" + multi + ")");
+			}
+		}
+		return builder.toString();
 	}
 	
 	public enum OperationType{

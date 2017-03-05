@@ -21,6 +21,7 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
 
 // TODO Allow for modification of transition data after adding transitions
+// TODO Add in 'not' option for transitions
 public class StateMachine<S extends State, E extends StateObject> {
 
 	// State
