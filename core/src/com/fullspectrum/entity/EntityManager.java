@@ -12,6 +12,11 @@ import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.effects.Effect;
+import com.fullspectrum.fsm.State;
+import com.fullspectrum.fsm.StateChangeDef;
+import com.fullspectrum.fsm.StateMachine;
+import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.physics.PhysicsDef;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -20,6 +25,9 @@ public class EntityManager {
 	private static Array<Entity> toDie = new Array<Entity>();
 	private static Array<Entity> toAdd = new Array<Entity>();
 	private static Array<PhysicsDef> toLoadPhysics = new Array<PhysicsDef>();
+	private static Array<StateChangeDef> stateChanges = new Array<StateChangeDef>();
+	private static Array<Effect> effects = new Array<Effect>();
+	private static Array<DelayedAction> actions = new Array<DelayedAction>();
 	
 	public static void cleanUp(Entity entity) {
 		EngineComponent engineComp = Mappers.engine.get(entity);
@@ -53,6 +61,18 @@ public class EntityManager {
 		toDie.add(entity);
 	}
 	
+	public static void addStateChange(StateMachine<? extends State, ? extends StateObject> machine, State state){
+		stateChanges.add(new StateChangeDef(machine, state));
+	}
+	
+	public static void addEffect(Effect effect){
+		effects.add(effect);
+	}
+	
+	public static void addDelayedAction(DelayedAction action){
+		actions.add(action);
+	}
+	
 	public static void update(float delta){
 		// Delayed death
 		for(Iterator<Entity> iter = toDie.iterator(); iter.hasNext();){
@@ -74,6 +94,27 @@ public class EntityManager {
 		for(Iterator<Entity> iter = toAdd.iterator(); iter.hasNext();){
 			Entity entity = iter.next();
 			Mappers.engine.get(entity).engine.addEntity(entity);
+			iter.remove();
+		}
+		
+		// Delayed state changes
+		for(Iterator<StateChangeDef> iter = stateChanges.iterator(); iter.hasNext();){
+			StateChangeDef def = iter.next();
+			if(EntityUtils.isValid(def.getMachine().getEntity())) def.getMachine().changeState(def.getState());
+			iter.remove();
+		}
+		
+		// Delayed effects
+		for(Iterator<Effect> iter = effects.iterator(); iter.hasNext();){
+			Effect effect = iter.next();
+			if(EntityUtils.isValid(effect.getEntity())) effect.apply();
+			iter.remove();
+		}
+		
+		// Delayed actions
+		for(Iterator<DelayedAction> iter = actions.iterator(); iter.hasNext();){
+			DelayedAction action = iter.next();
+			if(EntityUtils.isValid(action.getEntity())) action.onAction();
 			iter.remove();
 		}
 	}

@@ -51,6 +51,7 @@ public class Mappers {
 	public static final ComponentMapper<FacingComponent> facing =  ComponentMapper.getFor(FacingComponent.class);
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 	public static final ComponentMapper<TextRenderComponent> textRender =  ComponentMapper.getFor(TextRenderComponent.class);
+	public static final ComponentMapper<ShaderComponent> shader = ComponentMapper.getFor(ShaderComponent.class);
 	
 	// State Machine
 	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);
@@ -93,6 +94,7 @@ public class Mappers {
 	public static final ComponentMapper<SpawnComponent> spawn = ComponentMapper.getFor(SpawnComponent.class);
 	public static final ComponentMapper<SpawnerPoolComponent> spawnerPool = ComponentMapper.getFor(SpawnerPoolComponent.class);
 	public static final ComponentMapper<LevelSwitchComponent> levelSwitch = ComponentMapper.getFor(LevelSwitchComponent.class);
+	public static final ComponentMapper<ImmuneComponent> immune = ComponentMapper.getFor(ImmuneComponent.class);
 
 }
 

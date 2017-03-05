@@ -13,7 +13,7 @@ public class KnockBackEffect extends Effect{
 	private float angle;
 	
     public KnockBackEffect(Entity toEntity, float distance, float angle) {
-    	super(toEntity, 0.0f);
+    	super(toEntity, 0.0f, false);
     	this.distance = distance;
     	this.angle = angle;
     	this.duration = getTime();
@@ -37,13 +37,19 @@ public class KnockBackEffect extends Effect{
 	}
 	
 	@Override
+	public EffectType getType() {
+		return EffectType.KNOCKBACK;
+	}
+
+	@Override
 	public void cleanUp() {
 		Body body = Mappers.body.get(toEntity).body;
-		if(Mappers.flying.get(toEntity) != null){
-			body.setLinearVelocity(0.0f, 0.0f);
-		}else if(Mappers.groundMovement.get(toEntity) != null){
+		if(Mappers.groundMovement.get(toEntity) != null){
 			body.setLinearVelocity(0.0f, body.getLinearVelocity().y);
 			Effects.giveEase(toEntity, 0.5f, 10.0f);
+		}
+		else {
+			body.setLinearVelocity(0.0f, 0.0f);
 		}
 		toEntity.remove(KnockBackComponent.class);
 	}

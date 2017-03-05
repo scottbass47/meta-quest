@@ -153,11 +153,9 @@ public enum Sensors {
 			
 			// CLEANUP Knockback for mana bomb
 			// BUG Direct hits don't give the right angle of knockback
-			float knockBackDistance = combustibleComp.radius - distanceTraveled;
-			knockBackDistance = combustibleComp.radius * 0.5f;
-			float knockBackSpeed = speed * (1 - (distanceTraveled / combustibleComp.radius));
+			float knockBackDistance = combustibleComp.radius * 0.5f;
 			
-			DamageHandler.dealDamage(entity, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, knockBackSpeed, projectileComp.angle);
+			DamageHandler.dealDamage(entity, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, projectileComp.angle);
 		}
 
 		@Override

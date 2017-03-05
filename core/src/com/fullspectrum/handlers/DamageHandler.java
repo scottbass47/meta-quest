@@ -32,7 +32,7 @@ public class DamageHandler {
 	private DamageHandler() {
 	}
 
-	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackSpeed, float knockBackAngle) {
+	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackAngle) {
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
 		WorldComponent worldComp = Mappers.world.get(toEntity);
 		LevelComponent levelComp = Mappers.level.get(toEntity);
@@ -99,13 +99,11 @@ public class DamageHandler {
 			}
 		}
 
-		if (knockBackDistance > 0 && knockBackSpeed > 0) {
-			// CLEANUP Entities should be checked for whether or not they accept knockback
-			if (Mappers.spawnerPool.get(toEntity) == null) {
-				Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
-			}
+		if (knockBackDistance > 0 && Mappers.player.get(toEntity) == null) {
+			Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
+			Effects.giveStun(toEntity, 5.0f);
 		}
-		
+
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font18);
@@ -122,7 +120,7 @@ public class DamageHandler {
 	}
 
 	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount) {
-		DamageHandler.dealDamage(fromEntity, toEntity, amount, 0, 0, 0);
+		DamageHandler.dealDamage(fromEntity, toEntity, amount, 0, 0);
 	}
 
 }

@@ -11,6 +11,9 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
+import com.fullspectrum.component.Mappers;
+import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
@@ -173,6 +176,10 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 	@SuppressWarnings("unchecked")
 	public void changeState(State identifier) {
+		// Do a delayed state update
+		if(EntityUtils.engineUpdating){
+			EntityManager.addStateChange(this, identifier);
+		}
 		if (!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
 		E newState = states.get((S) identifier);
 		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);

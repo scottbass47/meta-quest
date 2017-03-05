@@ -10,7 +10,7 @@ public class EaseEffect extends Effect{
 	private float accel;
 	
 	public EaseEffect(Entity toEntity, float duration, float accel) {
-		super(toEntity, duration);
+		super(toEntity, duration, false);
 		this.accel = accel;
 	}
 
@@ -23,6 +23,11 @@ public class EaseEffect extends Effect{
 	@Override
 	protected void cleanUp() {
 		toEntity.remove(EaseComponent.class);
+	}
+	
+	@Override
+	public EffectType getType() {
+		return EffectType.EASE;
 	}
 
 	@Override

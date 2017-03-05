@@ -26,6 +26,7 @@ import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.effects.Effects;
 import com.fullspectrum.effects.KnockBackEffect;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.level.EntityGrabber;
@@ -139,7 +140,7 @@ public class SwingingSystem extends IteratingSystem{
 		
 		SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
 		for(Entity e : hitEntities){
-			DamageHandler.dealDamage(entity, e, swordStats.damage, swingComp.knockBackDistance, KnockBackEffect.SPEED, facingComp.facingRight ? 0.0f : 180);
+			DamageHandler.dealDamage(entity, e, swordStats.damage, swingComp.knockBackDistance, facingComp.facingRight ? 0.0f : 180);
 		}
 		swingComp.timeElapsed = 0.0f;
 		swordComp.shouldSwing = false;

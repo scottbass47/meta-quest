@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Entity;
 public class EntityUtils {
 	
 	public static final int VALID = 0x1;
+	public static boolean engineUpdating = false;
 
 	private EntityUtils(){}
 	

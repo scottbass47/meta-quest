@@ -17,6 +17,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -93,7 +94,6 @@ import com.fullspectrum.systems.TargetingSystem;
 import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
-import com.fullspectrum.systems.WallSlideSystem;
 import com.fullspectrum.systems.WanderingSystem;
 
 public class GameScreen extends AbstractScreen {
@@ -272,7 +272,12 @@ public class GameScreen extends AbstractScreen {
 
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
+
+		// Update the Engine
+		EntityUtils.engineUpdating = true;
 		engine.update(delta);
+		EntityUtils.engineUpdating = false;
+		
 		world.step(delta, 6, 2);
 		EntityManager.update(delta);
 		

@@ -67,6 +67,7 @@ import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
+import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -79,6 +80,7 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.RogueComponent;
+import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
@@ -97,6 +99,7 @@ import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.CoinType;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
@@ -136,6 +139,7 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.physics.BodyProperties;
+import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
@@ -1805,6 +1809,7 @@ public class EntityFactory {
 				spawnerPool.add(index, stats.get(attr));
 			}
 		}
+		spawner.add(engine.createComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spawner ESM", engine, spawner).build();
 		
@@ -2040,7 +2045,7 @@ public class EntityFactory {
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), false)
 				.animation(animMap)
 				.build();
-		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, radius * 2f, damage, damageDropOffRate));
+		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, 25.0f, damage, damageDropOffRate));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Explosive ESM", engine, explosive).build();
 		
@@ -2181,6 +2186,21 @@ public class EntityFactory {
 		}
 		
 		/**
+		 * Adds Render, Texture, Shader and optional Facing components.
+		 * 
+		 * @param frame
+		 * @param facing
+		 * @return
+		 */
+		public EntityBuilder render(TextureRegion frame, boolean facing, Shader shader){ 
+			entity.add(engine.createComponent(RenderComponent.class));
+			entity.add(engine.createComponent(TextureComponent.class).set(frame));
+			if(facing) entity.add(engine.createComponent(FacingComponent.class));
+			entity.add(engine.createComponent(ShaderComponent.class).set(shader));
+			return this;
+		}
+		
+		/**
 		 * Adds Render, Texture and optional Facing components.
 		 * 
 		 * @param frame
@@ -2188,10 +2208,7 @@ public class EntityFactory {
 		 * @return
 		 */
 		public EntityBuilder render(TextureRegion frame, boolean facing){ 
-			entity.add(engine.createComponent(RenderComponent.class));
-			entity.add(engine.createComponent(TextureComponent.class).set(frame));
-			if(facing) entity.add(engine.createComponent(FacingComponent.class));
-			return this;
+			return render(frame, facing, null);
 		}
 		
 		/**
