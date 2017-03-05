@@ -751,9 +751,10 @@ public class EntityFactory {
 		};
 		
 		MultiTransition exitChaining = new MultiTransition(maxChain).or(enemyNotHit).or(Transitions.TIME, new TimeTransitionData(0.3f));
+		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackPress).and(Transitions.TIME, new TimeTransitionData(knightStats.get("sword_delay")));
 		
-		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), Transitions.INPUT, attackPress, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.IDLING, Transitions.INPUT, attackPress, EntityStates.IDLE_TO_SWING);
+		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), attackTransition, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.IDLING, attackTransition, EntityStates.IDLE_TO_SWING);
 		esm.addTransition(EntityStates.IDLE_TO_SWING, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);

@@ -7,9 +7,10 @@
 	// Base Stats
 	health: 100,
 	sword_damage: 50,
+	sword_delay: 0.5,
 	
 	// Chaining
-	max_chains: 0,
+	max_chains: 1,
 	chain_max_horizontal_range: 10.0,
 	chain_max_vertical_range: 1.5,
 
