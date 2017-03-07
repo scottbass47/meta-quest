@@ -10,8 +10,10 @@ import com.badlogic.gdx.utils.ArrayMap;
 
 public class GameInput implements InputProcessor, ControllerListener, Input {
 
+	// Input
 	private InputProfile profile;
-
+	private RawInput rawInput;
+	
 	// Controller
 	private Controller controller;
 	public final static float ANALOG_THRESHOLD = 0.3f;
@@ -29,7 +31,7 @@ public class GameInput implements InputProcessor, ControllerListener, Input {
 			profile.setContext("xbox_one");
 		}
 	}
-
+	
 	private void initInputMaps() {
 		for (Actions a : Actions.values()) {
 			currentInput.put(a, 0.0f);
@@ -221,6 +223,14 @@ public class GameInput implements InputProcessor, ControllerListener, Input {
 	@Override
 	public boolean scrolled(int amount) {
 		return false;
+	}
+	
+	public void setRawInput(RawInput rawInput) {
+		this.rawInput = rawInput;
+	}
+	
+	public RawInput getRawInput() {
+		return rawInput;
 	}
 
 }

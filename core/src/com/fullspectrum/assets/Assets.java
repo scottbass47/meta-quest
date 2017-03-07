@@ -122,6 +122,7 @@ public class Assets {
 	public static final String font18 = "font/test18.fnt";
 	public static final String font24 = "font/test24.fnt";
 	public static final String font28 = "font/test28.fnt";
+	public static final String consoleMain = "font/consoleMain.fnt";
 	
 	// Particles
 	public static final String JUMP_PARTICLE = "jump_particle";
@@ -157,6 +158,7 @@ public class Assets {
 		manager.load(font18, BitmapFont.class);
 		manager.load(font24, BitmapFont.class);
 		manager.load(font28, BitmapFont.class);
+		manager.load(consoleMain, BitmapFont.class);
 		manager.finishLoading();
 	}
 	

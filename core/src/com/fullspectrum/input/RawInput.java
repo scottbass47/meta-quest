@@ -19,8 +19,13 @@ public class RawInput implements InputProcessor, ControllerListener{
 	}
 	
 	public void registerGameInput(GameInput input){
+		input.setRawInput(this);
 		inputProcessors.add(input);
 		controllers.add(input);
+	}
+	
+	public void addInput(InputProcessor processor){
+		inputProcessors.add(processor);
 	}
 	
 	@Override
@@ -95,28 +100,28 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean keyDown(int keycode) {
-		DebugInput.keyDown(keycode);
 		for(InputProcessor input : inputProcessors){
-			input.keyDown(keycode);
+			if(input.keyDown(keycode)) return true;
 		}
+		DebugInput.keyDown(keycode);
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		DebugInput.keyUp(keycode);
 		for(InputProcessor input : inputProcessors){
-			input.keyUp(keycode);
+			if(input.keyUp(keycode)) return true;
 		}
+		DebugInput.keyUp(keycode);
 		return false;
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
-		DebugInput.keyTyped(character);
 		for(InputProcessor input : inputProcessors){
-			input.keyTyped(character);
+			if(input.keyTyped(character)) return true;
 		}
+		DebugInput.keyTyped(character);
 		return false;
 	}
 

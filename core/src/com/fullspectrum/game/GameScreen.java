@@ -1,5 +1,7 @@
 package com.fullspectrum.game;
 
+import org.lwjgl.opengl.GL11;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
@@ -17,7 +19,6 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
@@ -39,6 +40,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.debug.DebugConsole;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
@@ -120,6 +122,7 @@ public class GameScreen extends AbstractScreen {
 	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
+	private DebugConsole console;
 
 //	private int ups = 0;
 
@@ -135,7 +138,13 @@ public class GameScreen extends AbstractScreen {
 		assets.loadSprites();
 		assets.loadFont();
 		font = assets.getFont(Assets.font28);
-
+		
+		// Setup Debug Console
+		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
+		int height = 300;
+		console = new DebugConsole((int)(GameVars.SCREEN_WIDTH * 0.5f - width * 0.5f), GameVars.SCREEN_HEIGHT - 10 - height, width, height);
+		input.getRawInput().addInput(console);
+		
 		// Setup Shader
 //		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
 //		if (!mellowShader.isCompiled()) {
@@ -267,6 +276,14 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 //		ups++;
+		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
+			console.setOpen(true);
+			console.update(delta);
+			return;
+		} else{
+			console.setOpen(false);
+		}
+		
 		DebugRender.update(delta);
 		DebugRender.setMode(RenderMode.UPDATE);
 
@@ -472,6 +489,11 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		renderHUD(batch, levelManager.getPlayer());
+		
+		// Render the console
+		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
+			console.render(batch);
+		}
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);
