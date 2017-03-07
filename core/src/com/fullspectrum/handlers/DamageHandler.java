@@ -12,6 +12,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
@@ -47,6 +48,7 @@ public class DamageHandler {
 			if(Mappers.inviciblity.get(toEntity).isInvincible(toEntity, fromEntity)) return;
 		}
 		if (Mappers.player.get(toEntity) != null) {
+			if(DebugVars.PLAYER_INVINCIBILITY) return;
 			float duration = 1.0f;
 			Mappers.inviciblity.get(toEntity).add(InvincibilityType.ALL);
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class).addBlink(duration, 0.15f));

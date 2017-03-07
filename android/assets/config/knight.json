@@ -7,7 +7,7 @@
 	// Base Stats
 	health: 100,
 	sword_damage: 50,
-	sword_delay: 0.5,
+	sword_delay: 0.25,
 	
 	// Chaining
 	max_chains: 1,

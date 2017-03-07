@@ -11,6 +11,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpawnerPoolComponent.SpawnItem;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.level.Level;
 
 public class SpawnerSystem extends IteratingSystem{
@@ -21,6 +22,8 @@ public class SpawnerSystem extends IteratingSystem{
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.SPAWNERS_DISABLED) return;
+		
 		SpawnerPoolComponent spawnPool = Mappers.spawnerPool.get(entity);
 		float num = MathUtils.random(1.0f);
 		

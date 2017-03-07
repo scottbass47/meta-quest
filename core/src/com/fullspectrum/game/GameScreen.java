@@ -6,9 +6,7 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
-import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -40,13 +38,14 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.debug.DebugConsole;
+import com.fullspectrum.debug.ConsoleCommands;
 import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
@@ -97,10 +96,8 @@ import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
-import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
-import com.strongjoshua.console.LogLevel;
 
 public class GameScreen extends AbstractScreen {
 
@@ -126,7 +123,8 @@ public class GameScreen extends AbstractScreen {
 	private int previousZoom = 0;
 	private Assets assets;
 	private BitmapFont font;
-	private DebugConsole console;
+//	private DebugConsole console;
+	private Console console;
 
 //	private int ups = 0;
 
@@ -144,10 +142,10 @@ public class GameScreen extends AbstractScreen {
 		font = assets.getFont(Assets.font28);
 		
 		// Setup Debug Console
-		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
-		int height = 300;
-		console = new DebugConsole((int)(GameVars.SCREEN_WIDTH * 0.5f - width * 0.5f), GameVars.SCREEN_HEIGHT - 20 - height, width, height);
-		input.getRawInput().addInput(console);
+//		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
+//		int height = 300;
+//		console = new DebugConsole((int)(GameVars.SCREEN_WIDTH * 0.5f - width * 0.5f), GameVars.SCREEN_HEIGHT - 20 - height, width, height);
+//		input.getRawInput().addInput(console);
 		
 		// Setup Shader
 //		mellowShader = new ShaderProgram(Gdx.files.internal("shaders/mellow.vsh"), Gdx.files.internal("shaders/mellow.fsh"));
@@ -235,6 +233,12 @@ public class GameScreen extends AbstractScreen {
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
 //		levelManager.switchHub(Theme.GRASSY);
 		levelManager.switchLevel(Theme.GRASSY, 1, 1);
+		
+		ConsoleCommands.setPlayer(levelManager.getPlayer());
+		console = new GUIConsole();
+		console.setSizePercent(75, 50);
+		console.setPositionPercent(12.5f, 50);
+		console.setCommandExecutor(new ConsoleCommands());
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -280,12 +284,15 @@ public class GameScreen extends AbstractScreen {
 	@Override
 	public void update(float delta) {
 //		ups++;
-		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
-			console.setOpen(true);
-			console.update(delta);
+//		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
+////			console.setOpen(true);
+////			console.update(delta);
+//			return;
+//		} else{
+////			console.setOpen(false);
+//		}
+		if(console.isVisible()){
 			return;
-		} else{
-			console.setOpen(false);
 		}
 		
 		DebugRender.update(delta);
@@ -421,17 +428,17 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(worldCamera.combined);
 		
 		levelManager.render();
-		if (DebugInput.isToggled(DebugToggle.SHOW_NAVMESH)) {
+		if (DebugVars.NAVMESH_ON) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
 				NavMesh.get(EntityIndex.AI_PLAYER).render(batch);
 			}
 		}
-		if(DebugInput.isToggled(DebugToggle.SHOW_FLOW_FIELD)){
+		if(DebugVars.FLOW_FIELD_ON){
 			if(levelManager.getCurrentLevel().requiresFlowField()){
 				levelManager.getFlowFieldManager().render(batch);
 			}
 		}
-		if (DebugInput.isToggled(DebugToggle.SHOW_PATH)) {
+		if (DebugVars.PATHS_ON) {
 			for (Entity enemy : engine.getEntitiesFor(Family.all(PathComponent.class).get())) {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
@@ -442,7 +449,7 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
-		if (DebugInput.isToggled(DebugToggle.SHOW_RANGE)){
+		if (DebugVars.RANGES_ON){
 			for(Entity enemy : engine.getEntitiesFor(Family.all(AISMComponent.class).get())){
 				renderRange(batch, enemy);
 			}
@@ -495,8 +502,9 @@ public class GameScreen extends AbstractScreen {
 		renderHUD(batch, levelManager.getPlayer());
 		
 		// Render the console
-		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
-			console.render(batch);
+		if(console.isVisible()){
+//			console.render(batch);
+			console.draw();
 		}
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);

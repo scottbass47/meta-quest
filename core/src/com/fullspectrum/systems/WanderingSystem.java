@@ -9,6 +9,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.WanderingComponent;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 
@@ -20,6 +21,8 @@ public class WanderingSystem extends IteratingSystem{
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
+		
 		WanderingComponent wanderingComp = Mappers.wandering.get(entity);
 		PathComponent pathComp = Mappers.path.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);

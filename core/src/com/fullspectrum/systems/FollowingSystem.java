@@ -9,6 +9,7 @@ import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -21,6 +22,8 @@ public class FollowingSystem extends IteratingSystem{
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
+		
 		PathComponent pathComp = Mappers.path.get(entity);
 		TargetComponent targetComp = Mappers.target.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);

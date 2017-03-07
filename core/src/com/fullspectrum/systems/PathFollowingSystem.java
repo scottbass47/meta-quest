@@ -11,6 +11,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.JumpOverData;
 import com.fullspectrum.level.Level;
@@ -28,6 +29,7 @@ public class PathFollowingSystem extends IteratingSystem{
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
 //		if(true) return;
 		AIControllerComponent controllerComp = Mappers.aiController.get(entity);
 		PathComponent pathComp = Mappers.path.get(entity);

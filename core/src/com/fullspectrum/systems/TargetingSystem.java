@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.LevelHelper;
 
@@ -18,6 +19,8 @@ public class TargetingSystem extends IteratingSystem{
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
+		
 		TargetComponent targetComp = Mappers.target.get(entity);
 		
 		// don't re-target if you already have a valid target

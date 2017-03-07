@@ -11,6 +11,7 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FlowFieldComponent;
 import com.fullspectrum.component.FlowFollowComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.FlowField;
 import com.fullspectrum.level.FlowNode;
@@ -23,6 +24,8 @@ public class FlowFollowSystem extends IteratingSystem {
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
+
 		FlowFieldComponent flowFieldComp = Mappers.flowField.get(entity);
 		AIControllerComponent aiControllerComp = Mappers.aiController.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);

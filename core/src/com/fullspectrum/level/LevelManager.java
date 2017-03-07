@@ -15,6 +15,7 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.RemoveComponent;
+import com.fullspectrum.debug.ConsoleCommands;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
@@ -213,6 +214,8 @@ public class LevelManager{
 		player = index.create(engine, world, currentLevel, x, y);
 		player.getComponent(InputComponent.class).set(input);
 		engine.addEntity(player);
+		
+		ConsoleCommands.setPlayer(player);
 
 		 Mappers.camera.get(camera).toFollow = player;
 	}
