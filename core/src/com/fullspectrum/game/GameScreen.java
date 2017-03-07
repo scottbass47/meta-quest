@@ -1,14 +1,14 @@
 package com.fullspectrum.game;
 
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -97,6 +97,10 @@ import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
+import com.strongjoshua.console.CommandExecutor;
+import com.strongjoshua.console.Console;
+import com.strongjoshua.console.GUIConsole;
+import com.strongjoshua.console.LogLevel;
 
 public class GameScreen extends AbstractScreen {
 
@@ -142,7 +146,7 @@ public class GameScreen extends AbstractScreen {
 		// Setup Debug Console
 		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
 		int height = 300;
-		console = new DebugConsole((int)(GameVars.SCREEN_WIDTH * 0.5f - width * 0.5f), GameVars.SCREEN_HEIGHT - 10 - height, width, height);
+		console = new DebugConsole((int)(GameVars.SCREEN_WIDTH * 0.5f - width * 0.5f), GameVars.SCREEN_HEIGHT - 20 - height, width, height);
 		input.getRawInput().addInput(console);
 		
 		// Setup Shader

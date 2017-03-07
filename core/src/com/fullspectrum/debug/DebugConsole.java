@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.assets.Assets;
 
 public class DebugConsole implements InputProcessor{
@@ -28,9 +29,12 @@ public class DebugConsole implements InputProcessor{
 	private ShapeRenderer renderer;
 	
 	// Colors
-	private final Color background = new Color(0.1f, 0.1f, 0.1f, 1.0f);
-	private final Color inputBackground = new Color(1.0f, 1.0f, 1.0f, 0.9f);
-	private final Color cursor = new Color(0.0f, 0.0f, 1.0f, 1.0f);
+	private final Color background = new Color(0x393845ff);// #393845ff
+	private final Color inputBackground = new Color(0x23222cff); // #23222cff
+	private final Color cursor = Color.WHITE; // white
+	private final Color inputColor = Color.WHITE; // white
+	private final Color errorColor = new Color(0xb02f2aff); // #b02f2aff
+	private final Color commandColor = new Color(0x64a724ff); // #64a724ff
 	
 	// Font
 	private BitmapFont mainFont;
@@ -47,6 +51,7 @@ public class DebugConsole implements InputProcessor{
 	// Console
 	private StringBuilder inputText = new StringBuilder();
 	private boolean open;
+	private Array<String> history;
 	
 	// Keys
 	private boolean ctrlDown = false;
@@ -58,7 +63,6 @@ public class DebugConsole implements InputProcessor{
 		this.height = height;
 		renderer = new ShapeRenderer();
 		mainFont = Assets.getInstance().getFont(Assets.consoleMain);
-		mainFont.setColor(Color.RED);
 		spacing = 4;
 		layout = new GlyphLayout();
 		layout.setText(mainFont, "height");
@@ -70,6 +74,8 @@ public class DebugConsole implements InputProcessor{
 		cy = getInputY() + spacing / 2;
 		cwidth = 2;
 		cheight = lineHeightS;
+		
+		history = new Array<String>();
 	}
 	
 	public void update(float delta){
@@ -83,6 +89,10 @@ public class DebugConsole implements InputProcessor{
 		renderer.setProjectionMatrix(batch.getProjectionMatrix());
 		renderer.begin(ShapeType.Filled);
 
+		// Console Outline
+		renderer.setColor(Color.BLACK);
+		renderer.rect(x - spacing, y - spacing - lineHeight2S, width + 2 * spacing, height + lineHeight2S + 2 * spacing);
+		
 		// Console
 		renderer.setColor(background);
 		renderer.rect(x, y, width, height);
@@ -94,7 +104,20 @@ public class DebugConsole implements InputProcessor{
 		// Font
 		renderer.end();
 		batch.begin();
+		
+		// Input
+		mainFont.setColor(inputColor);
 		mainFont.draw(batch, inputText, x + spacing, y - spacing);
+		
+		// History
+		int historyY = y + lineHeightS;
+		for(int i = history.size - 1; i >= 0; i--){
+			String s = history.get(i);
+			mainFont.setColor(commandColor);
+			mainFont.draw(batch, s, x + spacing, historyY);
+			historyY += lineHeightS;
+		}
+		
 		batch.end();
 	
 		// Cursor
@@ -134,9 +157,14 @@ public class DebugConsole implements InputProcessor{
 				curPos--;
 			}
 			break;
+		case '\n':
+		case '\r':
+			history.add(inputText.toString());
+			inputText.delete(0, inputText.length());
+			curPos = 0;
+			break;
 		default:
-			if(!isAlphaNumeric(character) && character != ' ') break;
-			inputText.append(character);
+			inputText.insert(curPos, character);
 			curPos++;
 			break;
 		}
