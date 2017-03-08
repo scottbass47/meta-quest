@@ -89,7 +89,7 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 	}
 	
-	// 
+	// BUG Doesn't work properly when used on enemies that have effects attached to them
 	public void kill(){
 		LevelHelper helper = Mappers.level.get(player).levelHelper;
 		Array<Entity> entities = helper.getEntities(new EntityGrabber() {
