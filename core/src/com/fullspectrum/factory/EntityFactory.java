@@ -760,8 +760,6 @@ public class EntityFactory {
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, exitChaining, EntityStates.IDLING);
 		
-		System.out.println(esm.printTransitions());
-		
 		// ******************************************
 		
 		esm.createState(EntityStates.LANDING)

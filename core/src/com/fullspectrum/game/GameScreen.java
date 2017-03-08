@@ -443,12 +443,12 @@ public class GameScreen extends AbstractScreen {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
-		if (DebugInput.isToggled(DebugToggle.SHOW_HEALTH)) {
+		if (DebugVars.HEALTH_ON) {
 			for (Entity entity : engine.getEntitiesFor(Family.all(HealthComponent.class).get())) {
 				renderHealth(batch, entity);
 			}
 		}
-		if (DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) b2dr.render(world, worldCamera.combined);
+		if (DebugVars.HITBOXES_ON) b2dr.render(world, worldCamera.combined);
 		if (DebugVars.RANGES_ON){
 			for(Entity enemy : engine.getEntitiesFor(Family.all(AISMComponent.class).get())){
 				renderRange(batch, enemy);

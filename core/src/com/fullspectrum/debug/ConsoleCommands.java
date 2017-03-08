@@ -38,6 +38,20 @@ public class ConsoleCommands extends CommandExecutor {
 		else if (name.equalsIgnoreCase("flow_field")) {
 			DebugVars.FLOW_FIELD_ON = !DebugVars.FLOW_FIELD_ON;
 		}
+		else if (name.equalsIgnoreCase("hitboxes")) {
+			DebugVars.HITBOXES_ON = !DebugVars.HITBOXES_ON;
+		}
+		else if (name.equalsIgnoreCase("health")) {
+			DebugVars.HEALTH_ON = !DebugVars.HEALTH_ON;
+		}
+	}
+	
+	public void fps(){
+		DebugVars.FPS_ON = !DebugVars.FPS_ON;
+	}
+	
+	public void slow(int amount){
+		DebugVars.SLOW = amount;
 	}
 
 	public void disable(String name) {
@@ -75,6 +89,7 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 	}
 	
+	// 
 	public void kill(){
 		LevelHelper helper = Mappers.level.get(player).levelHelper;
 		Array<Entity> entities = helper.getEntities(new EntityGrabber() {
@@ -91,6 +106,7 @@ public class ConsoleCommands extends CommandExecutor {
 				return true;
 			}
 			
+			@SuppressWarnings("unchecked")
 			@Override
 			public Family componentsNeeded() {
 				return Family.all(HealthComponent.class, TypeComponent.class).get();

@@ -22,6 +22,7 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
 import com.fullspectrum.input.RawInput;
@@ -65,11 +66,11 @@ public class GdxGame extends Game {
 		profile.load("input/input.xml");
 		input = new GameInput(profile);
 		
-		// Setup Raw Input
+		// Setup Raw Input	`	
 		rawInput = new RawInput();
 		Gdx.input.setInputProcessor(rawInput);
 		Controllers.addListener(rawInput);
-		rawInput.registerGameInput(input);
+		rawInput.registerGameInput(input);	
 
 		// Initialize Screens
 		screens = new ArrayMap<ScreenState, Screen>();
@@ -97,7 +98,7 @@ public class GdxGame extends Game {
 		batch.setProjectionMatrix(hudCamera.combined);
 
 		batch.begin();
-		if(DebugInput.isToggled(DebugToggle.FPS)){
+		if(DebugVars.FPS_ON){
 			font.draw(batch, "" + Gdx.graphics.getFramesPerSecond(), 10, 710);
 		}
 		if(DebugInput.isToggled(DebugToggle.SHOW_COMMANDS)){
