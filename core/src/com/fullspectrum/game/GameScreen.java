@@ -506,6 +506,12 @@ public class GameScreen extends AbstractScreen {
 //			console.render(batch);
 			console.draw();
 		}
+		
+		if(DebugVars.FPS_ON){
+			batch.begin();
+			font.draw(batch, "" + Gdx.graphics.getFramesPerSecond(), 10, 710);
+			batch.end();
+		}
 
 		// sRenderer.setProjectionMatrix(worldCamera.combined);
 		// sRenderer.begin(ShapeType.Line);

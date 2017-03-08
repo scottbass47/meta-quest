@@ -108,8 +108,9 @@ public class EntityManager {
 		for(Iterator<Effect> iter = effects.iterator(); iter.hasNext();){
 			Effect effect = iter.next();
 			if(EntityUtils.isValid(effect.getEntity())){
-				Mappers.effect.get(effect.getEntity()).add(effect);
-				effect.apply();
+				if(effect.apply()){
+					Mappers.effect.get(effect.getEntity()).add(effect);
+				}
 			}
 			iter.remove();
 		}

@@ -23,7 +23,7 @@ public class ArcDef extends DebugRenderDef{
 
 	@Override
 	public void render(ShapeRenderer renderer) {
-		renderer.arc(x, y, radius, start, degrees);
+		renderer.arc(x, y, radius, start, degrees, 32);
 	}
 
 }

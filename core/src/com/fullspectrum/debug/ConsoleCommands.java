@@ -89,7 +89,6 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 	}
 	
-	// BUG Doesn't work properly when used on enemies that have effects attached to them
 	public void kill(){
 		LevelHelper helper = Mappers.level.get(player).levelHelper;
 		Array<Entity> entities = helper.getEntities(new EntityGrabber() {
@@ -116,6 +115,31 @@ public class ConsoleCommands extends CommandExecutor {
 		for(Entity entity : entities){
 			Mappers.death.get(entity).triggerDeath();
 		}
+	}
+	
+	public void help(String function){
+		console.log("");
+		if(function.equalsIgnoreCase("show")){
+			console.log("Toggles debug rendering for some command.");
+			console.log("Options:");
+			console.log("    navmesh");
+			console.log("    paths");
+			console.log("    ranges");
+			console.log("    flow_field");
+			console.log("    health");
+			console.log("    hitboxes");
+		} else if(function.equalsIgnoreCase("fps")){
+			console.log("Toggles fps counter in upper left.");
+		} else if(function.equalsIgnoreCase("slow")){
+			console.log("Slows down the game by some factor (i.e. if the input is 3, the game would be 3x slower).");
+		} else if(function.equalsIgnoreCase("kill")){
+			console.log("Kills all enemies EXCEPT spawners.");
+		} else if(function.equalsIgnoreCase("disable")){
+			console.log("Toggle used to disable/enable certain features. List of possible parameters:");
+			console.log("    ai");
+			console.log("    spawners");
+		}
+		console.log("");
 	}
 
 	@HiddenCommand

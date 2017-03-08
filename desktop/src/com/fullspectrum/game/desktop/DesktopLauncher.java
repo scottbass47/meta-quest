@@ -8,9 +8,9 @@ public class DesktopLauncher {
 	public static void main (String[] arg) {
 		Lwjgl3ApplicationConfiguration config = new Lwjgl3ApplicationConfiguration();
 		config.useVsync(false);
-		config.setWindowedMode(1280, 720);
+		config.setWindowedMode(1920, 1080);
 		config.setResizable(false);
-		config.setDecorated(true);
+		config.setDecorated(false);
 		new Lwjgl3Application(new GdxGame(), config);
 	}
 }

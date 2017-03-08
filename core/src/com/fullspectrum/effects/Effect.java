@@ -18,11 +18,12 @@ public abstract class Effect {
 		this.delayed = delayed;
 	}
 
-	public void apply() {
+	public boolean apply() {
 		// Don't apply the effect if its already applied
-		if (Mappers.heatlh.get(toEntity) != null && Mappers.heatlh.get(toEntity).health <= 0.0f) return;
-		if (Mappers.timer.get(toEntity).timers.containsKey(getName() + "_effect")) return;
-		if (Mappers.immune.get(toEntity) != null && Mappers.immune.get(toEntity).isImmuneTo(getType())) return;
+		if (Mappers.death.get(toEntity).shouldDie()) return false;
+		if (Mappers.heatlh.get(toEntity) != null && Mappers.heatlh.get(toEntity).health <= 0.0f) return false;
+		if (Mappers.timer.get(toEntity).timers.containsKey(getName() + "_effect")) return false;
+		if (Mappers.immune.get(toEntity) != null && Mappers.immune.get(toEntity).isImmuneTo(getType())) return false;
 		final Effect effect = this;
 		if (delayed) {
 			EntityManager.addDelayedAction(new DelayedAction(toEntity) {
@@ -53,6 +54,7 @@ public abstract class Effect {
 				}
 			});
 		}
+		return true;
 	}
 
 	protected abstract void give();

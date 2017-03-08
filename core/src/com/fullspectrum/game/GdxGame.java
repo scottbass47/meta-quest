@@ -22,7 +22,6 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
-import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
 import com.fullspectrum.input.RawInput;
@@ -98,9 +97,7 @@ public class GdxGame extends Game {
 		batch.setProjectionMatrix(hudCamera.combined);
 
 		batch.begin();
-		if(DebugVars.FPS_ON){
-			font.draw(batch, "" + Gdx.graphics.getFramesPerSecond(), 10, 710);
-		}
+		
 		if(DebugInput.isToggled(DebugToggle.SHOW_COMMANDS)){
 			int startY = DebugToggle.values().length > DebugCycle.values().length ? (DebugToggle.values().length + 1) * 20 : (DebugCycle.values().length + 1) * 20;
 			startY += 50;
