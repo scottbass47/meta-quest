@@ -21,9 +21,13 @@ public class ArcDef extends DebugRenderDef{
 		this.degrees = degrees;
 	}
 
+	// BUG ArrayOutOfBoundsException 20003 when rendering ranges.
 	@Override
 	public void render(ShapeRenderer renderer) {
-		renderer.arc(x, y, radius, start, degrees, 32);
+		try{
+			renderer.arc(x, y, radius, start, degrees, 32);
+		} catch(Exception e){
+			System.out.println("Out of bounds exception when rendering arc...");
+		}
 	}
-
 }

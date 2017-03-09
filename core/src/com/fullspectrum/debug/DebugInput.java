@@ -66,6 +66,7 @@ public class DebugInput {
 		DebugToggle toggle = DebugToggle.getToggle(character);
 		if(toggle != null){
 			toggles.put(toggle, !toggles.get(toggle));
+			toggle.onToggle();
 			return;
 		}
 		DebugCycle cycle = DebugCycle.getCycle(character);

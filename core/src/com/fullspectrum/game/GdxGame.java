@@ -22,6 +22,7 @@ import com.fullspectrum.debug.DebugCycle;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugKeys;
 import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
 import com.fullspectrum.input.RawInput;
@@ -92,38 +93,6 @@ public class GdxGame extends Game {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		super.render();
-
-		hudCamera.update();
-		batch.setProjectionMatrix(hudCamera.combined);
-
-		batch.begin();
-		
-		if(DebugInput.isToggled(DebugToggle.SHOW_COMMANDS)){
-			int startY = DebugToggle.values().length > DebugCycle.values().length ? (DebugToggle.values().length + 1) * 20 : (DebugCycle.values().length + 1) * 20;
-			startY += 50;
-			int toggleX = 900;
-			int cycleX = 1100;
-			int keyX = 700;
-			font.draw(batch, "Toggles:", toggleX, startY);
-			font.draw(batch, "Cycles:", cycleX, startY);
-			font.draw(batch, "Keys:", keyX, startY);
-			int counter = 1;
-			for(DebugToggle toggle : DebugToggle.values()){
-				font.draw(batch, toggle.name() + " - '" + toggle.getCharacter() + "'", toggleX, startY - counter * 20);
-				counter++;
-			}
-			counter = 1;
-			for(DebugCycle cycle : DebugCycle.values()){
-				font.draw(batch, cycle.name() + " - '" + cycle.getCharacter() + "'", cycleX, startY - counter * 20);
-				counter++;
-			}
-			counter = 1;
-			for(DebugKeys key : DebugKeys.values()){
-				font.draw(batch, key.name() + " - '" + Keys.toString(key.getKey()) + "'", keyX, startY - counter * 20);
-				counter++;
-			}
-		}
-		batch.end();
 	}
 		
 

@@ -43,6 +43,14 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 		else if (name.equalsIgnoreCase("health")) {
 			DebugVars.HEALTH_ON = !DebugVars.HEALTH_ON;
+		} 
+		else if (name.equalsIgnoreCase("map_coords")) {
+			DebugVars.MAP_COORDS_ON = !DebugVars.MAP_COORDS_ON;
+		}
+		else if (name.equalsIgnoreCase("swing")) {
+			DebugVars.SWING_ON = !DebugVars.SWING_ON;
+		} else{
+			console.log("No debug rendering found for '" + name + "'. Use command 'help show' to get a list of possible parameters.", LogLevel.ERROR);
 		}
 	}
 	
@@ -60,6 +68,8 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 		else if (name.equalsIgnoreCase("ai")) {
 			DebugVars.AI_DISABLED = !DebugVars.AI_DISABLED;
+		} else {
+			console.log("No option to disable '" + name + "'. Use command 'help disable' to get a list of possible options.", LogLevel.ERROR);
 		}
 	}
 
@@ -73,20 +83,34 @@ public class ConsoleCommands extends CommandExecutor {
 
 	// INCOMPLETE Add in navmesh and flow field generation for enemies it
 	public void spawn(String type, int amount){
+		spawn(type, amount, false);
+	}
+	
+	public void spawn(String type, boolean on_click){
+		spawn(type, 1, on_click);
+	}
+	
+	public void spawn(String type, int amount, boolean on_click){
 		EntityIndex index = EntityIndex.get(type);
 		if(index == null){
 			console.log("Entity type is not valid.", LogLevel.ERROR);
+			return;
 		}
-		for(int i = 0; i < amount; i++){
-			int row = MathUtils.random(level.getHeight());
-			int col = MathUtils.random(level.getWidth());
-			while(level.isSolid(row, col)){
-				row = MathUtils.random(level.getHeight());
-				col = MathUtils.random(level.getWidth());
+		DebugVars.SPAWN_ON_CLICK_ENABLED = on_click;
+		DebugVars.SPAWN_TYPE = index;
+		DebugVars.SPAWN_AMOUNT = amount;
+		if(!on_click){
+			for(int i = 0; i < amount; i++){
+				int row = MathUtils.random(level.getHeight());
+				int col = MathUtils.random(level.getWidth());
+				while(level.isSolid(row, col)){
+					row = MathUtils.random(level.getHeight());
+					col = MathUtils.random(level.getWidth());
+				}
+				Entity entity = index.create(engine, world, level, col + 0.5f, row + 0.5f);
+				engine.addEntity(entity);
 			}
-			Entity entity = index.create(engine, world, level, col + 0.5f, row + 0.5f);
-			engine.addEntity(entity);
-		}
+		} 
 	}
 	
 	public void kill(){
@@ -128,6 +152,8 @@ public class ConsoleCommands extends CommandExecutor {
 			console.log("    flow_field");
 			console.log("    health");
 			console.log("    hitboxes");
+			console.log("    map_coords");
+			console.log("    swing");
 		} else if(function.equalsIgnoreCase("fps")){
 			console.log("Toggles fps counter in upper left.");
 		} else if(function.equalsIgnoreCase("slow")){
@@ -135,11 +161,38 @@ public class ConsoleCommands extends CommandExecutor {
 		} else if(function.equalsIgnoreCase("kill")){
 			console.log("Kills all enemies EXCEPT spawners.");
 		} else if(function.equalsIgnoreCase("disable")){
-			console.log("Toggle used to disable/enable certain features. List of possible parameters:");
+			console.log("Toggle used to disable/enable certain features.");
+			console.log("List of possible parameters:");
 			console.log("    ai");
 			console.log("    spawners");
+		} else if(function.equalsIgnoreCase("invincible")){
+			console.log("Toggles invincibility for player.");
+		} else if(function.equalsIgnoreCase("reset")){
+			console.log("Resets a command to its default values");
+			console.log("Parameters:");
+			console.log("    command - command to reset (default value is all commands).");
+		} else if(function.equalsIgnoreCase("spawn")){
+			console.log("Spawns enemies randomly throughout the level.");
+			console.log("Parameters:");
+			console.log("    type - entity type (EntityIndex name).");
+			console.log("    amount - number of entities to spawn (default value is 1).");
+			console.log("    on_click - true/false value for whether or not on click spawning is enabled (default value is false).");
 		}
 		console.log("");
+	}
+
+	public void reset(String command){
+		if(command.equalsIgnoreCase("spawn")){
+			DebugVars.SPAWN_AMOUNT = 1;
+			DebugVars.SPAWN_TYPE = null;
+			DebugVars.SPAWN_ON_CLICK_ENABLED = false;
+		} else {
+			console.log("No option to reset command '" + command + "'. Use command 'help reset' to get a list of possible options");
+		}
+	}
+	
+	public void reset() {
+		DebugVars.resetAll();
 	}
 
 	@HiddenCommand
@@ -149,9 +202,4 @@ public class ConsoleCommands extends CommandExecutor {
 		world = Mappers.world.get(player).world;
 		level = Mappers.level.get(player).level;
 	}
-
-	public void reset() {
-		DebugVars.resetAll();
-	}
-
 }

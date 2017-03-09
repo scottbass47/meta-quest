@@ -7,6 +7,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -332,6 +333,16 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		
+		// Spawning
+		if(DebugVars.SPAWN_ON_CLICK_ENABLED && DebugVars.SPAWN_TYPE != null && DebugVars.SPAWN_AMOUNT > 0 && Mouse.isJustPressed()){
+			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
+			for(int i = 0; i < DebugVars.SPAWN_AMOUNT; i++){
+				engine.addEntity(DebugVars.SPAWN_TYPE.create(engine, world, levelManager.getCurrentLevel(), 
+						mousePos.x + MathUtils.random(1.0f) - 0.5f, 
+						mousePos.y + MathUtils.random(1.0f) - 0.5f));
+			}
+		}
+		
 		//		if (input.isJustPressed(Actions.SELECT)) {
 //			changePlayer();
 //		}
@@ -490,7 +501,7 @@ public class GameScreen extends AbstractScreen {
 //		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);
 
 		batch.setProjectionMatrix(hudCamera.combined);
-		if(DebugInput.isToggled(DebugToggle.SHOW_MAP_COORDS)){
+		if(DebugVars.MAP_COORDS_ON){
 			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 			Tile mouseTile = levelManager.getCurrentLevel().tileAt((int)mousePos.y, (int)mousePos.x);
 			if(mouseTile != null){
@@ -500,6 +511,36 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 		renderHUD(batch, levelManager.getPlayer());
+		
+		if(DebugVars.COMMANDS_ON){
+			batch.begin();
+			int startY = DebugToggle.values().length > DebugCycle.values().length ? (DebugToggle.values().length + 1) * 20 : (DebugCycle.values().length + 1) * 20;
+			startY += 50;
+			int toggleX = 900;
+			int cycleX = 1100;
+			int keyX = 700;
+			font.getData().setScale(0.5f);
+			font.draw(batch, "Toggles:", toggleX, startY);
+			font.draw(batch, "Cycles:", cycleX, startY);
+			font.draw(batch, "Keys:", keyX, startY);
+			int counter = 1;
+			for(DebugToggle toggle : DebugToggle.values()){
+				font.draw(batch, toggle.name() + " - '" + toggle.getCharacter() + "'", toggleX, startY - counter * 20);
+				counter++;
+			}
+			counter = 1;
+			for(DebugCycle cycle : DebugCycle.values()){
+				font.draw(batch, cycle.name() + " - '" + cycle.getCharacter() + "'", cycleX, startY - counter * 20);
+				counter++;
+			}
+			counter = 1;
+			for(DebugKeys key : DebugKeys.values()){
+				font.draw(batch, key.name() + " - '" + Keys.toString(key.getKey()) + "'", keyX, startY - counter * 20);
+				counter++;
+			}
+			batch.end();
+			font.getData().setScale(1.0f);
+		}
 		
 		// Render the console
 		if(console.isVisible()){
