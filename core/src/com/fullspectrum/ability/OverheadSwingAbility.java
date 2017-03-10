@@ -10,6 +10,7 @@ import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.input.Actions;
 
+// BUG If activated in air, player should fall all the way to ground
 public class OverheadSwingAbility extends AnimationAbility{
 	
 	private SwingComponent swing;

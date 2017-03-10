@@ -904,7 +904,7 @@ public class EntityFactory {
 		InputTransitionData notAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 		
 		rogueSM.addTransition(rogueSM.one(EntityStates.CLEAN_UP, EntityStates.IDLING), Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
-		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(1.0f), EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.25f), EntityStates.IDLING);
 		rogueSM.addTransition(rogueSM.one(EntityStates.PROJECTILE_ATTACK, EntityStates.IDLING), Transitions.INPUT, notAttacking, EntityStates.CLEAN_UP);
 		
 		rogueSM.changeState(EntityStates.IDLING);

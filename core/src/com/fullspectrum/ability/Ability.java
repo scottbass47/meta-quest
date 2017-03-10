@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.input.Actions;
 
+// INCOMPLETE Abilities need to specify whether they are blocking or not
 public abstract class Ability {
 
 	// Data
