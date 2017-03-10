@@ -7,22 +7,35 @@ import com.fullspectrum.component.Mappers;
 
 public class KnockBackEffect extends Effect{
 
-	public static final float SPEED = 15.0f;
 	private float distance;
+	private float speed;
 	private float angle;
 	
     public KnockBackEffect(Entity toEntity, float distance, float angle) {
     	super(toEntity, 0.0f, false);
     	this.distance = distance;
+    	this.speed = calculateSpeed();
     	this.angle = angle;
     	this.duration = getTime();
+    }
+    
+    private float calculateSpeed(){
+//    	if(distance <= 5.0f){
+//    		return 15.0f;
+//    	} else if(distance <= 10.0f){
+//    		return 25.0f;
+//    	} else if(distance <= 15.0f){
+//    		return 35.0f;
+//    	}
+//    	return 45.0f;
+    	return 1.8f * distance + 7.5f;
     }
     
     private float getTime(){
     	// vf^2 = v0^2 + 2ax
     	// (vf^2 - v0^2) / (2x) = a
     	float vf = 0.0f;
-    	float v0 = SPEED;
+    	float v0 = speed;
     	float accel = ((float)Math.pow(vf, 2) - (float)Math.pow(v0, 2)) / (2 * distance);
     	
     	// vf = v0 + at
@@ -32,7 +45,7 @@ public class KnockBackEffect extends Effect{
     
 	@Override
 	public void give() {
-		toEntity.add(Mappers.engine.get(toEntity).engine.createComponent(KnockBackComponent.class).set(distance, angle));
+		toEntity.add(Mappers.engine.get(toEntity).engine.createComponent(KnockBackComponent.class).set(distance, speed, angle));
 	}
 	
 	@Override
@@ -60,6 +73,10 @@ public class KnockBackEffect extends Effect{
 	
 	public float getDistance() {
 		return distance;
+	}
+	
+	public float getSpeed() {
+		return speed;
 	}
 	
 	public float getAngle() {

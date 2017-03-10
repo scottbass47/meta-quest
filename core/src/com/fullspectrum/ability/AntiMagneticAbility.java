@@ -16,7 +16,7 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.component.VelocityComponent;
-import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.utils.PhysicsUtils;
@@ -26,8 +26,8 @@ public class AntiMagneticAbility extends TimedAbility{
 	private float radius = 1.0f;
 	private ObjectSet<Entity> deflected;
 	
-	public AntiMagneticAbility(float cooldown, InputTransitionData inputData, float radius, float time) {
-		super(AbilityType.ANTI_MAGNETIC_ARMOR, Assets.getInstance().getHUDElement(Assets.ANTI_MAGNETIC_ARMOR_ICON), cooldown, inputData, time);
+	public AntiMagneticAbility(float cooldown, Actions input, float radius, float time) {
+		super(AbilityType.ANTI_MAGNETIC_ARMOR, Assets.getInstance().getHUDElement(Assets.ANTI_MAGNETIC_ARMOR_ICON), cooldown, input, time);
 		this.radius = radius;
 		deflected = new ObjectSet<Entity>();
 	}

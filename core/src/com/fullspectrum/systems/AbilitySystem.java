@@ -10,6 +10,7 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTrigger;
+import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Input;
 
@@ -31,7 +32,7 @@ public class AbilitySystem extends IteratingSystem {
 			}
 			
 			// Trigger the ability
-			if(ability.isReady() && checkInput(ability.getInputData(), inputComp.input)){
+			if(ability.isReady() && inputComp.input.isJustPressed(ability.getInput())){
 				ability.init(entity);
 				ability.resetTimeElapsed();
 				ability.lock();
@@ -46,33 +47,4 @@ public class AbilitySystem extends IteratingSystem {
 			}
 		}
 	}
-	
-	// CLEANUP Duplicate
-	private boolean checkInput(InputTransitionData itd, Input input) {
-		int counter = 0;
-		for (InputTrigger trigger : itd.triggers) {
-			boolean triggered = false;
-			// If its a game input, it must be past the analog threshold to be considered an action
-			if(input instanceof GameInput){
-				triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.getValue(trigger.action) > GameInput.ANALOG_THRESHOLD;
-			}
-			else{
-				triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.isPressed(trigger.action);
-			}
-			triggered = (triggered && itd.pressed) || (!triggered && !itd.pressed);
-			if (triggered && itd.type == InputTransitionData.Type.ANY_ONE) return true;
-			if (triggered) counter++;
-		}
-		switch (itd.type) {
-		case ANY_ONE:
-			return false;
-		case ONLY_ONE:
-			return counter == 1;
-		case ALL:
-			return counter == itd.triggers.size;
-		default:
-			return false;
-		}
-	}
-
 }

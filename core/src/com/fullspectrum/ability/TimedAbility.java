@@ -2,15 +2,15 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.input.Actions;
 
 public abstract class TimedAbility extends Ability{
 
 	private float duration;
 	protected float elapsed;
 	
-	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData, float duration) {
-		super(type, icon, cooldown, inputData);
+	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, float duration) {
+		super(type, icon, cooldown, input);
 		this.duration = duration;
 	}
 

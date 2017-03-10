@@ -293,16 +293,16 @@ public class EntityFactory {
 		
 		// Abilities
 		AntiMagneticAbility antiMagneticAbility = new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
-				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_1).build(),
+				Actions.ABILITY_1,
 				knightStats.get("anti_magnetic_radius"), 
 				knightStats.get("anti_magnetic_duration"));
 		
 		ParryAbility parryAbility = new ParryAbility(knightStats.get("parry_cooldown"), 
-				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_2).build(),
+				Actions.ABILITY_2,
 				knightStats.get("parry_max_time"));
 		
 		KickAbility kickAbility = new KickAbility(knightStats.get("kick_cooldown"), 
-				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_3).build(),
+				Actions.ABILITY_3,
 				3 * GameVars.ANIM_FRAME, 
 				knightStats.get("kick_range"), 
 				knightStats.get("kick_knockback"), 
@@ -1301,8 +1301,7 @@ public class EntityFactory {
 					 mageStats.get("shield_rate"), 
 					 mageStats.get("shield_delay")));
 		mage.add(engine.createComponent(AbilityComponent.class)
-			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"),
-				 new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build())));
+			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()

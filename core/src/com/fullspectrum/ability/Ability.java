@@ -2,7 +2,7 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.input.Actions;
 
 public abstract class Ability {
 
@@ -11,18 +11,18 @@ public abstract class Ability {
 	private TextureRegion icon;
 	private float cooldown = 0.0f;
 	private float elapsed = 0.0f;
-	private InputTransitionData inputData;
+	private Actions input;
 	
 	// Flags
 	private boolean done = false;
 	private boolean locked = false;
 	
-	public Ability(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData) {
+	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
 		this.type = type;
 		this.icon = icon;
 		this.cooldown = cooldown;
 		this.elapsed = cooldown;
-		this.inputData = inputData;
+		this.input = input;
 	}
 	
 	/** Called once when ability is first used */
@@ -86,8 +86,12 @@ public abstract class Ability {
 		return icon;
 	}
 
-	public InputTransitionData getInputData() {
-		return inputData;
+	public Actions getInput() {
+		return input;
+	}
+	
+	public void setInput(Actions input) {
+		this.input = input;
 	}
 
 }

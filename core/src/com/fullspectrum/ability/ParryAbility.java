@@ -4,15 +4,15 @@ import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityStates;
-import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.input.Actions;
 
 public class ParryAbility extends Ability{
 
 	private float elapsed;
 	private float maxTime;
 	
-	public ParryAbility(float cooldown, InputTransitionData inputData, float maxTime) {
-		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, inputData);
+	public ParryAbility(float cooldown, Actions input, float maxTime) {
+		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, input);
 		this.maxTime = maxTime;
 	}
 

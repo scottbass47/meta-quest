@@ -8,16 +8,9 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimerComponent.Timer;
-import com.fullspectrum.effects.KnockBackEffect;
-import com.fullspectrum.game.GameVars;
 
 public class KnockBackSystem extends IteratingSystem{
 
-	// CLEANUP Improve knock back so kick looks better
-	// CLEANUP Improve knock back so kick looks better
-	// CLEANUP Improve knock back so kick looks better
-	// CLEANUP Improve knock back so kick looks better
-	// CLEANUP Improve knock back so kick looks better
 	public KnockBackSystem() {
 		super(Family.all(KnockBackComponent.class, BodyComponent.class).get());
 	}
@@ -30,16 +23,17 @@ public class KnockBackSystem extends IteratingSystem{
 		Timer timer = Mappers.timer.get(entity).get("knockback_effect");
 		float elapsed = timer.getElapsed();
 		float total = timer.getTotalTime();
-		float knockUp = 5.0f + 10.0f * MathUtils.sinDeg(knockBackComp.angle);
+		float knockUp = 5.0f + knockBackComp.speed / 4.0f; //+ 10.0f * MathUtils.sinDeg(knockBackComp.angle);
 		
-		float dx = MathUtils.cosDeg(knockBackComp.angle) * KnockBackEffect.SPEED * ((total - elapsed) / total);
-		float dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp : -knockUp;
+		float dx = MathUtils.cosDeg(knockBackComp.angle) * knockBackComp.speed * ((total - elapsed) / total);
+		float dy = bodyComp.body.getLinearVelocity().y;
 		
-		if(Mappers.groundMovement.get(entity) != null){
+		if(Mappers.flying.get(entity) == null && !knockBackComp.knockedUp){
 			// One time knock upwards
-			if(elapsed > GameVars.PPM_INV){
-				dy = bodyComp.body.getLinearVelocity().y;
-			}
+			dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp : -knockUp;
+			knockBackComp.knockedUp = true;
+		} else if(Mappers.flying.get(entity) != null){
+			dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp * 0.5f : -knockUp * 0.5f;
 		}
 		bodyComp.body.setLinearVelocity(dx, dy);
 	}

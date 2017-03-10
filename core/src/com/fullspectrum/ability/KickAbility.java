@@ -15,8 +15,8 @@ import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.fsm.EntityStateMachine;
-import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.handlers.DamageHandler;
+import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
 
 public class KickAbility extends Ability{
@@ -28,8 +28,8 @@ public class KickAbility extends Ability{
 	private float elapsed;
 	private boolean hasKicked = false;
 	
-	public KickAbility(float cooldown, InputTransitionData inputData, float animDelay, float range, float knockback, float damage) {
-		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, inputData);
+	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage) {
+		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input);
 		this.animDelay = animDelay;
 		this.range = range;
 		this.knockback = knockback;

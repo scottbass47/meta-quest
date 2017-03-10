@@ -2,12 +2,12 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.input.Actions;
 
 public abstract class InstantAbility extends Ability{
 
-	public InstantAbility(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData) {
-		super(type, icon, cooldown, inputData);
+	public InstantAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
+		super(type, icon, cooldown, input);
 	}
 	
 	/** Called once when the ability is used */

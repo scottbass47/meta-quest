@@ -12,23 +12,25 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
-import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.DropFactory;
 import com.fullspectrum.factory.EntityFactory;
+import com.fullspectrum.shader.HurtShader;
+import com.fullspectrum.shader.Shader;
 
 public class DamageHandler {
 	
-	private final static Color hitColor = new Color(210f / 255f, 20f / 255f, 60f / 255f, 1.0f);
+	private final static Shader hurtShader = new HurtShader();
 
 	private DamageHandler() {
 	}
@@ -62,13 +64,19 @@ public class DamageHandler {
 				}
 			});
 		} else {
-			toEntity.add(engineComp.engine.createComponent(TintComponent.class).set(hitColor));
-			Mappers.timer.get(toEntity).add("red_tint", 0.15f, false, new TimeListener() {
-				@Override
-				public void onTime(Entity entity) {
-					entity.remove(TintComponent.class);
-				}
-			});
+			ShaderComponent shaderComp = Mappers.shader.get(toEntity);
+			if(shaderComp != null && shaderComp.shader == null){
+				shaderComp.shader = hurtShader;
+				Mappers.timer.get(toEntity).add("red_tint", 0.2f, false, new TimeListener() {
+					@Override
+					public void onTime(Entity entity) {
+						ShaderComponent shaderComp = Mappers.shader.get(entity);
+						if(shaderComp.shader != null && shaderComp.shader.equals(hurtShader)){
+							shaderComp.shader = null;
+						}
+					}
+				});
+			}
 		}
 
 		float half = 0.25f * amount * 0.5f;
@@ -103,7 +111,6 @@ public class DamageHandler {
 
 		if (knockBackDistance > 0 && Mappers.player.get(toEntity) == null) {
 			Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
-			Effects.giveStun(toEntity, 5.0f);
 		}
 
 		float x = body.getPosition().x;
