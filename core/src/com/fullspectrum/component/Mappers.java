@@ -33,7 +33,8 @@ public class Mappers {
 	public static final ComponentMapper<DropMovementComponent> dropMovement = ComponentMapper.getFor(DropMovementComponent.class);
 	public static final ComponentMapper<FlyingComponent> flying = ComponentMapper.getFor(FlyingComponent.class);
 	public static final ComponentMapper<LadderComponent> ladder = ComponentMapper.getFor(LadderComponent.class);
-
+	public static final ComponentMapper<FrameMovementComponent> frameMovement = ComponentMapper.getFor(FrameMovementComponent.class);
+	
 	// Positioning / Physics
 	public static final ComponentMapper<PositionComponent> position =  ComponentMapper.getFor(PositionComponent.class);
 	public static final ComponentMapper<BodyComponent> body =  ComponentMapper.getFor(BodyComponent.class);

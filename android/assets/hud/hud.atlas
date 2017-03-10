@@ -1,11 +1,11 @@
 hud.png
-size: 200, 190
+size: 211, 190
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 anti_magnetic_armor_icon
   rotate: false
-  xy: 0, 30
+  xy: 193, 10
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
@@ -36,6 +36,13 @@ new_hud
   xy: 40, 30
   size: 160, 160
   orig: 160, 160
+  offset: 0, 0
+  index: -1
+overhead_swing_icon
+  rotate: false
+  xy: 0, 30
+  size: 18, 18
+  orig: 18, 18
   offset: 0, 0
   index: -1
 parry_icon

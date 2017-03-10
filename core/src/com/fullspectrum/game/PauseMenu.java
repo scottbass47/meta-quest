@@ -26,7 +26,7 @@ public class PauseMenu {
 	
 	private float spacing = 20.0f;
 	private float scale = 4.0f;
-	private int icons = 3;
+	private int icons;
 	private int activeAbilities = 0;
 	
 	
@@ -44,6 +44,7 @@ public class PauseMenu {
 				activeAbilities++;
 			}
 		}
+		icons = abilityComp.getAbilityMap().size;
 	}
 	
 	public void update(float delta){

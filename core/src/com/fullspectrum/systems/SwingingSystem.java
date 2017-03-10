@@ -24,14 +24,15 @@ import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
-import com.fullspectrum.debug.DebugToggle;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.level.EntityGrabber;
 
 public class SwingingSystem extends IteratingSystem{
 
+	// TODO Swings should allow for offsetting
+	// TODO Get rid of sword entity
 	public SwingingSystem(){
 		super(Family.all(SwingComponent.class, SwordComponent.class, FacingComponent.class).get());
 	}
@@ -89,7 +90,7 @@ public class SwingingSystem extends IteratingSystem{
 			}
 		});
 		
-		if(DebugInput.isToggled(DebugToggle.SHOW_SWING)){
+		if(DebugVars.SWING_ON){
 			PositionComponent posComp = Mappers.position.get(entity);
 			float duration = 1.0f;
 			

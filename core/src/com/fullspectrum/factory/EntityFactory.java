@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
+import com.fullspectrum.ability.OverheadSwingAbility;
 import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
@@ -62,6 +63,7 @@ import com.fullspectrum.component.FlowFollowComponent;
 import com.fullspectrum.component.FlyingComponent;
 import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
+import com.fullspectrum.component.FrameMovementComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.ImmuneComponent;
@@ -283,6 +285,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.PARRY, assets.getSpriteAnimation(Assets.KNIGHT_PARRY));
 		animMap.put(EntityAnim.PARRY_SWING, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_SWING));
 		animMap.put(EntityAnim.KICK, assets.getSpriteAnimation(Assets.KNIGHT_KICK));
+		animMap.put(EntityAnim.OVERHEAD_SWING, assets.getSpriteAnimation(Assets.KNIGHT_OVERHEAD_SWING));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -292,21 +295,32 @@ public class EntityFactory {
 			.build();
 		
 		// Abilities
-		AntiMagneticAbility antiMagneticAbility = new AntiMagneticAbility(knightStats.get("anti_magnetic_cooldown"), 
+		AntiMagneticAbility antiMagneticAbility = new AntiMagneticAbility(
+				knightStats.get("anti_magnetic_cooldown"), 
 				Actions.ABILITY_1,
 				knightStats.get("anti_magnetic_radius"), 
 				knightStats.get("anti_magnetic_duration"));
 		
-		ParryAbility parryAbility = new ParryAbility(knightStats.get("parry_cooldown"), 
+		ParryAbility parryAbility = new ParryAbility(
+				knightStats.get("parry_cooldown"), 
 				Actions.ABILITY_2,
 				knightStats.get("parry_max_time"));
 		
-		KickAbility kickAbility = new KickAbility(knightStats.get("kick_cooldown"), 
+		KickAbility kickAbility = new KickAbility(
+				knightStats.get("kick_cooldown"), 
 				Actions.ABILITY_3,
 				3 * GameVars.ANIM_FRAME, 
 				knightStats.get("kick_range"), 
 				knightStats.get("kick_knockback"), 
-				knightStats.get("kick_damage"));
+				knightStats.get("kick_damage"),
+				animMap.get(EntityAnim.KICK));
+		
+		OverheadSwingAbility overheadSwingAbility = new OverheadSwingAbility(
+				knightStats.get("overhead_swing_cooldown"),
+				Actions.ABILITY_1, 
+				animMap.get(EntityAnim.OVERHEAD_SWING),
+				engine.createComponent(SwingComponent.class).set(8.0f, 3.5f, 120.0f, -40.0f, 9 * GameVars.ANIM_FRAME, 10.0f));
+		overheadSwingAbility.deactivate();
 		
 		// Player Related Components
 		knight.add(engine.createComponent(MoneyComponent.class));
@@ -319,7 +333,8 @@ public class EntityFactory {
 		knight.add(engine.createComponent(AbilityComponent.class)
 				.add(antiMagneticAbility)
 				.add(parryAbility)
-				.add(kickAbility));
+				.add(kickAbility)
+				.add(overheadSwingAbility));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
@@ -795,6 +810,10 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
 			.addAnimation(EntityAnim.KICK);
+		
+		esm.createState(EntityStates.OVERHEAD_SWING)
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_overhead_swing"))
+			.addAnimation(EntityAnim.OVERHEAD_SWING);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -839,7 +858,6 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.KICK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		

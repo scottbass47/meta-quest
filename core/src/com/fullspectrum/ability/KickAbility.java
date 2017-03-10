@@ -3,6 +3,8 @@ package com.fullspectrum.ability;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.assets.Assets;
@@ -14,22 +16,20 @@ import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityStates;
-import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
 
-public class KickAbility extends Ability{
+public class KickAbility extends AnimationAbility{
 
 	private float animDelay;
 	private float range;
 	private float knockback;
 	private float damage;
-	private float elapsed;
 	private boolean hasKicked = false;
 	
-	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage) {
-		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input);
+	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
+		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation);
 		this.animDelay = animDelay;
 		this.range = range;
 		this.knockback = knockback;
@@ -37,8 +37,7 @@ public class KickAbility extends Ability{
 	}
 
 	@Override
-	public void update(Entity entity, float delta) {
-		elapsed += delta;
+	public void onUpdate(Entity entity, float delta) {
 		if(elapsed >= animDelay && !hasKicked){
 			// Perform Kick
 			Array<Entity> hitEntities = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
@@ -66,6 +65,7 @@ public class KickAbility extends Ability{
 					float top = myY + yRange;
 					float bottom = myY - yRange;
 					
+					DebugRender.setType(ShapeType.Line);
 					DebugRender.setColor(Color.CYAN);
 					DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom, 1.0f);
 					
@@ -85,12 +85,6 @@ public class KickAbility extends Ability{
 			}
 			hasKicked = true;
 		}
-		
-		// Ability is over once the animation ends after kicking
-		EntityStateMachine esm = Mappers.esm.get(entity).get(EntityStates.KICK);
-		if(esm.getCurrentState() != EntityStates.KICK && hasKicked){
-			setDone(true);
-		}
 	}
 
 	@Override
@@ -102,8 +96,7 @@ public class KickAbility extends Ability{
 	@Override
 	public void destroy(Entity entity) {
 		Mappers.immune.get(entity).remove(EffectType.KNOCKBACK).remove(EffectType.STUN);
+		Mappers.esm.get(entity).get(EntityStates.KICK).changeState(EntityStates.IDLING);
 		hasKicked = false;
-		elapsed = 0.0f;
 	}
-
 }

@@ -26,6 +26,7 @@ public enum EntityAnim implements State{
 	PARRY_SWING,
 	FLAPPING,
 	KICK,
+	OVERHEAD_SWING,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

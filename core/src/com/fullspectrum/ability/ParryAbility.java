@@ -10,6 +10,7 @@ public class ParryAbility extends Ability{
 
 	private float elapsed;
 	private float maxTime;
+	private boolean readyToParry = true;
 	
 	public ParryAbility(float cooldown, Actions input, float maxTime) {
 		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, input);
@@ -18,7 +19,7 @@ public class ParryAbility extends Ability{
 
 	@Override
 	public void init(Entity entity) {
-
+		Mappers.esm.get(entity).get(EntityStates.PARRY).changeState(EntityStates.PARRY);
 	}
 
 	@Override
@@ -28,9 +29,12 @@ public class ParryAbility extends Ability{
 		// Nothing was blocked, return entity to idle state
 		if(elapsed >= maxTime){
 			setDone(true);
-			Mappers.esm.get(entity).get(EntityStates.IDLING).changeState(EntityStates.IDLING);
+			Mappers.esm.get(entity).get(EntityStates.PARRY).changeState(EntityStates.IDLING);
 		}
 		
+		if(readyToParry){
+			
+		}
 		
 	}
 
