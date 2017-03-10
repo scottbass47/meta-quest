@@ -29,6 +29,7 @@ public class OverheadSwingAbility extends AnimationAbility{
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.OVERHEAD_SWING);
 		Mappers.sword.get(entity).shouldSwing = true;
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
+		Mappers.facing.get(entity).locked = true;
 	}
 
 	@Override
@@ -42,5 +43,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 		Mappers.immune.get(entity).remove(EffectType.KNOCKBACK).remove(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.IDLING);
 		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+		Mappers.facing.get(entity).locked = false;
 	}
 }

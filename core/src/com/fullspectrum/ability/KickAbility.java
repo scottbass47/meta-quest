@@ -91,12 +91,14 @@ public class KickAbility extends AnimationAbility{
 	public void init(Entity entity) {
 		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.KICK).changeState(EntityStates.KICK);
+		Mappers.facing.get(entity).locked = true;
 	}
 
 	@Override
 	public void destroy(Entity entity) {
 		Mappers.immune.get(entity).remove(EffectType.KNOCKBACK).remove(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.KICK).changeState(EntityStates.IDLING);
+		Mappers.facing.get(entity).locked = false;
 		hasKicked = false;
 	}
 }
