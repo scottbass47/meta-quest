@@ -22,6 +22,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
+import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.ai.AIBehavior;
@@ -281,6 +282,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
 		animMap.put(EntityAnim.PARRY, assets.getSpriteAnimation(Assets.KNIGHT_PARRY));
 		animMap.put(EntityAnim.PARRY_SWING, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_SWING));
+		animMap.put(EntityAnim.KICK, assets.getSpriteAnimation(Assets.KNIGHT_KICK));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -299,6 +301,14 @@ public class EntityFactory {
 				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_2).build(),
 				knightStats.get("parry_max_time"));
 		
+		KickAbility kickAbility = new KickAbility(knightStats.get("kick_cooldown"), 
+				new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_3).build(),
+				3 * GameVars.ANIM_FRAME, 
+				knightStats.get("kick_range"), 
+				knightStats.get("kick_knockback"), 
+				knightStats.get("kick_damage"));
+		
+		
 		// Player Related Components
 		knight.add(engine.createComponent(MoneyComponent.class));
 		knight.add(engine.createComponent(PlayerComponent.class));
@@ -309,7 +319,8 @@ public class EntityFactory {
 					 knightStats.get("shield_delay")));
 		knight.add(engine.createComponent(AbilityComponent.class)
 				.add(antiMagneticAbility)
-				.add(parryAbility));
+				.add(parryAbility)
+				.add(kickAbility));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
@@ -763,13 +774,28 @@ public class EntityFactory {
 		// ******************************************
 		
 		esm.createState(EntityStates.LANDING)
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(DirectionComponent.class))
 			.addAnimation(EntityAnim.LAND);
 		
 		esm.createState(EntityStates.PARRY)
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(DirectionComponent.class))
 			.addAnimation(EntityAnim.PARRY);
 		
 		esm.createState(EntityStates.PARRY_SWING)
-			.addAnimation(EntityStates.PARRY_SWING);
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(DirectionComponent.class))
+			.addAnimation(EntityAnim.PARRY_SWING);
+		
+		esm.createState(EntityStates.KICK)
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(DirectionComponent.class))
+			.addAnimation(EntityAnim.KICK);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -814,6 +840,7 @@ public class EntityFactory {
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.KICK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -1837,7 +1864,7 @@ public class EntityFactory {
 				spawnerPool.add(index, stats.get(attr));
 			}
 		}
-		spawner.add(engine.createComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN));
+		spawner.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spawner ESM", engine, spawner).build();
 		
@@ -2296,6 +2323,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
 			entity.add(engine.createComponent(InvincibilityComponent.class));
 			entity.add(engine.createComponent(EffectComponent.class));
+			entity.add(engine.createComponent(ImmuneComponent.class));
 			return this;
 		}
 		

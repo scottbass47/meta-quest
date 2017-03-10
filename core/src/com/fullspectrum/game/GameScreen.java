@@ -432,7 +432,8 @@ public class GameScreen extends AbstractScreen {
 		// Render Buffer
 		frameBuffer.begin();
 
-		Gdx.gl.glClearColor(0.1745f, 0.225f, 0.370f, 1.0f);
+		Color bc = new Color(0x6885e3ff);
+		Gdx.gl.glClearColor(bc.r, bc.g, bc.b, bc.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
 		worldCamera.update();

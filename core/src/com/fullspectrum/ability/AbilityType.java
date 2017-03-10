@@ -4,5 +4,6 @@ public enum AbilityType {
 
 	MANA_BOMB,
 	ANTI_MAGNETIC_ARMOR,
-	PARRY
+	PARRY,
+	KICK
 }

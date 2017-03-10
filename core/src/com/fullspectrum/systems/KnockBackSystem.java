@@ -13,6 +13,11 @@ import com.fullspectrum.game.GameVars;
 
 public class KnockBackSystem extends IteratingSystem{
 
+	// CLEANUP Improve knock back so kick looks better
+	// CLEANUP Improve knock back so kick looks better
+	// CLEANUP Improve knock back so kick looks better
+	// CLEANUP Improve knock back so kick looks better
+	// CLEANUP Improve knock back so kick looks better
 	public KnockBackSystem() {
 		super(Family.all(KnockBackComponent.class, BodyComponent.class).get());
 	}
@@ -25,7 +30,7 @@ public class KnockBackSystem extends IteratingSystem{
 		Timer timer = Mappers.timer.get(entity).get("knockback_effect");
 		float elapsed = timer.getElapsed();
 		float total = timer.getTotalTime();
-		float knockUp = 5.0f;
+		float knockUp = 5.0f + 10.0f * MathUtils.sinDeg(knockBackComp.angle);
 		
 		float dx = MathUtils.cosDeg(knockBackComp.angle) * KnockBackEffect.SPEED * ((total - elapsed) / total);
 		float dy = knockBackComp.angle <= 180 && knockBackComp.angle >= 0 ? knockUp : -knockUp;

@@ -27,5 +27,11 @@
 	
 	// Parry
 	parry_cooldown: 2.0,
-	parry_max_time: 1.0
+	parry_max_time: 1.0,
+	
+	// Kick
+	kick_cooldown: 1.0,
+	kick_range: 3.5,
+	kick_knockback: 10.0,
+	kick_damage: 10.0
 }

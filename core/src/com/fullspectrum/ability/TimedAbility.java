@@ -7,7 +7,7 @@ import com.fullspectrum.fsm.transition.InputTransitionData;
 public abstract class TimedAbility extends Ability{
 
 	private float duration;
-	private float elapsed;
+	protected float elapsed;
 	
 	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, InputTransitionData inputData, float duration) {
 		super(type, icon, cooldown, inputData);
