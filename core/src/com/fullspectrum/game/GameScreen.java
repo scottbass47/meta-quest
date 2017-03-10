@@ -126,6 +126,8 @@ public class GameScreen extends AbstractScreen {
 	private BitmapFont font;
 //	private DebugConsole console;
 	private Console console;
+	private boolean pauseMenuOpen = false;
+	private PauseMenu pauseMenu;
 
 //	private int ups = 0;
 
@@ -240,6 +242,9 @@ public class GameScreen extends AbstractScreen {
 		console.setSizePercent(75, 50);
 		console.setPositionPercent(12.5f, 50);
 		console.setCommandExecutor(new ConsoleCommands());
+		
+		PauseMenu.setPlayer(levelManager.getPlayer());
+		pauseMenu = new PauseMenu(hudCamera);
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -293,6 +298,15 @@ public class GameScreen extends AbstractScreen {
 ////			console.setOpen(false);
 //		}
 		if(console.isVisible()){
+			return;
+		}
+		
+		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW)){
+			pauseMenuOpen = !pauseMenuOpen;
+		}
+		
+		if(pauseMenuOpen){
+			pauseMenu.update(delta);
 			return;
 		}
 		
@@ -543,6 +557,10 @@ public class GameScreen extends AbstractScreen {
 			font.getData().setScale(1.0f);
 		}
 		
+		if(pauseMenuOpen){
+			pauseMenu.render(batch);
+		}
+		
 		// Render the console
 		if(console.isVisible()){
 //			console.render(batch);
@@ -606,6 +624,7 @@ public class GameScreen extends AbstractScreen {
 		int counter = 0;
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
 			Ability ability = abilityComp.getAbility(type);
+			if(!ability.isActivated()) continue;
 			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
 			float x = startX + (iconWidth + spacing) * counter * spacing;

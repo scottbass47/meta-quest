@@ -8,11 +8,6 @@ import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.fsm.transition.InputTransitionData;
-import com.fullspectrum.fsm.transition.InputTrigger;
-import com.fullspectrum.input.Actions;
-import com.fullspectrum.input.GameInput;
-import com.fullspectrum.input.Input;
 
 public class AbilitySystem extends IteratingSystem {
 
@@ -27,6 +22,7 @@ public class AbilitySystem extends IteratingSystem {
 		
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
 			Ability ability = abilityComp.getAbility(type);
+			if(!ability.isActivated()) continue;
 			if(!ability.isLocked()){
 				ability.addTime(deltaTime);
 			}

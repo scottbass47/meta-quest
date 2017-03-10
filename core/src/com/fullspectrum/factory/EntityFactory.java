@@ -308,7 +308,6 @@ public class EntityFactory {
 				knightStats.get("kick_knockback"), 
 				knightStats.get("kick_damage"));
 		
-		
 		// Player Related Components
 		knight.add(engine.createComponent(MoneyComponent.class));
 		knight.add(engine.createComponent(PlayerComponent.class));

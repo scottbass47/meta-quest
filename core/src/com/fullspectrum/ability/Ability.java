@@ -16,6 +16,7 @@ public abstract class Ability {
 	// Flags
 	private boolean done = false;
 	private boolean locked = false;
+	private boolean activated = true;
 	
 	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
 		this.type = type;
@@ -60,6 +61,18 @@ public abstract class Ability {
 	
 	public boolean isDone(){
 		return done;
+	}
+	
+	public void activate(){
+		activated = true;
+	}
+	
+	public void deactivate(){
+		activated = false;
+	}
+	
+	public boolean isActivated() {
+		return activated;
 	}
 	
 	public void addTime(float time){

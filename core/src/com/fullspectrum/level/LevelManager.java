@@ -20,6 +20,7 @@ import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
+import com.fullspectrum.game.PauseMenu;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.LevelInfo.LevelType;
@@ -216,6 +217,7 @@ public class LevelManager{
 		engine.addEntity(player);
 		
 		ConsoleCommands.setPlayer(player);
+		PauseMenu.setPlayer(player);
 
 		 Mappers.camera.get(camera).toFollow = player;
 	}
