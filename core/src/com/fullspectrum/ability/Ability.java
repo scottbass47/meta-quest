@@ -13,18 +13,31 @@ public abstract class Ability {
 	private float cooldown = 0.0f;
 	private float elapsed = 0.0f;
 	private Actions input;
+	private AbilityConstraints constraints;
 	
 	// Flags
 	private boolean done = false;
 	private boolean locked = false;
-	private boolean activated = true;
+	private boolean activated = true; // whether or not you have this ability selected
+	protected boolean isBlocking = false; // whether or not the ability blocks
+	private boolean inUse = false;
 	
 	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
+		this(type, icon, cooldown, input, false, null);
+	}
+	
+	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input, boolean isBlocking) {
+		this(type, icon, cooldown, input, isBlocking, null);
+	}
+	
+	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input, boolean isBlocking, AbilityConstraints constraints){
 		this.type = type;
 		this.icon = icon;
 		this.cooldown = cooldown;
 		this.elapsed = cooldown;
 		this.input = input;
+		this.isBlocking = isBlocking;
+		this.constraints = constraints;
 	}
 	
 	/** Called once when ability is first used */
@@ -106,6 +119,26 @@ public abstract class Ability {
 	
 	public void setInput(Actions input) {
 		this.input = input;
+	}
+	
+	public boolean inUse(){
+		return inUse;
+	}
+	
+	public boolean isBlocking(){
+		return isBlocking;
+	}
+	
+	public void setInUse(boolean inUse) {
+		this.inUse = inUse;
+	}
+	
+	public boolean canUse(Entity entity){
+		return !locked && (constraints == null ? true : constraints.canUse(this, entity));
+	}
+	
+	public void setAbilityConstraints(AbilityConstraints constraints){
+		this.constraints = constraints;
 	}
 
 }

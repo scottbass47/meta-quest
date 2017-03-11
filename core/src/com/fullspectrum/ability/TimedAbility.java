@@ -6,11 +6,16 @@ import com.fullspectrum.input.Actions;
 
 public abstract class TimedAbility extends Ability{
 
-	private float duration;
+	protected float duration;
 	protected float elapsed;
 	
+	
 	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, float duration) {
-		super(type, icon, cooldown, input);
+		this(type, icon, cooldown, input, duration, false);
+	}
+
+	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, float duration, boolean isBlocking) {
+		super(type, icon, cooldown, input, isBlocking);
 		this.duration = duration;
 	}
 

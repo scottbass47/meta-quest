@@ -29,7 +29,7 @@ public class KickAbility extends AnimationAbility{
 	private boolean hasKicked = false;
 	
 	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
-		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation);
+		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation, true);
 		this.animDelay = animDelay;
 		this.range = range;
 		this.knockback = knockback;

@@ -23,22 +23,37 @@ public class AbilitySystem extends IteratingSystem {
 		for(AbilityType type : abilityComp.getAbilityMap().keys()){
 			Ability ability = abilityComp.getAbility(type);
 			if(!ability.isActivated()) continue;
-			if(!ability.isLocked()){
+			
+			if(!ability.inUse() && !ability.isReady()){
 				ability.addTime(deltaTime);
 			}
 			
 			// Trigger the ability
-			if(ability.isReady() && inputComp.input.isJustPressed(ability.getInput())){
+			if(ability.isReady() && inputComp.input.isJustPressed(ability.getInput()) && ability.canUse(entity)){
 				ability.init(entity);
 				ability.resetTimeElapsed();
-				ability.lock();
+				ability.setInUse(true);
+				// If ability is blocking, lock other blocking abilities
+				if(ability.isBlocking()){
+					for(int i = 0; i < abilityComp.getAbilityMap().size; i++){
+						Ability ab = abilityComp.getAbilityMap().getValueAt(i);
+						if(ab.isBlocking()) ab.lock();
+					}
+				}
 			}
 			
 			if(ability.isDone()){
 				ability.destroy(entity);
 				ability.setDone(false);
-				ability.unlock();
-			}else if(ability.isLocked()){
+				ability.setInUse(false);
+				//If ability is blocking, unlock other blocking abilities
+				if(ability.isBlocking()){
+					for(int i = 0; i < abilityComp.getAbilityMap().size; i++){
+						Ability ab = abilityComp.getAbilityMap().getValueAt(i);
+						if(ab.isBlocking()) ab.unlock();
+					}
+				}
+			}else if(ability.inUse()){
 				ability.update(entity, deltaTime);
 			}
 		}

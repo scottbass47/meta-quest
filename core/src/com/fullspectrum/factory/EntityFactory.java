@@ -787,12 +787,6 @@ public class EntityFactory {
 		
 		// ******************************************
 		
-		esm.createState(EntityStates.LANDING)
-			.add(engine.createComponent(GroundMovementComponent.class))
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-			.add(engine.createComponent(DirectionComponent.class))
-			.addAnimation(EntityAnim.LAND);
-		
 		esm.createState(EntityStates.PARRY)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
@@ -851,8 +845,7 @@ public class EntityFactory {
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.LANDING);
-		esm.addTransition(EntityStates.LANDING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);

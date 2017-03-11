@@ -13,7 +13,7 @@ public class ParryAbility extends Ability{
 	private boolean readyToParry = true;
 	
 	public ParryAbility(float cooldown, Actions input, float maxTime) {
-		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, input);
+		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, input, true);
 		this.maxTime = maxTime;
 	}
 

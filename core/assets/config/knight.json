@@ -26,15 +26,15 @@
 	anti_magnetic_radius: 1.0,
 	
 	// Parry
-	parry_cooldown: 2.0,
+	parry_cooldown: 4.0,
 	parry_max_time: 1.0,
 	
 	// Kick
-	kick_cooldown: 1.0,
+	kick_cooldown: 5.0,
 	kick_range: 3.5,
 	kick_knockback: 10.0,
 	kick_damage: 10.0,
 	
 	// Overhead Swing
-	overhead_swing_cooldown: 0.1
+	overhead_swing_cooldown: 10
 }

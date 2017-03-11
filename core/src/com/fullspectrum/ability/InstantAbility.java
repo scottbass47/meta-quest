@@ -7,7 +7,11 @@ import com.fullspectrum.input.Actions;
 public abstract class InstantAbility extends Ability{
 
 	public InstantAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
-		super(type, icon, cooldown, input);
+		this(type, icon, cooldown, input, false);
+	}
+	
+	public InstantAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, boolean isBlocking) {
+		super(type, icon, cooldown, input, isBlocking);
 	}
 	
 	/** Called once when the ability is used */

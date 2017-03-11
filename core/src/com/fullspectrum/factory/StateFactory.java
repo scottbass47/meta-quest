@@ -256,7 +256,6 @@ public class StateFactory {
 //			});
 //			
 //			// Add Knockback Transition
-//			// CLEANUP HACK -> Hard-coded dying state as the one state you can't be knocked back from
 //			esm.addTransition(esm.all(TransitionTag.ALL).exclude(EntityStates.DYING), Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, false), EntityStates.KNOCK_BACK);
 //			esm.addTransition(EntityStates.KNOCK_BACK, Transitions.COMPONENT, new ComponentTransitionData(KnockBackComponent.class, true), returnToState);
 //			return this;

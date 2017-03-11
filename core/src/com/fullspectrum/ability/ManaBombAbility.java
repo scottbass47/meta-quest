@@ -10,7 +10,7 @@ import com.fullspectrum.input.Actions;
 public class ManaBombAbility extends InstantAbility{
 
 	public ManaBombAbility(float cooldown, Actions input) {
-		super(AbilityType.MANA_BOMB, Assets.getInstance().getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), cooldown, input);
+		super(AbilityType.MANA_BOMB, Assets.getInstance().getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), cooldown, input, true);
 	}
 
 	@Override

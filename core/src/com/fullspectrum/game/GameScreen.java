@@ -630,13 +630,13 @@ public class GameScreen extends AbstractScreen {
 			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
 			float x = startX + (iconWidth + spacing) * counter * spacing;
-			if(ability.isReady()){
+			if(ability.isReady() && !ability.isLocked()){
 				batch.setColor(Color.WHITE);
 			} else{
 				batch.setColor(Color.DARK_GRAY);
 			}
 			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
-			if(!ability.isReady() && !ability.isLocked()){
+			if(!ability.isReady() && !ability.inUse()){
 				int timeLeft = (int)(ability.getCooldown() - ability.getTimeElapsed() + 0.99f);
 				String num = "" + timeLeft;
 				layout.setText(font, num);

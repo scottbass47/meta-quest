@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.transition.Tag;
