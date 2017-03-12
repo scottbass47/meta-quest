@@ -32,11 +32,11 @@ public class OverheadSwingAbility extends AnimationAbility{
 	@Override
 	public void init(Entity entity) {
 		SwingComponent swingComp = Mappers.engine.get(entity).engine.createComponent(SwingComponent.class);
-		swingComp.set(swing.rx, swing.ry, swing.startAngle, swing.endAngle, swing.delay, swing.knockBackDistance);
+		swingComp.set(swing.rx, swing.ry, swing.startAngle, swing.endAngle, swing.delay, swing.damage, swing.knockback).setEffects(swing.effects);
+		swingComp.shouldSwing = true;
 		entity.add(swingComp);
 		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.OVERHEAD_SWING);
-		Mappers.sword.get(entity).shouldSwing = true;
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}

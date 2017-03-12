@@ -52,7 +52,6 @@ public class SlamAbility extends AnimationAbility{
 	public void init(Entity entity) {
 		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.SLAM);
-		Mappers.sword.get(entity).shouldSwing = true;
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}

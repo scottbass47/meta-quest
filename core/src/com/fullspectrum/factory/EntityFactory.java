@@ -92,8 +92,6 @@ import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.SwingComponent;
-import com.fullspectrum.component.SwordComponent;
-import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
@@ -323,7 +321,14 @@ public class EntityFactory {
 				knightStats.get("overhead_swing_cooldown"),
 				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.OVERHEAD_SWING),
-				engine.createComponent(SwingComponent.class).set(8.0f, 3.5f, 120.0f, -40.0f, 9 * GameVars.ANIM_FRAME, 10.0f));
+				engine.createComponent(SwingComponent.class).set(
+						8.0f, 
+						3.5f, 
+						120.0f, 
+						-40.0f, 
+						9 * GameVars.ANIM_FRAME,
+						knightStats.get("overhead_swing_damage"),
+						knightStats.get("overhead_swing_knockback")));
 		
 		SlamAbility slamAbility = new SlamAbility(
 				knightStats.get("slam_cooldown"), 
@@ -350,16 +355,16 @@ public class EntityFactory {
 				.add(overheadSwingAbility)
 				.add(slamAbility));
 		
-		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
-		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class).set((int)knightStats.get("max_chains"));
 		
-		float knockBack = 2.5f;
+		float swordDamage = knightStats.get("sword_damage");
+		float knockback = knightStats.get("sword_knockback");
+		
 		// Setup swings
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, knockBack);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, knockBack);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, knockBack);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, knockBack);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, swordDamage, knockback);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -368,7 +373,6 @@ public class EntityFactory {
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_4, EntityAnim.SWING_ANTICIPATION_4, EntityAnim.SWING_4, swing4);
 		
 		knight.add(knightComp);
-		knight.add(engine.createComponent(SwordComponent.class).set(sword));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Knight ESM", engine, knight)
 			.idle()
@@ -505,8 +509,9 @@ public class EntityFactory {
 							currSwing.startAngle, 
 							currSwing.endAngle, 
 							currSwing.delay + GameVars.UPS_INV + GameVars.ANIM_FRAME, 
-							currSwing.knockBackDistance));
-					Mappers.sword.get(entity).shouldSwing = true;
+							currSwing.damage,
+							currSwing.knockback).setEffects(currSwing.effects));
+					Mappers.swing.get(entity).shouldSwing = true;
 				
 					// CLEANUP GROSS!!! 
 					Mappers.timer.get(entity).add("anim_timer", 0.0f, false, new TimeListener() {
@@ -1454,15 +1459,13 @@ public class EntityFactory {
 		player.add(engine.createComponent(TargetComponent.class));
 		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
 
-		Entity sword = createSword(engine, world, level, player, x, y, (int)stats.get("sword_damage"));
-		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("AI Player ESM", engine, player)
 			.idle()
 			.run(stats.get("ground_speed"))
 			.fall(stats.get("air_speed"), true)
 			.jump(stats.get("jump_force"), stats.get("air_speed"), true, true)
 			.climb(stats.get("climb_speed"))
-			.swingAttack(sword, 2.5f, 1.0f, 150f, -90f, 0.4f, 2.0f)
+			.swingAttack(2.5f, 1.0f, 150f, -90f, 0.4f, stats.get("sword_damage"), stats.get("sword_knockback"))
 			.build();
 		
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
@@ -1923,19 +1926,6 @@ public class EntityFactory {
 		wings.add(engine.createComponent(OffsetComponent.class).set(xOff, yOff, true));
 		wings.add(engine.createComponent(EffectComponent.class));
 		return wings;
-	}
-	
-	public static Entity createSword(Engine engine, World world, Level level, Entity owner, float x, float y, int damage){
-		Entity sword = new EntityBuilder("sword of " + Mappers.entity.get(owner).name, engine, world, level)
-				.physics("sword.json", 
-						new BodyProperties.Builder().setGravityScale(0.0f).setActive(false).build(),
-						x, y, false)
-				.build();
-		sword.add(engine.createComponent(ParentComponent.class).set(owner));
-		sword.add(engine.createComponent(OffsetComponent.class).set(16.0f * PPM_INV, 0.0f * PPM_INV, true));
-		sword.add(engine.createComponent(SwordStatsComponent.class).set(damage));
-		
-		return sword;
 	}
 	
 	public static Entity createCoin(Engine engine, World world, Level level, float x, float y, float fx, float fy, int amount){

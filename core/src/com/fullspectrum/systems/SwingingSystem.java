@@ -21,33 +21,29 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.SwingComponent;
-import com.fullspectrum.component.SwordComponent;
-import com.fullspectrum.component.SwordStatsComponent;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugVars;
+import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.level.EntityGrabber;
 
 public class SwingingSystem extends IteratingSystem{
 
 	// TODO Swings should allow for offsetting
-	// TODO Get rid of sword entity
 	public SwingingSystem(){
-		super(Family.all(SwingComponent.class, SwordComponent.class, FacingComponent.class).get());
+		super(Family.all(SwingComponent.class, FacingComponent.class).get());
 	}
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		// CLEANUP Should the sword control the swing or the sword wielder? Will swords exists without parents?
 		LevelComponent levelComp = Mappers.level.get(entity);
-		final SwordComponent swordComp = Mappers.sword.get(entity);
-		
-		if(!swordComp.shouldSwing || swordComp.sword == null) return;
 		
 		SwingComponent swingComp = Mappers.swing.get(entity);
 		swingComp.timeElapsed += deltaTime;
-		if(swingComp.timeElapsed < swingComp.delay) return;
+		
+		if(!swingComp.shouldSwing || swingComp.timeElapsed < swingComp.delay) return;
 		
 		final Body myBody = Mappers.body.get(entity).body;
 		final FacingComponent facingComp = Mappers.facing.get(entity);
@@ -138,9 +134,11 @@ public class SwingingSystem extends IteratingSystem{
 			}
 		}
 		
-		SwordStatsComponent swordStats = Mappers.swordStats.get(swordComp.sword);
 		for(Entity e : hitEntities){
-			DamageHandler.dealDamage(entity, e, swordStats.damage, swingComp.knockBackDistance, facingComp.facingRight ? 0.0f : 180);
+			DamageHandler.dealDamage(entity, e, swingComp.damage, swingComp.knockback, facingComp.facingRight ? 0.0f : 180);
+			for(EffectDef effect : swingComp.effects){
+				effect.give(e);
+			}
 		}
 		
 		// Knight stuff
@@ -150,7 +148,6 @@ public class SwingingSystem extends IteratingSystem{
 			knightComp.hitEnemies.addAll(hitEntities);
 		}
 		swingComp.timeElapsed = 0.0f;
-		swordComp.shouldSwing = false;
-		
+		swingComp.shouldSwing = false;
 	}
 }

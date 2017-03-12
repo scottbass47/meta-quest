@@ -71,10 +71,8 @@ public class Mappers {
 	public static final ComponentMapper<JumpComponent> jump = ComponentMapper.getFor(JumpComponent.class);
 	public static final ComponentMapper<CameraComponent> camera = ComponentMapper.getFor(CameraComponent.class);
 	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
-	public static final ComponentMapper<SwordComponent> sword = ComponentMapper.getFor(SwordComponent.class);
 	public static final ComponentMapper<SwingComponent> swing = ComponentMapper.getFor(SwingComponent.class);
 	public static final ComponentMapper<HealthComponent> heatlh = ComponentMapper.getFor(HealthComponent.class);
-	public static final ComponentMapper<SwordStatsComponent> swordStats = ComponentMapper.getFor(SwordStatsComponent.class);
 	public static final ComponentMapper<BulletStatsComponent> bulletStats = ComponentMapper.getFor(BulletStatsComponent.class);
 	public static final ComponentMapper<TypeComponent> type = ComponentMapper.getFor(TypeComponent.class);
 	public static final ComponentMapper<AttackComponent> attack = ComponentMapper.getFor(AttackComponent.class);

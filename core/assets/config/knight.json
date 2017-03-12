@@ -8,6 +8,7 @@
 	health: 100,
 	sword_damage: 50,
 	sword_delay: 0.25,
+	sword_knockback: 3.5,
 	
 	// Chaining
 	max_chains: 1,
@@ -37,6 +38,8 @@
 	
 	// Overhead Swing
 	overhead_swing_cooldown: 1.0,
+	overhead_swing_damage: 10,
+	overhead_swing_knockback: 5,
 	
 	// Slam
 	slam_cooldown: 1.0,

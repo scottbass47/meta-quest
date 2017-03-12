@@ -10,7 +10,6 @@ import com.fullspectrum.component.LadderComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.SwingComponent;
-import com.fullspectrum.component.SwordComponent;
 import com.fullspectrum.component.WallComponent;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityStates;
@@ -178,25 +177,24 @@ public class StateFactory {
 		 * @param duration
 		 * @return
 		 */
-		public EntityStateBuilder swingAttack(Entity sword, float rx, float ry, float startAngle, float endAngle, float delay, float knockBackDistance){
+		public EntityStateBuilder swingAttack(float rx, float ry, float startAngle, float endAngle, float delay, float damage, float knockback){
 			esm.createState(EntityStates.SWING_ATTACK)
 				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(SwordComponent.class).set(sword))
-				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle, delay, knockBackDistance))
+				.add(engine.createComponent(SwingComponent.class).set(rx, ry, startAngle, endAngle, delay, damage, knockback))
 				.addAnimation(EntityAnim.SWING)
 				.addTag(TransitionTag.GROUND_STATE)
 				.addTag(TransitionTag.STATIC_STATE)
-				.addChangeListener(new StateChangeListener(){
+				.addChangeListener(new StateChangeListener() {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
-						// Setup Sword Swing
-						Mappers.sword.get(entity).shouldSwing = true;
+						Mappers.swing.get(entity).shouldSwing = true;
 					}
-	
+					
 					@Override
 					public void onExit(State nextState, Entity entity) {
+						
 					}
 				});
 			return this;
