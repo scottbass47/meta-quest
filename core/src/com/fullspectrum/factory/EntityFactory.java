@@ -1,7 +1,5 @@
 package com.fullspectrum.factory;
 
-import static com.fullspectrum.game.GameVars.PPM_INV;
-
 import java.util.Comparator;
 
 import com.badlogic.ashley.core.Engine;
@@ -281,7 +279,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
 		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
 		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
-		animMap.put(EntityAnim.PARRY, assets.getSpriteAnimation(Assets.KNIGHT_PARRY));
+		animMap.put(EntityAnim.PARRY_BLOCK, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_BLOCK));
 		animMap.put(EntityAnim.PARRY_SWING, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_SWING));
 		animMap.put(EntityAnim.KICK, assets.getSpriteAnimation(Assets.KNIGHT_KICK));
 		animMap.put(EntityAnim.OVERHEAD_SWING, assets.getSpriteAnimation(Assets.KNIGHT_OVERHEAD_SWING));
@@ -304,9 +302,12 @@ public class EntityFactory {
 		
 		ParryAbility parryAbility = new ParryAbility(
 				knightStats.get("parry_cooldown"), 
-				Actions.ABILITY_2,
-				knightStats.get("parry_max_time"));
-		parryAbility.deactivate();
+				Actions.ABILITY_1,
+				knightStats.get("parry_max_time"),
+				knightStats.get("parry_stun_duration"),
+				animMap.get(EntityAnim.PARRY_SWING),
+				engine.createComponent(SwingComponent.class)
+					.set(3.0f, 2.0f, 90, -135, 4 * GameVars.ANIM_FRAME, 0.0f, knightStats.get("parry_knockback")));
 		
 		KickAbility kickAbility = new KickAbility(
 				knightStats.get("kick_cooldown"), 
@@ -316,14 +317,15 @@ public class EntityFactory {
 				knightStats.get("kick_knockback"), 
 				knightStats.get("kick_damage"),
 				animMap.get(EntityAnim.KICK));
+		kickAbility.deactivate();
 		
 		OverheadSwingAbility overheadSwingAbility = new OverheadSwingAbility(
 				knightStats.get("overhead_swing_cooldown"),
 				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.OVERHEAD_SWING),
 				engine.createComponent(SwingComponent.class).set(
-						8.0f, 
-						3.5f, 
+						knightStats.get("overhead_swing_rx"), 
+						knightStats.get("overhead_swing_ry"), 
 						120.0f, 
 						-40.0f, 
 						9 * GameVars.ANIM_FRAME,
@@ -341,6 +343,7 @@ public class EntityFactory {
 				knightStats.get("slam_stun_duration"));
 		
 		// Player Related Components
+		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		knight.add(engine.createComponent(MoneyComponent.class));
 		knight.add(engine.createComponent(PlayerComponent.class));
 		knight.add(engine.createComponent(BarrierComponent.class)
@@ -794,6 +797,7 @@ public class EntityFactory {
 			}
 		};
 		
+		// BUG Attacking is NOT blocking
 		MultiTransition exitChaining = new MultiTransition(maxChain).or(enemyNotHit).or(Transitions.TIME, new TimeTransitionData(0.3f));
 		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackPress).and(Transitions.TIME, new TimeTransitionData(knightStats.get("sword_delay")));
 		
@@ -806,16 +810,14 @@ public class EntityFactory {
 		
 		// ******************************************
 		
-		esm.createState(EntityStates.PARRY)
+		esm.createState(EntityStates.PARRY_BLOCK)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
-			.addAnimation(EntityAnim.PARRY);
+			.addAnimation(EntityAnim.PARRY_BLOCK);
 		
 		esm.createState(EntityStates.PARRY_SWING)
-			.add(engine.createComponent(GroundMovementComponent.class))
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-			.add(engine.createComponent(DirectionComponent.class))
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_parry_swing"))
 			.addAnimation(EntityAnim.PARRY_SWING);
 		
 		esm.createState(EntityStates.KICK)
@@ -976,6 +978,7 @@ public class EntityFactory {
 			.build();
 		
 		// Player Related Components
+		rogue.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		rogue.add(engine.createComponent(MoneyComponent.class));
 		rogue.add(engine.createComponent(PlayerComponent.class));
 		rogue.add(engine.createComponent(BarrierComponent.class)
@@ -1326,6 +1329,7 @@ public class EntityFactory {
 			.build();
 		
 		// Player Related Components
+		mage.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		mage.add(engine.createComponent(MoneyComponent.class));
 		mage.add(engine.createComponent(PlayerComponent.class));
 		mage.add(engine.createComponent(BarrierComponent.class)

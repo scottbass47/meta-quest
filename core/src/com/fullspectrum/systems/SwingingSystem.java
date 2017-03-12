@@ -37,13 +37,13 @@ public class SwingingSystem extends IteratingSystem{
 	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		// CLEANUP Should the sword control the swing or the sword wielder? Will swords exists without parents?
 		LevelComponent levelComp = Mappers.level.get(entity);
-		
 		SwingComponent swingComp = Mappers.swing.get(entity);
-		swingComp.timeElapsed += deltaTime;
 		
-		if(!swingComp.shouldSwing || swingComp.timeElapsed < swingComp.delay) return;
+		if(!swingComp.shouldSwing) return;
+		
+		swingComp.timeElapsed += deltaTime;
+		if(swingComp.timeElapsed < swingComp.delay) return;
 		
 		final Body myBody = Mappers.body.get(entity).body;
 		final FacingComponent facingComp = Mappers.facing.get(entity);

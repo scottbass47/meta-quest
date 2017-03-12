@@ -91,6 +91,7 @@ public class ConsoleCommands extends CommandExecutor {
 		spawn(type, 1, on_click);
 	}
 	
+	// BUG Huge lag spike when spawning in 50 ai_players on click
 	public void spawn(String type, int amount, boolean on_click){
 		EntityIndex index = EntityIndex.get(type);
 		if(index == null){

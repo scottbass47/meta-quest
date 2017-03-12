@@ -29,6 +29,14 @@ public class ImmuneComponent implements Component, Poolable{
 		return immuneTo.contains(type);
 	}
 	
+	public ObjectSet<EffectType> getImmunities(){
+		return immuneTo;
+	}
+	
+	public void setImmunies(ObjectSet<EffectType> immunities){
+		this.immuneTo = immunities;
+	}
+	
 	@Override
 	public void reset() {
 		immuneTo = null;

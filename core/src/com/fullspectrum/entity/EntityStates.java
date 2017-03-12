@@ -23,7 +23,7 @@ public enum EntityStates implements State{
 	KNOCK_BACK,
 	BASE_ATTACK,
 	CLEAN_UP,
-	PARRY,
+	PARRY_BLOCK,
 	PARRY_SWING,
 	FLYING,
 	KICK,

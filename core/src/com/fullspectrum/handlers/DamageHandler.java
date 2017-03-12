@@ -5,6 +5,9 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlinkComponent;
@@ -21,6 +24,7 @@ import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.debug.DebugVars;
+import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.DropFactory;
@@ -44,12 +48,28 @@ public class DamageHandler {
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 
-		if (amount < 1.0f || (MathUtils.isEqual(healthComp.health, 0.0f))) return;
+		if (MathUtils.isEqual(healthComp.health, 0.0f)) return;
 
+		// CLEANUP Why is knockback being handled in the damage handler?
+		if (knockBackDistance > 0) {
+			Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
+		}
+		
+		if(amount < 1.0f) return;
+		
 		if (Mappers.inviciblity.get(toEntity) != null){
 			if(Mappers.inviciblity.get(toEntity).isInvincible(toEntity, fromEntity)) return;
 		}
 		if (Mappers.player.get(toEntity) != null) {
+			// Check for parry
+			Ability ability = Mappers.ability.get(toEntity).getAbility(AbilityType.PARRY);
+			if(ability != null && ability.inUse()){
+				ParryAbility parryAbility = (ParryAbility)ability;
+				if(parryAbility.readyToBlock()){
+					parryAbility.parry(fromEntity);
+					return;
+				}
+			}
 			if(DebugVars.PLAYER_INVINCIBILITY) return;
 			float duration = 1.0f;
 			Mappers.inviciblity.get(toEntity).add(InvincibilityType.ALL);
@@ -107,10 +127,6 @@ public class DamageHandler {
 			if(moneyComp != null && moneyComp.money > 0){
 				DropFactory.spawnCoins(toEntity);
 			}
-		}
-
-		if (knockBackDistance > 0 && Mappers.player.get(toEntity) == null) {
-			Effects.giveKnockBack(toEntity, knockBackDistance, knockBackAngle);
 		}
 
 		float x = body.getPosition().x;

@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugRender;
@@ -27,6 +29,7 @@ public class KickAbility extends AnimationAbility{
 	private float knockback;
 	private float damage;
 	private boolean hasKicked = false;
+	private ObjectSet<EffectType> immunities;
 	
 	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
 		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation, true);
@@ -40,6 +43,7 @@ public class KickAbility extends AnimationAbility{
 		this.range = range;
 		this.knockback = knockback;
 		this.damage = damage;
+		immunities = new ObjectSet<EffectType>();
 	}
 
 	@Override
@@ -95,6 +99,8 @@ public class KickAbility extends AnimationAbility{
 
 	@Override
 	public void init(Entity entity) {
+		ImmuneComponent immuneComp = Mappers.immune.get(entity);
+		immunities = immuneComp.getImmunities();
 		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.KICK).changeState(EntityStates.KICK);
 		Mappers.facing.get(entity).locked = true;
@@ -102,7 +108,7 @@ public class KickAbility extends AnimationAbility{
 
 	@Override
 	public void destroy(Entity entity) {
-		Mappers.immune.get(entity).remove(EffectType.KNOCKBACK).remove(EffectType.STUN);
+		Mappers.immune.get(entity).setImmunies(immunities);
 		Mappers.esm.get(entity).get(EntityStates.KICK).changeState(EntityStates.IDLING);
 		Mappers.facing.get(entity).locked = false;
 		hasKicked = false;

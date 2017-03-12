@@ -70,7 +70,7 @@ public class Assets {
 	public static final String KNIGHT_APEX = "knight_apex";
 	public static final String KNIGHT_FALL = "knight_fall";
 	public static final String KNIGHT_LAND = "knight_land";
-	public static final String KNIGHT_PARRY = "knight_parry";
+	public static final String KNIGHT_PARRY_BLOCK = "knight_parry_block";
 	public static final String KNIGHT_PARRY_SWING = "knight_parry_swing";
 	public static final String KNIGHT_KICK = "knight_kick";
 	public static final String KNIGHT_OVERHEAD_SWING = "knight_overhead_swing";

@@ -7,9 +7,11 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.component.LevelComponent;
@@ -31,7 +33,8 @@ public class SlamAbility extends AnimationAbility{
 	private float range;
 	private float damage;
 	private float knockback;
-	private float stunDuration;
+	private float stunDuration;	
+	private ObjectSet<EffectType> immunities;
 	
 	public SlamAbility(float cooldown, Actions input, Animation slamAnimation, int frameNum, float range, float damage, float knockback, float stunDuration) {
 		super(AbilityType.SLAM, Assets.getInstance().getHUDElement(Assets.SLAM_ICON), cooldown, input, slamAnimation, true);
@@ -46,12 +49,14 @@ public class SlamAbility extends AnimationAbility{
 		this.damage = damage;
 		this.knockback = knockback;
 		this.stunDuration = stunDuration;
+		immunities = new ObjectSet<EffectType>();
 	}
 
 	@Override
 	public void init(Entity entity) {
-		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
-		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.SLAM);
+		ImmuneComponent immuneComp = Mappers.immune.get(entity);
+		immunities = immuneComp.getImmunities();
+		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.SLAM);
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}
@@ -112,7 +117,7 @@ public class SlamAbility extends AnimationAbility{
 
 	@Override
 	public void destroy(Entity entity) {
-		Mappers.immune.get(entity).remove(EffectType.KNOCKBACK).remove(EffectType.STUN);
+		Mappers.immune.get(entity).setImmunies(immunities);
 		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.IDLING);
 		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
