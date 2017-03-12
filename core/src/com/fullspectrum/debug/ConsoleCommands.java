@@ -11,6 +11,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
@@ -113,6 +114,12 @@ public class ConsoleCommands extends CommandExecutor {
 		} 
 	}
 	
+	public void respawn(){
+		if(!EntityUtils.isValid(player)){
+			level.getManager().spawnPlayer(level);
+		}
+	}
+	
 	public void kill(){
 		LevelHelper helper = Mappers.level.get(player).levelHelper;
 		Array<Entity> entities = helper.getEntities(new EntityGrabber() {
@@ -177,6 +184,8 @@ public class ConsoleCommands extends CommandExecutor {
 			console.log("    type - entity type (EntityIndex name).");
 			console.log("    amount - number of entities to spawn (default value is 1).");
 			console.log("    on_click - true/false value for whether or not on click spawning is enabled (default value is false).");
+		} else if(function.equalsIgnoreCase("respawn")){
+			console.log("Respawns the player if the player is dead.");
 		}
 		console.log("");
 	}

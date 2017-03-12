@@ -100,18 +100,8 @@ public class LevelManager{
 		}
 		
 		// 6. Spawn in player
-		Entity player = null;
-		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
-			player = EntityIndex.KNIGHT.create(engine, world, newLevel, newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
-			player.getComponent(InputComponent.class).set(input);
-			engine.addEntity(player);
-			this.player = player;
-		}else{
-			player = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
-		}
+		spawnPlayer(newLevel);
 		Body body = Mappers.body.get(player).body;
-		body.setTransform(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y, 0.0f);
-		Mappers.level.get(player).level = newLevel;
 		
 		// 7. Initialize camera (zoom, position, bounds, etc...)
 		CameraComponent cameraComp = Mappers.camera.get(camera);
@@ -131,6 +121,25 @@ public class LevelManager{
 			previous = currentLevel.getInfo();
 		}
 		currentLevel = newLevel;
+	}
+	
+	@SuppressWarnings("unchecked")
+	public void spawnPlayer(Level newLevel){
+		Entity player = null;
+		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
+			player = EntityIndex.KNIGHT.create(engine, world, newLevel, newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
+			player.getComponent(InputComponent.class).set(input);
+			engine.addEntity(player);
+			this.player = player;
+		}else{
+			player = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
+		}
+		Body body = Mappers.body.get(player).body;
+		body.setTransform(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y, 0.0f);
+		Mappers.level.get(player).level = newLevel;
+		
+		ConsoleCommands.setPlayer(player);
+		PauseMenu.setPlayer(player);
 	}
 	
 	public void switchHub(Theme theme){

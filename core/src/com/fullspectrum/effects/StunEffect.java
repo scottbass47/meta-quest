@@ -38,7 +38,6 @@ import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.shader.StunShader;
-import com.sun.org.apache.xml.internal.utils.Hashtree2Node;
 
 @SuppressWarnings("unchecked")
 public class StunEffect extends Effect{

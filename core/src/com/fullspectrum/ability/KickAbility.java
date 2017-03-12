@@ -30,6 +30,12 @@ public class KickAbility extends AnimationAbility{
 	
 	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
 		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation, true);
+		setAbilityConstraints(new AbilityConstraints() {
+			@Override
+			public boolean canUse(Ability ability, Entity entity) {
+				return Mappers.collision.get(entity).onGround();
+			}
+		});
 		this.animDelay = animDelay;
 		this.range = range;
 		this.knockback = knockback;

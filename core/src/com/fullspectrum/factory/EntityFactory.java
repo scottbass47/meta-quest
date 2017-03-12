@@ -832,7 +832,7 @@ public class EntityFactory {
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
 
 		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
-		jumpData.triggers.add(new InputTrigger(Actions.JUMP, true));
+		jumpData.triggers.add(new InputTrigger(Actions.JUMP, false));
 
 		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
 		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
