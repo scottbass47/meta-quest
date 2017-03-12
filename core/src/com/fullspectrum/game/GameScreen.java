@@ -630,7 +630,7 @@ public class GameScreen extends AbstractScreen {
 			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
 			float x = startX + (iconWidth + spacing) * counter * spacing;
-			if(ability.isReady() && !ability.isLocked()){
+			if(ability.isReady()){
 				batch.setColor(Color.WHITE);
 			} else{
 				batch.setColor(Color.DARK_GRAY);

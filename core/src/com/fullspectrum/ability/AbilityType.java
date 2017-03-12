@@ -6,5 +6,6 @@ public enum AbilityType {
 	ANTI_MAGNETIC_ARMOR,
 	PARRY,
 	KICK,
-	OVERHEAD_SWING
+	OVERHEAD_SWING,
+	SLAM
 }

@@ -27,7 +27,8 @@ public enum EntityStates implements State{
 	PARRY_SWING,
 	FLYING,
 	KICK,
-	OVERHEAD_SWING;
+	OVERHEAD_SWING,
+	SLAM;
 	
 	@Override
 	public int getIndex() {

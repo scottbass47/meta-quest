@@ -1,11 +1,11 @@
 hud.png
-size: 211, 190
+size: 220, 190
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 anti_magnetic_armor_icon
   rotate: false
-  xy: 193, 10
+  xy: 20, 30
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
@@ -19,21 +19,21 @@ healthbar_empty
   index: -1
 healthbar_full
   rotate: false
-  xy: 71, 0
+  xy: 0, 0
   size: 100, 8
   orig: 100, 8
   offset: 0, 0
   index: -1
 kick_icon
   rotate: false
-  xy: 20, 30
+  xy: 40, 30
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 new_hud
   rotate: false
-  xy: 40, 30
+  xy: 60, 30
   size: 160, 160
   orig: 160, 160
   offset: 0, 0
@@ -47,6 +47,13 @@ overhead_swing_icon
   index: -1
 parry_icon
   rotate: false
+  xy: 193, 10
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+slam_icon
+  rotate: false
   xy: 173, 10
   size: 18, 18
   orig: 18, 18
@@ -54,7 +61,7 @@ parry_icon
   index: -1
 staminabar_empty
   rotate: false
-  xy: 0, 0
+  xy: 102, 0
   size: 69, 8
   orig: 69, 8
   offset: 0, 0

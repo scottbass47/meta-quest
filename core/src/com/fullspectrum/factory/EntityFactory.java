@@ -26,6 +26,7 @@ import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
 import com.fullspectrum.ability.ParryAbility;
+import com.fullspectrum.ability.SlamAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -286,6 +287,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.PARRY_SWING, assets.getSpriteAnimation(Assets.KNIGHT_PARRY_SWING));
 		animMap.put(EntityAnim.KICK, assets.getSpriteAnimation(Assets.KNIGHT_KICK));
 		animMap.put(EntityAnim.OVERHEAD_SWING, assets.getSpriteAnimation(Assets.KNIGHT_OVERHEAD_SWING));
+		animMap.put(EntityAnim.SLAM, assets.getSpriteAnimation(Assets.KNIGHT_SLAM));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -300,15 +302,17 @@ public class EntityFactory {
 				Actions.ABILITY_1,
 				knightStats.get("anti_magnetic_radius"), 
 				knightStats.get("anti_magnetic_duration"));
+		antiMagneticAbility.deactivate();
 		
 		ParryAbility parryAbility = new ParryAbility(
 				knightStats.get("parry_cooldown"), 
 				Actions.ABILITY_2,
 				knightStats.get("parry_max_time"));
+		parryAbility.deactivate();
 		
 		KickAbility kickAbility = new KickAbility(
 				knightStats.get("kick_cooldown"), 
-				Actions.ABILITY_3,
+				Actions.ABILITY_1,
 				3 * GameVars.ANIM_FRAME, 
 				knightStats.get("kick_range"), 
 				knightStats.get("kick_knockback"), 
@@ -317,10 +321,19 @@ public class EntityFactory {
 		
 		OverheadSwingAbility overheadSwingAbility = new OverheadSwingAbility(
 				knightStats.get("overhead_swing_cooldown"),
-				Actions.ABILITY_1, 
+				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.OVERHEAD_SWING),
 				engine.createComponent(SwingComponent.class).set(8.0f, 3.5f, 120.0f, -40.0f, 9 * GameVars.ANIM_FRAME, 10.0f));
-		overheadSwingAbility.deactivate();
+		
+		SlamAbility slamAbility = new SlamAbility(
+				knightStats.get("slam_cooldown"), 
+				Actions.ABILITY_3, 
+				animMap.get(EntityAnim.SLAM),
+				10,
+				knightStats.get("slam_range"),
+				knightStats.get("slam_damage"),
+				knightStats.get("slam_knockback"),
+				knightStats.get("slam_stun_duration"));
 		
 		// Player Related Components
 		knight.add(engine.createComponent(MoneyComponent.class));
@@ -334,7 +347,8 @@ public class EntityFactory {
 				.add(antiMagneticAbility)
 				.add(parryAbility)
 				.add(kickAbility)
-				.add(overheadSwingAbility));
+				.add(overheadSwingAbility)
+				.add(slamAbility));
 		
 		Entity sword = createSword(engine, world, level, knight, x, y, (int)knightStats.get("sword_damage"));
 		
@@ -808,6 +822,10 @@ public class EntityFactory {
 		esm.createState(EntityStates.OVERHEAD_SWING)
 			.add(engine.createComponent(FrameMovementComponent.class).set("frames_overhead_swing"))
 			.addAnimation(EntityAnim.OVERHEAD_SWING);
+		
+		esm.createState(EntityStates.SLAM)
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_slam"))
+			.addAnimation(EntityAnim.SLAM);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

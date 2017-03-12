@@ -32,6 +32,7 @@ public class Assets {
 	public static final String PARRY_ICON = "parry_icon";
 	public static final String KICK_ICON = "kick_icon";
 	public static final String OVERHEAD_SWING_ICON = "overhead_swing_icon";
+	public static final String SLAM_ICON = "slam_icon";
 	
 	// Kick
 	
@@ -73,6 +74,7 @@ public class Assets {
 	public static final String KNIGHT_PARRY_SWING = "knight_parry_swing";
 	public static final String KNIGHT_KICK = "knight_kick";
 	public static final String KNIGHT_OVERHEAD_SWING = "knight_overhead_swing";
+	public static final String KNIGHT_SLAM = "knight_slam";
 	
 	// Rogue
 	public static final String ROGUE_IDLE = "rogue_idle";

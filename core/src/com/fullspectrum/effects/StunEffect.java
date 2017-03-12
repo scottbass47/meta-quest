@@ -38,6 +38,7 @@ import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.shader.StunShader;
+import com.sun.org.apache.xml.internal.utils.Hashtree2Node;
 
 @SuppressWarnings("unchecked")
 public class StunEffect extends Effect{
@@ -88,6 +89,7 @@ public class StunEffect extends Effect{
 
 	@Override
 	protected void give() {
+		boolean hasKnockback = false;
 		for(int i = 0; i < toEntity.getComponents().size(); i++){
 			Component comp = toEntity.getComponents().get(i);
 			
@@ -103,6 +105,8 @@ public class StunEffect extends Effect{
 				TintComponent tintComp = (TintComponent)comp;
 				tintComp.tint = Color.WHITE;
 			}
+			// HACK Effects don't work well together. You shouldn't have to explicitly check things like this.
+			if(comp instanceof KnockBackComponent) hasKnockback = true;
 			if(requiredComponents.contains(comp.getClass())) continue;
 			if(comp instanceof AbstractSMComponent<?>){
 				AbstractSMComponent<StateMachine<? extends State,? extends StateObject>> smComp = (AbstractSMComponent<StateMachine<? extends State,? extends StateObject>>)comp;
@@ -119,7 +123,9 @@ public class StunEffect extends Effect{
 			i--;
 		}
 		StateMachineSystem.getInstance().updateMachines();
-		if(Mappers.body.get(toEntity) != null) Mappers.body.get(toEntity).body.setLinearVelocity(0.0f, 0.0f);
+		if(Mappers.body.get(toEntity) != null && !hasKnockback){
+			Mappers.body.get(toEntity).body.setLinearVelocity(0.0f, 0.0f);
+		}
 		Mappers.shader.get(toEntity).shader = shader;
 	}
 

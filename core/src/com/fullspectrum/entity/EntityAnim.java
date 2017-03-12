@@ -27,6 +27,7 @@ public enum EntityAnim implements State{
 	FLAPPING,
 	KICK,
 	OVERHEAD_SWING,
+	SLAM,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,
