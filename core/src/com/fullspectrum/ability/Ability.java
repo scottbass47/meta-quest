@@ -4,7 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.input.Actions;
 
-// INCOMPLETE Abilities need to specify whether they are blocking or not
+// IMPORTANT Add in temporary immunities that get added / removed when the ability is initialized and destroyed
 public abstract class Ability {
 
 	// Data
