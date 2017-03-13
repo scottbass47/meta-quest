@@ -2,10 +2,8 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.ForceComponent;
-import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
@@ -19,18 +17,17 @@ public class OverheadSwingAbility extends AnimationAbility{
 	
 	private SwingComponent swing;
 	private boolean forceDown = false;
-	private ObjectSet<EffectType> immunities;
 
 	public OverheadSwingAbility(float cooldown, Actions input, Animation swingAnimation, SwingComponent swing) {
 		super(AbilityType.OVERHEAD_SWING, Assets.getInstance().getHUDElement(Assets.OVERHEAD_SWING_ICON), cooldown, input, swingAnimation, true);
+		this.swing = swing;
 		setAbilityConstraints(new AbilityConstraints() {
 			@Override
 			public boolean canUse(Ability ability, Entity entity) {
 				return Mappers.collision.get(entity).onGround();
 			}
 		});
-		this.swing = swing;
-		immunities = new ObjectSet<EffectType>();
+		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
 	}
 
 	@Override
@@ -39,9 +36,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 		swingComp.set(swing.rx, swing.ry, swing.startAngle, swing.endAngle, swing.delay, swing.damage, swing.knockback).setEffects(swing.effects);
 		swingComp.shouldSwing = true;
 		entity.add(swingComp);
-		ImmuneComponent immuneComp = Mappers.immune.get(entity);
-		immunities = immuneComp.getImmunities();
-		Mappers.immune.get(entity).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.OVERHEAD_SWING);
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
@@ -68,7 +62,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 
 	@Override
 	public void destroy(Entity entity) {
-		Mappers.immune.get(entity).setImmunies(immunities);
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.IDLING);
 		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;

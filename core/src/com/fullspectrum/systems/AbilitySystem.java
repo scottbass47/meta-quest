@@ -30,7 +30,7 @@ public class AbilitySystem extends IteratingSystem {
 			
 			// Trigger the ability
 			if(ability.isReady() && inputComp.input.isJustPressed(ability.getInput()) && ability.canUse(entity)){
-				ability.init(entity);
+				ability.initAbility(entity);
 				ability.resetTimeElapsed();
 				ability.setInUse(true);
 				// If ability is blocking, lock other blocking abilities
@@ -43,7 +43,7 @@ public class AbilitySystem extends IteratingSystem {
 			}
 			
 			if(ability.isDone()){
-				ability.destroy(entity);
+				ability.destroyAbility(entity);
 				ability.setDone(false);
 				ability.setInUse(false);
 				//If ability is blocking, unlock other blocking abilities
@@ -54,7 +54,7 @@ public class AbilitySystem extends IteratingSystem {
 					}
 				}
 			}else if(ability.inUse()){
-				ability.update(entity, deltaTime);
+				ability.updateAbility(entity, deltaTime);
 			}
 		}
 	}

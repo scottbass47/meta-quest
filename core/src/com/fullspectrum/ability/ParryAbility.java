@@ -3,7 +3,6 @@ package com.fullspectrum.ability;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
@@ -37,6 +36,7 @@ public class ParryAbility extends Ability{
 				return Mappers.collision.get(entity).onGround();
 			}
 		});
+		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
 	}
 
 	@Override

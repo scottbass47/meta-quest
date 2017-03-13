@@ -18,6 +18,11 @@ public class ImmuneComponent implements Component, Poolable{
 		return this;
 	}
 	
+	public ImmuneComponent addAll(ObjectSet<EffectType> types){
+		immuneTo.addAll(types);
+		return this;
+	}
+	
 	public ImmuneComponent remove(EffectType type){
 		if(immuneTo.contains(type)){
 			immuneTo.remove(type);

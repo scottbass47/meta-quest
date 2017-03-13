@@ -140,6 +140,8 @@ public class LevelManager{
 		
 		ConsoleCommands.setPlayer(player);
 		PauseMenu.setPlayer(player);
+		
+		Mappers.camera.get(camera).toFollow = player;
 	}
 	
 	public void switchHub(Theme theme){

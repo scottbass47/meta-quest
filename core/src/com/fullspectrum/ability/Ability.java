@@ -2,9 +2,12 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.utils.ObjectSet;
+import com.fullspectrum.component.ImmuneComponent;
+import com.fullspectrum.component.Mappers;
+import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.input.Actions;
 
-// IMPORTANT Add in temporary immunities that get added / removed when the ability is initialized and destroyed
 public abstract class Ability {
 
 	// Data
@@ -14,6 +17,8 @@ public abstract class Ability {
 	private float elapsed = 0.0f;
 	private Actions input;
 	private AbilityConstraints constraints;
+	private ObjectSet<EffectType> tempImmunities;
+	private ObjectSet<EffectType> savedImmunities;
 	
 	// Flags
 	private boolean done = false;
@@ -38,16 +43,38 @@ public abstract class Ability {
 		this.input = input;
 		this.isBlocking = isBlocking;
 		this.constraints = constraints;
+		tempImmunities = new ObjectSet<EffectType>();
+		savedImmunities = new ObjectSet<EffectType>();
+	}
+	
+	public final void initAbility(Entity entity){
+		// Init Immunities
+		ImmuneComponent immuneComp = Mappers.immune.get(entity);
+		savedImmunities.addAll(immuneComp.getImmunities());
+		immuneComp.addAll(tempImmunities);
+		
+		init(entity);
+	}
+	
+	public final void updateAbility(Entity entity, float delta){
+		update(entity, delta);
+	}
+	
+	public final void destroyAbility(Entity entity){
+		// Restore Immunities
+		Mappers.immune.get(entity).setImmunies(savedImmunities);
+		
+		destroy(entity);
 	}
 	
 	/** Called once when ability is first used */
-	public abstract void init(Entity entity);
+	protected abstract void init(Entity entity);
 	
 	/** Called once every update cycle as long as ability is active */
-	public abstract void update(Entity entity, float delta);
+	protected abstract void update(Entity entity, float delta);
 	
 	/** Called once the ability is finished */
-	public abstract void destroy(Entity entity);
+	protected abstract void destroy(Entity entity);
 	
 	public AbilityType getType(){
 		return type;
@@ -139,6 +166,10 @@ public abstract class Ability {
 	
 	public void setAbilityConstraints(AbilityConstraints constraints){
 		this.constraints = constraints;
+	}
+	
+	public void addTemporaryImmunties(EffectType... types){
+		tempImmunities.addAll(types);
 	}
 
 }

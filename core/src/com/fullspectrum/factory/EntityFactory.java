@@ -797,7 +797,7 @@ public class EntityFactory {
 			}
 		};
 		
-		// BUG Attacking is NOT blocking
+		// 
 		MultiTransition exitChaining = new MultiTransition(maxChain).or(enemyNotHit).or(Transitions.TIME, new TimeTransitionData(0.3f));
 		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackPress).and(Transitions.TIME, new TimeTransitionData(knightStats.get("sword_delay")));
 		
@@ -814,24 +814,29 @@ public class EntityFactory {
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.PARRY_BLOCK);
 		
 		esm.createState(EntityStates.PARRY_SWING)
 			.add(engine.createComponent(FrameMovementComponent.class).set("frames_parry_swing"))
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.PARRY_SWING);
 		
 		esm.createState(EntityStates.KICK)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.add(engine.createComponent(DirectionComponent.class))
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.KICK);
 		
 		esm.createState(EntityStates.OVERHEAD_SWING)
 			.add(engine.createComponent(FrameMovementComponent.class).set("frames_overhead_swing"))
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.OVERHEAD_SWING);
 		
 		esm.createState(EntityStates.SLAM)
 			.add(engine.createComponent(FrameMovementComponent.class).set("frames_slam"))
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.SLAM);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
