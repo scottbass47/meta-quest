@@ -426,15 +426,14 @@ public class EntityFactory {
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getIdleAnticipation());
 						}
 					});
+					
+					// Lock Abilities 
+					Mappers.ability.get(entity).lockAllBlocking();
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					// Clean up some things if you are interrupted
-					if(nextState != EntityStates.SWING_ATTACK){
-						KnightComponent knightComp = Mappers.knight.get(entity);
-						knightComp.first = true;
-					}
+					
 				}
 				
 			});
@@ -525,6 +524,9 @@ public class EntityFactory {
 							asm.changeState(Mappers.knight.get(entity).getCurrentAttack().getSwingAnimation());
 						}
 					});
+					
+					// Lock Abilities
+					Mappers.ability.get(entity).lockAllBlocking();
 				}
 
 				@Override
@@ -532,12 +534,6 @@ public class EntityFactory {
 					Mappers.body.get(entity).body.setBullet(false);
 					Mappers.body.get(entity).body.setGravityScale(0.2f);
 					entity.remove(SwingComponent.class);
-					
-					// Need to do more clean up if the chain attack is interrupted
-					if(nextState != EntityStates.SWING_ANTICIPATION){
-						KnightComponent knightComp = Mappers.knight.get(entity);
-						knightComp.first = true;
-					}
 				}
 			});
 		
@@ -574,6 +570,7 @@ public class EntityFactory {
 						
 						Mappers.body.get(entity).body.setGravityScale(1.0f);
 						Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+						Mappers.ability.get(entity).unlockAllBlocking();
 					}else{
 						Mappers.knight.get(entity).chains++;
 					}

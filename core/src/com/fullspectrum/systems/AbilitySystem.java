@@ -35,10 +35,8 @@ public class AbilitySystem extends IteratingSystem {
 				ability.setInUse(true);
 				// If ability is blocking, lock other blocking abilities
 				if(ability.isBlocking()){
-					for(int i = 0; i < abilityComp.getAbilityMap().size; i++){
-						Ability ab = abilityComp.getAbilityMap().getValueAt(i);
-						if(ab.isBlocking()) ab.lock();
-					}
+					abilityComp.lockAllBlocking();
+					ability.unlock();
 				}
 			}
 			
@@ -48,10 +46,7 @@ public class AbilitySystem extends IteratingSystem {
 				ability.setInUse(false);
 				//If ability is blocking, unlock other blocking abilities
 				if(ability.isBlocking()){
-					for(int i = 0; i < abilityComp.getAbilityMap().size; i++){
-						Ability ab = abilityComp.getAbilityMap().getValueAt(i);
-						if(ab.isBlocking()) ab.unlock();
-					}
+					abilityComp.unlockAllBlocking();
 				}
 			}else if(ability.inUse()){
 				ability.updateAbility(entity, deltaTime);

@@ -47,6 +47,7 @@ import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
+import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityUtils;
