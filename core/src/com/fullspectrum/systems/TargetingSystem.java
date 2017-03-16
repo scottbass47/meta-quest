@@ -8,8 +8,8 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugVars;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.LevelHelper;
+import com.fullspectrum.utils.EntityUtils;
 
 public class TargetingSystem extends IteratingSystem{
 	

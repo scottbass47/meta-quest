@@ -6,8 +6,8 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -31,6 +31,7 @@ import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.AISMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
+import com.fullspectrum.component.BlacksmithComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
@@ -47,10 +48,8 @@ import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugRender.RenderMode;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
-import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
@@ -99,6 +98,7 @@ import com.fullspectrum.systems.TextRenderingSystem;
 import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
+import com.fullspectrum.utils.EntityUtils;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 
@@ -687,6 +687,13 @@ public class GameScreen extends AbstractScreen {
 		font.setColor(Color.WHITE);
 		layout.setText(font, "" + moneyComp.money);
 		font.draw(batch, "" + moneyComp.money, GameVars.SCREEN_WIDTH * 0.5f - 10, coinY + layout.height * 0.5f + 2.0f);
+
+		if(Mappers.blacksmith.get(entity) != null){
+			BlacksmithComponent blacksmithComp = Mappers.blacksmith.get(entity);
+			String toDraw = "Blacksmith: " + (int)blacksmithComp.shield;
+			layout.setText(font, toDraw);
+			font.draw(batch, toDraw, GameVars.SCREEN_WIDTH * 0.5f - 40, 30);
+		}
 		
 		batch.end();
 	}

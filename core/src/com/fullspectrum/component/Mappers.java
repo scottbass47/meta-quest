@@ -81,6 +81,7 @@ public class Mappers {
 	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);
 	public static final ComponentMapper<DropComponent> drop = ComponentMapper.getFor(DropComponent.class);
 	public static final ComponentMapper<BarrierComponent> barrier = ComponentMapper.getFor(BarrierComponent.class);
+	public static final ComponentMapper<BlacksmithComponent> blacksmith = ComponentMapper.getFor(BlacksmithComponent.class);
 	public static final ComponentMapper<WallComponent> wall = ComponentMapper.getFor(WallComponent.class);
 	public static final ComponentMapper<CombustibleComponent> combustible = ComponentMapper.getFor(CombustibleComponent.class);
 	public static final ComponentMapper<KnockBackComponent> knockBack = ComponentMapper.getFor(KnockBackComponent.class);

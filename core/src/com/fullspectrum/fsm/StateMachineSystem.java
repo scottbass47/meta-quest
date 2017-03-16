@@ -11,9 +11,9 @@ import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.FSMComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionSystem;
+import com.fullspectrum.utils.EntityUtils;
 
 public class StateMachineSystem extends TransitionSystem {
 

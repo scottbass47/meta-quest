@@ -10,7 +10,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.entity.EntityUtils;
+import com.fullspectrum.utils.EntityUtils;
 
 public class RelativePositioningSystem extends IteratingSystem{
 

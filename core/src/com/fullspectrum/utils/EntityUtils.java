@@ -1,6 +1,8 @@
-package com.fullspectrum.entity;
+package com.fullspectrum.utils;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.fullspectrum.component.Mappers;
 
 public class EntityUtils {
 	
@@ -21,5 +23,12 @@ public class EntityUtils {
 		else{
 			entity.flags &= ~VALID;
 		}
+	}
+	
+	public static <T extends Component> T lazyAdd(Entity entity, Class<T> component){
+		if(entity.getComponent(component) == null){
+			entity.add(Mappers.engine.get(entity).engine.createComponent(component));
+		}
+		return entity.getComponent(component);
 	}
 }

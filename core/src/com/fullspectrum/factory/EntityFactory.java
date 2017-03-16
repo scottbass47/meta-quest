@@ -20,6 +20,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
+import com.fullspectrum.ability.BlacksmithAbility;
 import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
@@ -341,6 +342,15 @@ public class EntityFactory {
 				knightStats.get("slam_damage"),
 				knightStats.get("slam_knockback"),
 				knightStats.get("slam_stun_duration"));
+		slamAbility.deactivate();
+		
+		BlacksmithAbility blacksmithAbility = new BlacksmithAbility(
+				knightStats.get("blacksmith_cooldown"), 
+				Actions.ABILITY_3, 
+				knightStats.get("blacksmith_duration"),
+				knightStats.get("blacksmith_conversion_chance"), 
+				knightStats.get("blacksmith_conversion_percent"), 
+				knightStats.get("blacksmith_max_shield"));
 		
 		// Player Related Components
 		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
@@ -356,7 +366,8 @@ public class EntityFactory {
 				.add(parryAbility)
 				.add(kickAbility)
 				.add(overheadSwingAbility)
-				.add(slamAbility));
+				.add(slamAbility)
+				.add(blacksmithAbility));
 		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class).set((int)knightStats.get("max_chains"));
 		

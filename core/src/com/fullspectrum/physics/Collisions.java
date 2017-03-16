@@ -10,8 +10,8 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.handlers.DamageHandler;
+import com.fullspectrum.utils.EntityUtils;
 
 public enum Collisions {
 

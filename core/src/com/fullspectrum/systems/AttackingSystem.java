@@ -10,8 +10,8 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.input.Actions;
+import com.fullspectrum.utils.EntityUtils;
 
 public class AttackingSystem extends IteratingSystem{
 

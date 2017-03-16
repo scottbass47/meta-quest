@@ -18,6 +18,7 @@ import com.fullspectrum.fsm.StateChangeDef;
 import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateObject;
 import com.fullspectrum.physics.PhysicsDef;
+import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityManager {

@@ -7,9 +7,11 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.BlacksmithAbility;
 import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BarrierComponent;
+import com.fullspectrum.component.BlacksmithComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
@@ -30,6 +32,7 @@ import com.fullspectrum.factory.DropFactory;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.shader.HurtShader;
 import com.fullspectrum.shader.Shader;
+import com.fullspectrum.utils.Maths;
 
 public class DamageHandler {
 	
@@ -45,6 +48,7 @@ public class DamageHandler {
 		LevelComponent levelComp = Mappers.level.get(toEntity);
 		HealthComponent healthComp = Mappers.heatlh.get(toEntity);
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
+		BlacksmithComponent blacksmithComp = Mappers.blacksmith.get(toEntity);
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
 		Body body = bodyComp.body;
 
@@ -70,6 +74,18 @@ public class DamageHandler {
 					return;
 				}
 			}
+			
+			// Check for blacksmith
+			ability = Mappers.ability.get(toEntity).getAbility(AbilityType.BLACKSMITH);
+			if(ability != null && ability.inUse()){
+				BlacksmithAbility blacksmithAbility = (BlacksmithAbility)ability;
+				if(MathUtils.random() <= blacksmithAbility.getConversionChance()){
+					// convert into shield
+					blacksmithAbility.convertIntoShield(amount);
+					return;
+				}
+			}
+			
 			if(DebugVars.PLAYER_INVINCIBILITY) return;
 			float duration = 1.0f;
 			Mappers.inviciblity.get(toEntity).add(InvincibilityType.ALL);
@@ -101,22 +117,37 @@ public class DamageHandler {
 
 		float half = 0.25f * amount * 0.5f;
 		amount += MathUtils.random(-half, half);
-		int dealt = (int) MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0));
+		float dealt = MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0) + (blacksmithComp != null ? blacksmithComp.shield : 0));
 
-		int healthDown = 0;
-		int shieldDown = 0;
+		float healthDown = 0;
+		float shieldDown = 0;
 		
-		if (barrierComp != null) {
-			barrierComp.barrier = (int)(barrierComp.barrier - dealt);
-			shieldDown = dealt;
-			if (barrierComp.barrier < 0) {
-				shieldDown = dealt - (int) Math.abs(barrierComp.barrier);
-				dealt = (int) Math.abs(barrierComp.barrier);
-				barrierComp.barrier = 0.0f;
+		// CLEANUP System can be made more robust (only considering three components now)
+		if(blacksmithComp != null){
+			float overflow = Maths.getOverflow(dealt, blacksmithComp.shield);
+			float before = blacksmithComp.shield;
+			if(overflow > 0){
+				shieldDown += blacksmithComp.shield;
+				blacksmithComp.shield = 0.0f;
+				toEntity.remove(BlacksmithComponent.class);
+			} else {
+				shieldDown += dealt;
+				blacksmithComp.shield -= dealt;
 			}
-			else {
-				dealt = 0;
+			dealt -= before - blacksmithComp.shield;
+		}
+		
+		if (barrierComp != null && dealt > 0) {
+			float overflow = Maths.getOverflow(dealt, barrierComp.barrier);
+			float before = barrierComp.barrier;
+			if(overflow > 0){
+				shieldDown += barrierComp.barrier;
+				barrierComp.barrier = 0;
+			} else {
+				shieldDown += dealt;
+				barrierComp.barrier -= dealt;
 			}
+			dealt -= before - barrierComp.barrier;
 			barrierComp.timeElapsed = 0.0f;
 		}
 		healthDown = dealt;
@@ -132,15 +163,18 @@ public class DamageHandler {
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		BitmapFont font = Assets.getInstance().getFont(Assets.font18);
-		if (shieldDown > 0 && healthDown > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x - 0.5f, y, 2.0f));
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x + 0.5f, y, 2.0f));
+		
+		int displayShield = (int) shieldDown;
+		int displayHealth = (int) healthDown;
+		if (displayShield > 0 && displayHealth > 0) {
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayShield, Color.BLUE, font, x - 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayHealth, Color.RED, font, x + 0.5f, y, 2.0f));
 		}
-		else if (shieldDown > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + shieldDown, Color.BLUE, font, x, y, 2.0f));
+		else if (displayShield > 0) {
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayShield, Color.BLUE, font, x, y, 2.0f));
 		}
 		else {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + healthDown, Color.RED, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayHealth, Color.RED, font, x, y, 2.0f));
 		}
 	}
 

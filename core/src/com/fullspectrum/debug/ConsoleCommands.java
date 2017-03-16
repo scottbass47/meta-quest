@@ -11,10 +11,10 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityIndex;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
+import com.fullspectrum.utils.EntityUtils;
 import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.HiddenCommand;
 import com.strongjoshua.console.LogLevel;
@@ -85,10 +85,6 @@ public class ConsoleCommands extends CommandExecutor {
 	// INCOMPLETE Add in navmesh and flow field generation for enemies it
 	public void spawn(String type, int amount){
 		spawn(type, amount, false);
-	}
-	
-	public void spawn(String type, boolean on_click){
-		spawn(type, 1, on_click);
 	}
 	
 	// BUG Huge lag spike when spawning in 50 ai_players on click

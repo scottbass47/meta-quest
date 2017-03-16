@@ -10,9 +10,9 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.debug.DebugVars;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
+import com.fullspectrum.utils.EntityUtils;
 
 public class FollowingSystem extends IteratingSystem{
 

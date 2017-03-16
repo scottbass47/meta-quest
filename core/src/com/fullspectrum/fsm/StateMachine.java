@@ -12,12 +12,12 @@ import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
+import com.fullspectrum.utils.EntityUtils;
 
 // TODO Allow for modification of transition data after adding transitions
 // TODO Add in 'not' option for transitions

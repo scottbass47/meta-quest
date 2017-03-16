@@ -14,10 +14,10 @@ import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Input;
+import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.StringUtils;
 
 public enum Transitions implements Transition{

@@ -13,8 +13,8 @@ import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityUtils;
 import com.fullspectrum.handlers.DamageHandler;
+import com.fullspectrum.utils.EntityUtils;
 
 public enum Sensors {
 

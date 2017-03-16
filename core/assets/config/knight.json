@@ -50,5 +50,12 @@
 	slam_range: 6.0,
 	slam_damage: 50.0,
 	slam_knockback: 7.5,
-	slam_stun_duration: 5.0
+	slam_stun_duration: 5.0,
+	
+	// Blacksmith
+	blacksmith_cooldown: 1.0,
+	blacksmith_duration: 10.0,
+	blacksmith_conversion_chance: 0.9,
+	blacksmith_conversion_percent: 0.2,
+	blacksmith_max_shield: 1000
 }

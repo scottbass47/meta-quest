@@ -33,9 +33,11 @@ public class Assets {
 	public static final String KICK_ICON = "kick_icon";
 	public static final String OVERHEAD_SWING_ICON = "overhead_swing_icon";
 	public static final String SLAM_ICON = "slam_icon";
-	
-	// Kick
-	
+	public static final String BLACKSMITH_ICON = "anti_magnetic_armor_icon";
+	public static final String SPIN_SLICE_ICON = "spin_slice_icon";
+	public static final String DASH_SLASH_ICON = "dash_slash_icon";
+	public static final String TORNADO_ICON = "tornado_icon";
+
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
 	
