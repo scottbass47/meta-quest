@@ -21,6 +21,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.BlacksmithAbility;
+import com.fullspectrum.ability.DashSlashAbility;
 import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
@@ -285,6 +286,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.KICK, assets.getSpriteAnimation(Assets.KNIGHT_KICK));
 		animMap.put(EntityAnim.OVERHEAD_SWING, assets.getSpriteAnimation(Assets.KNIGHT_OVERHEAD_SWING));
 		animMap.put(EntityAnim.SLAM, assets.getSpriteAnimation(Assets.KNIGHT_SLAM));
+		animMap.put(EntityAnim.DASH, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -351,6 +353,16 @@ public class EntityFactory {
 				knightStats.get("blacksmith_conversion_chance"), 
 				knightStats.get("blacksmith_conversion_percent"), 
 				knightStats.get("blacksmith_max_shield"));
+		blacksmithAbility.deactivate();
+		
+		// INCOMPLETE Make it so dash slash can be used in conjunction with chaining
+		DashSlashAbility dashSlashAbility = new DashSlashAbility(
+				knightStats.get("dash_slash_cooldown"),
+				Actions.ABILITY_3, 
+				knightStats.get("dash_slash_duration"),
+				knightStats.get("dash_slash_distance"),
+				knightStats.get("dash_slash_damage"),
+				knightStats.get("dash_slash_knock_up"));
 		
 		// Player Related Components
 		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
@@ -367,7 +379,8 @@ public class EntityFactory {
 				.add(kickAbility)
 				.add(overheadSwingAbility)
 				.add(slamAbility)
-				.add(blacksmithAbility));
+				.add(blacksmithAbility)
+				.add(dashSlashAbility));
 		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class).set((int)knightStats.get("max_chains"));
 		
@@ -846,6 +859,10 @@ public class EntityFactory {
 			.add(engine.createComponent(FrameMovementComponent.class).set("frames_slam"))
 			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.SLAM);
+		
+		esm.createState(EntityStates.DASH)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.DASH);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

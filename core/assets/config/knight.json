@@ -57,5 +57,13 @@
 	blacksmith_duration: 10.0,
 	blacksmith_conversion_chance: 0.9,
 	blacksmith_conversion_percent: 0.2,
-	blacksmith_max_shield: 1000
+	blacksmith_max_shield: 1000,
+	
+	// Dash Slash
+	dash_slash_cooldown: 1.0,
+	dash_slash_duration: 0.2,
+	dash_slash_distance: 7.5,
+	dash_slash_damage: 25,
+	dash_slash_knock_up: 5.0,
+	
 }

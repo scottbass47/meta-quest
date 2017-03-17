@@ -75,7 +75,6 @@ public class BlacksmithAbility extends TimedAbility{
 			actualGained += blacksmithComp.shield - before;
 		}
 		// INCOMPLETE Render text? (actualGained)
-		System.out.println("Gained " + actualGained + " shield points.");
 	}
 
 }
