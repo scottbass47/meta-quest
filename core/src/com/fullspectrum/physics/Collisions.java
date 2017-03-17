@@ -91,6 +91,7 @@ public enum Collisions {
 			
 		}
 	},
+	// BUG Multiple fixtures on same entity can get triggered, damaging an entity more than it should
 	DAMAGE_ON_CONTACT {
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {

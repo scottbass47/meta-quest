@@ -41,7 +41,6 @@ public class DamageHandler {
 	private DamageHandler() {
 	}
 
-	// IMPORTANT Health should be a float
 	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackAngle) {
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
 		WorldComponent worldComp = Mappers.world.get(toEntity);

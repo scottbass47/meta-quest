@@ -3,11 +3,15 @@ package com.fullspectrum.ability;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.assets.Assets;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlacksmithComponent;
+import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TintComponent;
+import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.Maths;
@@ -74,7 +78,20 @@ public class BlacksmithAbility extends TimedAbility{
 			blacksmithComp.shield = MathUtils.clamp(blacksmithComp.shield + gained, 0, blacksmithComp.shieldMax);
 			actualGained += blacksmithComp.shield - before;
 		}
-		// INCOMPLETE Render text? (actualGained)
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		Body body = bodyComp.body;
+		float x = body.getPosition().x;
+		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
+		EntityManager.addEntity(EntityFactory.createDamageText(
+				Mappers.engine.get(entity).engine, 
+				Mappers.world.get(entity).world, 
+				Mappers.level.get(entity).level, 
+				"+" + (int)actualGained, 
+				Color.CYAN, 
+				Assets.getInstance().getFont(Assets.font18), 
+				x, 
+				y, 
+				2.0f));
 	}
 
 }
