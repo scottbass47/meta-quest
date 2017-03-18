@@ -66,4 +66,15 @@
 	dash_slash_damage: 25,
 	dash_slash_knock_up: 5.0,
 	
+	// Spin Slice
+	spin_slice_cooldown: 1.0,
+	spin_slice_damage: 25,
+	spin_slice_knockback: 4.0,
+	
+	// Tornado
+	tornado_cooldown: 1.0,
+	tornado_duration: 5,
+	tornado_damage: 50,
+	tornado_knockback: 10,
+	tornado_range: 8.0,
 }

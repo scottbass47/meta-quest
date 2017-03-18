@@ -29,6 +29,9 @@ public enum EntityAnim implements State{
 	OVERHEAD_SWING,
 	SLAM,
 	DASH,
+	SPIN_SLICE,
+	TORNADO_INIT,
+	TORNADO_SWING,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

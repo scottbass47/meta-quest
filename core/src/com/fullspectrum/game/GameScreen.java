@@ -71,6 +71,7 @@ import com.fullspectrum.systems.BlinkSystem;
 import com.fullspectrum.systems.BobSystem;
 import com.fullspectrum.systems.CameraSystem;
 import com.fullspectrum.systems.CombustibleSystem;
+import com.fullspectrum.systems.ControlledMovementSystem;
 import com.fullspectrum.systems.DeathSystem;
 import com.fullspectrum.systems.DirectionSystem;
 import com.fullspectrum.systems.DropMovementSystem;
@@ -218,6 +219,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new DropMovementSystem());
 		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new FrameMovementSystem());
+		engine.addSystem(new ControlledMovementSystem());
 //		engine.addSystem(new WallSlideSystem());
 		
 		engine.addSystem(new KnockBackSystem()); // order matters, knockback has to come after movement systems
@@ -873,7 +875,7 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	protected void destroy() {
-
+		// INCOMPLETE Should probably fill this out one day...
 	}
 
 	@Override

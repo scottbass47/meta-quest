@@ -34,7 +34,7 @@ public class SlamAbility extends AnimationAbility{
 	private float stunDuration;	
 	
 	public SlamAbility(float cooldown, Actions input, Animation slamAnimation, int frameNum, float range, float damage, float knockback, float stunDuration) {
-		super(AbilityType.SLAM, Assets.getInstance().getHUDElement(Assets.SLAM_ICON), cooldown, input, slamAnimation, true);
+		super(AbilityType.SLAM, Assets.getInstance().getHUDElement(Assets.SLAM_ICON), cooldown, input, slamAnimation);
 		this.frameNum = frameNum;
 		this.range = range;
 		this.damage = damage;

@@ -9,11 +9,7 @@ public abstract class AnimationAbility extends TimedAbility{
 	protected Animation animation;
 	
 	public AnimationAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, Animation animation) {
-		this(type, icon, cooldown, input, animation, false);
-	}
-	
-	public AnimationAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, Animation animation, boolean isBlocking) {
-		super(type, icon, cooldown, input, animation.getAnimationDuration(), isBlocking);
+		super(type, icon, cooldown, input, animation.getAnimationDuration(), true);
 		this.animation = animation;
 	}
 }

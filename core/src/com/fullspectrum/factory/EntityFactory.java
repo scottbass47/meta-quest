@@ -27,6 +27,8 @@ import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
 import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.ability.SlamAbility;
+import com.fullspectrum.ability.SpinSliceAbility;
+import com.fullspectrum.ability.TornadoAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -287,6 +289,9 @@ public class EntityFactory {
 		animMap.put(EntityAnim.OVERHEAD_SWING, assets.getSpriteAnimation(Assets.KNIGHT_OVERHEAD_SWING));
 		animMap.put(EntityAnim.SLAM, assets.getSpriteAnimation(Assets.KNIGHT_SLAM));
 		animMap.put(EntityAnim.DASH, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.SPIN_SLICE, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.TORNADO_INIT, assets.getSpriteAnimation(Assets.KNIGHT_TORNADO_INIT));
+		animMap.put(EntityAnim.TORNADO_SWING, assets.getSpriteAnimation(Assets.KNIGHT_TORNADO_SWING));
 		
 		Entity knight = new EntityBuilder("knight", engine, world, level)
 			.animation(animMap)
@@ -311,6 +316,7 @@ public class EntityFactory {
 				animMap.get(EntityAnim.PARRY_SWING),
 				engine.createComponent(SwingComponent.class)
 					.set(3.0f, 2.0f, 90, -135, 4 * GameVars.ANIM_FRAME, 0.0f, knightStats.get("parry_knockback")));
+		parryAbility.deactivate();
 		
 		KickAbility kickAbility = new KickAbility(
 				knightStats.get("kick_cooldown"), 
@@ -334,6 +340,7 @@ public class EntityFactory {
 						9 * GameVars.ANIM_FRAME,
 						knightStats.get("overhead_swing_damage"),
 						knightStats.get("overhead_swing_knockback")));
+		overheadSwingAbility.deactivate();
 		
 		SlamAbility slamAbility = new SlamAbility(
 				knightStats.get("slam_cooldown"), 
@@ -358,11 +365,33 @@ public class EntityFactory {
 		// INCOMPLETE Make it so dash slash can be used in conjunction with chaining
 		DashSlashAbility dashSlashAbility = new DashSlashAbility(
 				knightStats.get("dash_slash_cooldown"),
-				Actions.ABILITY_3, 
+				Actions.ABILITY_1, 
 				knightStats.get("dash_slash_duration"),
 				knightStats.get("dash_slash_distance"),
 				knightStats.get("dash_slash_damage"),
 				knightStats.get("dash_slash_knock_up"));
+
+		SpinSliceAbility spinSliceAbility = new SpinSliceAbility(
+				knightStats.get("spin_slice_cooldown"),
+				Actions.ABILITY_2,
+				animMap.get(EntityAnim.SPIN_SLICE),
+				engine.createComponent(SwingComponent.class).set(
+						2.5f, 
+						2.5f, 
+						0, 
+						360, 
+						5 * GameVars.ANIM_FRAME, 
+						knightStats.get("spin_slice_damage"), 
+						knightStats.get("spin_slice_knockback")));
+		
+		TornadoAbility tornadoAbility = new TornadoAbility(
+				knightStats.get("tornado_cooldown"),
+				Actions.ABILITY_3, 
+				knightStats.get("tornado_duration"),
+				knightStats.get("tornado_damage"),
+				knightStats.get("tornado_knockback"), 
+				knightStats.get("tornado_range"),
+				5);
 		
 		// Player Related Components
 		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
@@ -380,7 +409,9 @@ public class EntityFactory {
 				.add(overheadSwingAbility)
 				.add(slamAbility)
 				.add(blacksmithAbility)
-				.add(dashSlashAbility));
+				.add(dashSlashAbility)
+				.add(spinSliceAbility)
+				.add(tornadoAbility));
 		
 		KnightComponent knightComp = engine.createComponent(KnightComponent.class).set((int)knightStats.get("max_chains"));
 		
@@ -831,6 +862,7 @@ public class EntityFactory {
 		
 		// ******************************************
 		
+		// Ability States
 		esm.createState(EntityStates.PARRY_BLOCK)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
@@ -863,6 +895,18 @@ public class EntityFactory {
 		esm.createState(EntityStates.DASH)
 			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.DASH);
+		
+		esm.createState(EntityStates.SPIN_SLICE)
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_slam"))
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.SPIN_SLICE);
+		
+		esm.createState(EntityStates.TORNADO)
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_tornado"))
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.TORNADO_INIT)
+			.addAnimation(EntityAnim.TORNADO_SWING)
+			.addAnimTransition(EntityAnim.TORNADO_INIT, Transitions.ANIMATION_FINISHED, EntityAnim.TORNADO_SWING);
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

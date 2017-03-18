@@ -28,7 +28,9 @@ public enum EntityStates implements State{
 	FLYING,
 	KICK,
 	OVERHEAD_SWING,
-	SLAM;
+	SLAM,
+	SPIN_SLICE,
+	TORNADO;
 	
 	@Override
 	public int getIndex() {

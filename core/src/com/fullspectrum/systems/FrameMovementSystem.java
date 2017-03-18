@@ -56,7 +56,14 @@ public class FrameMovementSystem extends IteratingSystem{
 		fmc.elapsed += deltaTime;
 		int frameNumber  = (int)(fmc.elapsed / GameVars.ANIM_FRAME);
 		
-		if(fmc.index >= fmc.frames.size) return;
+		if(fmc.index >= fmc.frames.size) {
+			fmc.frameTimer += deltaTime;
+			if(fmc.frameTimer >= GameVars.ANIM_FRAME){
+				fmc.frameTimer = 0.0f;
+				bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+			}
+			return;
+		}
 		
 		Frame currFrame = fmc.frames.get(fmc.index);
 		int number = currFrame.getNumber();

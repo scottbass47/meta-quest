@@ -1,8 +1,11 @@
 package com.fullspectrum.utils;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.Family;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.PlayerComponent;
 
 public class EntityUtils {
 	
@@ -31,4 +34,16 @@ public class EntityUtils {
 		}
 		return entity.getComponent(component);
 	}
+	
+	public static <T extends Component> T add(Entity entity, Class<T> component){
+		T comp = Mappers.engine.get(entity).engine.createComponent(component);
+		entity.add(comp);
+		return comp;
+	} 
+	
+	@SuppressWarnings("unchecked")
+	public static Entity getPlayer(Engine engine){
+		return engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
+	}
+	
 }

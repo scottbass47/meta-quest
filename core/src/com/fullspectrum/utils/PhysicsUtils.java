@@ -196,5 +196,9 @@ public class PhysicsUtils {
 		return (x1 - x2) * (x1 - x2) + (y1 - y2) * (y1 - y2);
 	}
 	
+	public static float getDistance(Entity e1, Entity e2){
+		return (float)Math.sqrt(getDistanceSqr(e1, e2));
+	}
+	
 	
 }
