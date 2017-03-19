@@ -1,5 +1,6 @@
 package com.fullspectrum.component;
 
+import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 
 /**
@@ -55,6 +56,7 @@ public class Mappers {
 	public static final ComponentMapper<TintComponent> tint = ComponentMapper.getFor(TintComponent.class);
 	public static final ComponentMapper<TextRenderComponent> textRender =  ComponentMapper.getFor(TextRenderComponent.class);
 	public static final ComponentMapper<ShaderComponent> shader = ComponentMapper.getFor(ShaderComponent.class);
+	public static final ComponentMapper<RenderLevelComponent> renderLevel = ComponentMapper.getFor(RenderLevelComponent.class);
 	
 	// State Machine
 	public static final ComponentMapper<FSMComponent> fsm =  ComponentMapper.getFor(FSMComponent.class);

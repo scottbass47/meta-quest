@@ -28,7 +28,7 @@ public class FrameMovementSystem extends IteratingSystem{
 		engine.addEntityListener(frameFamily, new EntityListener() {
 			@Override
 			public void entityRemoved(Entity entity) {
-				if(Mappers.body.get(entity) != null){
+				if(Mappers.body.get(entity) != null && Mappers.body.get(entity).body != null){
 					Mappers.body.get(entity).body.setGravityScale(1.0f);
 					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
 				}

@@ -4,28 +4,44 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.EntitySystem;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.RenderLevelComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TintComponent;
 
 public class RenderingSystem extends EntitySystem {
 
-	private ImmutableArray<Entity> entities;
+	private Array<Entity> sorted;
+	
+	public RenderingSystem() {
+		sorted = new Array<Entity>();
+	}
 	
 	@Override
 	public void addedToEngine(Engine engine) {
-		entities = engine.getEntitiesFor(Family.all(PositionComponent.class, RenderComponent.class, TextureComponent.class).get());
+		getEngine().addEntityListener(Family.all(PositionComponent.class, RenderComponent.class, TextureComponent.class, RenderLevelComponent.class).get(), new EntityListener() {
+			@Override
+			public void entityAdded(Entity entity) {
+				sorted.add(entity);
+			}
+
+			@Override
+			public void entityRemoved(Entity entity) {
+				sorted.removeIndex(sorted.indexOf(entity, false));
+			}
+		});
 	}
 	
 	@Override
@@ -34,8 +50,13 @@ public class RenderingSystem extends EntitySystem {
 	}
 	
 	public void render(SpriteBatch batch){
+		// Resort list
+		sortEntities();
+		
 		batch.begin();
-		for (Entity entity : entities) {
+		System.out.println("\nBatch");
+		printRenderLevels();
+		for (Entity entity : sorted) {
 			PositionComponent positionComp = Mappers.position.get(entity);
 			TextureComponent textureComp = Mappers.texture.get(entity);
 			FacingComponent facingComp = Mappers.facing.get(entity);
@@ -75,5 +96,28 @@ public class RenderingSystem extends EntitySystem {
 		batch.end();
 		batch.setShader(null);
 	}
+	
+	private void sortEntities(){
+        for (int i = 1; i < sorted.size; i++) {
+            for(int j = i ; j > 0 ; j--){
+            	Entity e1 = sorted.get(j);
+            	Entity e2 = sorted.get(j-1);
+                if(getRL(e1) < getRL(e2)){
+                    sorted.set(j, e2);
+                    sorted.set(j-1, e1);
+                }
+            }
+        }
+    }
 
+	// Gets the render level of an entity
+	private int getRL(Entity entity){
+		return Mappers.renderLevel.get(entity).renderLevel;
+	}
+	
+	private void printRenderLevels(){
+		for(Entity entity : sorted){
+			System.out.println(Mappers.entity.get(entity).name + " - " + getRL(entity));
+		}
+	}
 }

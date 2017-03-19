@@ -87,6 +87,7 @@ import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.RenderLevelComponent;
 import com.fullspectrum.component.RogueComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.SpawnComponent;
@@ -145,6 +146,7 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.physics.BodyProperties;
+import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -2343,8 +2345,9 @@ public class EntityFactory {
 		 * @param facing
 		 * @return
 		 */
-		public EntityBuilder render(TextureRegion frame, boolean facing, Shader shader){ 
+		public EntityBuilder render(TextureRegion frame, boolean facing, Shader shader, int renderLevel){ 
 			entity.add(engine.createComponent(RenderComponent.class));
+			entity.add(engine.createComponent(RenderLevelComponent.class).set(renderLevel));
 			entity.add(engine.createComponent(TextureComponent.class).set(frame));
 			if(facing) entity.add(engine.createComponent(FacingComponent.class));
 			entity.add(engine.createComponent(ShaderComponent.class).set(shader));
@@ -2359,7 +2362,7 @@ public class EntityFactory {
 		 * @return
 		 */
 		public EntityBuilder render(TextureRegion frame, boolean facing){ 
-			return render(frame, facing, null);
+			return render(frame, facing, null, RenderLevel.ENTITY);
 		}
 		
 		/**
