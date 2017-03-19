@@ -15,6 +15,7 @@ import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.utils.EntityUtils;
+import com.fullspectrum.utils.Maths;
 
 public enum Sensors {
 
@@ -122,11 +123,11 @@ public enum Sensors {
 	EXPLOSIVE_PARTICLE{
 		@Override
 		public void beginCollision(Fixture me, Fixture other) {
-			Entity entity = (Entity)me.getBody().getUserData();
+			Entity projectile = (Entity)me.getBody().getUserData();
 			Entity otherEntity = (Entity)other.getBody().getUserData();
 			
 			if(otherEntity == null && !other.isSensor()){
-				entity.add(new RemoveComponent());
+				projectile.add(new RemoveComponent());
 				return;
 			}else if(other.isSensor()){
 				return;
@@ -135,27 +136,45 @@ public enum Sensors {
 			if(enemyHealth == null) return;
 			
 			// No damage dealt to entities of same type
-			if(!Mappers.type.get(entity).shouldCollide(Mappers.type.get(otherEntity))) return;
+			if(!Mappers.type.get(projectile).shouldCollide(Mappers.type.get(otherEntity))) return;
 			
-			Entity explosion = Mappers.parent.get(entity).parent;
+			Entity explosion = Mappers.parent.get(projectile).parent;
 			if(explosion == null || !EntityUtils.isValid(explosion)) return;
 			CombustibleComponent combustibleComp = Mappers.combustible.get(explosion);
-			TimerComponent timerComp = Mappers.timer.get(entity);
+			TimerComponent timerComp = Mappers.timer.get(projectile);
 			
 			if(combustibleComp.hitEntities.contains(otherEntity)) return;
 			combustibleComp.hitEntities.add(otherEntity);
 			
-			ProjectileComponent projectileComp = Mappers.projectile.get(entity);
+			ProjectileComponent projectileComp = Mappers.projectile.get(projectile);
 			
 			float speed = projectileComp.speed;
 			float timeElapsed = timerComp.timers.get("particle_life").getElapsed();
 			float distanceTraveled = speed * timeElapsed;
 			
 			// CLEANUP Knockback for mana bomb
-			// BUG Direct hits don't give the right angle of knockback
 			float knockBackDistance = combustibleComp.radius * 0.5f;
-			
-			DamageHandler.dealDamage(entity, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, projectileComp.angle);
+
+			float angle = projectileComp.angle;
+			// For direct hits, check the angle of the explosion relative to the hit entity
+			if(distanceTraveled < 0.2f){
+				angle = MathUtils.radDeg * Maths.atan2(otherEntity, projectile);
+				switch(Maths.getQuad(angle)){
+				case 1:
+					angle = 0;
+					break;
+				case 2:
+					angle = 180;
+					break;
+				case 3:
+					angle = 181;
+					break;
+				case 4:
+					angle = 359;
+					break;
+				}
+			}
+			DamageHandler.dealDamage(projectile, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, angle);
 		}
 
 		@Override
