@@ -26,6 +26,8 @@ import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
+import com.fullspectrum.component.RenderLevelComponent;
+import com.fullspectrum.component.RotationComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimerComponent;
@@ -65,6 +67,8 @@ public class StunEffect extends Effect{
 				ParentComponent.class,
 				WingComponent.class,
 				EffectComponent.class,
+				RotationComponent.class,
+				RenderLevelComponent.class,
 				
 				// Global Components (always required)
 				TimerComponent.class,

@@ -90,7 +90,7 @@ public class AntiMagneticAbility extends TimedAbility{
 				float reflection = 2 * normal - velAngle;
 				projBody.setLinearVelocity(speed * MathUtils.cosDeg(reflection), speed * MathUtils.sinDeg(reflection));
 				
-				Mappers.render.get(projectile).rotation = reflection;
+				Mappers.rotation.get(projectile).rotation = reflection;
 				
 				// Render tangent line
 //				float tanX = myBody.getPosition().x + r * MathUtils.cosDeg(posAngle);
@@ -108,6 +108,7 @@ public class AntiMagneticAbility extends TimedAbility{
 				Mappers.type.get(projectile).set(EntityType.FRIENDLY);
 				Mappers.type.get(projectile).setCollideWith(EntityType.ENEMY);
 				
+				// BUG Deflected projectiles don't collide with enemies that are too close to the player
 				deflected.add(projectile);
 			}else{
 				// Check to see if the projectile is still within range,

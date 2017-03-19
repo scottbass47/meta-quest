@@ -89,6 +89,7 @@ import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.RenderLevelComponent;
 import com.fullspectrum.component.RogueComponent;
+import com.fullspectrum.component.RotationComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
@@ -1027,18 +1028,6 @@ public class EntityFactory {
 		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.KNIGHT_APEX));
 		animMap.put(EntityAnim.CLIMBING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_IDLE_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_IDLE_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_IDLE_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_IDLE_ANTIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_IDLE_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_ANTICIPATION_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_ANTICIPATION_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_ANTICIPATION_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_ANTICIPATION_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_ANTICIPATION));
-		animMap.put(EntityAnim.SWING_1, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN1_SWING));
-		animMap.put(EntityAnim.SWING_2, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN2_SWING));
-		animMap.put(EntityAnim.SWING_3, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN3_SWING));
-		animMap.put(EntityAnim.SWING_4, assets.getSpriteAnimation(Assets.KNIGHT_CHAIN4_SWING));
 		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.ROGUE_RUN));
 		animMap.put(EntityAnim.RUN_ARMS, assets.getSpriteAnimation(Assets.ROGUE_RUN_ARMS));
 		animMap.put(EntityAnim.RUN_THROW, assets.getSpriteAnimation(Assets.ROGUE_RUN_THROW));
@@ -2346,6 +2335,7 @@ public class EntityFactory {
 		 * @return
 		 */
 		public EntityBuilder render(TextureRegion frame, boolean facing, Shader shader, int renderLevel){ 
+			entity.add(engine.createComponent(RotationComponent.class));
 			entity.add(engine.createComponent(RenderComponent.class));
 			entity.add(engine.createComponent(RenderLevelComponent.class).set(renderLevel));
 			entity.add(engine.createComponent(TextureComponent.class).set(frame));

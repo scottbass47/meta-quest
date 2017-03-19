@@ -1,6 +1,5 @@
 package com.fullspectrum.component;
 
-import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.ComponentMapper;
 
 /**
@@ -47,6 +46,7 @@ public class Mappers {
 	public static final ComponentMapper<ChildrenComponent> children = ComponentMapper.getFor(ChildrenComponent.class); 
 	public static final ComponentMapper<DirectionComponent> direction =  ComponentMapper.getFor(DirectionComponent.class);
 	public static final ComponentMapper<EaseComponent> ease =  ComponentMapper.getFor(EaseComponent.class);
+	public static final ComponentMapper<RotationComponent> rotation =  ComponentMapper.getFor(RotationComponent.class);
 
 	// Render
 	public static final ComponentMapper<RenderComponent> render =  ComponentMapper.getFor(RenderComponent.class);

@@ -17,6 +17,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.RenderLevelComponent;
+import com.fullspectrum.component.RotationComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TintComponent;
@@ -54,14 +55,15 @@ public class RenderingSystem extends EntitySystem {
 		sortEntities();
 		
 		batch.begin();
-		System.out.println("\nBatch");
-		printRenderLevels();
 		for (Entity entity : sorted) {
 			PositionComponent positionComp = Mappers.position.get(entity);
 			TextureComponent textureComp = Mappers.texture.get(entity);
 			FacingComponent facingComp = Mappers.facing.get(entity);
 			TintComponent tintComp = Mappers.tint.get(entity);
-			RenderComponent renderComp = Mappers.render.get(entity);
+			
+			if(textureComp.getRegions() == null || textureComp.getRegions().size == 0) return;
+
+			// Setup Shader
 			ShaderComponent shaderComp = Mappers.shader.get(entity);
 			if(shaderComp != null && shaderComp.shader != null){
 				batch.setShader(shaderComp.shader.getProgram());
@@ -70,7 +72,9 @@ public class RenderingSystem extends EntitySystem {
 				batch.setShader(null);
 			}
 			
-			if(textureComp.getRegions() == null || textureComp.getRegions().size == 0) return;
+			// Get Rotation
+			RotationComponent rotationComp = Mappers.rotation.get(entity);
+			float rotation = rotationComp != null ? rotationComp.rotation : 0.0f;
 			
 			for(TextureRegion region : textureComp.getRegions()){
 				if(region == null) continue;
@@ -82,13 +86,13 @@ public class RenderingSystem extends EntitySystem {
 				
 				if(facingComp != null){
 					// Rotation
-					boolean quad23 = MathUtils.cosDeg(renderComp.rotation) < 0.0f;
+					boolean quad23 = MathUtils.cosDeg(rotation) < 0.0f;
 					region.flip(!facingComp.facingRight, false);
-					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, quad23 ? renderComp.rotation - 180: renderComp.rotation);
+					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, quad23 ? rotation - 180: rotation);
 					region.flip(region.isFlipX(), false);
 				}
 				else{
-					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, renderComp.rotation);
+					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, rotation);
 				}
 				batch.setColor(Color.WHITE);
 			}
@@ -97,6 +101,7 @@ public class RenderingSystem extends EntitySystem {
 		batch.setShader(null);
 	}
 	
+	// CLEANUP Could be a more efficient algorithm
 	private void sortEntities(){
         for (int i = 1; i < sorted.size; i++) {
             for(int j = i ; j > 0 ; j--){

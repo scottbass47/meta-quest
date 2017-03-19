@@ -173,19 +173,20 @@ public class StateMachine<S extends State, E extends StateObject> {
 		}
 		currentState = null;
 	}
-
+	
 	@SuppressWarnings("unchecked")
 	public void changeState(State identifier) {
 		// Do a delayed state update
-		if(EntityUtils.engineUpdating){
-			EntityManager.addStateChange(this, identifier);
-		}
+//		if(EntityUtils.engineUpdating){
+//			EntityManager.addStateChange(this, identifier);
+//			return;
+//		}
 		if (!stateClazz.isInstance(identifier)) throw new IllegalArgumentException("Incorrect state type.");
 		E newState = states.get((S) identifier);
 		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
 		E currState = currentState;
-		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName());
+		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName() + "\n");
 		if(currentState == null){
 //			System.out.println("Change State -- Adding State Machine: " + getDebugName());
 			StateMachineSystem.getInstance().addStateMachine(this);
