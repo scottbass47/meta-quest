@@ -51,7 +51,6 @@ import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
-import com.fullspectrum.component.DeathComponent.DefaultDeathBehavior;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.DirectionComponent.Direction;
 import com.fullspectrum.component.DropComponent;
@@ -1669,7 +1668,7 @@ public class EntityFactory {
 		entity.add(engine.createComponent(TargetComponent.class).set(new TargetComponent.DefaultTargetBehavior(15.0f * 15.0f)));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
 		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
-		entity.getComponent(DeathComponent.class).set(new DeathBehavior(){
+		entity.getComponent(DeathComponent.class).add(new DeathBehavior(){
 			@Override
 			public void onDeath(Entity entity) {
 				Mappers.body.get(entity).body.setActive(false);
@@ -2084,6 +2083,10 @@ public class EntityFactory {
 		return drop;
 	}
 	
+	// ---------------------------------------------
+	// -                PROJECTILES                -
+	// ---------------------------------------------
+	
 	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float y, boolean isArc, EntityType type){
 		// CLEANUP Better naming for projectiles
 		Entity projectile = new EntityBuilder(physicsBody.substring(0, physicsBody.indexOf('.')), engine, world, level)
@@ -2140,7 +2143,7 @@ public class EntityFactory {
 			}
 		});
 
-		spit.getComponent(DeathComponent.class).set(new DeathBehavior() {
+		spit.getComponent(DeathComponent.class).add(new DeathBehavior() {
 			@Override
 			public void onDeath(Entity entity) {
 				Mappers.body.get(entity).body.setActive(false);
@@ -2210,7 +2213,7 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		
-		explosive.getComponent(DeathComponent.class).set(new DeathBehavior() {
+		explosive.getComponent(DeathComponent.class).add(new DeathBehavior() {
 			@Override
 			public void onDeath(Entity entity) {
 				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
@@ -2241,6 +2244,117 @@ public class EntityFactory {
 		});
 		return particle;
 	}
+	
+	private class ProjectileBuilder {
+		
+		private Entity projectile;
+		private Engine engine;
+		
+		public ProjectileBuilder(String name, Engine engine, World world, Level level, EntityType type, float x, float y, float speed, float angle){
+			this(name, engine, world, level, type, "bullet", x, y, speed, angle);
+		}
+		
+		public ProjectileBuilder(String name, Engine engine, World world, Level level, EntityType type, String physics, float x, float y, float speed, float angle){
+			this.engine = engine;
+			projectile = new EntityBuilder(name, engine, world, level)
+					.physics(physics, new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
+					.build();
+			projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, false));
+			projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
+			projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
+		}
+		
+		public ProjectileBuilder addDamage(float damage){
+			projectile.add(engine.createComponent(BulletStatsComponent.class).set(damage));
+			return this;
+		}
+		
+		public ProjectileBuilder makeArced(){
+			Mappers.projectile.get(projectile).isArc = true;
+			Mappers.body.get(projectile).body.setGravityScale(1.0f);
+			return this;
+		}
+		
+		public ProjectileBuilder makeExplosive(float radius, float speed, float damage, float damageDropOffRate){
+			projectile.add(engine.createComponent(CombustibleComponent.class).set(radius, 25.0f, damage, damageDropOffRate));
+			
+			return this;
+		}
+		
+		public ProjectileBuilder render(TextureRegion frame, boolean facing){
+			projectile = new EntityBuilder(projectile).render(frame, facing).build();
+			return this;
+		}
+		
+		public ProjectileBuilder animate(Animation init, Animation fly, Animation death){
+			if(fly == null) throw new IllegalArgumentException("Flying animation can't be null.");
+			ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+			if(init != null) animMap.put(EntityAnim.PROJECTILE_INIT, init);
+			if(death != null) animMap.put(EntityAnim.PROJECTILE_DEATH, death);
+			animMap.put(EntityAnim.PROJECTILE_FLY, fly);
+			projectile = new EntityBuilder(projectile).animation(animMap).build();
+			return this;
+		}
+		
+		public ProjectileBuilder addStateMachine(){
+			if(Mappers.animation.get(projectile) == null) throw new RuntimeException("Make sure you give the projectile animation capabilities before adding a state machine.");
+			EntityStateMachine esm = new StateFactory.EntityStateBuilder(Mappers.entity.get(projectile).name + " ESM", engine, projectile).build();
+			
+			ArrayMap<State, Animation> animMap = Mappers.animation.get(projectile).animations;
+			if(animMap.containsKey(EntityAnim.PROJECTILE_INIT)){
+				esm.createState(EntityStates.PROJECTILE_INIT)
+					.addAnimation(EntityAnim.PROJECTILE_INIT);
+				esm.addTransition(EntityStates.PROJECTILE_INIT, Transitions.ANIMATION_FINISHED, EntityStates.PROJECTILE_FLY);
+			}
+			
+			if(animMap.containsKey(EntityAnim.PROJECTILE_DEATH)){
+				esm.createState(EntityStates.PROJECTILE_DEATH)
+					.addAnimation(EntityAnim.PROJECTILE_DEATH)
+					.addChangeListener(new StateChangeListener() {
+						@Override
+						public void onExit(State nextState, Entity entity) {
+							entity.add(new RemoveComponent());
+						}
+						
+						@Override
+						public void onEnter(State prevState, Entity entity) {
+							
+						}
+					});
+				esm.addTransition(EntityStates.PROJECTILE_DEATH, Transitions.ANIMATION_FINISHED, EntityStates.PROJECTILE_INIT);
+				
+				// Add a death behavior to stop bullet collision and change the state
+				Mappers.death.get(projectile).add(new DeathBehavior() {
+					@Override
+					public void onDeath(Entity entity) {
+						Mappers.body.get(entity).body.setActive(false);
+						Mappers.esm.get(entity).get(EntityStates.PROJECTILE_DEATH).changeState(EntityStates.PROJECTILE_DEATH);
+					}
+				});
+			}
+			esm.createState(EntityStates.PROJECTILE_FLY)
+				.addAnimation(EntityAnim.FLYING);
+			
+			esm.changeState(EntityStates.PROJECTILE_INIT);
+			return this;
+		}
+		
+		public ProjectileBuilder addTimedDeath(float time){
+			Mappers.timer.get(projectile).add("projectile_life", time, false, new TimeListener() {
+				@Override
+				public void onTime(Entity entity) {
+					Mappers.death.get(entity).triggerDeath();
+				}
+			});
+			return this;
+		}
+		
+		public Entity build(){
+			return projectile;
+		}
+	}
+	
+	// **************************************************************
 	
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
 		Entity entity = new EntityBuilder("damage text", engine, world, level).build();
@@ -2315,7 +2429,7 @@ public class EntityFactory {
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));
 			entity.add(engine.createComponent(TimerComponent.class));
-			entity.add(engine.createComponent(DeathComponent.class).set(new DefaultDeathBehavior()));				
+			entity.add(engine.createComponent(DeathComponent.class));				
 		}
 		
 		/**

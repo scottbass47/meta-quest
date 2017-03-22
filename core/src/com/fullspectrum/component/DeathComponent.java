@@ -2,22 +2,27 @@ package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class DeathComponent implements Component, Poolable {
 
-	public DeathBehavior onDeath;
+	public Array<DeathBehavior> deathBehaviors;
 	private boolean triggered = false;
 	private boolean shouldDie = false;
 	
-	public DeathComponent set(DeathBehavior onDeath){
-		this.onDeath = onDeath;
+	public DeathComponent(){
+		deathBehaviors = new Array<DeathBehavior>();
+	}
+	
+	public DeathComponent add(DeathBehavior onDeath){
+		deathBehaviors.add(onDeath);
 		return this;
 	}
 	
 	@Override
 	public void reset() {
-		onDeath = null;
+		deathBehaviors = null;
 		triggered = false;
 		shouldDie = false;
 	}

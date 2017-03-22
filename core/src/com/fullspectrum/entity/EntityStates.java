@@ -30,7 +30,10 @@ public enum EntityStates implements State{
 	OVERHEAD_SWING,
 	SLAM,
 	SPIN_SLICE,
-	TORNADO;
+	TORNADO,
+	PROJECTILE_INIT,
+	PROJECTILE_FLY,
+	PROJECTILE_DEATH;
 	
 	@Override
 	public int getIndex() {
