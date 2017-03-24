@@ -2107,17 +2107,24 @@ public class EntityFactory {
 	
 	// CLEANUP Should be an option to create bullets with animations
 	public static Entity createThrowingKnife(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, EntityType type){
-		Entity knife = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
+//		Entity knife = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
+//		
+//		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+//		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE));
+//		
+//		knife = new EntityBuilder(knife)
+//			.render(animMap.get(EntityAnim.ATTACK).getKeyFrame(0.0f), true)
+//			.animation(animMap)
+//			.build();
+//		
+//		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.ATTACK));
 		
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE));
-		
-		knife = new EntityBuilder(knife)
-			.render(animMap.get(EntityAnim.ATTACK).getKeyFrame(0.0f), true)
-			.animation(animMap)
-			.build();
-		
-		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.ATTACK));
+		Entity knife = new ProjectileBuilder("knife", engine, world, level, type, x, y, speed, angle)
+				.addDamage(damage)
+				.render(null, true)
+				.animate(null, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE), null)
+				.build();
+		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
 		
 		return knife;
 	}
@@ -2245,13 +2252,13 @@ public class EntityFactory {
 		return particle;
 	}
 	
-	private class ProjectileBuilder {
+	private static class ProjectileBuilder {
 		
 		private Entity projectile;
 		private Engine engine;
 		
 		public ProjectileBuilder(String name, Engine engine, World world, Level level, EntityType type, float x, float y, float speed, float angle){
-			this(name, engine, world, level, type, "bullet", x, y, speed, angle);
+			this(name, engine, world, level, type, "bullet.json", x, y, speed, angle);
 		}
 		
 		public ProjectileBuilder(String name, Engine engine, World world, Level level, EntityType type, String physics, float x, float y, float speed, float angle){
@@ -2277,7 +2284,6 @@ public class EntityFactory {
 		
 		public ProjectileBuilder makeExplosive(float radius, float speed, float damage, float damageDropOffRate){
 			projectile.add(engine.createComponent(CombustibleComponent.class).set(radius, 25.0f, damage, damageDropOffRate));
-			
 			return this;
 		}
 		
@@ -2335,7 +2341,11 @@ public class EntityFactory {
 			esm.createState(EntityStates.PROJECTILE_FLY)
 				.addAnimation(EntityAnim.FLYING);
 			
-			esm.changeState(EntityStates.PROJECTILE_INIT);
+			if(esm.hasState(EntityStates.PROJECTILE_INIT)) {
+				esm.changeState(EntityStates.PROJECTILE_INIT);
+			} else{
+				esm.changeState(EntityStates.PROJECTILE_FLY);
+			}
 			return this;
 		}
 		
@@ -2467,6 +2477,17 @@ public class EntityFactory {
 		 */
 		public EntityBuilder render(TextureRegion frame, boolean facing){ 
 			return render(frame, facing, null, RenderLevel.ENTITY);
+		}
+		
+		/**
+		 * Adds Render, Texture and optional Facing components.
+		 * 
+		 * @param frame
+		 * @param facing
+		 * @return
+		 */
+		public EntityBuilder render(boolean facing){ 
+			return render(null, facing);
 		}
 		
 		/**
