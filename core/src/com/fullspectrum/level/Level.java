@@ -29,11 +29,13 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.LevelSwitchComponent;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 import com.fullspectrum.physics.CollisionBits;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
 
@@ -279,15 +281,18 @@ public class Level {
 
 			int width = endCol - startCol + 1;
 			int height = endRow - startRow + 1;
-			shape.setAsBox(width * 0.5f, height * 0.5f);
-			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-			Body body = world.createBody(bdef);
-			body.createFixture(fdef).setUserData("ground");
+			
+			// IMPORTANT Move tile physics creation to physics utils class
+			Entity tile = EntityFactory.createTile(engine, world, this, null);
+			Body body = PhysicsUtils.createTilePhysics(world, tile, startCol, startRow, width, height);
+			Mappers.body.get(tile).body = body;
 			bodies.add(body);
+			
 			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
 	}
 	
+	// CLEANUP WON'T WORK ANYMORE
 	private void setupLadders(){
 		BodyDef bdef = new BodyDef();
 		bdef.type = BodyType.StaticBody;

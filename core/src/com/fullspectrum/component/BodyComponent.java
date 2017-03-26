@@ -26,7 +26,7 @@ public class BodyComponent implements Component, Poolable {
 		updateAABB();
 		return this;
 	}
-
+	
 	@Override
 	public void reset() {
 		body = null;

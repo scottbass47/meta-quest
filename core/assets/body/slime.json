@@ -1,22 +1,22 @@
 {
   "BodyDef": {
-    "type": "DynamicBody"
+    "type": "DynamicBody",
+    "collisionType": "mob"
   },
 	"Fixtures": [
 	  {
+	    "FixtureType": "contact_damage",
 	    "shape": "Box",
 	    "width": 12,
 	    "height": 8,
-	    "CollisionType": "damage_on_contact",
 	    "Category": "entity"
 	  },
 	  {
+	  	  "FixtureType": "feet",
           "shape": "Box",
           "width": 10,
           "height": 4,
           "yOff": -4,
-          "isSensor": "true",
-          "SensorType": "feet",
           "Category": "sensor"
         }
 	]

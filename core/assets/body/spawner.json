@@ -1,9 +1,11 @@
 {
   "BodyDef": {
-    "type": "KinematicBody"
+    "type": "KinematicBody",
+    "collisionType": "mob"
   },
   	"Fixtures": [
       {
+      	"FixtureType": "body",
         "shape": "Box",
         "width": 24,
         "height": 24,

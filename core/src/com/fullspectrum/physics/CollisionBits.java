@@ -25,6 +25,5 @@ public enum CollisionBits {
 			if(value.name().equalsIgnoreCase(name)) return value;
 		}
 		return null;
-	}
-	
+	}	
 }

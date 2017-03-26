@@ -1,14 +1,15 @@
 {
   "BodyDef": {
-    "type": "DynamicBody"
+    "type": "DynamicBody",
+    "collisionType": "item"
   },
 	"Fixtures": [
 	  {
+	  	"FixtureType": "drop",
 	    "shape": "Box",
 	    "width": 4,
 	    "height": 4,
 	    "restitution": 0.5,
-	    "CollisionType": "drop",
 	    "Category": "item"
 	  }
 	]

@@ -1,14 +1,14 @@
 {
   "BodyDef": {
-    "type": "StaticBody"
+    "type": "StaticBody",
+    "collisionType": "sensor"
   },
   "Fixtures": [
      {
        "shape": "Box",
        "width": 4,
        "height": 4,
-       "SensorType": "level_trigger",
-       "isSensor": "true",
+       "FixtureType": "level_trigger",
        "Category": "sensor"
      }
   ]

@@ -19,14 +19,19 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.CollisionBits;
+import com.fullspectrum.physics.FixtureType;
 import com.fullspectrum.physics.PhysicsDef;
+import com.fullspectrum.physics.collision.CollisionBodyType;
+import com.fullspectrum.physics.collision.CollisionData;
 
 public class PhysicsUtils {
 	
@@ -48,8 +53,12 @@ public class PhysicsUtils {
 		JsonValue root = reader.parse(jsonString);
 		
 		Body body = loadBodyDef(root.get("BodyDef"), world, position);
+		CollisionBodyType type = (CollisionBodyType)body.getUserData();
 		body.setUserData(entity);
-
+		
+		CollisionListenerComponent listenerComp = EntityUtils.add(entity, CollisionListenerComponent.class);
+		CollisionData data = new CollisionData();
+		
 		// Load Properties
 		if(properties != null){
 			body.setGravityScale(properties.getGravityScale());
@@ -57,7 +66,9 @@ public class PhysicsUtils {
 			body.setActive(properties.isActive());
 		}
 		
-		loadFixtures(root.get("Fixtures"), body);
+		loadFixtures(root.get("Fixtures"), body, data);
+		listenerComp.collisionData = data;
+		listenerComp.type = type;
 		return body;
 	}
 	
@@ -76,16 +87,25 @@ public class PhysicsUtils {
 		bdef.fixedRotation = root.getBoolean("fixedRotation", true);
 		bdef.gravityScale = root.getFloat("gravityScale", 1.0f);
 		bdef.position.set(position);
-		return world.createBody(bdef);
+
+		String collisionType = root.getString("collisionType", "empty").toLowerCase();
+		CollisionBodyType bodyType = CollisionBodyType.get(collisionType);
+		if(bodyType == null){
+			throw new RuntimeException("No collision body type for '" + collisionType + "'.");
+		}
+		Body body = world.createBody(bdef);
+		body.setUserData(bodyType);
+		return body;
 	}
 	
-	private static void loadFixtures(JsonValue root, Body body){
+	private static void loadFixtures(JsonValue root, Body body, CollisionData data){
 		for(JsonValue fixture : root){
-			loadFixture(fixture, body);
+			loadFixture(fixture, body, data);
 		}
 	}
 	
-	private static FixtureDef loadFixture(JsonValue root){
+	// INCOMPLETE Shapes need to be disposed after being created
+	private static FixtureDef loadFixture(JsonValue root, CollisionData data){
 		FixtureDef fdef = new FixtureDef();
 		fdef.density = root.getFloat("density", 0.0f);
 		fdef.restitution = root.getFloat("restitution", 0.0f);
@@ -119,16 +139,16 @@ public class PhysicsUtils {
 		return fdef;
 	}
 	
-	private static void loadFixture(JsonValue root, Body body){
-		FixtureDef fdef = loadFixture(root);
+	private static void loadFixture(JsonValue root, Body body, CollisionData data){
+		FixtureDef fdef = loadFixture(root, data);
 		Fixture fixture = body.createFixture(fdef);
-		if(fixture.isSensor()){
-			fixture.setUserData(root.getString("SensorType"));
-		}else{
-			if(root.has("CollisionType")){
-				fixture.setUserData(root.getString("CollisionType"));
-			}
+		String type = root.getString("FixtureType", "none");
+		FixtureType fixtureType = FixtureType.get(type);
+		if(fixtureType == null){
+			throw new RuntimeException("Fixture type '" + type + "' does not exist.");
 		}
+		fixture.setUserData(fixtureType);
+		data.registerDefault(fixtureType);
 	}
 	
 	public static Rectangle getAABB(Body body){
@@ -167,6 +187,30 @@ public class PhysicsUtils {
 			}
 		}
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
+	}
+	
+	public static Body createTilePhysics(World world, Entity tile, float x, float y, float width, float height){
+		BodyDef bdef = new BodyDef();
+		bdef.position.set(new Vector2(x + width * 0.5f, y + height * 0.5f));
+		bdef.fixedRotation = true;
+		bdef.type = BodyType.StaticBody;
+		
+		Body body = world.createBody(bdef);
+		body.setUserData(tile);
+		
+		FixtureDef fdef = new FixtureDef();
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(width * 0.5f, height * 0.5f);
+		fdef.shape = shape;
+		body.createFixture(fdef).setUserData(FixtureType.TILE);
+		
+		CollisionListenerComponent listenerComp = EntityUtils.add(tile, CollisionListenerComponent.class);
+		CollisionData data = new CollisionData();
+		
+		listenerComp.collisionData = data;
+		listenerComp.type = CollisionBodyType.TILE;
+		data.registerDefault(FixtureType.TILE);
+		return body;
 	}
 	
 	public static Vector2 getPos(Entity e1){

@@ -1,9 +1,11 @@
 {
   "BodyDef": {
-    "type": "DynamicBody"
+    "type": "DynamicBody",
+    "collisionType": "mob",
   },
   	"Fixtures": [
       {
+        "FixtureType": "body",
         "shape": "Box",
         "width": 24,
         "height": 24,

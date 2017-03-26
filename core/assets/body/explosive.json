@@ -1,6 +1,7 @@
 {
   "BodyDef": {
     "type": "DynamicBody",
+	"collisionType": "projectile",
     "gravityScale": 0,
     "bullet": "true"
   },
@@ -8,7 +9,7 @@
      {
        "shape": "Circle",
        "radius": 3,
-       "CollisionType": "explosive",
+       "FixtureType": "explosive",
        "Category": "item"
      }
   ]

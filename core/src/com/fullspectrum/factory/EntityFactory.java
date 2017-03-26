@@ -146,6 +146,7 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.physics.BodyProperties;
+import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.PhysicsUtils;
@@ -2401,6 +2402,8 @@ public class EntityFactory {
 		return entity;
 	}
 	
+	// Camera
+	
 	public static Entity createCamera(Engine engine, World world, Level level, OrthographicCamera worldCamera){
 		Entity camera = new EntityBuilder("camera", engine, world, level).build();
 		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
@@ -2417,6 +2420,14 @@ public class EntityFactory {
 		cameraComp.zoom = 3.0f;
 		camera.add(cameraComp);
 		return camera;
+	}
+	
+	// Tiles
+	
+	public static Entity createTile(Engine engine, World world, Level level, Body body){
+		Entity tile = new EntityBuilder("tile", engine, world, level).build();
+		tile.add(engine.createComponent(BodyComponent.class).set(body));
+		return tile;
 	}
 	
 	public static class EntityBuilder{
