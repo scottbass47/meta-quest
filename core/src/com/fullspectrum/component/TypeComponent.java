@@ -30,12 +30,12 @@ public class TypeComponent implements Component, Poolable{
 	}
 	
 	public boolean shouldCollide(TypeComponent typeComp){
-		if(typeComp == null) return false;
+		if(typeComp == null) return true;
 		return shouldCollide(typeComp.type);
 	}
 	
 	public boolean shouldCollide(EntityType type){
-		if(type == null) return false;
+		if(type == null) return true;
 		return collideWith.contains(type);
 	}
 	

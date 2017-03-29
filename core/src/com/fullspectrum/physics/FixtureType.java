@@ -1,12 +1,21 @@
 package com.fullspectrum.physics;
 
 
-import static com.fullspectrum.physics.collision.CollisionBodyType.*;
+import static com.fullspectrum.physics.collision.CollisionBodyType.ALL;
+import static com.fullspectrum.physics.collision.CollisionBodyType.ITEM;
+import static com.fullspectrum.physics.collision.CollisionBodyType.MOB;
+import static com.fullspectrum.physics.collision.CollisionBodyType.PROJECTILE;
+import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionListener;
 import com.fullspectrum.physics.collision.NullCollisionListener;
+import com.fullspectrum.physics.collision.listener.DropCollisionListener;
+import com.fullspectrum.physics.collision.listener.FeetCollisionListener;
+import com.fullspectrum.physics.collision.listener.LevelTriggerCollisionListener;
+import com.fullspectrum.physics.collision.listener.ProjectileCollisionListener;
+import com.fullspectrum.physics.collision.listener.TileCollisionListener;
 
 public enum FixtureType {
 
@@ -140,7 +149,7 @@ public enum FixtureType {
 	
 	BODY {
 		@Override
-		public CollisionListener getDefault() {
+		public CollisionListener getListener() {
 			return new NullCollisionListener();
 		}
 
@@ -149,42 +158,42 @@ public enum FixtureType {
 			return Array.with(ALL);
 		}
 	},
-	TILE {
+	GROUND {
 		@Override
-		public CollisionListener getDefault() {
-			return new NullCollisionListener();
+		public CollisionListener getListener() {
+			return new TileCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(MOB, PROJECTILE, ITEM);
 		}
 	},
 	BULLET{
 		@Override
-		public CollisionListener getDefault() {
-			return new NullCollisionListener();
+		public CollisionListener getListener() {
+			return new ProjectileCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(MOB, TILE);
 		}
 	},
 	DROP{
 		@Override
-		public CollisionListener getDefault() {
-			return new NullCollisionListener();
+		public CollisionListener getListener() {
+			return new DropCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(TILE, MOB);
 		}
 	},
 	EXPLOSIVE {
 		@Override
-		public CollisionListener getDefault() {
+		public CollisionListener getListener() {
 			return new NullCollisionListener();
 		}
 
@@ -195,7 +204,7 @@ public enum FixtureType {
 	},
 	EXPLOSIVE_PARTICLE {
 		@Override
-		public CollisionListener getDefault() {
+		public CollisionListener getListener() {
 			return new NullCollisionListener();
 		}
 
@@ -206,40 +215,40 @@ public enum FixtureType {
 	},
 	LEVEL_TRIGGER {
 		@Override
-		public CollisionListener getDefault() {
-			return new NullCollisionListener();
+		public CollisionListener getListener() {
+			return new LevelTriggerCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(MOB);
 		}
 	},
 	FEET {
 		@Override
-		public CollisionListener getDefault() {
-			return new NullCollisionListener();
+		public CollisionListener getListener() {
+			return new FeetCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(TILE);
 		}
 	},
 	CONTACT_DAMAGE {
 		@Override
-		public CollisionListener getDefault() {
+		public CollisionListener getListener() {
 			return new NullCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(MOB);
 		}
 	};
 	
 	
-	public abstract CollisionListener getDefault();
+	public abstract CollisionListener getListener();
 	public abstract Array<CollisionBodyType> collidesWith();
 	
 	public static FixtureType get(String name){

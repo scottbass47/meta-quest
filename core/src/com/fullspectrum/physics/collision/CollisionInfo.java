@@ -9,12 +9,14 @@ public class CollisionInfo {
 	private Entity other;
 	private Fixture myFixture;
 	private Fixture otherFixture;
+	private CollisionBodyType otherCollisionType;
 	
-	public CollisionInfo(Entity me, Entity other, Fixture myFixture, Fixture otherFixture) {
+	public CollisionInfo(Entity me, Entity other, Fixture myFixture, Fixture otherFixture, CollisionBodyType otherCollisionType) {
 		this.me = me;
 		this.other = other;
 		this.myFixture = myFixture;
 		this.otherFixture = otherFixture;
+		this.otherCollisionType = otherCollisionType;
 	}
 
 	public Entity getMe() {
@@ -31,5 +33,9 @@ public class CollisionInfo {
 
 	public Fixture getOtherFixture() {
 		return otherFixture;
+	}
+	
+	public CollisionBodyType getOtherCollisionType() {
+		return otherCollisionType;
 	}
 }

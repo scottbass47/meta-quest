@@ -155,17 +155,6 @@ public class Level {
 		width = layer.getWidth();
 		height = layer.getHeight();
 
-		// Init Physics Object
-		BodyDef bdef = new BodyDef();
-		bdef.type = BodyType.StaticBody;
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(0.5f, 0.5f);
-		FixtureDef fdef = new FixtureDef();
-		fdef.shape = shape;
-		fdef.friction = 0.0f;
-		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
-		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
-
 		Array<Tile> tiles = new Array<Tile>();
 		mapTiles = new Tile[height][width];
 		Boolean[][] tileExists = new Boolean[height][width];
@@ -282,10 +271,9 @@ public class Level {
 			int width = endCol - startCol + 1;
 			int height = endRow - startRow + 1;
 			
-			// IMPORTANT Move tile physics creation to physics utils class
 			Entity tile = EntityFactory.createTile(engine, world, this, null);
 			Body body = PhysicsUtils.createTilePhysics(world, tile, startCol, startRow, width, height);
-			Mappers.body.get(tile).body = body;
+			Mappers.body.get(tile).set(body);
 			bodies.add(body);
 			
 			removeTiles(startCol, endCol, startRow, endRow, tiles);

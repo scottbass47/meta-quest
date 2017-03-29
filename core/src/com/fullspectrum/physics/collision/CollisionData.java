@@ -9,14 +9,35 @@ public class CollisionData {
 
 	private ArrayMap<FixtureType, Array<CollisionListener>> listenerMap;
 	private ArrayMap<FixtureType, ObjectSet<CollisionBodyType>> collisionMap;
+//	private ArrayMap<FixtureType, Boolean> lockedMap;
 	
 	public CollisionData() {
 		listenerMap = new ArrayMap<FixtureType, Array<CollisionListener>>();
 		collisionMap = new ArrayMap<FixtureType, ObjectSet<CollisionBodyType>>();
+//		lockedMap = new ArrayMap<FixtureType, Boolean>();
 	}
 	
-	public void registerDefault(FixtureType collision){
-		add(collision, collision.getDefault(), collision.collidesWith());
+	public void registerDefault(FixtureType type){
+		add(type, type.getListener(), type.collidesWith());
+	}
+	
+	/**
+	 * Clears all existing listeners for the specified fixture type and sets the new collision listener
+	 * @param type
+	 * @param listener
+	 */
+	public void setCollisionListener(FixtureType type, CollisionListener listener){
+		clearListeners(type);
+		add(type, listener, type.collidesWith());
+	}
+	
+	/**
+	 * Clears all existing listeners for the specified fixture type
+	 * @param type
+	 */
+	public void clearListeners(FixtureType type){
+		listenerMap.get(type).clear();
+		collisionMap.get(type).clear();
 	}
 	
 	private void add(FixtureType collision, CollisionListener listener, Array<CollisionBodyType> types){
@@ -39,4 +60,16 @@ public class CollisionData {
 	public Array<CollisionListener> getListeners(FixtureType type){
 		return listenerMap.get(type);
 	}
+	
+//	public void lock(FixtureType type){
+//		lockedMap.put(type, true);
+//	}
+//	
+//	public void unlock(FixtureType type){
+//		lockedMap.put(type, false);
+//	}
+//	
+//	public boolean isLocked(FixtureType type){
+//		return lockedMap.get(type);
+//	}
 }

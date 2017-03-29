@@ -25,10 +25,13 @@ public class WorldCollision implements ContactListener {
 		Entity e1 = (Entity)f1.getBody().getUserData();
 		Entity e2 = (Entity)f2.getBody().getUserData();
 		
+		CollisionBodyType t1 = Mappers.collisionListener.get(e1).type;
+		CollisionBodyType t2 = Mappers.collisionListener.get(e2).type;
+		
 		// e1 collision with e2
 		Array<CollisionListener> listeners = getListeners(e1, e2, f1, f2);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2);
+			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2, t2);
 			for(CollisionListener listener : listeners){
 				listener.beginCollision(info);
 			}
@@ -37,7 +40,7 @@ public class WorldCollision implements ContactListener {
 		// e2 collision with e1
 		listeners = getListeners(e2, e1, f2, f1);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1);
+			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1, t1);
 			for(CollisionListener listener : listeners){
 				listener.beginCollision(info);
 			}
@@ -52,10 +55,13 @@ public class WorldCollision implements ContactListener {
 		Entity e1 = (Entity)f1.getBody().getUserData();
 		Entity e2 = (Entity)f2.getBody().getUserData();
 		
+		CollisionBodyType t1 = Mappers.collisionListener.get(e1).type;
+		CollisionBodyType t2 = Mappers.collisionListener.get(e2).type;
+		
 		// e1 collision with e2
 		Array<CollisionListener> listeners = getListeners(e1, e2, f1, f2);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2);
+			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2, t2);
 			for(CollisionListener listener : listeners){
 				listener.endCollision(info);
 			}
@@ -64,7 +70,7 @@ public class WorldCollision implements ContactListener {
 		// e2 collision with e1
 		listeners = getListeners(e2, e1, f2, f1);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1);
+			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1, t1);
 			for(CollisionListener listener : listeners){
 				listener.endCollision(info);
 			}
@@ -79,10 +85,13 @@ public class WorldCollision implements ContactListener {
 		Entity e1 = (Entity)f1.getBody().getUserData();
 		Entity e2 = (Entity)f2.getBody().getUserData();
 		
+		CollisionBodyType t1 = Mappers.collisionListener.get(e1).type;
+		CollisionBodyType t2 = Mappers.collisionListener.get(e2).type;
+		
 		// e1 collision with e2
 		Array<CollisionListener> listeners = getListeners(e1, e2, f1, f2);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2);
+			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2, t2);
 			for(CollisionListener listener : listeners){
 				listener.preSolveCollision(info, contact, oldManifold);
 			}
@@ -91,7 +100,7 @@ public class WorldCollision implements ContactListener {
 		// e2 collision with e1
 		listeners = getListeners(e2, e1, f2, f1);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1);
+			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1, t1);
 			for(CollisionListener listener : listeners){
 				listener.preSolveCollision(info, contact, oldManifold);
 			}
@@ -106,10 +115,13 @@ public class WorldCollision implements ContactListener {
 		Entity e1 = (Entity)f1.getBody().getUserData();
 		Entity e2 = (Entity)f2.getBody().getUserData();
 		
+		CollisionBodyType t1 = Mappers.collisionListener.get(e1).type;
+		CollisionBodyType t2 = Mappers.collisionListener.get(e2).type;
+		
 		// e1 collision with e2
 		Array<CollisionListener> listeners = getListeners(e1, e2, f1, f2);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2);
+			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2, t2);
 			for(CollisionListener listener : listeners){
 				listener.postSolveCollision(info, contact, impulse);
 			}
@@ -118,7 +130,7 @@ public class WorldCollision implements ContactListener {
 		// e2 collision with e1
 		listeners = getListeners(e2, e1, f2, f1);
 		if(listeners != null){
-			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1);
+			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1, t1);
 			for(CollisionListener listener : listeners){
 				listener.postSolveCollision(info, contact, impulse);
 			}
