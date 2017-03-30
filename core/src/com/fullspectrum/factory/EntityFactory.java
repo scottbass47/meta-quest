@@ -15,6 +15,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -47,6 +50,7 @@ import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
@@ -146,9 +150,12 @@ import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.physics.BodyProperties;
-import com.fullspectrum.physics.collision.CollisionBodyType;
+import com.fullspectrum.physics.FixtureType;
+import com.fullspectrum.physics.collision.CollisionInfo;
+import com.fullspectrum.physics.collision.CollisionListener;
 import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
+import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class EntityFactory {
@@ -2122,8 +2129,9 @@ public class EntityFactory {
 		
 		Entity knife = new ProjectileBuilder("knife", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
-				.render(null, true)
+				.render(true)
 				.animate(null, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE), null)
+				.makeExplosive(5.0f, 25.0f, 100.0f, 5.0f)
 				.build();
 		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
 		
@@ -2131,58 +2139,71 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSpitProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
-		Entity spit = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
-		
+//		Entity spit = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
+//		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.spitInit));
-		animMap.put(EntityAnim.FLYING, assets.getSpriteAnimation(Assets.spitFly));
-		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.spitSplash));
+		animMap.put(EntityAnim.PROJECTILE_INIT, assets.getSpriteAnimation(Assets.spitInit));
+		animMap.put(EntityAnim.PROJECTILE_FLY, assets.getSpriteAnimation(Assets.spitFly));
+		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getSpriteAnimation(Assets.spitSplash));
+//		
+//		spit = new EntityBuilder(spit)
+//				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
+//				.animation(animMap)
+//				.build();
+//		
+//		spit.getComponent(TimerComponent.class).add("spit_life", airTime, false, new TimeListener(){
+//			@Override
+//			public void onTime(Entity entity) {
+//				DeathComponent deathComp = Mappers.death.get(entity);
+//				deathComp.triggerDeath();
+//			}
+//		});
+//
+//		spit.getComponent(DeathComponent.class).add(new DeathBehavior() {
+//			@Override
+//			public void onDeath(Entity entity) {
+//				Mappers.body.get(entity).body.setActive(false);
+//				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
+//			}
+//		});
+//		
+//		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spit ESM", engine, spit).build();
+//		
+//		esm.createState(EntityStates.IDLING)
+//			.addAnimation(EntityAnim.IDLE);
+//		
+//		esm.createState(EntityStates.FLYING)
+//			.addAnimation(EntityAnim.FLYING);
+//		
+//		esm.createState(EntityStates.DYING)
+//			.addAnimation(EntityAnim.DYING)
+//			.addChangeListener(new StateChangeListener() {
+//				@Override
+//				public void onEnter(State prevState, Entity entity) {
+//				}
+//				@Override
+//				public void onExit(State nextState, Entity entity) {
+//					entity.add(new RemoveComponent());
+//				}
+//			});
+//		
+//		esm.addTransition(EntityStates.IDLING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
+//		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+//		
+//		esm.changeState(EntityStates.IDLING);
+//		
+//		return spit;
 		
-		spit = new EntityBuilder(spit)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
-				.animation(animMap)
+		Entity spit = new ProjectileBuilder("spit", engine, world, level, type, x, y, speed, angle)
+				.addDamage(damage)
+				.render(true)
+				.animate(
+						animMap.get(EntityAnim.PROJECTILE_INIT), 
+						animMap.get(EntityAnim.PROJECTILE_FLY), 
+						animMap.get(EntityAnim.PROJECTILE_DEATH))
+				.addTimedDeath(airTime)
+				.addStateMachine()
 				.build();
-		
-		spit.getComponent(TimerComponent.class).add("spit_life", airTime, false, new TimeListener(){
-			@Override
-			public void onTime(Entity entity) {
-				DeathComponent deathComp = Mappers.death.get(entity);
-				deathComp.triggerDeath();
-			}
-		});
-
-		spit.getComponent(DeathComponent.class).add(new DeathBehavior() {
-			@Override
-			public void onDeath(Entity entity) {
-				Mappers.body.get(entity).body.setActive(false);
-				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
-			}
-		});
-		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spit ESM", engine, spit).build();
-		
-		esm.createState(EntityStates.IDLING)
-			.addAnimation(EntityAnim.IDLE);
-		
-		esm.createState(EntityStates.FLYING)
-			.addAnimation(EntityAnim.FLYING);
-		
-		esm.createState(EntityStates.DYING)
-			.addAnimation(EntityAnim.DYING)
-			.addChangeListener(new StateChangeListener() {
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-				}
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					entity.add(new RemoveComponent());
-				}
-			});
-		
-		esm.addTransition(EntityStates.IDLING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
-		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-		
-		esm.changeState(EntityStates.IDLING);
 		
 		return spit;
 	}
@@ -2283,9 +2304,35 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public ProjectileBuilder makeExplosive(float radius, float speed, float damage, float damageDropOffRate){
-			projectile.add(engine.createComponent(CombustibleComponent.class).set(radius, 25.0f, damage, damageDropOffRate));
+		public ProjectileBuilder makeExplosive(final float radius, float speed, final float damage, float damageDropOffRate){
+			CollisionListenerComponent listenerComp = Mappers.collisionListener.get(projectile);
+			listenerComp.collisionData.addListener(FixtureType.BULLET, new CollisionListener() {
+				public void beginCollision(CollisionInfo info) {
+					Entity me = info.getMe();
+					
+					BodyComponent bodyComp = Mappers.body.get(me);
+					Body body = bodyComp.body;
+					Vector2 pos = body.getPosition();
+					
+					Entity explosion = createExplosion(
+							Mappers.engine.get(me).engine,
+							Mappers.world.get(me).world, 
+							Mappers.level.get(me).level,
+							pos.x, pos.y, 
+							radius, damage, 
+							Mappers.type.get(me).type);
+					EntityManager.addEntity(explosion);
+				}
+				
+				public void endCollision(CollisionInfo info) {}
+				public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {}
+				public void postSolveCollision(CollisionInfo info, Contact contact, ContactImpulse impulse) {}
+			});
 			return this;
+		}
+		
+		public ProjectileBuilder render(boolean facing){
+			return render(null, facing);
 		}
 		
 		public ProjectileBuilder render(TextureRegion frame, boolean facing){
@@ -2340,7 +2387,7 @@ public class EntityFactory {
 				});
 			}
 			esm.createState(EntityStates.PROJECTILE_FLY)
-				.addAnimation(EntityAnim.FLYING);
+				.addAnimation(EntityAnim.PROJECTILE_FLY);
 			
 			if(esm.hasState(EntityStates.PROJECTILE_INIT)) {
 				esm.changeState(EntityStates.PROJECTILE_INIT);
@@ -2366,6 +2413,29 @@ public class EntityFactory {
 	}
 	
 	// **************************************************************
+	
+	// ---------------------------------------------
+	// -                EXPLOSIVES                 -
+	// ---------------------------------------------
+	
+	public static Entity createExplosion(Engine engine, World world, Level level, float x, float y, float radius, float damage, EntityType type){
+		final float SPEED = 15.0f;
+		
+		Entity explosion = new EntityBuilder("explosion", engine, world, level).build();
+		explosion.add(engine.createComponent(PositionComponent.class).set(x, y));
+		EntityUtils.add(explosion, CombustibleComponent.class).set(radius, SPEED, damage, 5.0f).shouldExplode = true; // HACK speed and drop off is hardcoded
+		explosion.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
+		
+		// Setup timed death after explosive particles are dead
+		Mappers.timer.get(explosion).add("death", radius / SPEED, false, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Mappers.death.get(entity).triggerDeath();
+			}
+		});
+		
+		return explosion;
+	}
 	
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
 		Entity entity = new EntityBuilder("damage text", engine, world, level).build();

@@ -40,6 +40,10 @@ public class CollisionData {
 		collisionMap.get(type).clear();
 	}
 	
+	public void addListener(FixtureType type, CollisionListener listener){
+		add(type, listener, type.collidesWith());
+	}
+	
 	private void add(FixtureType collision, CollisionListener listener, Array<CollisionBodyType> types){
 		if(listener == null) return;
 		if(!listenerMap.containsKey(collision)){

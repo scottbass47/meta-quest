@@ -2,7 +2,6 @@ package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
-import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.LevelComponent;
@@ -10,6 +9,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.game.GameVars;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class ProjectileFactory {
 
@@ -17,10 +17,9 @@ public class ProjectileFactory {
 	}
 
 	public static ProjectileData initProjectile(Entity entity, float xOff, float yOff, float angle) {
-		BodyComponent bodyComp = Mappers.body.get(entity);
 		FacingComponent facingComp = Mappers.facing.get(entity);
 
-		Vector2 pos = bodyComp.body.getPosition();
+		Vector2 pos = PhysicsUtils.getPos(entity);
 		xOff = GameVars.PPM_INV * xOff;
 		yOff = GameVars.PPM_INV * yOff;
 		float x = pos.x + (facingComp == null || facingComp.facingRight ? xOff : -xOff);

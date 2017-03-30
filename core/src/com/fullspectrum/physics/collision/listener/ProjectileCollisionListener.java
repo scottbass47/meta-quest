@@ -7,8 +7,6 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.RemoveComponent;
-import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionInfo;
@@ -22,7 +20,7 @@ public class ProjectileCollisionListener implements CollisionListener{
 		Entity otherEntity = info.getOther();
 		
 		if(info.getOtherCollisionType() == CollisionBodyType.TILE){
-			entity.add(new RemoveComponent());
+			Mappers.death.get(entity).triggerDeath();
 			return;
 		}
 		
@@ -32,7 +30,7 @@ public class ProjectileCollisionListener implements CollisionListener{
 		BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
 		DamageHandler.dealDamage(entity, otherEntity, bulletStatsComp.damage);
 		
-		EntityManager.sendToDie(entity);
+		Mappers.death.get(entity).triggerDeath();
 	}
 
 	@Override

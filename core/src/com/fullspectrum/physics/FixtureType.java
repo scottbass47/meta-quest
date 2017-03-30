@@ -12,6 +12,7 @@ import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionListener;
 import com.fullspectrum.physics.collision.NullCollisionListener;
 import com.fullspectrum.physics.collision.listener.DropCollisionListener;
+import com.fullspectrum.physics.collision.listener.ExplosiveParticleCollisionListener;
 import com.fullspectrum.physics.collision.listener.FeetCollisionListener;
 import com.fullspectrum.physics.collision.listener.LevelTriggerCollisionListener;
 import com.fullspectrum.physics.collision.listener.ProjectileCollisionListener;
@@ -205,12 +206,12 @@ public enum FixtureType {
 	EXPLOSIVE_PARTICLE {
 		@Override
 		public CollisionListener getListener() {
-			return new NullCollisionListener();
+			return new ExplosiveParticleCollisionListener();
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+			return Array.with(TILE, MOB);
 		}
 	},
 	LEVEL_TRIGGER {

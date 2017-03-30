@@ -142,12 +142,14 @@ public class PhysicsUtils {
 	
 	private static void loadFixture(JsonValue root, Body body, CollisionData data){
 		FixtureDef fdef = loadFixture(root, data);
-		Fixture fixture = body.createFixture(fdef);
 		String type = root.getString("FixtureType", "none");
 		FixtureType fixtureType = FixtureType.get(type);
 		if(fixtureType == null){
 			throw new RuntimeException("Fixture type '" + type + "' does not exist.");
 		}
+		boolean isSensor = root.getBoolean("isSensor", false);
+		if(isSensor) fdef.isSensor = true;
+		Fixture fixture = body.createFixture(fdef);
 		fixture.setUserData(fixtureType);
 		data.registerDefault(fixtureType);
 	}
