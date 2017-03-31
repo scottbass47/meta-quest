@@ -15,6 +15,7 @@ import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionInfo;
 import com.fullspectrum.physics.collision.CollisionListener;
 
+// BUG Bullets collide initially with shooter
 public class WorldCollision implements ContactListener {
 
 	@Override

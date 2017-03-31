@@ -2095,38 +2095,14 @@ public class EntityFactory {
 	// -                PROJECTILES                -
 	// ---------------------------------------------
 	
-	public static Entity createProjectile(Engine engine, World world, Level level, String physicsBody, float speed, float angle, float x, float y, boolean isArc, EntityType type){
-		// CLEANUP Better naming for projectiles
-		Entity projectile = new EntityBuilder(physicsBody.substring(0, physicsBody.indexOf('.')), engine, world, level)
-				.physics(physicsBody, new BodyProperties.Builder().setGravityScale(isArc ? 1.0f : 0.0f).build(), x, y, false)
+	public static Entity createBullet(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type) {
+		return new ProjectileBuilder("bullet", engine, world, level, type, x, y, speed, angle)
+				.addDamage(damage)
+				.makeArced(isArc)
 				.build();
-		projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
-		projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
-		projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, isArc));
-		
-		return projectile;
 	}
 	
-	public static Entity createBullet(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type){
-		Entity bullet = createProjectile(engine, world, level, "bullet.json", speed, angle, x, y, isArc, type);
-		bullet.add(engine.createComponent(BulletStatsComponent.class).set(damage));
-		return bullet;
-	}
-	
-	// CLEANUP Should be an option to create bullets with animations
 	public static Entity createThrowingKnife(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, EntityType type){
-//		Entity knife = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
-//		
-//		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-//		animMap.put(EntityAnim.ATTACK, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE));
-//		
-//		knife = new EntityBuilder(knife)
-//			.render(animMap.get(EntityAnim.ATTACK).getKeyFrame(0.0f), true)
-//			.animation(animMap)
-//			.build();
-//		
-//		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.ATTACK));
-		
 		Entity knife = new ProjectileBuilder("knife", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
@@ -2139,60 +2115,10 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSpitProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
-//		Entity spit = createBullet(engine, world, level, speed, angle, x, y, damage, false, type);
-//		
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.PROJECTILE_INIT, assets.getSpriteAnimation(Assets.spitInit));
 		animMap.put(EntityAnim.PROJECTILE_FLY, assets.getSpriteAnimation(Assets.spitFly));
 		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getSpriteAnimation(Assets.spitSplash));
-//		
-//		spit = new EntityBuilder(spit)
-//				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
-//				.animation(animMap)
-//				.build();
-//		
-//		spit.getComponent(TimerComponent.class).add("spit_life", airTime, false, new TimeListener(){
-//			@Override
-//			public void onTime(Entity entity) {
-//				DeathComponent deathComp = Mappers.death.get(entity);
-//				deathComp.triggerDeath();
-//			}
-//		});
-//
-//		spit.getComponent(DeathComponent.class).add(new DeathBehavior() {
-//			@Override
-//			public void onDeath(Entity entity) {
-//				Mappers.body.get(entity).body.setActive(false);
-//				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
-//			}
-//		});
-//		
-//		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spit ESM", engine, spit).build();
-//		
-//		esm.createState(EntityStates.IDLING)
-//			.addAnimation(EntityAnim.IDLE);
-//		
-//		esm.createState(EntityStates.FLYING)
-//			.addAnimation(EntityAnim.FLYING);
-//		
-//		esm.createState(EntityStates.DYING)
-//			.addAnimation(EntityAnim.DYING)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//					entity.add(new RemoveComponent());
-//				}
-//			});
-//		
-//		esm.addTransition(EntityStates.IDLING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
-//		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-//		
-//		esm.changeState(EntityStates.IDLING);
-//		
-//		return spit;
 		
 		Entity spit = new ProjectileBuilder("spit", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
@@ -2209,68 +2135,29 @@ public class EntityFactory {
 	}
 	
 	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, float radius, float damageDropOffRate){
-		Entity explosive = createProjectile(engine, world, level, "explosive.json", speed, angle, x, y, isArc, type);
-		
+		// CLEANUP Generic explosive projectile uses all mana bomb stuff
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, new Animation(0.1f, assets.getSpriteAnimation(Assets.manaBombExplosion).getKeyFrame(0)));
-		animMap.put(EntityAnim.DYING, assets.getSpriteAnimation(Assets.manaBombExplosion));
+		animMap.put(EntityAnim.PROJECTILE_FLY, new Animation(0.1f, assets.getSpriteAnimation(Assets.manaBombExplosion).getKeyFrame(0)));
+		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getSpriteAnimation(Assets.manaBombExplosion));
 		
-		explosive = new EntityBuilder(explosive)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), false)
-				.animation(animMap)
+		Entity explosive = new ProjectileBuilder("explosive_projectile", engine, world, level, type, "mana_bomb.json", x, y, speed, angle)
+				.render(true)
+				.makeArced(isArc)
+				.makeExplosive(radius, speed, damage, damageDropOffRate)
+				.animate(null, animMap.get(EntityAnim.PROJECTILE_FLY), animMap.get(EntityAnim.PROJECTILE_DEATH))
+				.addStateMachine()
+				.addDamage(damage)
 				.build();
-		explosive.add(engine.createComponent(CombustibleComponent.class).set(radius, 25.0f, damage, damageDropOffRate));
-		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Explosive ESM", engine, explosive).build();
-		
-		esm.createState(EntityStates.IDLING)
-			.addAnimation(EntityAnim.IDLE);
-		esm.createState(EntityStates.DYING)
-			.addAnimation(EntityAnim.DYING)
-			.addChangeListener(new StateChangeListener() {
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					
-				}
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					entity.add(new RemoveComponent());
-				}
-			});
-		
-		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-		
-		esm.changeState(EntityStates.IDLING);
-		
-		explosive.getComponent(DeathComponent.class).add(new DeathBehavior() {
-			@Override
-			public void onDeath(Entity entity) {
-				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
-				CombustibleComponent combustibleComp = Mappers.combustible.get(entity);
-				float time = combustibleComp.radius / combustibleComp.speed;
-				TimerComponent timerComp = Mappers.timer.get(entity);
-				timerComp.add("explosive_life", time * 2f, false, new TimeListener(){
-					@Override
-					public void onTime(Entity entity) {
-						entity.add(new RemoveComponent());
-					}
-				});
-			}
-		});
-		
 		return explosive;
 	}
 	
 	public static Entity createExplosiveParticle(Engine engine, World world, Level level, Entity parent, float speed, float angle, float x, float y){
-		Entity particle = createProjectile(engine, world, level, "explosive_particle.json", speed, angle, x, y, false, Mappers.type.get(parent).type);
 		CombustibleComponent combustibleComp = Mappers.combustible.get(parent);
+		Entity particle = new ProjectileBuilder("explosive_particle", engine, world, level, Mappers.type.get(parent).type, "explosive_particle.json", x, y, speed, angle)
+				.addTimedDeath(combustibleComp.radius / combustibleComp.speed)
+				.build();
 		particle.add(engine.createComponent(ParentComponent.class).set(parent));
-		particle.getComponent(TimerComponent.class).add("particle_life", combustibleComp.radius / combustibleComp.speed, false, new TimeListener(){
-			@Override
-			public void onTime(Entity entity) {
-				entity.add(new RemoveComponent());
-			}
-		});
+		
 		return particle;
 	}
 	
@@ -2296,6 +2183,14 @@ public class EntityFactory {
 		public ProjectileBuilder addDamage(float damage){
 			projectile.add(engine.createComponent(BulletStatsComponent.class).set(damage));
 			return this;
+		}
+		
+		/**
+		 * Use this method for easy chaining. If arced is false, nothing happens. If arced is true, makeArced() is called.
+		 */
+		public ProjectileBuilder makeArced(boolean arced){
+			if(!arced) return this;
+			return makeArced();
 		}
 		
 		public ProjectileBuilder makeArced(){
@@ -2375,7 +2270,7 @@ public class EntityFactory {
 							
 						}
 					});
-				esm.addTransition(EntityStates.PROJECTILE_DEATH, Transitions.ANIMATION_FINISHED, EntityStates.PROJECTILE_INIT);
+				esm.addTransition(EntityStates.PROJECTILE_DEATH, Transitions.ANIMATION_FINISHED, EntityStates.PROJECTILE_FLY);
 				
 				// Add a death behavior to stop bullet collision and change the state
 				Mappers.death.get(projectile).add(new DeathBehavior() {

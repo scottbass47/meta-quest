@@ -2,14 +2,13 @@
   "BodyDef": {
     "type": "DynamicBody",
 	"collisionType": "projectile",
-    "gravityScale": 0,
     "bullet": "true"
   },
   "Fixtures": [
      {
+       "FixtureType": "bullet",
        "shape": "Circle",
        "radius": 3,
-       "FixtureType": "explosive",
        "Category": "item"
      }
   ]
