@@ -45,7 +45,7 @@ public class ExplosiveParticleCollisionListener implements CollisionListener{
 		ProjectileComponent projectileComp = Mappers.projectile.get(projectile);
 		
 		float speed = projectileComp.speed;
-		float timeElapsed = timerComp.timers.get("particle_life").getElapsed();
+		float timeElapsed = timerComp.timers.get("projectile_life").getElapsed();
 		float distanceTraveled = speed * timeElapsed;
 		
 		// CLEANUP Knockback for mana bomb

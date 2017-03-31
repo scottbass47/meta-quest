@@ -15,7 +15,6 @@ import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionInfo;
 import com.fullspectrum.physics.collision.CollisionListener;
 
-// BUG Bullets collide initially with shooter
 public class WorldCollision implements ContactListener {
 
 	@Override
@@ -88,10 +87,13 @@ public class WorldCollision implements ContactListener {
 		
 		CollisionBodyType t1 = Mappers.collisionListener.get(e1).type;
 		CollisionBodyType t2 = Mappers.collisionListener.get(e2).type;
+
+		boolean disableContact = true;
 		
 		// e1 collision with e2
 		Array<CollisionListener> listeners = getListeners(e1, e2, f1, f2);
 		if(listeners != null){
+			disableContact = false;
 			CollisionInfo info = new CollisionInfo(e1, e2, f1, f2, t2);
 			for(CollisionListener listener : listeners){
 				listener.preSolveCollision(info, contact, oldManifold);
@@ -101,10 +103,15 @@ public class WorldCollision implements ContactListener {
 		// e2 collision with e1
 		listeners = getListeners(e2, e1, f2, f1);
 		if(listeners != null){
+			disableContact = false;
 			CollisionInfo info = new CollisionInfo(e2, e1, f2, f1, t1);
 			for(CollisionListener listener : listeners){
 				listener.preSolveCollision(info, contact, oldManifold);
 			}
+		}
+		
+		if(disableContact){
+			contact.setEnabled(false);
 		}
 	}
 

@@ -164,7 +164,11 @@ public class EntityFactory {
 	
 	private EntityFactory(){}
 	
-//	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
+	// ---------------------------------------------
+	// -                   PLAYER                  -
+	// ---------------------------------------------
+	
+	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
 //		// Stats
 //		EntityStats playerStats = EntityLoader.get(EntityIndex.PLAYER);
 //		EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
@@ -266,7 +270,8 @@ public class EntityFactory {
 //		playerStateMachine.changeState(PlayerState.KNIGHT);
 //		player.add(engine.createComponent(FSMComponent.class).set(playerStateMachine));
 //		return player;
-//	}
+		return null;
+	}
 	
 	public static Entity createKnight(Engine engine, World world, Level level, float x, float y){
 		final EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
@@ -1500,6 +1505,10 @@ public class EntityFactory {
 		return mage;
 	}
 	
+	// ---------------------------------------------
+	// -                 ENEMIES                   -
+	// ---------------------------------------------
+	
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y) {
 		// Stats
 		EntityStats stats = EntityLoader.get(EntityIndex.AI_PLAYER);
@@ -2307,8 +2316,6 @@ public class EntityFactory {
 		}
 	}
 	
-	// **************************************************************
-	
 	// ---------------------------------------------
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
@@ -2332,6 +2339,10 @@ public class EntityFactory {
 		return explosion;
 	}
 	
+	// ----------------------------------------------
+	// -                DAMAGE TEXT                 -
+	// ----------------------------------------------
+	
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
 		Entity entity = new EntityBuilder("damage text", engine, world, level).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
@@ -2345,6 +2356,10 @@ public class EntityFactory {
 		});
 		return entity;
 	}
+	
+	// ---------------------------------------------
+	// -                PARTICLES                  -
+	// ---------------------------------------------
 	
 	public static Entity createParticle(Engine engine, World world, Level level, Animation animation, float x, float y){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2367,7 +2382,9 @@ public class EntityFactory {
 		return entity;
 	}
 	
-	// Camera
+	// ---------------------------------------------
+	// -                  CAMERA	                 -
+	// ---------------------------------------------
 	
 	public static Entity createCamera(Engine engine, World world, Level level, OrthographicCamera worldCamera){
 		Entity camera = new EntityBuilder("camera", engine, world, level).build();
@@ -2387,7 +2404,9 @@ public class EntityFactory {
 		return camera;
 	}
 	
-	// Tiles
+	// ---------------------------------------------
+	// -                   TILES    			   -
+	// ---------------------------------------------
 	
 	public static Entity createTile(Engine engine, World world, Level level, Body body){
 		Entity tile = new EntityBuilder("tile", engine, world, level).build();
