@@ -149,6 +149,9 @@ public class StateMachine<S extends State, E extends StateObject> {
 	}
 	
 	private void exitCurrent(S newState) {
+		S oldState = currentState == null ? null : states.getKey(currentState, false);
+		if(globalChangeListener != null) globalChangeListener.onChange(entity, oldState, newState);
+
 		if (currentState != null) {
 			currentState.onExit(newState);
 			for (TransitionObject obj : currentState.getTranstionObjects()) {
@@ -217,7 +220,6 @@ public class StateMachine<S extends State, E extends StateObject> {
 		}
 		
 		newState.onEnter(oldState);
-		if(globalChangeListener != null) globalChangeListener.onChange(entity, oldState, identifier);
 
 		currentState = newState;
 		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(newState);
