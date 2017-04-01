@@ -50,11 +50,24 @@ public enum EntityAnim implements State{
 	SWING_3,
 	SWING_4,
 	
-	// Rogue stuff
+	// Rogue Upper Body Defaults
+	RUN_ARMS,
+	BACK_PEDAL_ARMS,
+	JUMP_ARMS,
+	RISE_ARMS,
+	APEX_ARMS,
+	FALL_ARMS,
+	
+	// Rogue Upper Body Abilities
 	RUN_THROW,
 	BACK_PEDAL_THROW,
-	RUN_ARMS,
-	BACK_PEDAL_ARMS;
+	AIR_THROW,
+	SLINGHOT_ARMS,
+	FLASH_POWDER_THROW,
+	BOOMERANG_THROW,
+	
+	// Special Init State for resolutions
+	INIT;
 	
 	@Override
 	public int numStates() {

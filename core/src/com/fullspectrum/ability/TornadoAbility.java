@@ -59,6 +59,7 @@ public class TornadoAbility extends TimedAbility{
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		Mappers.esm.get(entity).get(EntityStates.TORNADO).changeState(EntityStates.TORNADO);
 		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
+		Mappers.facing.get(entity).locked = true;
 	}
 
 	@Override
@@ -145,6 +146,7 @@ public class TornadoAbility extends TimedAbility{
 		Mappers.body.get(entity).body.setGravityScale(1.0f);
 		Mappers.esm.get(entity).get(EntityStates.TORNADO).changeState(EntityStates.FALLING);
 		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+		Mappers.facing.get(entity).locked = false;
 		
 		for(Entity e : pulled){
 			e.remove(ControlledMovementComponent.class);

@@ -27,6 +27,7 @@ public class StateObject {
 	protected Entity entity;
 	protected StateMachine<? extends State, ? extends StateObject> machine;
 	private boolean enabled = true;
+	private StateChangeResolver resolver = null;
 
 	// Bits
 	protected Bits bits;
@@ -127,6 +128,15 @@ public class StateObject {
 		return this;
 	}
 
+	public StateObject setChangeResolver(StateChangeResolver resolver){
+		this.resolver = resolver;
+		return this;
+	}
+	
+	public StateChangeResolver getResolver() {
+		return resolver;
+	}
+	
 	public void onEnter(State prevState) {
 		for (StateChangeListener listener : listeners) {
 			listener.onEnter(prevState, entity);
@@ -146,6 +156,11 @@ public class StateObject {
 	
 	public StateObject addSubstateMachine(StateMachine<? extends State, ? extends StateObject> machine){
 		this.machine.addSubstateMachine(this, machine);
+		return this;
+	}
+	
+	public StateObject removeSubstateMachine(StateMachine<? extends State, ? extends StateObject> machine){
+		this.machine.removeSubstateMachine(this, machine);
 		return this;
 	}
 

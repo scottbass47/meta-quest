@@ -53,13 +53,17 @@ public class EntityState extends StateObject{
 		return this;
 	}
 	
-	public State getCurrentAnimation(){
-		return animations.states.getKey(animations.currentState, false);
+	public void removeAnimations(){
+		removeSubstateMachine(animations);
 	}
 	
-	public float getAnimationTime(){
-		return animations.getAnimationTime();
-	}
+//	public State getCurrentAnimation(){
+//		return animations.states.getKey(animations.currentState, false);
+//	}
+//	
+//	public float getAnimationTime(){
+//		return animations.getAnimationTime();
+//	}
 	
 //	public void addAnimationTime(float time){
 //		animations.time += time;

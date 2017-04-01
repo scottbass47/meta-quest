@@ -11,13 +11,11 @@ import com.badlogic.gdx.utils.Bits;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
-import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.fsm.transition.Tag;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.TransitionTag;
-import com.fullspectrum.utils.EntityUtils;
 
 // TODO Allow for modification of transition data after adding transitions
 // TODO Add in 'not' option for transitions
@@ -32,6 +30,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 	private StateCreator<E> creator;
 	private Class<S> stateClazz;
 	private Class<E> stateObjectClazz;
+	private GlobalChangeListener globalChangeListener;
 
 	// Bits
 	private Builder builder = new Builder();
@@ -142,6 +141,13 @@ public class StateMachine<S extends State, E extends StateObject> {
 		substateMachines.put((E) state, machines);
 	}
 
+	@SuppressWarnings("unchecked")
+	public void removeSubstateMachine(StateObject state, StateMachine<? extends State, ? extends StateObject> machine){
+		if (!stateObjectClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
+		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get((E) state);
+		machines.removeIndex(machines.indexOf(machine, false));
+	}
+	
 	private void exitCurrent(S newState) {
 		if (currentState != null) {
 			currentState.onExit(newState);
@@ -186,6 +192,19 @@ public class StateMachine<S extends State, E extends StateObject> {
 		if (newState == null) throw new IllegalArgumentException("No state attached to identifier: " + identifier);
 		if (newState == currentState) return;
 		E currState = currentState;
+		S oldState = currState == null ? null : states.getKey(currState, false);
+		
+		// IMPORTANT Can get stuck in an infinite loop if resolvers keep changing back and forth
+		// Resolve the transition
+		StateChangeResolver resolver = newState.getResolver();
+		if(resolver != null){
+			State resolvedState = resolver.resolve(entity, oldState);
+			if(resolvedState != identifier){
+				changeState(resolvedState);
+				return;
+			}
+		}
+		
 		if(debugOutput) Gdx.app.log(debugName, "changing state from " + (currState == null ? "null" : currState.toString()) + " to " + identifier.getName() + "\n");
 		if(currentState == null){
 //			System.out.println("Change State -- Adding State Machine: " + getDebugName());
@@ -196,18 +215,17 @@ public class StateMachine<S extends State, E extends StateObject> {
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
 		}
-		if (currState != null) {
-			newState.onEnter(states.getKey(currState, false));
-		} else {
-			newState.onEnter(null);
-		}
+		
+		newState.onEnter(oldState);
+		if(globalChangeListener != null) globalChangeListener.onChange(entity, oldState, identifier);
+
+		currentState = newState;
 		Array<StateMachine<? extends State, ? extends StateObject>> machines = substateMachines.get(newState);
 		if (machines != null) {
 			for (StateMachine<? extends State, ? extends StateObject> machine : machines) {
 				machine.changeState(machine.initialState);
 			}
 		}
-		currentState = newState;
 	}
 
 	public boolean changeState(TransitionObject obj) {
@@ -351,6 +369,18 @@ public class StateMachine<S extends State, E extends StateObject> {
 			ret.add(iter.next().key);
 		}
 		return ret;
+	}
+	
+	public StateObject getInitialState(){
+		return states.get(initialState);
+	}
+	
+	public void setGlobalChangeListener(GlobalChangeListener listener){
+		this.globalChangeListener = listener;
+	}
+	
+	public GlobalChangeListener getGlobalChangeListener() {
+		return globalChangeListener;
 	}
 
 	public void setDebugName(String debugName) {

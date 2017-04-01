@@ -85,12 +85,19 @@ public class Assets {
 	// Rogue
 	public static final String ROGUE_IDLE = "rogue_idle";
 	public static final String ROGUE_PROJECTILE = "rogue_projectile";
-	public static final String ROGUE_RUN = "rogue_run";
+	public static final String ROGUE_RUN_LEGS = "rogue_run";
 	public static final String ROGUE_RUN_ARMS = "rogue_run_arms";
 	public static final String ROGUE_RUN_THROW = "rogue_run_throw";
-	public static final String ROGUE_BACK_PEDAL = "rogue_back_pedal";
+	public static final String ROGUE_BACK_PEDAL_LEGS = "rogue_back_pedal";
 	public static final String ROGUE_BACK_PEDAL_ARMS = "rogue_back_pedal_arms";
 	public static final String ROGUE_BACK_PEDAL_THROW = "rogue_back_pedal_throw";
+	public static final String ROGUE_APEX_LEGS = "rogue_apex";
+	public static final String ROGUE_APEX_ARMS = "rogue_apex_arms";
+	public static final String ROGUE_FALL_LEGS = "rogue_fall";
+	public static final String ROGUE_FALL_ARMS = "rogue_fall_arms";
+	public static final String ROGUE_RISE_LEGS = "rogue_rise";
+	public static final String ROGUE_RISE_ARMS = "rogue_rise_arms";
+	public static final String ROGUE_SLINGSHOT_ARMS = "sling_shot_arms";
 	
 	// Mage
 	public static final String MAGE_IDLE = "mage_idle";
