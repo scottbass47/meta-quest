@@ -1057,7 +1057,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.WALL_SLIDING, assets.getSpriteAnimation(Assets.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getSpriteAnimation(Assets.ROGUE_RUN_LEGS));
 		animMap.put(EntityAnim.RUN_ARMS, assets.getSpriteAnimation(Assets.ROGUE_RUN_ARMS));
-		animMap.put(EntityAnim.THROW, assets.getSpriteAnimation(Assets.ROGUE_SLINGSHOT_ARMS));
+		animMap.put(EntityAnim.THROW, assets.getSpriteAnimation(Assets.ROGUE_THROW_ARMS));
 		animMap.put(EntityAnim.BACK_PEDAL, assets.getSpriteAnimation(Assets.ROGUE_BACK_PEDAL_LEGS));
 		animMap.put(EntityAnim.BACK_PEDAL_ARMS, assets.getSpriteAnimation(Assets.ROGUE_BACK_PEDAL_ARMS));
 		animMap.put(EntityAnim.JUMP_APEX, assets.getSpriteAnimation(Assets.ROGUE_APEX_LEGS));

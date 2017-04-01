@@ -115,6 +115,7 @@ public class WorldCollision implements ContactListener {
 		}
 	}
 
+	// BUG Nullpointer exception on line 127
 	@Override
 	public void postSolve(Contact contact, ContactImpulse impulse) {
 		Fixture f1 = contact.getFixtureA();
