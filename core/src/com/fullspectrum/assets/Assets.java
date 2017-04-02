@@ -83,7 +83,8 @@ public class Assets {
 
 	
 	// Rogue
-	public static final String ROGUE_IDLE = "rogue_idle";
+	public static final String ROGUE_IDLE_LEGS = "rogue_idle_legs";
+	public static final String ROGUE_IDLE_ARMS = "rogue_idle_arms";
 	public static final String ROGUE_PROJECTILE = "rogue_projectile";
 	public static final String ROGUE_RUN_LEGS = "rogue_run_legs";
 	public static final String ROGUE_RUN_ARMS = "rogue_run_arms";

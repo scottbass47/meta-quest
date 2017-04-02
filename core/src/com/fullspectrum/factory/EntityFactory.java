@@ -1013,6 +1013,7 @@ public class EntityFactory {
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
 		InputTransitionData notAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 		
+		// BUG You can exploit the fact that from the projectile_attack state you can transition to cleanup and then back to attack, avoiding the cooldown
 		rogueSM.addTransition(rogueSM.one(EntityStates.CLEAN_UP, EntityStates.IDLING), Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
 		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.8f), EntityStates.IDLING);
 		rogueSM.addTransition(rogueSM.one(EntityStates.PROJECTILE_ATTACK, EntityStates.IDLING), Transitions.INPUT, notAttacking, EntityStates.CLEAN_UP);
@@ -1036,7 +1037,8 @@ public class EntityFactory {
 				anim == EntityAnim.APEX_ARMS ||
 				anim == EntityAnim.FALL_ARMS ||
 				anim == EntityAnim.RUN_ARMS ||
-				anim == EntityAnim.BACK_PEDAL_ARMS;
+				anim == EntityAnim.BACK_PEDAL_ARMS ||
+				anim == EntityAnim.IDLE_ARMS;
 	}
 	
 	private static boolean isActiveState(EntityAnim anim){
@@ -1048,7 +1050,8 @@ public class EntityFactory {
 		
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.ROGUE_IDLE));
+		animMap.put(EntityAnim.IDLE, assets.getSpriteAnimation(Assets.ROGUE_IDLE_LEGS));
+		animMap.put(EntityAnim.IDLE_ARMS, assets.getSpriteAnimation(Assets.ROGUE_IDLE_ARMS));
 		animMap.put(EntityAnim.FALLING, assets.getSpriteAnimation(Assets.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getSpriteAnimation(Assets.KNIGHT_RISE));
 		animMap.put(EntityAnim.LAND, assets.getSpriteAnimation(Assets.KNIGHT_LAND));
@@ -1148,6 +1151,8 @@ public class EntityFactory {
 					// If there is no active ability or you just transitioned from an active state go to default arms
 					if(rogueComp.animState == null || isActiveState(oldAnim)){
 						switch(entityState){
+						case IDLING:
+							return EntityAnim.IDLE_ARMS;
 						case RUNNING:
 							return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL_ARMS : EntityAnim.RUN_ARMS;
 						case JUMPING:
@@ -1172,6 +1177,7 @@ public class EntityFactory {
 				}
 			});
 			
+		upperBodyASM.createState(EntityAnim.IDLE_ARMS);
 		upperBodyASM.createState(EntityAnim.RUN_ARMS);
 		upperBodyASM.createState(EntityAnim.BACK_PEDAL_ARMS);
 		upperBodyASM.createState(EntityAnim.RISE_ARMS);
@@ -1238,7 +1244,8 @@ public class EntityFactory {
 						EntityAnim.BACK_PEDAL_ARMS, 
 						EntityAnim.FALL_ARMS, 
 						EntityAnim.JUMP_ARMS, 
-						EntityAnim.RISE_ARMS), new Transition() {
+						EntityAnim.RISE_ARMS,
+						EntityAnim.IDLE_ARMS), new Transition() {
 							@Override
 							public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 								return Mappers.rogue.get(entity).doThrowingAnim;
@@ -1261,6 +1268,8 @@ public class EntityFactory {
 				EntityStates entityState = esm.getCurrentState();
 				
 				switch(entityState){
+				case IDLING:
+					return EntityAnim.IDLE;
 				case RUNNING:
 					return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL : EntityAnim.RUN;
 				case JUMPING:
@@ -1273,6 +1282,7 @@ public class EntityFactory {
 			}
 		});
 		
+		lowerBodyASM.createState(EntityAnim.IDLE);
 		lowerBodyASM.createState(EntityAnim.RUN);
 		lowerBodyASM.createState(EntityAnim.BACK_PEDAL);
 		lowerBodyASM.createState(EntityAnim.JUMP);
@@ -1284,6 +1294,11 @@ public class EntityFactory {
 		lowerBodyASM.addTransition(EntityAnim.BACK_PEDAL, notBackpedalingTransition, EntityAnim.RUN);
 		
 		// Add machines to split body states
+		EntityState idleState = esm.getState(EntityStates.IDLING);
+		idleState.removeAnimations();
+		idleState.addSubstateMachine(lowerBodyASM);
+		idleState.addSubstateMachine(upperBodyASM);
+		
 		EntityState runState = esm.getState(EntityStates.RUNNING);
 		runState.removeAnimations();
 		runState.addSubstateMachine(lowerBodyASM);
@@ -1298,145 +1313,6 @@ public class EntityFactory {
 		fallState.removeAnimations();
 		fallState.addSubstateMachine(lowerBodyASM);
 		fallState.addSubstateMachine(upperBodyASM);
-		
-//		// RUNNING TO BACK PEDALING AND VICE VERSA TRANSITIONS
-//		AnimationStateMachine runningASM = esm.getState(EntityStates.RUNNING).getASM();
-//		runningASM.createState(EntityAnim.BACK_PEDAL);
-//		
-//		runningASM.addTransition(EntityAnim.RUN, backpedalingTransition, EntityAnim.BACK_PEDAL);
-//		runningASM.addTransition(EntityAnim.BACK_PEDAL, notBackpedalingTransition, EntityAnim.RUN);
-//		
-//		runningASM.setDebugName("Running ASM");
-////		System.out.println(runningASM.printTransitions());
-//		
-//		// ***************************
-//		// * Upper Body Throwing ASM *
-//		// ***************************
-//		
-//		AnimationStateMachine throwingASM = new AnimationStateMachine(rogue, new StateObjectCreator());
-//		throwingASM.createState(EntityAnim.RUN_ARMS)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					ASMComponent asmComp = Mappers.asm.get(entity);
-//					final AnimationStateMachine throwingASM = asmComp.get(EntityAnim.RUN_ARMS);
-//					final AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUN);
-//
-//					// CLEANUP More 0 second timers....
-//					Mappers.timer.get(entity).add("delayed_time_set", 0.0f, false, new TimeListener() {
-//						@Override
-//						public void onTime(Entity entity) {
-//							throwingASM.setTime(runningASM.getAnimationTime());							
-//						}
-//					});
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//					
-//				}
-//			});a
-//		throwingASM.createState(EntityAnim.BACK_PEDAL_ARMS)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					ASMComponent asmComp = Mappers.asm.get(entity);
-//					final AnimationStateMachine throwingASM = asmComp.get(EntityAnim.RUN_ARMS);
-//					final AnimationStateMachine runningASM = asmComp.get(EntityAnim.RUN);
-//
-//					// CLEANUP More 0 second timers....
-//					Mappers.timer.get(entity).add("delayed_time_set", 0.0f, false, new TimeListener() {
-//						@Override
-//						public void onTime(Entity entity) {
-//							throwingASM.setTime(runningASM.getAnimationTime());							
-//						}
-//					});
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//					
-//				}
-//			});
-//		throwingASM.createState(EntityAnim.RUN_THROW)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-////					AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.RUN_THROW);
-////					System.out.println("Time After Changing: " + asm.getAnimationTime());
-//					Mappers.rogue.get(entity).doThrowingAnim = false;
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//				}
-//			});
-//		throwingASM.createState(EntityAnim.BACK_PEDAL_THROW)
-//			.addChangeListener(new StateChangeListener() {
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					Mappers.rogue.get(entity).doThrowingAnim = false;
-//				}
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//				}
-//			});
-//		
-//		// Throwing transition
-//		Transition throwTransition = new Transition() {
-//			@Override
-//			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-//				return Mappers.rogue.get(entity).doThrowingAnim;
-//			}
-//			
-//			@Override
-//			public boolean allowMultiple() {
-//				return false;
-//			}
-//			
-//			@Override
-//			public String toString() {
-//				return "Throw";
-//			}
-//		};
-//		
-//		throwingASM.addTransition(EntityAnim.RUN_THROW, Transitions.ANIMATION_FINISHED, EntityAnim.RUN_ARMS);
-//		throwingASM.addTransition(EntityAnim.BACK_PEDAL_THROW, Transitions.ANIMATION_FINISHED, EntityAnim.BACK_PEDAL_ARMS);
-//		throwingASM.addTransition(EntityAnim.RUN_ARMS, throwTransition, EntityAnim.RUN_THROW);
-//		throwingASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, throwTransition, EntityAnim.BACK_PEDAL_THROW);
-//		throwingASM.addTransition(EntityAnim.RUN_ARMS, backpedalingTransition, EntityAnim.BACK_PEDAL_ARMS);
-//		throwingASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, notBackpedalingTransition, EntityAnim.RUN_ARMS);
-//		
-//		throwingASM.setDebugName("Throwing ASM");
-////		System.out.println(throwingASM.printTransitions());
-//		
-//		// Add the new animation state machine as a substate machine of the running entity state (should handle initial state change)
-//		esm.getState(EntityStates.RUNNING).addSubstateMachine(throwingASM);
-		
-		// ********************************************
-		
-//		esm.createState(EntityStates.WALL_JUMP)
-//			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
-//			.addAnimation(EntityAnim.JUMP)
-//			.addAnimation(EntityAnim.RISE)
-//			.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
-//			.addTag(TransitionTag.AIR_STATE)
-//			.addChangeListener(new StateChangeListener(){
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					EngineComponent engineComp = Mappers.engine.get(entity);
-//					CollisionComponent collisionComp = Mappers.collision.get(entity);
-//					FacingComponent facingComp = Mappers.facing.get(entity);
-//					
-//					// Get the jump force and remove the component
-//					float fx = Mappers.speed.get(entity).maxSpeed;
-//					float fy = 15.0f;
-//					if(collisionComp.onRightWall()) fx = -fx;
-//					facingComp.facingRight = Math.signum(fx) < 0 ? false : true;
-//					entity.add(engineComp.engine.createComponent(ForceComponent.class).set(fx, fy));
-//				}
-//
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//				}
-//			});
 		
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.SWING)
