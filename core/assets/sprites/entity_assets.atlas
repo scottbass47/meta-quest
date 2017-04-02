@@ -1088,42 +1088,42 @@ rogue_back_pedal_arms
   orig: 48, 48
   offset: 0, 0
   index: 6
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 1688, 138
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 1850, 138
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 60, 192
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 6, 192
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 1310, 138
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
-rogue_backpedal_legs
+rogue_back_pedal_legs
   rotate: false
   xy: 1742, 138
   size: 48, 48

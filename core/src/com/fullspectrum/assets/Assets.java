@@ -88,7 +88,7 @@ public class Assets {
 	public static final String ROGUE_RUN_LEGS = "rogue_run_legs";
 	public static final String ROGUE_RUN_ARMS = "rogue_run_arms";
 	public static final String ROGUE_THROW_ARMS = "rogue_throw_arms";
-	public static final String ROGUE_BACK_PEDAL_LEGS = "rogue_backpedal_legs";
+	public static final String ROGUE_BACK_PEDAL_LEGS = "rogue_back_pedal_legs";
 	public static final String ROGUE_BACK_PEDAL_ARMS = "rogue_back_pedal_arms";
 	public static final String ROGUE_APEX_LEGS = "rogue_apex_legs";
 	public static final String ROGUE_APEX_ARMS = "rogue_apex_arms";
