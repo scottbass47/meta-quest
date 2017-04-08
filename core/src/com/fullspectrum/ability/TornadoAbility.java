@@ -88,7 +88,7 @@ public class TornadoAbility extends TimedAbility{
 		for(Entity e : toPull){
 			EntityUtils.add(e, ControlledMovementComponent.class).set(new Movement() {
 				@Override
-				public Vector2 getSpeed(Entity entity, float delta) {
+				public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
 					// Get the player
 					Entity player = EntityUtils.getPlayer(Mappers.engine.get(entity).engine);
 					

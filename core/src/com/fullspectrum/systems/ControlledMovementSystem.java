@@ -18,10 +18,11 @@ public class ControlledMovementSystem extends IteratingSystem{
 	protected void processEntity(Entity entity, float deltaTime) {
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		ControlledMovementComponent controlledMovementComp = Mappers.controlledMovement.get(entity);
+		controlledMovementComp.elapsed += deltaTime;
 		
 		Vector2 expectedSpeed = new Vector2();
 		if(controlledMovementComp.movement != null){
-			expectedSpeed.set(controlledMovementComp.movement.getSpeed(entity, deltaTime));
+			expectedSpeed.set(controlledMovementComp.movement.getVelocity(entity, controlledMovementComp.elapsed, deltaTime));
 		}
 		
 		Vector2 actualSpeed = bodyComp.body.getLinearVelocity();

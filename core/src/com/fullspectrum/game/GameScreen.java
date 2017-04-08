@@ -92,6 +92,7 @@ import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
 import com.fullspectrum.systems.RemovalSystem;
 import com.fullspectrum.systems.RenderingSystem;
+import com.fullspectrum.systems.RotationSystem;
 import com.fullspectrum.systems.SpawnerSystem;
 import com.fullspectrum.systems.SwingingSystem;
 import com.fullspectrum.systems.TargetingSystem;
@@ -225,6 +226,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new KnockBackSystem()); // order matters, knockback has to come after movement systems
 		engine.addSystem(new VelocitySystem());
 		engine.addSystem(new PositioningSystem());
+		engine.addSystem(new RotationSystem());
 		engine.addSystem(new FacingSystem());
 		engine.addSystem(new CameraSystem());
 		engine.addSystem(new BarrierSystem());

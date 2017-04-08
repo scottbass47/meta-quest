@@ -53,6 +53,8 @@ import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.CombustibleComponent;
+import com.fullspectrum.component.ControlledMovementComponent;
+import com.fullspectrum.component.ControlledMovementComponent.Movement;
 import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
@@ -2418,6 +2420,17 @@ public class EntityFactory {
 					Mappers.death.get(entity).triggerDeath();
 				}
 			});
+			return this;
+		}
+		
+		public ProjectileBuilder controlledMovement(Movement movement){
+			projectile.remove(ForceComponent.class);
+			projectile.add(engine.createComponent(ControlledMovementComponent.class).set(movement));
+			return this;
+		}
+		
+		public ProjectileBuilder makeRotatable(){
+			Mappers.rotation.get(projectile).automatic = true;
 			return this;
 		}
 		

@@ -8,6 +8,7 @@ import com.badlogic.gdx.utils.Pool.Poolable;
 public class ControlledMovementComponent implements Component, Poolable{
 
 	public Movement movement;
+	public float elapsed;
 	
 	public ControlledMovementComponent set(Movement movement){
 		this.movement = movement;
@@ -17,9 +18,10 @@ public class ControlledMovementComponent implements Component, Poolable{
 	@Override
 	public void reset() {
 		movement = null;
+		elapsed = 0.0f;
 	}
 	
 	public static interface Movement {
-		public Vector2 getSpeed(Entity entity, float delta);
+		public Vector2 getVelocity(Entity entity, float elapsed, float delta);
 	}
 }
