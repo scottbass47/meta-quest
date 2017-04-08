@@ -37,6 +37,7 @@ public class Assets {
 	public static final String SPIN_SLICE_ICON = "spin_slice_icon";
 	public static final String DASH_SLASH_ICON = "dash_slash_icon";
 	public static final String TORNADO_ICON = "tornado_icon";
+	public static final String SLINGSHOT_ICON = "parry_icon";
 
 	// Sprites
 	public static final String SPRITES = "sprites/entity_assets.atlas";
@@ -80,7 +81,6 @@ public class Assets {
 	public static final String KNIGHT_SPIN_SLICE = "knight_slam";
 	public static final String KNIGHT_TORNADO_INIT = "knight_tornado_init";
 	public static final String KNIGHT_TORNADO_SWING = "knight_tornado_swing";
-
 	
 	// Rogue
 	public static final String ROGUE_IDLE_LEGS = "rogue_idle_legs";

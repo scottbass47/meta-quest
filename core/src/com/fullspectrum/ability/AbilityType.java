@@ -13,7 +13,9 @@ public enum AbilityType {
 	SPIN_SLICE,
 	DASH_SLASH,
 	
-
+	// Rogue
+	SLINGSHOT,
+	
 	// Mage
 	MANA_BOMB,
 	

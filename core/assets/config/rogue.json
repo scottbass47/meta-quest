@@ -16,5 +16,10 @@
 	ground_speed: 10.0,
 	air_speed: 10.0,
 	climb_speed: 6.0,
-	jump_force: 20.0,
+	jump_force: 15.0,
+	
+	// Slingshot
+	slingshot_cooldown: 1.0,
+	slingshot_knockback: 100,
+	slingshot_damage: 20
 }

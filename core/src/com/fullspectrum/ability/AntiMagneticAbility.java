@@ -21,6 +21,7 @@ import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.utils.PhysicsUtils;
 
+// BUG Some deflected projectiles move very slowly after being deflected
 public class AntiMagneticAbility extends TimedAbility{
 
 	private float radius = 1.0f;

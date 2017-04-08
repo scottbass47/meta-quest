@@ -30,6 +30,7 @@ import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
 import com.fullspectrum.ability.ParryAbility;
 import com.fullspectrum.ability.SlamAbility;
+import com.fullspectrum.ability.SlingshotAbility;
 import com.fullspectrum.ability.SpinSliceAbility;
 import com.fullspectrum.ability.TornadoAbility;
 import com.fullspectrum.ai.AIBehavior;
@@ -1087,9 +1088,18 @@ public class EntityFactory {
 					 rogueStats.get("shield"), 
 					 rogueStats.get("shield_rate"), 
 					 rogueStats.get("shield_delay")));
-		rogue.add(engine.createComponent(AbilityComponent.class));
 //		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		rogue.add(engine.createComponent(RogueComponent.class));
+
+		SlingshotAbility slingshotAbility = new SlingshotAbility(
+				rogueStats.get("slingshot_cooldown"),
+				Actions.ABILITY_1,
+				animMap.get(EntityAnim.SLINGHOT_ARMS), 
+				rogueStats.get("slingshot_knockback"),
+				rogueStats.get("slingshot_damage"));
+		
+		rogue.add(engine.createComponent(AbilityComponent.class)
+				.add(slingshotAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		

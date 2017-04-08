@@ -15,6 +15,7 @@ public class ProjectileFactory {
 
 	private ProjectileFactory() {
 	}
+	
 
 	public static ProjectileData initProjectile(Entity entity, float xOff, float yOff, float angle) {
 		FacingComponent facingComp = Mappers.facing.get(entity);
@@ -31,6 +32,7 @@ public class ProjectileFactory {
 
 		return new ProjectileData(x, y, angle);
 	}
+
 
 	/**
 	 * Spawns a bullet relative to the entity using the entities direction. xOff
