@@ -120,6 +120,7 @@ import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityStats;
+import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.AnimationStateMachine;
@@ -1109,7 +1110,6 @@ public class EntityFactory {
 			.jump(rogueStats.get("jump_force"), rogueStats.get("air_speed"), true, true)
 			.fall(rogueStats.get("air_speed"), true)
 			.climb(rogueStats.get("climb_speed"))
-			.wallSlide()
 			.build();
 		
 		Transition backpedalingTransition = new Transition() {
@@ -1146,6 +1146,7 @@ public class EntityFactory {
 		};
 		
 		AnimationStateMachine upperBodyASM = new AnimationStateMachine(rogue, new StateObjectCreator());
+		upperBodyASM.setDebugName("Rogue Upper Body ASM");
 		
 		upperBodyASM.createState(EntityAnim.INIT)
 			.setChangeResolver(new StateChangeResolver() {
@@ -1269,6 +1270,8 @@ public class EntityFactory {
 		upperBodyASM.addTransition(EntityAnim.THROW, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
 		
 		AnimationStateMachine lowerBodyASM = new AnimationStateMachine(rogue, new StateObjectCreator());
+		lowerBodyASM.setDebugName("Rogue Lower Body ASM");
+
 		lowerBodyASM.createState(EntityAnim.INIT).setChangeResolver(new StateChangeResolver() {
 			@Override
 			public State resolve(Entity entity, State oldState) {
@@ -1324,33 +1327,33 @@ public class EntityFactory {
 		fallState.addSubstateMachine(lowerBodyASM);
 		fallState.addSubstateMachine(upperBodyASM);
 		
-		esm.createState(EntityStates.DASH)
-			.addAnimation(EntityAnim.SWING)
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					BodyComponent bodyComp = Mappers.body.get(entity);
-					FacingComponent facingComp = Mappers.facing.get(entity);
-					ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
-					
-					Body body = bodyComp.body;
-					body.setLinearVelocity(body.getLinearVelocity().x, 0);
-					body.setGravityScale(0.0f);
-					
-					// CLEANUP Dash speed should be in config file
-					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
-					entity.add(forceComp);
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					BodyComponent bodyComp = Mappers.body.get(entity);
-					Body body = bodyComp.body;
-					
-					body.setLinearVelocity(0.0f, 0.0f);
-					body.setGravityScale(1.0f);
-				}
-			});
+//		esm.createState(EntityStates.DASH)
+//			.addAnimation(EntityAnim.SWING)
+//			.addChangeListener(new StateChangeListener(){
+//				@Override
+//				public void onEnter(State prevState, Entity entity) {
+//					BodyComponent bodyComp = Mappers.body.get(entity);
+//					FacingComponent facingComp = Mappers.facing.get(entity);
+//					ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
+//					
+//					Body body = bodyComp.body;
+//					body.setLinearVelocity(body.getLinearVelocity().x, 0);
+//					body.setGravityScale(0.0f);
+//					
+//					// CLEANUP Dash speed should be in config file
+//					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
+//					entity.add(forceComp);
+//				}
+//
+//				@Override
+//				public void onExit(State nextState, Entity entity) {
+//					BodyComponent bodyComp = Mappers.body.get(entity);
+//					Body body = bodyComp.body;
+//					
+//					body.setLinearVelocity(0.0f, 0.0f);
+//					body.setGravityScale(1.0f);
+//				}
+//			});
 				
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
@@ -1372,8 +1375,6 @@ public class EntityFactory {
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
-		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ABILITY_1, true).build();
-		TimeTransitionData dashTime = new TimeTransitionData(0.1f);
 		
 		InputTransitionData ladderInputData = new InputTransitionData.Builder(Type.ANY_ONE, true)
 					.add(Actions.MOVE_UP)
@@ -1431,8 +1432,6 @@ public class EntityFactory {
 //		esm.addTransition(EntityStates.FALLING, wallSlideTransition, EntityStates.WALL_SLIDING);
 //		esm.addTransition(EntityStates.WALL_SLIDING, offWall, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.WALL_SLIDING, Transitions.INPUT, jumpData, EntityStates.WALL_JUMP);
-		esm.addTransition(EntityStates.JUMPING, Transitions.INPUT, dashData, EntityStates.DASH);
-		esm.addTransition(EntityStates.DASH, Transitions.TIME, dashTime, EntityStates.FALLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -1508,7 +1507,9 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileFactory.spawnExplosiveProjectile(entity, 0.0f, 5.0f, mageStats.get("mana_bomb_speed"), mageStats.get("mana_bomb_damage"), 0.0f, 5.0f, 5.0f);
+					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, 0.0f);
+					Entity bomb = EntityFactory.createManaBomb(data.engine, data.world, data.level, data.x, data.y, data.angle, mageStats.get("mana_bomb_damage"), 5.0f, EntityType.FRIENDLY);
+					EntityManager.addEntity(bomb);
 				}
 
 				@Override
@@ -1582,6 +1583,10 @@ public class EntityFactory {
 	// -                 ENEMIES                   -
 	// ---------------------------------------------
 	
+	
+	// ---------------------------------------------
+	// -                  ENEMIES                  -
+	// ---------------------------------------------
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y) {
 		// Stats
 		EntityStats stats = EntityLoader.get(EntityIndex.AI_PLAYER);
@@ -1734,6 +1739,7 @@ public class EntityFactory {
 //		System.out.println(aism.printTransitions());
 		return player;
 	}
+	
 	
 	public static Entity createSpitter(Engine engine, World world, Level level, float x, float y){
 		// Stats
@@ -1909,6 +1915,7 @@ public class EntityFactory {
 		return entity;
 	}
 	
+	
 	public static Entity createSlime(Engine engine, World world, Level level, float x, float y){
 		// Stats
 		final EntityStats stats = EntityLoader.get(EntityIndex.SLIME);
@@ -2031,6 +2038,7 @@ public class EntityFactory {
 		return slime;
 	}
 	
+	
 	public static Entity createSpawner(Engine engine, World world, Level level, float x, float y){
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
@@ -2071,6 +2079,7 @@ public class EntityFactory {
 		return spawner;
 	}
 	
+	
 	public static Entity createWings(Engine engine, World world, Level level, Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, flapping);
@@ -2086,6 +2095,10 @@ public class EntityFactory {
 		return wings;
 	}
 	
+
+	// ---------------------------------------------
+	// -                   DROPS                   -
+	// ---------------------------------------------
 	public static Entity createCoin(Engine engine, World world, Level level, float x, float y, float fx, float fy, int amount){
 		Animation animation = null;
 		CoinType coinType = CoinType.getCoin(amount);
@@ -2104,6 +2117,7 @@ public class EntityFactory {
 		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
 		return coin;
 	}
+	
 	
 	private static Entity createDrop(Engine engine, World world, Level level, float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2177,6 +2191,12 @@ public class EntityFactory {
 	// -                PROJECTILES                -
 	// ---------------------------------------------
 	
+	
+
+	
+	// ---------------------------------------------
+	// -                PROJECTILES                -
+	// ---------------------------------------------
 	public static Entity createBullet(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type) {
 		return new ProjectileBuilder("bullet", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
@@ -2184,17 +2204,18 @@ public class EntityFactory {
 				.build();
 	}
 	
+	
 	public static Entity createThrowingKnife(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, EntityType type){
 		Entity knife = new ProjectileBuilder("knife", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
 				.animate(null, assets.getSpriteAnimation(Assets.ROGUE_PROJECTILE), null)
-				.makeExplosive(5.0f, 25.0f, 100.0f, 5.0f)
 				.build();
 		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
 		
 		return knife;
 	}
+	
 	
 	public static Entity createSpitProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2216,21 +2237,36 @@ public class EntityFactory {
 		return spit;
 	}
 	
-	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, float radius, float damageDropOffRate){
+	
+	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation init, Animation fly, Animation death){
 		// CLEANUP Generic explosive projectile uses all mana bomb stuff
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.PROJECTILE_FLY, new Animation(0.1f, assets.getSpriteAnimation(Assets.manaBombExplosion).getKeyFrame(0)));
-		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getSpriteAnimation(Assets.manaBombExplosion));
+		animMap.put(EntityAnim.PROJECTILE_INIT, init);
+		animMap.put(EntityAnim.PROJECTILE_FLY, fly);
+		animMap.put(EntityAnim.PROJECTILE_DEATH, death);
 		
-		Entity explosive = new ProjectileBuilder("explosive_projectile", engine, world, level, type, "mana_bomb.json", x, y, speed, angle)
+		Entity explosive = new ProjectileBuilder("explosive_projectile", engine, world, level, type, physicsBody, x, y, speed, angle)
 				.render(true)
 				.makeArced(isArc)
-				.makeExplosive(radius, speed, damage, damageDropOffRate)
-				.animate(null, animMap.get(EntityAnim.PROJECTILE_FLY), animMap.get(EntityAnim.PROJECTILE_DEATH))
+				.makeExplosive(radius, speed, damage, damageDropOffRate, knockback)
+				.animate(animMap.get(EntityAnim.PROJECTILE_INIT), animMap.get(EntityAnim.PROJECTILE_FLY), animMap.get(EntityAnim.PROJECTILE_DEATH))
 				.addStateMachine()
 				.addDamage(damage)
 				.build();
 		return explosive;
+	}
+	
+	
+	public static Entity createManaBomb(Engine engine, World world, Level level, float x, float y, float angle, float damage, float knockback, EntityType type){
+		return createExplosiveProjectile(engine, world, level, 10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
+				null, 
+				new Animation(0.1f, assets.getSpriteAnimation(Assets.manaBombExplosion).getKeyFrames()[0]), 
+				assets.getSpriteAnimation(Assets.manaBombExplosion));
+	}
+	
+	
+	public static Entity createSlingshotProjectile(Engine engine, World world, Level level, float x, float y, float angle, float damage, float knockback, EntityType type){
+		return createManaBomb(engine, world, level, x, y, angle, damage, knockback, type);
 	}
 	
 	public static Entity createExplosiveParticle(Engine engine, World world, Level level, Entity parent, float speed, float angle, float x, float y){
@@ -2242,6 +2278,7 @@ public class EntityFactory {
 		
 		return particle;
 	}
+	
 	
 	private static class ProjectileBuilder {
 		
@@ -2281,7 +2318,7 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public ProjectileBuilder makeExplosive(final float radius, float speed, final float damage, float damageDropOffRate){
+		public ProjectileBuilder makeExplosive(final float radius, float speed, final float damage, float damageDropOffRate, final float knockback){
 			CollisionListenerComponent listenerComp = Mappers.collisionListener.get(projectile);
 			listenerComp.collisionData.addListener(FixtureType.BULLET, new CollisionListener() {
 				public void beginCollision(CollisionInfo info) {
@@ -2296,7 +2333,7 @@ public class EntityFactory {
 							Mappers.world.get(me).world, 
 							Mappers.level.get(me).level,
 							pos.x, pos.y, 
-							radius, damage, 
+							radius, damage, knockback, 
 							Mappers.type.get(me).type);
 					EntityManager.addEntity(explosion);
 				}
@@ -2393,12 +2430,16 @@ public class EntityFactory {
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
 	
-	public static Entity createExplosion(Engine engine, World world, Level level, float x, float y, float radius, float damage, EntityType type){
+	
+	// ---------------------------------------------
+	// -                 EXPLOSION                 -
+	// ---------------------------------------------
+	public static Entity createExplosion(Engine engine, World world, Level level, float x, float y, float radius, float damage, float knockback, EntityType type){
 		final float SPEED = 15.0f;
 		
 		Entity explosion = new EntityBuilder("explosion", engine, world, level).build();
 		explosion.add(engine.createComponent(PositionComponent.class).set(x, y));
-		EntityUtils.add(explosion, CombustibleComponent.class).set(radius, SPEED, damage, 5.0f).shouldExplode = true; // HACK speed and drop off is hardcoded
+		EntityUtils.add(explosion, CombustibleComponent.class).set(radius, SPEED, damage, 5.0f, knockback).shouldExplode = true; // HACK speed and drop off is hardcoded
 		explosion.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 		
 		// Setup timed death after explosive particles are dead
@@ -2416,6 +2457,10 @@ public class EntityFactory {
 	// -                DAMAGE TEXT                 -
 	// ----------------------------------------------
 	
+	
+	// ---------------------------------------------
+	// -               DAMAGE TEXT                 -
+	// ---------------------------------------------
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
 		Entity entity = new EntityBuilder("damage text", engine, world, level).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
@@ -2434,6 +2479,10 @@ public class EntityFactory {
 	// -                PARTICLES                  -
 	// ---------------------------------------------
 	
+	
+	// ---------------------------------------------
+	// -                PROJECTILES                -
+	// ---------------------------------------------
 	public static Entity createParticle(Engine engine, World world, Level level, Animation animation, float x, float y){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.JUMP, animation);
@@ -2459,6 +2508,10 @@ public class EntityFactory {
 	// -                  CAMERA	                 -
 	// ---------------------------------------------
 	
+	
+	// ---------------------------------------------
+	// -                   CAMERA                  -
+	// ---------------------------------------------
 	public static Entity createCamera(Engine engine, World world, Level level, OrthographicCamera worldCamera){
 		Entity camera = new EntityBuilder("camera", engine, world, level).build();
 		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
@@ -2481,12 +2534,18 @@ public class EntityFactory {
 	// -                   TILES    			   -
 	// ---------------------------------------------
 	
+	
+	// ---------------------------------------------
+	// -                   TILES                   -
+	// ---------------------------------------------
 	public static Entity createTile(Engine engine, World world, Level level, Body body){
 		Entity tile = new EntityBuilder("tile", engine, world, level).build();
 		tile.add(engine.createComponent(BodyComponent.class).set(body));
 		return tile;
 	}
 	
+	
+
 	public static class EntityBuilder{
 		private Engine engine;
 		private World world;

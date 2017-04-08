@@ -49,7 +49,7 @@ public class ExplosiveParticleCollisionListener implements CollisionListener{
 		float distanceTraveled = speed * timeElapsed;
 		
 		// CLEANUP Knockback for mana bomb
-		float knockBackDistance = combustibleComp.radius * 0.5f;
+		float knockback = combustibleComp.knockback;
 		float angle = projectileComp.angle;
 		
 		// For direct hits, check the angle of the explosion relative to the hit entity
@@ -70,7 +70,7 @@ public class ExplosiveParticleCollisionListener implements CollisionListener{
 				break;
 			}
 		}
-		DamageHandler.dealDamage(projectile, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockBackDistance, angle);
+		DamageHandler.dealDamage(projectile, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockback, angle);
 	}
 
 	@Override

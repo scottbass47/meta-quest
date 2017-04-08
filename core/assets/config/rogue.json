@@ -20,6 +20,6 @@
 	
 	// Slingshot
 	slingshot_cooldown: 1.0,
-	slingshot_knockback: 100,
+	slingshot_knockback: 7.0,
 	slingshot_damage: 20
 }

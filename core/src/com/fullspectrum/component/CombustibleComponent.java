@@ -12,17 +12,19 @@ public class CombustibleComponent implements Poolable, Component {
 	public float speed;
 	public float damage;
 	public float dropOffRate; // damage lost per meter traveled
+	public float knockback;
 	public boolean shouldExplode = false;
 	
 	public CombustibleComponent(){
 		hitEntities = new ObjectSet<Entity>();
 	}
 	
-	public CombustibleComponent set(float radius, float speed, float damage, float dropOffRate){
+	public CombustibleComponent set(float radius, float speed, float damage, float dropOffRate, float knockback){
 		this.radius = radius;
 		this.speed = speed;
 		this.damage = damage;
 		this.dropOffRate = dropOffRate;
+		this.knockback = knockback;
 		return this;
 	}
 
@@ -33,6 +35,7 @@ public class CombustibleComponent implements Poolable, Component {
 		speed = 0.0f;
 		damage = 0.0f;
 		dropOffRate = 0.0f;
+		knockback = 0.0f;
 		shouldExplode = false;
 	}
 
