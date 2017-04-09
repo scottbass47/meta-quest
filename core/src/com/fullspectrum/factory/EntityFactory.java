@@ -1137,7 +1137,10 @@ public class EntityFactory {
 				rogueStats.get("homing_knives_cooldown"), 
 				Actions.ABILITY_2,
 				animMap.get(EntityAnim.HOMING_KNIVES_THROW), 
-				(int)rogueStats.get("homing_knives_per_cluster"));
+				(int)rogueStats.get("homing_knives_per_cluster"),
+				rogueStats.get("homing_knives_damage"),
+				rogueStats.get("homing_knives_range"),
+				rogueStats.get("homing_knives_speed"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
@@ -1396,6 +1399,7 @@ public class EntityFactory {
 //			});
 				
 		esm.createState(EntityStates.HOMING_KNIVES)
+			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
@@ -2230,13 +2234,15 @@ public class EntityFactory {
 	}
 	
 	public static Entity createHomingKnife(Engine engine, World world, Level level, Vector2 fromPos, Vector2 toPos, float time, float damage, EntityType type){
-		Entity knife = new ProjectileBuilder("homing_knife", engine, world, level, type, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
+		Entity knife = new ProjectileBuilder("homing_knife", engine, world, level, type, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.radiansToDegrees * MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
 				.addDamage(damage)
-				.render(true)
+				.render(false)
 				.animate(null, assets.getAnimation(Asset.ROGUE_THROWING_KNIFE), null)
-				.disableTileCollisions()
+//				.disableTileCollisions()
 				.build();
-		Mappers.collisionListener.get(knife).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.SENSOR.getListener());
+		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
+		knife.getComponent(StateComponent.class).time = MathUtils.random(8) * GameVars.ANIM_FRAME;
+		Mappers.collisionListener.get(knife).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.HOMING_KNIFE.getListener());
 		
 		return knife;
 	}

@@ -16,7 +16,18 @@ public class ProjectileCollisionListener implements CollisionListener{
 
 	@Override
 	public void beginCollision(CollisionInfo info) {
+	}
+
+	@Override
+	public void endCollision(CollisionInfo info) {
+		
+	}
+
+	@Override
+	public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
 		Entity entity = info.getMe();
+		if(Mappers.death.get(entity).shouldDie()) return;
+		
 		Entity otherEntity = info.getOther();
 		
 		if(info.getOtherCollisionType() == CollisionBodyType.TILE && Mappers.projectile.get(entity).tileCollisionOn){
@@ -31,16 +42,6 @@ public class ProjectileCollisionListener implements CollisionListener{
 		DamageHandler.dealDamage(entity, otherEntity, bulletStatsComp.damage);
 		
 		Mappers.death.get(entity).triggerDeath();
-	}
-
-	@Override
-	public void endCollision(CollisionInfo info) {
-		
-	}
-
-	@Override
-	public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
-		
 	}
 
 	@Override

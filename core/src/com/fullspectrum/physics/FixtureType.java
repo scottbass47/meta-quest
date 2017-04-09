@@ -7,8 +7,13 @@ import static com.fullspectrum.physics.collision.CollisionBodyType.MOB;
 import static com.fullspectrum.physics.collision.CollisionBodyType.PROJECTILE;
 import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 
+import com.badlogic.gdx.physics.box2d.Contact;
+import com.badlogic.gdx.physics.box2d.ContactImpulse;
+import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.component.Mappers;
 import com.fullspectrum.physics.collision.CollisionBodyType;
+import com.fullspectrum.physics.collision.CollisionInfo;
 import com.fullspectrum.physics.collision.CollisionListener;
 import com.fullspectrum.physics.collision.NullCollisionListener;
 import com.fullspectrum.physics.collision.listener.DropCollisionListener;
@@ -119,16 +124,30 @@ public enum FixtureType {
 			return Array.with(MOB);
 		}
 	},
-	SENSOR {
+	HOMING_KNIFE {
 		@Override
 		public CollisionListener getListener() {
-			return new NullCollisionListener();
+			return new CollisionListener() {
+				@Override
+				public void beginCollision(CollisionInfo info) {
+					if(info.getOtherCollisionType() == CollisionBodyType.TILE){
+						Mappers.death.get(info.getMe()).triggerDeath();
+					}
+				}
+				@Override
+				public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
+					contact.setEnabled(false);
+				}
+				public void endCollision(CollisionInfo info) {}
+				public void postSolveCollision(CollisionInfo info, Contact contact, ContactImpulse impulse) { }
+			};
 		}
 
 		@Override
 		public Array<CollisionBodyType> collidesWith() {
-			return new Array<CollisionBodyType>();
+			return Array.with(TILE, MOB);
 		}
+		
 	};
 	
 	public abstract CollisionListener getListener();
