@@ -176,7 +176,6 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                   PLAYER                  -
 	// ---------------------------------------------
-	
 	public static Entity createPlayer(Engine engine, World world, Level level, Input input, float x, float y) {
 //		// Stats
 //		EntityStats playerStats = EntityLoader.get(EntityIndex.PLAYER);
@@ -985,27 +984,18 @@ public class EntityFactory {
 		StateMachine<EntityStates, StateObject> rogueSM = new StateMachine<EntityStates, StateObject>(player, new StateObjectCreator(), EntityStates.class, StateObject.class);
 		rogueSM.setDebugName("Rogue Attack SM");
 		rogueSM.createState(EntityStates.IDLING);
-		rogueSM.createState(EntityStates.CLEAN_UP)
-			.addChangeListener(new StateChangeListener() {
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					Mappers.facing.get(entity).locked = false;
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-				}
-			});
 		rogueSM.createState(EntityStates.PROJECTILE_ATTACK)
 			.addChangeListener(new StateChangeListener(){
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					Mappers.rogue.get(entity).doThrowingAnim = true;
-					Mappers.facing.get(entity).locked = true;
 					Mappers.timer.get(entity).add("delayed_throw", 0.2f, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
-							ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 0.0f, projectileSpeed, projectileDamage, 0.0f);
+							AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
+							if(upperBodyASM.getCurrentState() == EntityAnim.THROW_ARMS) {
+								ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 0.0f, projectileSpeed, projectileDamage, 0.0f);
+							}
 						}
 					});
 				}
@@ -1016,12 +1006,28 @@ public class EntityFactory {
 			});
 		
 		InputTransitionData attacking = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK).build();
-		InputTransitionData notAttacking = new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
+		Transition canThrowTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
+				return isDefaultState((EntityAnim) upperBodyASM.getCurrentState());
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Can Throw";
+			}
+		};
 		
-		// BUG You can exploit the fact that from the projectile_attack state you can transition to cleanup and then back to attack, avoiding the cooldown
-		rogueSM.addTransition(rogueSM.one(EntityStates.CLEAN_UP, EntityStates.IDLING), Transitions.INPUT, attacking, EntityStates.PROJECTILE_ATTACK);
+		MultiTransition throwTransition = new MultiTransition(Transitions.INPUT, attacking).and(canThrowTransition);
+		
+		rogueSM.addTransition(EntityStates.IDLING, throwTransition, EntityStates.PROJECTILE_ATTACK);
 		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.8f), EntityStates.IDLING);
-		rogueSM.addTransition(rogueSM.one(EntityStates.PROJECTILE_ATTACK, EntityStates.IDLING), Transitions.INPUT, notAttacking, EntityStates.CLEAN_UP);
 		
 		rogueSM.changeState(EntityStates.IDLING);
 //		rogueSM.setDebugOutput(true);
@@ -1063,7 +1069,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CLIMBING, assets.getAnimation(Asset.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.ROGUE_RUN_LEGS));
 		animMap.put(EntityAnim.RUN_ARMS, assets.getAnimation(Asset.ROGUE_RUN_ARMS));
-		animMap.put(EntityAnim.THROW, assets.getAnimation(Asset.ROGUE_THROW_ARMS));
+		animMap.put(EntityAnim.THROW_ARMS, assets.getAnimation(Asset.ROGUE_THROW_ARMS));
 		animMap.put(EntityAnim.BACK_PEDAL, assets.getAnimation(Asset.ROGUE_BACK_PEDAL_LEGS));
 		animMap.put(EntityAnim.BACK_PEDAL_ARMS, assets.getAnimation(Asset.ROGUE_BACK_PEDAL_ARMS));
 		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.ROGUE_APEX_LEGS));
@@ -1090,8 +1096,26 @@ public class EntityFactory {
 					 rogueStats.get("shield"), 
 					 rogueStats.get("shield_rate"), 
 					 rogueStats.get("shield_delay")));
-//		rogue.add(engine.createComponent(TintComponent.class).set(Color.RED));
 		rogue.add(engine.createComponent(RogueComponent.class));
+		
+		Mappers.timer.get(rogue).add("backpedal_timer", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Input input = Mappers.input.get(entity).input;
+				FacingComponent facingComp = Mappers.facing.get(entity);
+				RogueComponent rogueComp = Mappers.rogue.get(entity);
+				AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
+				
+				if(input != null && input.isPressed(Actions.ATTACK) || !isDefaultState((EntityAnim)upperBodyASM.getCurrentState())){
+					facingComp.locked = true;
+					rogueComp.facingElapsed = 0.0f;
+				} else {
+					// If you're not attacking and you're in a default state, then add to the elapsed time
+					rogueComp.facingElapsed += GameVars.UPS_INV;
+					facingComp.locked = rogueComp.facingElapsed < rogueComp.facingDelay;
+				}
+			}
+		});
 
 		SlingshotAbility slingshotAbility = new SlingshotAbility(
 				rogueStats.get("slingshot_cooldown"),
@@ -1195,8 +1219,7 @@ public class EntityFactory {
 		upperBodyASM.createState(EntityAnim.RISE_ARMS);
 		upperBodyASM.createState(EntityAnim.APEX_ARMS);
 		upperBodyASM.createState(EntityAnim.FALL_ARMS);
-		upperBodyASM.createState(EntityAnim.BACK_PEDAL_THROW);
-		upperBodyASM.createState(EntityAnim.THROW).addChangeListener(new StateChangeListener() {
+		upperBodyASM.createState(EntityAnim.THROW_ARMS).addChangeListener(new StateChangeListener() {
 			@Override
 			public void onEnter(State prevState, Entity entity) {
 				Mappers.rogue.get(entity).doThrowingAnim = false;
@@ -1267,8 +1290,8 @@ public class EntityFactory {
 							public boolean allowMultiple() {
 								return false;
 							}
-						}, EntityAnim.THROW);
-		upperBodyASM.addTransition(EntityAnim.THROW, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
+						}, EntityAnim.THROW_ARMS);
+		upperBodyASM.addTransition(EntityAnim.THROW_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
 		
 		AnimationStateMachine lowerBodyASM = new AnimationStateMachine(rogue, new StateObjectCreator());
 		lowerBodyASM.setDebugName("Rogue Lower Body ASM");
@@ -1568,11 +1591,6 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                 ENEMIES                   -
 	// ---------------------------------------------
-	
-	
-	// ---------------------------------------------
-	// -                  ENEMIES                  -
-	// ---------------------------------------------
 	public static Entity createAIPlayer(Engine engine, World world, Level level, float x, float y) {
 		// Stats
 		EntityStats stats = EntityLoader.get(EntityIndex.AI_PLAYER);
@@ -1726,7 +1744,6 @@ public class EntityFactory {
 //		System.out.println(aism.printTransitions());
 		return player;
 	}
-	
 	
 	public static Entity createSpitter(Engine engine, World world, Level level, float x, float y){
 		// Stats
@@ -1902,7 +1919,6 @@ public class EntityFactory {
 		return entity;
 	}
 	
-	
 	public static Entity createSlime(Engine engine, World world, Level level, float x, float y){
 		// Stats
 		final EntityStats stats = EntityLoader.get(EntityIndex.SLIME);
@@ -2025,7 +2041,6 @@ public class EntityFactory {
 		return slime;
 	}
 	
-	
 	public static Entity createSpawner(Engine engine, World world, Level level, float x, float y){
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
@@ -2066,7 +2081,6 @@ public class EntityFactory {
 		return spawner;
 	}
 	
-	
 	public static Entity createWings(Engine engine, World world, Level level, Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, flapping);
@@ -2081,7 +2095,6 @@ public class EntityFactory {
 		wings.add(engine.createComponent(EffectComponent.class));
 		return wings;
 	}
-	
 
 	// ---------------------------------------------
 	// -                   DROPS                   -
@@ -2191,7 +2204,6 @@ public class EntityFactory {
 				.build();
 	}
 	
-	
 	public static Entity createThrowingKnife(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, EntityType type){
 		Entity knife = new ProjectileBuilder("knife", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
@@ -2202,7 +2214,6 @@ public class EntityFactory {
 		
 		return knife;
 	}
-	
 	
 	public static Entity createSpitProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2224,7 +2235,6 @@ public class EntityFactory {
 		return spit;
 	}
 	
-	
 	public static Entity createExplosiveProjectile(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation init, Animation fly, Animation death){
 		// CLEANUP Generic explosive projectile uses all mana bomb stuff
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2243,14 +2253,12 @@ public class EntityFactory {
 		return explosive;
 	}
 	
-	
 	public static Entity createManaBomb(Engine engine, World world, Level level, float x, float y, float angle, float damage, float knockback, EntityType type){
 		return createExplosiveProjectile(engine, world, level, 10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
 				null, 
 				new Animation(0.1f, assets.getAnimation(Asset.MANA_BOMB_EXPLOSION).getKeyFrames()[0]), 
 				assets.getAnimation(Asset.MANA_BOMB_EXPLOSION));
 	}
-	
 	
 	public static Entity createSlingshotProjectile(Engine engine, World world, Level level, float x, float y, float angle, float damage, float knockback, EntityType type){
 		return createExplosiveProjectile(engine, world, level, 10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
@@ -2431,11 +2439,6 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
-	
-	
-	// ---------------------------------------------
-	// -                 EXPLOSION                 -
-	// ---------------------------------------------
 	public static Entity createExplosion(Engine engine, World world, Level level, float x, float y, float radius, float damage, float knockback, EntityType type){
 		final float SPEED = 15.0f;
 		
@@ -2458,11 +2461,6 @@ public class EntityFactory {
 	// ----------------------------------------------
 	// -                DAMAGE TEXT                 -
 	// ----------------------------------------------
-	
-	
-	// ---------------------------------------------
-	// -               DAMAGE TEXT                 -
-	// ---------------------------------------------
 	public static Entity createDamageText(Engine engine, World world, Level level, String text, Color color, BitmapFont font, float x, float y, float speed){
 		Entity entity = new EntityBuilder("damage text", engine, world, level).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
@@ -2479,11 +2477,6 @@ public class EntityFactory {
 	
 	// ---------------------------------------------
 	// -                PARTICLES                  -
-	// ---------------------------------------------
-	
-	
-	// ---------------------------------------------
-	// -                PROJECTILES                -
 	// ---------------------------------------------
 	public static Entity createParticle(Engine engine, World world, Level level, Animation animation, float x, float y){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
@@ -2507,11 +2500,6 @@ public class EntityFactory {
 	}
 	
 	// ---------------------------------------------
-	// -                  CAMERA	                 -
-	// ---------------------------------------------
-	
-	
-	// ---------------------------------------------
 	// -                   CAMERA                  -
 	// ---------------------------------------------
 	public static Entity createCamera(Engine engine, World world, Level level, OrthographicCamera worldCamera){
@@ -2533,11 +2521,6 @@ public class EntityFactory {
 	}
 	
 	// ---------------------------------------------
-	// -                   TILES    			   -
-	// ---------------------------------------------
-	
-	
-	// ---------------------------------------------
 	// -                   TILES                   -
 	// ---------------------------------------------
 	public static Entity createTile(Engine engine, World world, Level level, Body body){
@@ -2545,8 +2528,6 @@ public class EntityFactory {
 		tile.add(engine.createComponent(BodyComponent.class).set(body));
 		return tile;
 	}
-	
-	
 
 	public static class EntityBuilder{
 		private Engine engine;
