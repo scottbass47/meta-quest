@@ -25,6 +25,7 @@ import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.BlacksmithAbility;
 import com.fullspectrum.ability.DashSlashAbility;
+import com.fullspectrum.ability.HomingKnivesAbility;
 import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.OverheadSwingAbility;
@@ -1010,7 +1011,7 @@ public class EntityFactory {
 			@Override
 			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
 				AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
-				return isDefaultState((EntityAnim) upperBodyASM.getCurrentState());
+				return upperBodyASM != null && isDefaultState((EntityAnim) upperBodyASM.getCurrentState());
 			}
 			
 			@Override
@@ -1079,6 +1080,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ROGUE_RISE_LEGS));
 		animMap.put(EntityAnim.RISE_ARMS, assets.getAnimation(Asset.ROGUE_RISE_ARMS));
 		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_SLINGSHOT_ARMS));
+		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		
 		Entity rogue = new EntityBuilder("rogue", engine, world, level)
 			.animation(animMap)
@@ -1106,11 +1108,18 @@ public class EntityFactory {
 				RogueComponent rogueComp = Mappers.rogue.get(entity);
 				AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
 				
-				if(input != null && input.isPressed(Actions.ATTACK) || !isDefaultState((EntityAnim)upperBodyASM.getCurrentState())){
+				if(input != null && (input.isPressed(Actions.ATTACK) || upperBodyASM == null || !isDefaultState((EntityAnim)upperBodyASM.getCurrentState()))){
 					facingComp.locked = true;
 					rogueComp.facingElapsed = 0.0f;
 				} else {
 					// If you're not attacking and you're in a default state, then add to the elapsed time
+					if(input != null){
+						boolean left = input.isPressed(Actions.MOVE_LEFT);
+						boolean right = input.isPressed(Actions.MOVE_RIGHT);
+						if(left == right){
+							rogueComp.facingElapsed = rogueComp.facingDelay;
+						}
+					}
 					rogueComp.facingElapsed += GameVars.UPS_INV;
 					facingComp.locked = rogueComp.facingElapsed < rogueComp.facingDelay;
 				}
@@ -1124,8 +1133,15 @@ public class EntityFactory {
 				rogueStats.get("slingshot_knockback"),
 				rogueStats.get("slingshot_damage"));
 		
+		HomingKnivesAbility homingKnivesAbility = new HomingKnivesAbility(
+				rogueStats.get("homing_knives_cooldown"), 
+				Actions.ABILITY_2,
+				animMap.get(EntityAnim.HOMING_KNIVES_THROW), 
+				(int)rogueStats.get("homing_knives_per_cluster"));
+		
 		rogue.add(engine.createComponent(AbilityComponent.class)
-				.add(slingshotAbility));
+				.add(slingshotAbility)
+				.add(homingKnivesAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1379,6 +1395,12 @@ public class EntityFactory {
 //				}
 //			});
 				
+		esm.createState(EntityStates.HOMING_KNIVES)
+			.add(engine.createComponent(DirectionComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
+			
+		
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
@@ -2118,7 +2140,6 @@ public class EntityFactory {
 		return coin;
 	}
 	
-	
 	private static Entity createDrop(Engine engine, World world, Level level, float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
@@ -2190,13 +2211,6 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                PROJECTILES                -
 	// ---------------------------------------------
-	
-	
-
-	
-	// ---------------------------------------------
-	// -                PROJECTILES                -
-	// ---------------------------------------------
 	public static Entity createBullet(Engine engine, World world, Level level, float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type) {
 		return new ProjectileBuilder("bullet", engine, world, level, type, x, y, speed, angle)
 				.addDamage(damage)
@@ -2211,6 +2225,18 @@ public class EntityFactory {
 				.animate(null, assets.getAnimation(Asset.ROGUE_THROWING_KNIFE), null)
 				.build();
 		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
+		
+		return knife;
+	}
+	
+	public static Entity createHomingKnife(Engine engine, World world, Level level, Vector2 fromPos, Vector2 toPos, float time, float damage, EntityType type){
+		Entity knife = new ProjectileBuilder("homing_knife", engine, world, level, type, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
+				.addDamage(damage)
+				.render(true)
+				.animate(null, assets.getAnimation(Asset.ROGUE_THROWING_KNIFE), null)
+				.disableTileCollisions()
+				.build();
+		Mappers.collisionListener.get(knife).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.SENSOR.getListener());
 		
 		return knife;
 	}
@@ -2276,7 +2302,6 @@ public class EntityFactory {
 		
 		return particle;
 	}
-	
 	
 	private static class ProjectileBuilder {
 		
@@ -2428,6 +2453,11 @@ public class EntityFactory {
 		
 		public ProjectileBuilder makeRotatable(){
 			Mappers.rotation.get(projectile).automatic = true;
+			return this;
+		}
+		
+		public ProjectileBuilder disableTileCollisions(){
+			Mappers.projectile.get(projectile).tileCollisionOn = false;
 			return this;
 		}
 		

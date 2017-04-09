@@ -15,6 +15,7 @@ public enum AbilityType {
 	
 	// Rogue
 	SLINGSHOT,
+	HOMING_KNIVES,
 	
 	// Mage
 	MANA_BOMB,

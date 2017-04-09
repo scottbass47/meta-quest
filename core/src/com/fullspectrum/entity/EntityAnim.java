@@ -49,6 +49,7 @@ public enum EntityAnim implements State{
 	SWING_2,
 	SWING_3,
 	SWING_4,
+	HOMING_KNIVES_THROW,
 	
 	// Rogue Upper Body Defaults
 	IDLE_ARMS,

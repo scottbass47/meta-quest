@@ -19,7 +19,7 @@ public class ProjectileCollisionListener implements CollisionListener{
 		Entity entity = info.getMe();
 		Entity otherEntity = info.getOther();
 		
-		if(info.getOtherCollisionType() == CollisionBodyType.TILE){
+		if(info.getOtherCollisionType() == CollisionBodyType.TILE && Mappers.projectile.get(entity).tileCollisionOn){
 			Mappers.death.get(entity).triggerDeath();
 			return;
 		}
