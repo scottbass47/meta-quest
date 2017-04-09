@@ -21,5 +21,9 @@
 	// Slingshot
 	slingshot_cooldown: 1.0,
 	slingshot_knockback: 7.0,
-	slingshot_damage: 20
+	slingshot_damage: 20,
+	
+	// Homing Knives
+	homing_knives_cooldown: 1.0,
+	homing_knives_per_cluster: 10.0
 }

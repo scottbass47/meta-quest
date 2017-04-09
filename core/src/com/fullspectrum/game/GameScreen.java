@@ -884,5 +884,6 @@ public class GameScreen extends AbstractScreen {
 	public void dispose() {
 		super.dispose();
 		frameBuffer.dispose();
+		assets.dispose();
 	}
 }

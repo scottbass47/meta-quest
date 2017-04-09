@@ -9,7 +9,6 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
-// CLEANUP Consistent naming for static final strings
 public class AssetLoader {
 
 	// Asset Manager
@@ -102,6 +101,10 @@ public class AssetLoader {
 	
 	public BitmapFont getFont(String asset){
 		return manager.get(asset, BitmapFont.class);
+	}
+	
+	public void dispose(){
+		manager.dispose();
 	}
 	
 }

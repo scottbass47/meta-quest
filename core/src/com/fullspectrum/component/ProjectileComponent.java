@@ -10,6 +10,7 @@ public class ProjectileComponent implements Component, Poolable {
 	public float speed;
 	public float angle;
 	public boolean isArc;
+	public boolean tileCollisionOn = true;
 	
 	public ProjectileComponent set(float x, float y, float speed, float angle, boolean isArc){
 		this.x = x;
@@ -27,6 +28,7 @@ public class ProjectileComponent implements Component, Poolable {
 		speed = 0.0f;
 		angle = 0.0f;
 		isArc = false;
+		tileCollisionOn = true;
 	}
 
 }
