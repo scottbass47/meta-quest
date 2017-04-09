@@ -4,7 +4,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlacksmithComponent;
 import com.fullspectrum.component.BodyComponent;
@@ -24,7 +25,7 @@ public class BlacksmithAbility extends TimedAbility{
 	private float maxShield;
 
 	public BlacksmithAbility(float cooldown, Actions input, float duration, float conversionChance, float conversionPercent, float maxShield) {
-		super(AbilityType.BLACKSMITH, Assets.getInstance().getHUDElement(Assets.BLACKSMITH_ICON), cooldown, input, duration, false);
+		super(AbilityType.BLACKSMITH, AssetLoader.getInstance().getRegion(Asset.BLACKSMITH_ICON), cooldown, input, duration, false);
 		this.conversionChance = conversionChance;
 		this.conversionPercent = conversionPercent;
 		this.maxShield = maxShield;
@@ -88,7 +89,7 @@ public class BlacksmithAbility extends TimedAbility{
 				Mappers.level.get(entity).level, 
 				"+" + (int)actualGained, 
 				Color.CYAN, 
-				Assets.getInstance().getFont(Assets.font18), 
+				AssetLoader.getInstance().getFont(AssetLoader.font18), 
 				x, 
 				y, 
 				2.0f));

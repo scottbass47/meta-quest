@@ -9,7 +9,7 @@ import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.BlacksmithAbility;
 import com.fullspectrum.ability.ParryAbility;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlacksmithComponent;
 import com.fullspectrum.component.BlinkComponent;
@@ -161,7 +161,7 @@ public class DamageHandler {
 
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
-		BitmapFont font = Assets.getInstance().getFont(Assets.font18);
+		BitmapFont font = AssetLoader.getInstance().getFont(AssetLoader.font18);
 		
 		int displayShield = (int) shieldDown;
 		int displayHealth = (int) healthDown;

@@ -3,7 +3,8 @@ package com.fullspectrum.ability;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.effects.EffectType;
@@ -24,7 +25,7 @@ public class ParryAbility extends Ability{
 	private SwingComponent swing;
 	
 	public ParryAbility(float cooldown, Actions input, float maxTime, float stunDuration, Animation parrySwingAnimation, SwingComponent swing) {
-		super(AbilityType.PARRY, Assets.getInstance().getHUDElement(Assets.PARRY_ICON), cooldown, input, true);
+		super(AbilityType.PARRY, AssetLoader.getInstance().getRegion(Asset.PARRY_ICON), cooldown, input, true);
 		this.maxTime = maxTime;
 		this.stunDuration = stunDuration;
 		this.swingDuration = parrySwingAnimation.getAnimationDuration();

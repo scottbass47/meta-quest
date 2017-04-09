@@ -2,7 +2,8 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
@@ -15,7 +16,7 @@ public class SpinSliceAbility extends AnimationAbility{
 	private SwingComponent swing;
 
 	public SpinSliceAbility(float cooldown, Actions input, Animation swingAnimation, SwingComponent swing) {
-		super(AbilityType.SPIN_SLICE, Assets.getInstance().getHUDElement(Assets.SPIN_SLICE_ICON), cooldown, input, swingAnimation);
+		super(AbilityType.SPIN_SLICE, AssetLoader.getInstance().getRegion(Asset.SPIN_SLICE_ICON), cooldown, input, swingAnimation);
 		this.swing = swing;
 		setAbilityConstraints(new AbilityConstraints() {
 			@Override

@@ -2,7 +2,8 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityAnim;
@@ -18,7 +19,7 @@ public class SlingshotAbility extends AnimationAbility{
 	private float damage;
 	
 	public SlingshotAbility(float cooldown, Actions input, Animation animation, float knockback, float damage) {	
-		super(AbilityType.SLINGSHOT, Assets.getInstance().getHUDElement(Assets.SLINGSHOT_ICON), cooldown, input, animation);
+		super(AbilityType.SLINGSHOT, AssetLoader.getInstance().getRegion(Asset.SLINGSHOT_ICON), cooldown, input, animation);
 		this.knockback = knockback;
 		this.damage = damage;
 	}

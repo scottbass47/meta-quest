@@ -2,7 +2,8 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
@@ -19,7 +20,7 @@ public class OverheadSwingAbility extends AnimationAbility{
 	private boolean forceDown = false;
 
 	public OverheadSwingAbility(float cooldown, Actions input, Animation swingAnimation, SwingComponent swing) {
-		super(AbilityType.OVERHEAD_SWING, Assets.getInstance().getHUDElement(Assets.OVERHEAD_SWING_ICON), cooldown, input, swingAnimation);
+		super(AbilityType.OVERHEAD_SWING, AssetLoader.getInstance().getRegion(Asset.OVERHEAD_SWING_ICON), cooldown, input, swingAnimation);
 		this.swing = swing;
 		setAbilityConstraints(new AbilityConstraints() {
 			@Override

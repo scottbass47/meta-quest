@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ControlledMovementComponent;
 import com.fullspectrum.component.ControlledMovementComponent.Movement;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
@@ -38,7 +39,7 @@ public class TornadoAbility extends TimedAbility{
 	private int startingFrame;
 
 	public TornadoAbility(float cooldown, Actions input, float duration, float damage, float knockback, float range, int startingFrame) {
-		super(AbilityType.TORNADO, Assets.getInstance().getHUDElement(Assets.TORNADO_ICON), cooldown, input, duration, true);
+		super(AbilityType.TORNADO, AssetLoader.getInstance().getRegion(Asset.TORNADO_ICON), cooldown, input, duration, true);
 		this.damage = damage;
 		this.knockback = knockback;
 		this.range = range;

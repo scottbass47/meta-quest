@@ -1,7 +1,8 @@
 package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ESMComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityStates;
@@ -10,7 +11,7 @@ import com.fullspectrum.input.Actions;
 public class ManaBombAbility extends InstantAbility{
 
 	public ManaBombAbility(float cooldown, Actions input) {
-		super(AbilityType.MANA_BOMB, Assets.getInstance().getSpriteAnimation(Assets.blueCoin).getKeyFrame(0.0f), cooldown, input, true);
+		super(AbilityType.MANA_BOMB, AssetLoader.getInstance().getAnimation(Asset.COIN_BLUE).getKeyFrame(0.0f), cooldown, input, true);
 	}
 
 	@Override

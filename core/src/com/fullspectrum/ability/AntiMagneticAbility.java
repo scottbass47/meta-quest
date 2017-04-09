@@ -8,7 +8,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
@@ -28,7 +29,7 @@ public class AntiMagneticAbility extends TimedAbility{
 	private ObjectSet<Entity> deflected;
 	
 	public AntiMagneticAbility(float cooldown, Actions input, float radius, float time) {
-		super(AbilityType.ANTI_MAGNETIC_ARMOR, Assets.getInstance().getHUDElement(Assets.ANTI_MAGNETIC_ARMOR_ICON), cooldown, input, time);
+		super(AbilityType.ANTI_MAGNETIC_ARMOR, AssetLoader.getInstance().getRegion(Asset.ANTI_MAGNETIC_ARMOR_ICON), cooldown, input, time);
 		this.radius = radius;
 		deflected = new ObjectSet<Entity>();
 	}

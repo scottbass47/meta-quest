@@ -7,7 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.HealthComponent;
@@ -31,7 +32,7 @@ public class DashSlashAbility extends TimedAbility{
 	private float knockUp;
 	
 	public DashSlashAbility(float cooldown, Actions input, float duration, float distance, float damage, float knockUp) {
-		super(AbilityType.DASH_SLASH, Assets.getInstance().getHUDElement(Assets.DASH_SLASH_ICON), cooldown, input, duration, true);
+		super(AbilityType.DASH_SLASH, AssetLoader.getInstance().getRegion(Asset.DASH_SLASH_ICON), cooldown, input, duration, true);
 		this.distance = distance;
 		this.damage = damage;
 		this.knockUp = knockUp;

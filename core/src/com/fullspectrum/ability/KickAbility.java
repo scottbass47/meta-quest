@@ -7,7 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
@@ -29,7 +30,7 @@ public class KickAbility extends AnimationAbility{
 	private boolean hasKicked = false;
 	
 	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
-		super(AbilityType.KICK, Assets.getInstance().getHUDElement(Assets.KICK_ICON), cooldown, input, kickAnimation);
+		super(AbilityType.KICK, AssetLoader.getInstance().getRegion(Asset.KICK_ICON), cooldown, input, kickAnimation);
 		this.animDelay = animDelay;
 		this.range = range;
 		this.knockback = knockback;

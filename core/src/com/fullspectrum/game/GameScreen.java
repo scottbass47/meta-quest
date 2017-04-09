@@ -27,7 +27,8 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.AISMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
@@ -126,7 +127,7 @@ public class GameScreen extends AbstractScreen {
 //	private ShaderProgram mellowShader;
 //	private ShaderProgram glowShader;
 	private int previousZoom = 0;
-	private Assets assets;
+	private AssetLoader assets;
 	private BitmapFont font;
 //	private DebugConsole console;
 	private Console console;
@@ -137,7 +138,7 @@ public class GameScreen extends AbstractScreen {
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
-		assets = Assets.getInstance();
+		assets = AssetLoader.getInstance();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
 		world.setContactListener(new WorldCollision());
@@ -146,7 +147,7 @@ public class GameScreen extends AbstractScreen {
 		assets.loadHUD();
 		assets.loadSprites();
 		assets.loadFont();
-		font = assets.getFont(Assets.font28);
+		font = assets.getFont(AssetLoader.font28);
 		
 		// Setup Debug Console
 //		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
@@ -609,12 +610,11 @@ public class GameScreen extends AbstractScreen {
 		BarrierComponent staminaComp = Mappers.barrier.get(entity);
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 		
-		TextureRegion healthEmpty = assets.getHUDElement(Assets.healthBarEmpty);
-		TextureRegion healthFull = assets.getHUDElement(Assets.healthBarFull);
-		TextureRegion staminaEmpty = assets.getHUDElement(Assets.staminaBarEmpty);
-		TextureRegion staminaFull = assets.getHUDElement(Assets.staminaBarFull);
-		TextureRegion newHud = assets.getHUDElement(Assets.newHud);
-		TextureRegion coin = assets.getSpriteAnimation(Assets.goldCoin).getKeyFrame(0);
+		TextureRegion healthEmpty = assets.getRegion(Asset.HEALTH_BAR_EMPTY);
+		TextureRegion healthFull = assets.getRegion(Asset.HEALTH_BAR_FULL);
+		TextureRegion staminaEmpty = assets.getRegion(Asset.STAMINA_BAR_EMPTY);
+		TextureRegion staminaFull = assets.getRegion(Asset.STAMINA_BAR_FULL);
+		TextureRegion coin = assets.getAnimation(Asset.COIN_GOLD).getKeyFrame(0);
 		
 		float scale = 3.0f;
 

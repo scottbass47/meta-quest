@@ -7,7 +7,8 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.assets.Assets;
+import com.fullspectrum.assets.Asset;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
@@ -34,7 +35,7 @@ public class SlamAbility extends AnimationAbility{
 	private float stunDuration;	
 	
 	public SlamAbility(float cooldown, Actions input, Animation slamAnimation, int frameNum, float range, float damage, float knockback, float stunDuration) {
-		super(AbilityType.SLAM, Assets.getInstance().getHUDElement(Assets.SLAM_ICON), cooldown, input, slamAnimation);
+		super(AbilityType.SLAM, AssetLoader.getInstance().getRegion(Asset.SLAM_ICON), cooldown, input, slamAnimation);
 		this.frameNum = frameNum;
 		this.range = range;
 		this.damage = damage;
