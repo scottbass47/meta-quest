@@ -29,7 +29,7 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class TornadoAbility extends TimedAbility{
 	
-	private ObjectSet<Entity> pulled; // entites that have controlled movement
+	private ObjectSet<Entity> pulled; // entities that have controlled movement
 	private ObjectSet<Entity> hit; // entities that have been hit
 	
 	private float damage;

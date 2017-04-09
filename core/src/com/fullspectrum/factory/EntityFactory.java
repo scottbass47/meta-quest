@@ -2350,7 +2350,7 @@ public class EntityFactory {
 			if(init != null) animMap.put(EntityAnim.PROJECTILE_INIT, init);
 			if(death != null) animMap.put(EntityAnim.PROJECTILE_DEATH, death);
 			animMap.put(EntityAnim.PROJECTILE_FLY, fly);
-			fly.setFrameDuration(GameVars.ANIM_FRAME * 0.5f);
+			fly.setFrameDuration(GameVars.ANIM_FRAME);
 			projectile = new EntityBuilder(projectile).animation(animMap).build();
 			return this;
 		}

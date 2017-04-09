@@ -5,12 +5,14 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.factory.ProjectileFactory;
 import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
+import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 
 public class SlingshotAbility extends AnimationAbility{
@@ -27,8 +29,13 @@ public class SlingshotAbility extends AnimationAbility{
 	@Override
 	protected void init(Entity entity) {
 		Mappers.asm.get(entity).get(EntityAnim.SLINGHOT_ARMS).changeState(EntityAnim.SLINGHOT_ARMS);
-		ProjectileData data = ProjectileFactory.initProjectile(entity, 5.0f, 0.0f, 0.0f);
-		EntityManager.addEntity(EntityFactory.createSlingshotProjectile(data.engine, data.world, data.level, data.x, data.y, data.angle, damage, knockback, EntityType.FRIENDLY));
+		Mappers.timer.get(entity).add("slingshot_delay", GameVars.ANIM_FRAME * 2, false, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				ProjectileData data = ProjectileFactory.initProjectile(entity, 5.0f, 0.0f, 0.0f);
+				EntityManager.addEntity(EntityFactory.createSlingshotProjectile(data.engine, data.world, data.level, data.x, data.y, data.angle, damage, knockback, EntityType.FRIENDLY));
+			}
+		});
 	}
 
 	@Override

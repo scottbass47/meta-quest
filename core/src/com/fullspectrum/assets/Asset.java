@@ -76,6 +76,7 @@ public enum Asset {
 	ROGUE_RISE_ARMS(Atlas.ENTITY, "rise_arms/rogue_rise_arms"),
 	ROGUE_SLINGSHOT_ARMS(Atlas.ENTITY, "sling_shot_arms/rogue_sling_shot_arms"),
 	ROGUE_SLINGSHOT_PROJECTILE(Atlas.ENTITY, "sling_shot_projectile/rogue_sling_shot_projectile"),
+	ROGUE_BOOMERANG_PROJECTILE(Atlas.ENTITY, "boomerang/rogue_boomerang"),
 		
 	// Mage
 	MAGE_IDLE(Atlas.ENTITY, "idle/mage_idle"),

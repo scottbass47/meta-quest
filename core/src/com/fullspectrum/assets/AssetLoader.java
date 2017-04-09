@@ -49,6 +49,7 @@ public class AssetLoader {
 		manager.load(Atlas.HUD.getFilepath(), TextureAtlas.class);
 		manager.finishLoading();
 		
+		// HACK Temporary to get immediate feedback on whether or not assets are loaded
 		for(Asset asset : Asset.values()){
 			if(asset.getAtlas() != Atlas.HUD) continue;
 			getRegion(asset);
@@ -58,7 +59,8 @@ public class AssetLoader {
 	public void loadSprites(){
 		manager.load(Atlas.ENTITY.getFilepath(), TextureAtlas.class);
 		manager.finishLoading();
-		
+
+		// HACK Temporary to get immediate feedback on whether or not assets are loaded
 		for(Asset asset : Asset.values()){
 			if(asset.getAtlas() != Atlas.ENTITY) continue;
 			getAnimation(asset);
