@@ -31,8 +31,12 @@ public class ProjectileCollisionListener implements CollisionListener{
 		
 		Entity otherEntity = info.getOther();
 		
-		if(info.getOtherCollisionType() == CollisionBodyType.TILE && Mappers.projectile.get(entity).tileCollisionOn){
+		boolean hitTile = info.getOtherCollisionType() == CollisionBodyType.TILE;
+		if(hitTile && Mappers.projectile.get(entity).tileCollisionOn){
 			Mappers.death.get(entity).triggerDeath();
+			return;
+		} else if(hitTile) {
+			contact.setEnabled(false);
 			return;
 		}
 		

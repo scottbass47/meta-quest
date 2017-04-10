@@ -38,4 +38,10 @@
 	dash_cooldown: 1.0,
 	dash_distance: 8.0,
 	dash_speed: 50.0,
+	
+	// Boomerang
+	boomerang_cooldown: 1.0,
+	boomerang_speed: 10.0,
+	boomerang_damage: 20.0,
+	boomerang_max_duration: 5.0,
 }

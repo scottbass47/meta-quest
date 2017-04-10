@@ -18,6 +18,7 @@ public enum AbilityType {
 	HOMING_KNIVES,
 	VANISH,
 	DASH,
+	BOOMERANG,
 	
 	// Mage
 	MANA_BOMB,

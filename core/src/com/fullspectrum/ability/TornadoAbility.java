@@ -11,7 +11,6 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ControlledMovementComponent;
-import com.fullspectrum.component.ControlledMovementComponent.Movement;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
@@ -24,6 +23,7 @@ import com.fullspectrum.game.GameVars;
 import com.fullspectrum.handlers.DamageHandler;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
+import com.fullspectrum.movement.Movement;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
 

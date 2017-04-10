@@ -79,7 +79,6 @@ public class VanishAbility extends Ability {
 		EntityUtils.setTargetable(entity, true);
 		elapsed = 0.0f;
 		hasThrown = false;
-		isBlocking = true;
 	}
 	
 }

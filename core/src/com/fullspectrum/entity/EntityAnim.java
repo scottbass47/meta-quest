@@ -63,8 +63,8 @@ public enum EntityAnim implements State{
 	// Rogue Upper Body Abilities
 	THROW_ARMS,
 	SLINGHOT_ARMS,
-	FLASH_POWDER_THROW,
-	BOOMERANG_THROW,
+	FLASH_POWDER_ARMS,
+	BOOMERANG_ARMS,
 	SMOKE_BOMB_ARMS,
 	
 	// Special Init State for resolutions

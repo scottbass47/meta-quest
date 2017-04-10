@@ -13,6 +13,7 @@ public class ProjectileFactory {
 	private ProjectileFactory() {
 	}
 
+	/** Offset are in pixels */
 	public static ProjectileData initProjectile(Entity entity, float xOff, float yOff, float angle) {
 		FacingComponent facingComp = Mappers.facing.get(entity);
 
@@ -50,7 +51,7 @@ public class ProjectileFactory {
 	
 	public static void spawnThrowingKnife(Entity entity, float xOff, float yOff, float speed, float damage, float angle) {
 		ProjectileData data = initProjectile(entity, xOff, yOff, angle);
-		EntityManager.addEntity(EntityFactory.createThrowingKnife(speed, data.angle, data.x, data.y, damage, Mappers.type.get(entity).type));
+		EntityManager.addEntity(EntityFactory.createThrowingKnife(data.x, data.y, speed, data.angle, damage, Mappers.type.get(entity).type));
 	}
 
 //	public static void spawnExplosiveProjectile(Entity entity, float xOff, float yOff, float speed, float damage, float angle, float explosionRadius, float damageDropOffRate) {

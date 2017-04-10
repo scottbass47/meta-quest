@@ -21,8 +21,8 @@ public class ControlledMovementSystem extends IteratingSystem{
 		controlledMovementComp.elapsed += deltaTime;
 		
 		Vector2 expectedSpeed = new Vector2();
-		if(controlledMovementComp.movement != null){
-			expectedSpeed.set(controlledMovementComp.movement.getVelocity(entity, controlledMovementComp.elapsed, deltaTime));
+		if(controlledMovementComp.getCurrentMovement() != null){
+			expectedSpeed.set(controlledMovementComp.getCurrentMovement().getVelocity(entity, controlledMovementComp.elapsed, deltaTime));
 		}
 		
 		Vector2 actualSpeed = bodyComp.body.getLinearVelocity();

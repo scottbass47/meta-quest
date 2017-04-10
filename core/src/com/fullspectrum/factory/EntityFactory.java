@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.BlacksmithAbility;
+import com.fullspectrum.ability.BoomerangAbility;
 import com.fullspectrum.ability.DashAbility;
 import com.fullspectrum.ability.DashSlashAbility;
 import com.fullspectrum.ability.HomingKnivesAbility;
@@ -58,7 +59,6 @@ import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.CombustibleComponent;
 import com.fullspectrum.component.ControlledMovementComponent;
-import com.fullspectrum.component.ControlledMovementComponent.Movement;
 import com.fullspectrum.component.DamageComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.DeathComponent.DeathBehavior;
@@ -161,10 +161,15 @@ import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
 import com.fullspectrum.level.NavMesh;
+import com.fullspectrum.movement.BoomerangCurveMovement;
+import com.fullspectrum.movement.BoomerangLineMovement;
+import com.fullspectrum.movement.Movement;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.FixtureType;
+import com.fullspectrum.physics.collision.CollisionData;
 import com.fullspectrum.physics.collision.CollisionInfo;
 import com.fullspectrum.physics.collision.CollisionListener;
+import com.fullspectrum.physics.collision.listener.BoomerangCollisionListener;
 import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.EntityUtils;
@@ -1086,6 +1091,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.RISE_ARMS, assets.getAnimation(Asset.ROGUE_RISE_ARMS));
 		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_SLINGSHOT_ARMS));
 		animMap.put(EntityAnim.SMOKE_BOMB_ARMS, assets.getAnimation(Asset.ROGUE_SMOKE_BOMB_ARMS));
+		animMap.put(EntityAnim.BOOMERANG_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		
@@ -1139,10 +1145,11 @@ public class EntityFactory {
 				animMap.get(EntityAnim.SLINGHOT_ARMS), 
 				rogueStats.get("slingshot_knockback"),
 				rogueStats.get("slingshot_damage"));
+		slingshotAbility.deactivate();
 		
 		HomingKnivesAbility homingKnivesAbility = new HomingKnivesAbility(
 				rogueStats.get("homing_knives_cooldown"), 
-				Actions.ABILITY_2,
+				Actions.ABILITY_1,
 				animMap.get(EntityAnim.HOMING_KNIVES_THROW), 
 				(int)rogueStats.get("homing_knives_per_cluster"),
 				rogueStats.get("homing_knives_damage"),
@@ -1151,21 +1158,29 @@ public class EntityFactory {
 		
 		VanishAbility vanishAbility = new VanishAbility(
 				rogueStats.get("vanish_cooldown"),
-				Actions.ABILITY_3,
+				Actions.ABILITY_2,
 				rogueStats.get("vanish_duration"));
-		vanishAbility.deactivate();
 		
 		DashAbility dashAbility = new DashAbility(
 				rogueStats.get("dash_cooldown"),
 				Actions.ABILITY_3,
 				rogueStats.get("dash_distance"),
 				rogueStats.get("dash_speed"));
+		dashAbility.deactivate();
+		
+		BoomerangAbility boomerangAbility = new BoomerangAbility(
+				rogueStats.get("boomerang_cooldown"), 
+				Actions.ABILITY_3,
+				rogueStats.get("boomerang_speed"),
+				rogueStats.get("boomerang_damage"),
+				rogueStats.get("boomerang_max_duration"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
 				.add(homingKnivesAbility)
 				.add(vanishAbility)
-				.add(dashAbility));
+				.add(dashAbility)
+				.add(boomerangAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1270,8 +1285,8 @@ public class EntityFactory {
 			}
 		});
 		upperBodyASM.createState(EntityAnim.SLINGHOT_ARMS);
-		upperBodyASM.createState(EntityAnim.FLASH_POWDER_THROW);
-		upperBodyASM.createState(EntityAnim.BOOMERANG_THROW);
+		upperBodyASM.createState(EntityAnim.FLASH_POWDER_ARMS);
+		upperBodyASM.createState(EntityAnim.BOOMERANG_ARMS);
 		upperBodyASM.createState(EntityAnim.SMOKE_BOMB_ARMS);
 		
 		upperBodyASM.setGlobalChangeListener(new GlobalChangeListener() {
@@ -1334,6 +1349,7 @@ public class EntityFactory {
 						}, EntityAnim.THROW_ARMS);
 		upperBodyASM.addTransition(EntityAnim.THROW_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
 		upperBodyASM.addTransition(EntityAnim.SMOKE_BOMB_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
+		upperBodyASM.addTransition(EntityAnim.BOOMERANG_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
 		
 		AnimationStateMachine lowerBodyASM = new AnimationStateMachine(rogue, new StateObjectCreator());
 		lowerBodyASM.setDebugName("Rogue Lower Body ASM");
@@ -2247,14 +2263,12 @@ public class EntityFactory {
 				.build();
 	}
 	
-	public static Entity createThrowingKnife(float speed, float angle, float x, float y, float damage, EntityType type){
+	public static Entity createThrowingKnife(float x, float y, float speed, float angle, float damage, EntityType type){
 		Entity knife = new ProjectileBuilder("knife", type, x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
-				.animate(null, assets.getAnimation(Asset.ROGUE_THROWING_KNIFE), null)
+				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
 				.build();
-		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
-		
 		return knife;
 	}
 	
@@ -2262,14 +2276,30 @@ public class EntityFactory {
 		Entity knife = new ProjectileBuilder("homing_knife", type, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.radiansToDegrees * MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
 				.addDamage(damage)
 				.render(false)
-				.animate(null, assets.getAnimation(Asset.ROGUE_THROWING_KNIFE), null)
-//				.disableTileCollisions()
+				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
 				.build();
-		knife.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
 		knife.getComponent(StateComponent.class).time = MathUtils.random(8) * GameVars.ANIM_FRAME;
 		Mappers.collisionListener.get(knife).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.HOMING_KNIFE.getListener());
 		
 		return knife;
+	}
+	
+	public static Entity createBoomerang(Entity parent, float x, float y, float speed, float turnSpeed, float angle, float damage, EntityType type){
+		Entity boomerang = new ProjectileBuilder("boomerang", type, x, y, speed, angle)
+				.addDamage(damage)
+				.render(true)
+				.animate(assets.getAnimation(Asset.ROGUE_BOOMERANG_PROJECTILE))
+				.controlledMovements(
+						new BoomerangLineMovement(speed, angle),
+						new BoomerangCurveMovement(parent, speed, turnSpeed, angle < 90),
+						new BoomerangLineMovement(speed, 0.0f))
+				.disableTileCollisions()
+				.build();
+		CollisionListenerComponent listenerComp = Mappers.collisionListener.get(boomerang);
+		CollisionData data = listenerComp.collisionData;
+		data.setCollisionListener(FixtureType.BULLET, new BoomerangCollisionListener(parent));
+		Mappers.type.get(boomerang).setCollideWith(EntityType.ENEMY, EntityType.FRIENDLY);
+		return boomerang;
 	}
 	
 	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
@@ -2403,13 +2433,26 @@ public class EntityFactory {
 			return this;
 		}
 		
+		public ProjectileBuilder animate(Animation fly){
+			ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+			animMap.put(EntityAnim.PROJECTILE_FLY, fly);
+			
+			fly.setFrameDuration(GameVars.ANIM_FRAME * 0.5f);
+			
+			projectile.add(engine.createComponent(StateComponent.class).set(EntityAnim.PROJECTILE_FLY));
+			projectile = new EntityBuilder(projectile).animation(animMap).build();
+			return this;
+		}
+		
 		public ProjectileBuilder animate(Animation init, Animation fly, Animation death){
 			if(fly == null) throw new IllegalArgumentException("Flying animation can't be null.");
 			ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 			if(init != null) animMap.put(EntityAnim.PROJECTILE_INIT, init);
 			if(death != null) animMap.put(EntityAnim.PROJECTILE_DEATH, death);
+			
 			animMap.put(EntityAnim.PROJECTILE_FLY, fly);
-			fly.setFrameDuration(GameVars.ANIM_FRAME);
+			fly.setFrameDuration(GameVars.ANIM_FRAME * 0.5f);
+			
 			projectile = new EntityBuilder(projectile).animation(animMap).build();
 			return this;
 		}
@@ -2474,6 +2517,13 @@ public class EntityFactory {
 		public ProjectileBuilder controlledMovement(Movement movement){
 			projectile.remove(ForceComponent.class);
 			projectile.add(engine.createComponent(ControlledMovementComponent.class).set(movement));
+			return this;
+		}
+		
+		public ProjectileBuilder controlledMovements(Movement... movements){
+			projectile.remove(ForceComponent.class);
+			ControlledMovementComponent comp = EntityUtils.add(projectile, ControlledMovementComponent.class);
+			comp.addAll(movements);
 			return this;
 		}
 		
