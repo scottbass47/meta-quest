@@ -28,5 +28,9 @@
 	homing_knives_per_cluster: 10,
 	homing_knives_damage: 1000,
 	homing_knives_range: 10.0,
-	homing_knives_speed: 30.0
+	homing_knives_speed: 30.0,
+	
+	// Vanish
+	vanish_cooldown: 1.0,
+	vanish_duration: 5.0,
 }

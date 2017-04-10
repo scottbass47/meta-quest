@@ -50,7 +50,7 @@ public class LevelManager{
 		this.input = input;
 		
 		// Create Camera
-		camera = EntityFactory.createCamera(engine, world, null, worldCamera);
+		camera = EntityFactory.createCamera(worldCamera);
 		EntityManager.addEntity(camera);
 	}
 	
@@ -63,7 +63,6 @@ public class LevelManager{
 	// 5. Spawn in entities in new level
 	// 6. Spawn in player
 	// 7. Initialize camera (zoom, position, bounds, etc...)
-	@SuppressWarnings({ "unchecked" })
 	public void switchLevel(Theme theme, LevelType type, int level, int secret, int section){
 		if(currentLevel != null){
 			
@@ -82,6 +81,8 @@ public class LevelManager{
 		Level newLevel = new Level(this, info);
 		newLevel.loadMap(batch);
 		
+		EntityFactory.level = newLevel;
+		
 		// 4. Setup nav meshes and flow field for new level
 		Array<EntityIndex> meshes = newLevel.getMeshes();
 		for(EntityIndex index : meshes){
@@ -95,7 +96,7 @@ public class LevelManager{
 		// 5. Spawn in entities in new level
 		for(EntitySpawn spawn : newLevel.getEntitySpawns()){
 			Vector2 spawnPoint = spawn.getPos();
-			Entity enemy = spawn.getIndex().create(engine, world, newLevel, spawnPoint.x, spawnPoint.y);
+			Entity enemy = spawn.getIndex().create(spawnPoint.x, spawnPoint.y);
 			engine.addEntity(enemy);
 		}
 		
@@ -127,7 +128,7 @@ public class LevelManager{
 	public void spawnPlayer(Level newLevel){
 		Entity player = null;
 		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
-			player = EntityIndex.KNIGHT.create(engine, world, newLevel, newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
+			player = EntityIndex.KNIGHT.create(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
 			player.getComponent(InputComponent.class).set(input);
 			engine.addEntity(player);
 			this.player = player;
@@ -223,7 +224,7 @@ public class LevelManager{
 		
 		EntityManager.cleanUp(player);
 		
-		player = index.create(engine, world, currentLevel, x, y);
+		player = index.create(x, y);
 		player.getComponent(InputComponent.class).set(input);
 		engine.addEntity(player);
 		

@@ -271,7 +271,7 @@ public class Level {
 			int width = endCol - startCol + 1;
 			int height = endRow - startRow + 1;
 			
-			Entity tile = EntityFactory.createTile(engine, world, this, null);
+			Entity tile = EntityFactory.createTile(null);
 			Body body = PhysicsUtils.createTilePhysics(world, tile, startCol, startRow, width, height);
 			Mappers.body.get(tile).set(body);
 			bodies.add(body);
@@ -359,7 +359,7 @@ public class Level {
 			float height = (Float) o.getProperties().get("height");
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			
-			Entity entity = new EntityFactory.EntityBuilder("level_trigger", engine, world, this)
+			Entity entity = new EntityFactory.EntityBuilder("level_trigger")
 					.physics("level_trigger.json", spawnPoint.x, spawnPoint.y, false)
 					.build();
 			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));

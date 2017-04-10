@@ -51,6 +51,7 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
@@ -187,6 +188,9 @@ public class GameScreen extends AbstractScreen {
 			}
 		});
 
+		EntityFactory.engine = engine;
+		EntityFactory.world = world;
+		
 		renderer = new RenderingSystem();
 		textRenderer = new TextRenderingSystem(hudCamera);
 		engine.addSystem(renderer);
@@ -256,7 +260,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnEnemy(Node node) {
-		Entity enemy = EntityIndex.AI_PLAYER.create(engine, world, levelManager.getCurrentLevel(), node.getCol() + 0.5f, node.getRow() + 1.0f);
+		Entity enemy = EntityIndex.AI_PLAYER.create(node.getCol() + 0.5f, node.getRow() + 1.0f);
 		engine.addEntity(enemy);
 	}
 	
@@ -271,7 +275,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSpitter(int row, int col){
-		Entity enemy = EntityIndex.SPITTER.create(engine, world, levelManager.getCurrentLevel(), col + 0.5f, row + 0.5f);
+		Entity enemy = EntityIndex.SPITTER.create(col + 0.5f, row + 0.5f);
 		engine.addEntity(enemy);
 	}
 	
@@ -280,7 +284,7 @@ public class GameScreen extends AbstractScreen {
 	}
 	
 	private void spawnSlime(int row, int col){
-		Entity enemy = EntityIndex.SLIME.create(engine, world, levelManager.getCurrentLevel(), col + 0.5f, row + 0.5f);
+		Entity enemy = EntityIndex.SLIME.create(col + 0.5f, row + 0.5f);
 		engine.addEntity(enemy);
 	}
 	
@@ -359,7 +363,7 @@ public class GameScreen extends AbstractScreen {
 		if(DebugVars.SPAWN_ON_CLICK_ENABLED && DebugVars.SPAWN_TYPE != null && DebugVars.SPAWN_AMOUNT > 0 && Mouse.isJustPressed()){
 			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
 			for(int i = 0; i < DebugVars.SPAWN_AMOUNT; i++){
-				engine.addEntity(DebugVars.SPAWN_TYPE.create(engine, world, levelManager.getCurrentLevel(), 
+				engine.addEntity(DebugVars.SPAWN_TYPE.create( 
 						mousePos.x + MathUtils.random(1.0f) - 0.5f, 
 						mousePos.y + MathUtils.random(1.0f) - 0.5f));
 			}

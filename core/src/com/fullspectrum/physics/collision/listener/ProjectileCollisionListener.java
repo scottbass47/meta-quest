@@ -23,6 +23,7 @@ public class ProjectileCollisionListener implements CollisionListener{
 		
 	}
 
+	// PERFORMANCE Gets called every tick
 	@Override
 	public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
 		Entity entity = info.getMe();

@@ -37,7 +37,7 @@ public class Maths {
 	
 	/** Angle in degrees. Returns an angle between 0-360 */
 	public static float normaliseAngle(float angle){
-		// CLEANUP Not efficient for big angles
+		// PERFORMANCE Not efficient for big angles
 		if(angle < 0){
 			while(angle < 0) angle += 360;
 		} else if(angle > 360){

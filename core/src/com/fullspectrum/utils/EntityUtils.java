@@ -10,6 +10,7 @@ import com.fullspectrum.component.PlayerComponent;
 public class EntityUtils {
 	
 	public static final int VALID = 0x1;
+	public static final int TARGETABLE = 0x2;
 	public static boolean engineUpdating = false;
 
 	private EntityUtils(){}
@@ -25,6 +26,19 @@ public class EntityUtils {
 		}
 		else{
 			entity.flags &= ~VALID;
+		}
+	}
+	
+	public static boolean isTargetable(Entity entity){
+		return (entity.flags & TARGETABLE) == TARGETABLE;
+	}
+	
+	public static void setTargetable(Entity entity, boolean valid){
+		if(valid){
+			entity.flags |= TARGETABLE;
+		}
+		else{
+			entity.flags &= ~TARGETABLE;
 		}
 	}
 	

@@ -65,6 +65,7 @@ public enum EntityAnim implements State{
 	SLINGHOT_ARMS,
 	FLASH_POWDER_THROW,
 	BOOMERANG_THROW,
+	SMOKE_BOMB_ARMS,
 	
 	// Special Init State for resolutions
 	INIT;

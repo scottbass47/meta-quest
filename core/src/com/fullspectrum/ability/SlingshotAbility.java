@@ -33,7 +33,7 @@ public class SlingshotAbility extends AnimationAbility{
 			@Override
 			public void onTime(Entity entity) {
 				ProjectileData data = ProjectileFactory.initProjectile(entity, 5.0f, 0.0f, 0.0f);
-				EntityManager.addEntity(EntityFactory.createSlingshotProjectile(data.engine, data.world, data.level, data.x, data.y, data.angle, damage, knockback, EntityType.FRIENDLY));
+				EntityManager.addEntity(EntityFactory.createSlingshotProjectile(data.x, data.y, data.angle, damage, knockback, EntityType.FRIENDLY));
 			}
 		});
 	}

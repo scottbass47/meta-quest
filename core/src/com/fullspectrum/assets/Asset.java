@@ -26,7 +26,7 @@ public enum Asset {
 	C4_ICON(Atlas.HUD, "c4_icon"),
 	DASH_ICON(Atlas.HUD, "dash_icon"),
 	FLASH_POWDER_ICON(Atlas.HUD, "flash_powder_icon"),
-	SMOKE_BOMB_ICON(Atlas.HUD, "anti_magnetic_armor_icon"),
+	VANISH_ICON(Atlas.HUD, "smoke_bomb_icon"),
 	HOMING_KNIVES_ICON(Atlas.HUD, "homing_knives_icon"),
 
 	//Knight
@@ -78,6 +78,7 @@ public enum Asset {
 	ROGUE_SLINGSHOT_PROJECTILE(Atlas.ENTITY, "sling_shot_projectile/rogue_sling_shot_projectile"),
 	ROGUE_BOOMERANG_PROJECTILE(Atlas.ENTITY, "boomerang/rogue_boomerang"),
 	ROGUE_HOMING_KNIVES_THROW(Atlas.ENTITY, "homing_knives_throw/rogue_homing_knives_throw"),
+	ROGUE_SMOKE_BOMB_ARMS(Atlas.ENTITY, "smoke_bomb_arms/rogue_smoke_bomb_arms"),
 		
 	// Mage
 	MAGE_IDLE(Atlas.ENTITY, "idle/mage_idle"),

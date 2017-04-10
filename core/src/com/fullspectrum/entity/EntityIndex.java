@@ -1,67 +1,64 @@
 package com.fullspectrum.entity;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.physics.box2d.World;
 import com.fullspectrum.factory.EntityFactory;
-import com.fullspectrum.level.Level;
 
 public enum EntityIndex {
 
 	// Player
 //	PLAYER {
 //		@Override
-//		public Entity create(Engine engine, World world, Level level, float x, float y) {
-//			return EntityFactory.createPlayer(engine, world, level, null, x, y);
+//		public Entity create(float x, float y) {
+//			return EntityFactory.createPlayer(null, x, y);
 //		}
 //	},
 	KNIGHT {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createKnight(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createKnight(x, y);
 		}
 	},
 	ROGUE {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createRogue(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createRogue(x, y);
 		}
 	},
 	MAGE {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createMage(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createMage(x, y);
 		}
 	},
 	
 	// Enemies
 	SPITTER {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createSpitter(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createSpitter(x, y);
 		}
 	},
 	SLIME {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createSlime(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createSlime(x, y);
 		}
 	},
 	AI_PLAYER {
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createAIPlayer(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createAIPlayer(x, y);
 		}
 	},
 	SPAWNER{
 		@Override
-		public Entity create(Engine engine, World world, Level level, float x, float y) {
-			return EntityFactory.createSpawner(engine, world, level, x, y);
+		public Entity create(float x, float y) {
+			return EntityFactory.createSpawner(x, y);
 		}
 	};
 	
 	// TODO Consider including Input as a needed argument
-	public abstract Entity create(Engine engine, World world, Level level, float x, float y);
+	public abstract Entity create(float x, float y);
 	
 	public String getName(){
 		return name().toLowerCase();

@@ -17,14 +17,12 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
-import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityManager;
@@ -43,8 +41,6 @@ public class DamageHandler {
 
 	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackAngle) {
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
-		WorldComponent worldComp = Mappers.world.get(toEntity);
-		LevelComponent levelComp = Mappers.level.get(toEntity);
 		HealthComponent healthComp = Mappers.heatlh.get(toEntity);
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
 		BlacksmithComponent blacksmithComp = Mappers.blacksmith.get(toEntity);
@@ -166,14 +162,14 @@ public class DamageHandler {
 		int displayShield = (int) shieldDown;
 		int displayHealth = (int) healthDown;
 		if (displayShield > 0 && displayHealth > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayShield, Color.BLUE, font, x - 0.5f, y, 2.0f));
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayHealth, Color.RED, font, x + 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, Color.BLUE, font, x - 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x + 0.5f, y, 2.0f));
 		}
 		else if (displayShield > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayShield, Color.BLUE, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, Color.BLUE, font, x, y, 2.0f));
 		}
 		else {
-			EntityManager.addEntity(EntityFactory.createDamageText(engineComp.engine, worldComp.world, levelComp.level, "-" + displayHealth, Color.RED, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x, y, 2.0f));
 		}
 	}
 

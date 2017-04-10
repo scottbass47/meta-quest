@@ -84,9 +84,6 @@ public class BlacksmithAbility extends TimedAbility{
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		EntityManager.addEntity(EntityFactory.createDamageText(
-				Mappers.engine.get(entity).engine, 
-				Mappers.world.get(entity).world, 
-				Mappers.level.get(entity).level, 
 				"+" + (int)actualGained, 
 				Color.CYAN, 
 				AssetLoader.getInstance().getFont(AssetLoader.font18), 

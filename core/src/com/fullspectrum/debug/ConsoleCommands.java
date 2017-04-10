@@ -4,7 +4,6 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
@@ -23,7 +22,6 @@ public class ConsoleCommands extends CommandExecutor {
 
 	private static Entity player;
 	private static Engine engine;
-	private static World world;
 	private static Level level;
 
 	public void show(String name) {
@@ -104,7 +102,7 @@ public class ConsoleCommands extends CommandExecutor {
 					row = MathUtils.random(level.getHeight());
 					col = MathUtils.random(level.getWidth());
 				}
-				Entity entity = index.create(engine, world, level, col + 0.5f, row + 0.5f);
+				Entity entity = index.create(col + 0.5f, row + 0.5f);
 				engine.addEntity(entity);
 			}
 		} 
@@ -204,7 +202,6 @@ public class ConsoleCommands extends CommandExecutor {
 	public static void setPlayer(Entity p) {
 		player = p;
 		engine = Mappers.engine.get(player).engine;
-		world = Mappers.world.get(player).world;
 		level = Mappers.level.get(player).level;
 	}
 }

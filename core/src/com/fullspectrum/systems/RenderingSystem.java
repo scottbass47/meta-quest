@@ -101,7 +101,7 @@ public class RenderingSystem extends EntitySystem {
 		batch.setShader(null);
 	}
 	
-	// CLEANUP Could be a more efficient algorithm
+	// PERFORMANCE Could be a more efficient algorithm
 	private void sortEntities(){
         for (int i = 1; i < sorted.size; i++) {
             for(int j = i ; j > 0 ; j--){

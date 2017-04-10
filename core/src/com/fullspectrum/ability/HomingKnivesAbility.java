@@ -14,6 +14,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.factory.EntityFactory;
@@ -50,13 +51,13 @@ public class HomingKnivesAbility extends AnimationAbility{
 		this.damage = damage;
 		this.range = range;
 		this.speed = speed;
+		addTemporaryImmunties(EffectType.values());
 		setAbilityConstraints(new AbilityConstraints() {
 			@Override
 			public boolean canUse(Ability ability, Entity entity) {
 				return Mappers.collision.get(entity).onGround();
 			}
 		});
-		
 	}
 
 	@Override
@@ -67,7 +68,6 @@ public class HomingKnivesAbility extends AnimationAbility{
 	@Override
 	public void onUpdate(Entity entity, float delta) {
 		int frame = (int)(elapsed / GameVars.ANIM_FRAME);
-
 		boolean facingRight = Mappers.facing.get(entity).facingRight;
 		
 		// Right Throw
@@ -85,7 +85,6 @@ public class HomingKnivesAbility extends AnimationAbility{
 			thrownUp = true;
 			throwKnives(entity, 90.0f);
 		}
-		
 	}
 	
 	private void throwKnives(Entity entity, float angle){
@@ -102,11 +101,19 @@ public class HomingKnivesAbility extends AnimationAbility{
 			ang1 = i * angInc;
 			ang2 = (i + 1) * angInc;
 			
+//			DebugRender.setColor(Color.SCARLET);
+//			DebugRender.setType(ShapeType.Line);
+//			DebugRender.arc(clusterCenter.x, clusterCenter.y, clusterRadius, ang1, ang2 - ang1, 1.0f);
+			
 			float angRand = MathUtils.random(ang1, ang2);
 			float radiusRand = MathUtils.random(0.0f, clusterRadius);
 			
 			Vector2 knifePos = new Vector2(radiusRand * MathUtils.cosDeg(angRand), radiusRand * MathUtils.sinDeg(angRand));
 			knifePos.add(clusterCenter);
+			
+//			DebugRender.setColor(Color.GREEN);
+//			DebugRender.setType(ShapeType.Filled);
+//			DebugRender.circle(knifePos.x, knifePos.y, 0.1f, 1.0f);
 			
 			spawnKnife(entity, knifePos, elapsed);
 		}
@@ -114,9 +121,6 @@ public class HomingKnivesAbility extends AnimationAbility{
 	
 	private void spawnKnife(Entity entity, Vector2 knifePos, final float elapsed){
 		Entity knife = EntityFactory.createHomingKnife(
-				Mappers.engine.get(entity).engine, 
-				Mappers.world.get(entity).world, 
-				Mappers.level.get(entity).level, 
 				PhysicsUtils.getPos(entity), 
 				knifePos, 
 				shootOutTime, damage, Mappers.type.get(entity).type);
@@ -173,7 +177,6 @@ public class HomingKnivesAbility extends AnimationAbility{
 				EntityUtils.add(entity, ForceComponent.class).set(speed * MathUtils.cos(angle), speed * MathUtils.sin(angle));
 			}
 		});
-		
 	}
 	
 	@Override
