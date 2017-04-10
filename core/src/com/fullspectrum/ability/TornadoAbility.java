@@ -51,6 +51,7 @@ public class TornadoAbility extends TimedAbility{
 				return Mappers.collision.get(entity).onGround();
 			}
 		});
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 		pulled = new ObjectSet<Entity>();
 		hit = new ObjectSet<Entity>();
 	}
@@ -59,7 +60,6 @@ public class TornadoAbility extends TimedAbility{
 	protected void init(Entity entity) {
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		Mappers.esm.get(entity).get(EntityStates.TORNADO).changeState(EntityStates.TORNADO);
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}
 
@@ -146,7 +146,6 @@ public class TornadoAbility extends TimedAbility{
 	protected void destroy(Entity entity) {
 		Mappers.body.get(entity).body.setGravityScale(1.0f);
 		Mappers.esm.get(entity).get(EntityStates.TORNADO).changeState(EntityStates.FALLING);
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
 		
 		for(Entity e : pulled){

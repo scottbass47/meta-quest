@@ -48,12 +48,12 @@ public class SlamAbility extends AnimationAbility{
 			}
 		});
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}
 
 	@Override
 	public void init(Entity entity) {
 		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.SLAM);
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}
 
@@ -114,7 +114,6 @@ public class SlamAbility extends AnimationAbility{
 	@Override
 	public void destroy(Entity entity) {
 		Mappers.esm.get(entity).get(EntityStates.SLAM).changeState(EntityStates.IDLING);
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
 		hasSlammed = false;
 	}

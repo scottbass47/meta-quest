@@ -32,11 +32,11 @@ public class AntiMagneticAbility extends TimedAbility{
 		super(AbilityType.ANTI_MAGNETIC_ARMOR, AssetLoader.getInstance().getRegion(Asset.ANTI_MAGNETIC_ARMOR_ICON), cooldown, input, time);
 		this.radius = radius;
 		deflected = new ObjectSet<Entity>();
+		addTemporaryInvincibilities(InvincibilityType.PROJECTILE);
 	}
 
 	@Override
 	public void init(Entity entity) {
-		Mappers.inviciblity.get(entity).add(InvincibilityType.PROJECTILE);
 	}
 
 	@Override
@@ -125,7 +125,6 @@ public class AntiMagneticAbility extends TimedAbility{
 
 	@Override
 	public void destroy(Entity entity) {
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.PROJECTILE);
 		deflected.clear();
 	}
 }

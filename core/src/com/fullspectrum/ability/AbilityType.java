@@ -17,6 +17,7 @@ public enum AbilityType {
 	SLINGSHOT,
 	HOMING_KNIVES,
 	VANISH,
+	DASH,
 	
 	// Mage
 	MANA_BOMB,

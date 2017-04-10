@@ -4,6 +4,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.component.ImmuneComponent;
+import com.fullspectrum.component.InvincibilityComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.input.Actions;
@@ -19,6 +21,8 @@ public abstract class Ability {
 	private AbilityConstraints constraints;
 	private ObjectSet<EffectType> tempImmunities;
 	private ObjectSet<EffectType> savedImmunities;
+	private ObjectSet<InvincibilityType> tempInvincibilities;
+	private ObjectSet<InvincibilityType> savedInvincibilities;
 	
 	// Flags
 	private boolean done = false;
@@ -45,6 +49,8 @@ public abstract class Ability {
 		this.constraints = constraints;
 		tempImmunities = new ObjectSet<EffectType>();
 		savedImmunities = new ObjectSet<EffectType>();
+		tempInvincibilities = new ObjectSet<InvincibilityType>();
+		savedInvincibilities = new ObjectSet<InvincibilityType>();
 	}
 	
 	public final void initAbility(Entity entity){
@@ -52,6 +58,11 @@ public abstract class Ability {
 		ImmuneComponent immuneComp = Mappers.immune.get(entity);
 		savedImmunities.addAll(immuneComp.getImmunities());
 		immuneComp.addAll(tempImmunities);
+		
+		// Init Invincibilities
+		InvincibilityComponent invincibilityComp = Mappers.inviciblity.get(entity);
+		savedInvincibilities.addAll(invincibilityComp.getInvincibilities());
+		invincibilityComp.addAll(tempInvincibilities);
 		
 		init(entity);
 	}
@@ -62,7 +73,8 @@ public abstract class Ability {
 	
 	public final void destroyAbility(Entity entity){
 		// Restore Immunities
-		Mappers.immune.get(entity).setImmunies(savedImmunities);
+		Mappers.immune.get(entity).setImmunities(savedImmunities);
+		Mappers.inviciblity.get(entity).setInvincibilities(savedInvincibilities);
 		
 		destroy(entity);
 	}
@@ -171,5 +183,9 @@ public abstract class Ability {
 	public void addTemporaryImmunties(EffectType... types){
 		tempImmunities.addAll(types);
 	}
-
+	
+	public void addTemporaryInvincibilities(InvincibilityType... types){
+		tempInvincibilities.addAll(types);
+	}
+	
 }

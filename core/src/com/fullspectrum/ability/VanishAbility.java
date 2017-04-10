@@ -28,18 +28,18 @@ public class VanishAbility extends Ability {
 	public VanishAbility(float cooldown, Actions input, float duration){
 		super(AbilityType.VANISH, AssetLoader.getInstance().getRegion(Asset.VANISH_ICON), cooldown, input, true);
 		this.duration = duration;
-		addTemporaryImmunties(EffectType.values());
 		setAbilityConstraints(new AbilityConstraints() {
 			@Override
 			public boolean canUse(Ability ability, Entity entity) {
 				return Mappers.collision.get(entity).onGround();
 			}
 		});
+		addTemporaryImmunties(EffectType.values());
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}
 
 	@Override
 	protected void init(Entity entity) {
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.asm.get(entity).get(EntityAnim.SMOKE_BOMB_ARMS).changeState(EntityAnim.SMOKE_BOMB_ARMS);
 		EntityUtils.setTargetable(entity, false);
 		
@@ -76,7 +76,6 @@ public class VanishAbility extends Ability {
 	@Override
 	protected void destroy(Entity entity) {
 		Mappers.shader.get(entity).shader = null;
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		EntityUtils.setTargetable(entity, true);
 		elapsed = 0.0f;
 		hasThrown = false;

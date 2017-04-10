@@ -33,4 +33,9 @@
 	// Vanish
 	vanish_cooldown: 1.0,
 	vanish_duration: 5.0,
+	
+	// Dash
+	dash_cooldown: 1.0,
+	dash_distance: 8.0,
+	dash_speed: 50.0,
 }

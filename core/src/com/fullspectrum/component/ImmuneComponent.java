@@ -38,7 +38,7 @@ public class ImmuneComponent implements Component, Poolable{
 		return immuneTo;
 	}
 	
-	public void setImmunies(ObjectSet<EffectType> immunities){
+	public void setImmunities(ObjectSet<EffectType> immunities){
 		this.immuneTo = immunities;
 	}
 	

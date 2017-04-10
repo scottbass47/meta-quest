@@ -24,6 +24,7 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
 import com.fullspectrum.ability.AntiMagneticAbility;
 import com.fullspectrum.ability.BlacksmithAbility;
+import com.fullspectrum.ability.DashAbility;
 import com.fullspectrum.ability.DashSlashAbility;
 import com.fullspectrum.ability.HomingKnivesAbility;
 import com.fullspectrum.ability.KickAbility;
@@ -998,7 +999,7 @@ public class EntityFactory {
 						@Override
 						public void onTime(Entity entity) {
 							AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
-							if(upperBodyASM.getCurrentState() == EntityAnim.THROW_ARMS) {
+							if(upperBodyASM != null && upperBodyASM.getCurrentState() == EntityAnim.THROW_ARMS) {
 								ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 0.0f, projectileSpeed, projectileDamage, 0.0f);
 							}
 						}
@@ -1086,6 +1087,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_SLINGSHOT_ARMS));
 		animMap.put(EntityAnim.SMOKE_BOMB_ARMS, assets.getAnimation(Asset.ROGUE_SMOKE_BOMB_ARMS));
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
+		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		
 		Entity rogue = new EntityBuilder("rogue")
 			.animation(animMap)
@@ -1151,11 +1153,19 @@ public class EntityFactory {
 				rogueStats.get("vanish_cooldown"),
 				Actions.ABILITY_3,
 				rogueStats.get("vanish_duration"));
+		vanishAbility.deactivate();
+		
+		DashAbility dashAbility = new DashAbility(
+				rogueStats.get("dash_cooldown"),
+				Actions.ABILITY_3,
+				rogueStats.get("dash_distance"),
+				rogueStats.get("dash_speed"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
 				.add(homingKnivesAbility)
-				.add(vanishAbility));
+				.add(vanishAbility)
+				.add(dashAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1417,6 +1427,8 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
 			
+		esm.createState(EntityStates.DASH)
+			.addAnimation(EntityAnim.DASH);
 		
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

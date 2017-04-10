@@ -29,6 +29,7 @@ public class OverheadSwingAbility extends AnimationAbility{
 			}
 		});
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}
 
 	@Override
@@ -38,7 +39,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 		swingComp.shouldSwing = true;
 		entity.add(swingComp);
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.OVERHEAD_SWING);
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}
 
@@ -64,7 +64,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 	@Override
 	public void destroy(Entity entity) {
 		Mappers.esm.get(entity).get(EntityStates.OVERHEAD_SWING).changeState(EntityStates.IDLING);
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
 		entity.remove(SwingComponent.class);
 		forceDown = false;

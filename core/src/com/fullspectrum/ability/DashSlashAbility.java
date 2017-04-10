@@ -37,12 +37,12 @@ public class DashSlashAbility extends TimedAbility{
 		this.damage = damage;
 		this.knockUp = knockUp;
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 		hitEntities = new ObjectSet<Entity>();
 	}
 
 	@Override
 	protected void init(Entity entity) {
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
@@ -102,7 +102,6 @@ public class DashSlashAbility extends TimedAbility{
 
 	@Override
 	protected void destroy(Entity entity) {
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
 		Mappers.body.get(entity).body.setGravityScale(1.0f);
 		Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);

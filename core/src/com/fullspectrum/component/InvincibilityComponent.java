@@ -23,6 +23,19 @@ public class InvincibilityComponent implements Component, Poolable {
 		return this;
 	}
 	
+	public InvincibilityComponent addAll(ObjectSet<InvincibilityType> types){
+		types.addAll(types);
+		return this;
+	}
+	
+	public ObjectSet<InvincibilityType> getInvincibilities(){
+		return types;
+	}
+	
+	public void setInvincibilities(ObjectSet<InvincibilityType> types){
+		this.types = types;
+	}
+	
 	public boolean isInvincible(Entity me, Entity other){
 		for(InvincibilityType type : types){
 			if(type.isInvincible(me, other)) return true;

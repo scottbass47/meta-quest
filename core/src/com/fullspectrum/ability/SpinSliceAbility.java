@@ -25,6 +25,7 @@ public class SpinSliceAbility extends AnimationAbility{
 			}
 		});
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
+		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}
 
 	@Override
@@ -34,7 +35,6 @@ public class SpinSliceAbility extends AnimationAbility{
 		swingComp.shouldSwing = true;
 		entity.add(swingComp);
 		Mappers.esm.get(entity).get(EntityStates.SPIN_SLICE).changeState(EntityStates.SPIN_SLICE);
-		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = true;
 	}
 
@@ -46,7 +46,6 @@ public class SpinSliceAbility extends AnimationAbility{
 	@Override
 	public void destroy(Entity entity) {
 		Mappers.esm.get(entity).get(EntityStates.SPIN_SLICE).changeState(EntityStates.IDLING);
-		Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
 		Mappers.facing.get(entity).locked = false;
 		entity.remove(SwingComponent.class);
 	}
