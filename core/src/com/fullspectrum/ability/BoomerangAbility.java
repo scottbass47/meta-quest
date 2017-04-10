@@ -20,7 +20,7 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class BoomerangAbility extends Ability {
 
-	private float throwAngle = 45.0f;
+	private float throwAngle = 15.0f;
 	private Phase currentPhase = Phase.OUT;
 	private Entity boomerang;
 	private boolean unlockedOtherAbilities = false;
@@ -30,11 +30,12 @@ public class BoomerangAbility extends Ability {
 	private float elapsed;
 	
 	private float speed;
-	private float turnSpeed = 180.0f;
+	private float turnSpeed = 450f;
 	private float damage;
 	private float distanceOut = 10.0f;
 	private float timeOut;
 	private float maxDuration;
+	private boolean facingRight = true;
 	
 	public BoomerangAbility(float cooldown, Actions input, float speed, float damage, float maxDuration){
 		super(AbilityType.BOOMERANG, AssetLoader.getInstance().getRegion(Asset.BOOMERANG_ICON), cooldown, input, true);
@@ -47,6 +48,7 @@ public class BoomerangAbility extends Ability {
 	@Override
 	protected void init(Entity entity) {
 		Mappers.asm.get(entity).get(EntityAnim.BOOMERANG_ARMS).changeState(EntityAnim.BOOMERANG_ARMS);
+		facingRight = Mappers.facing.get(entity).facingRight;
 	}
 
 	@Override
@@ -66,7 +68,7 @@ public class BoomerangAbility extends Ability {
 			if(elapsed > timeOut){
 				currentPhase = Phase.TURN;
 				Mappers.controlledMovement.get(boomerang).changeMovement(Phase.TURN.ordinal());
-				((BoomerangCurveMovement)Mappers.controlledMovement.get(boomerang).getCurrentMovement()).setCurrentAngle(throwAngle);
+				((BoomerangCurveMovement)Mappers.controlledMovement.get(boomerang).getCurrentMovement()).setCurrentAngle(facingRight ? throwAngle : 180 - throwAngle);
 			}
 			break;
 		case TURN:
@@ -83,10 +85,14 @@ public class BoomerangAbility extends Ability {
 				currentPhase = Phase.BACK;
 				Mappers.controlledMovement.get(boomerang).changeMovement(Phase.BACK.ordinal());
 				((BoomerangLineMovement)Mappers.controlledMovement.get(boomerang).getCurrentMovement()).setAngle(velAngle);
+				elapsed = 0;
 			}
 			break;
 		case BACK:
-			
+			if(elapsed >= maxDuration) {
+				Mappers.death.get(boomerang).triggerDeath();
+				setDone(true);
+			}
 			break;
 		default:
 			break;
@@ -97,8 +103,6 @@ public class BoomerangAbility extends Ability {
 			Mappers.ability.get(entity).unlockAllBlocking();
 			unlockedOtherAbilities = true;
 		}
-		
-		if(elapsed >= maxDuration) setDone(true);
 	}
 
 	@Override
