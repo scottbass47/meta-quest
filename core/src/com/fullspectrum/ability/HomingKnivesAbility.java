@@ -2,7 +2,9 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -14,6 +16,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
@@ -137,7 +140,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 	}
 	
 	private void setupIdlePhase(Entity knife, float elapsed){
-		EntityUtils.add(knife, BobComponent.class).set(1.0f, 0.5f);
+		EntityUtils.add(knife, BobComponent.class).set(1.0f, 0.25f);
 		
 		float time = frameCenterThrow * GameVars.ANIM_FRAME - elapsed + bobTime;
 		Mappers.timer.get(knife).add("target_and_shoot", time, false, new TimeListener() {

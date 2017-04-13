@@ -1834,7 +1834,7 @@ public class EntityFactory {
 		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		entity.add(engine.createComponent(TargetComponent.class).set(new TargetComponent.DefaultTargetBehavior(15.0f * 15.0f)));
 		entity.add(engine.createComponent(MoneyComponent.class).set(money));
-		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 16.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
+		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 4.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
 		entity.getComponent(DeathComponent.class).add(new DeathBehavior(){
 			@Override
 			public void onDeath(Entity entity) {

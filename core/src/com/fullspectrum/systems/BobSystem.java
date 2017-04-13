@@ -22,9 +22,6 @@ public class BobSystem extends IteratingSystem{
 		bobComp.elapsed += deltaTime;
 		float ffy = getFY(bobComp, bobComp.elapsed); // follows sin wave (cos is derivative of sin)
 
-//		System.out.println("Position: " + Mappers.body.get(entity).body.getPosition().y);
-//		System.out.println("Velocity: " + Mappers.body.get(entity).body.getLinearVelocity().y);
-
 		if(Mappers.force.get(entity) == null){
 			entity.add(Mappers.engine.get(entity).engine.createComponent(ForceComponent.class));
 		}
@@ -33,7 +30,8 @@ public class BobSystem extends IteratingSystem{
 	}
 	
 	private float getFY(BobComponent bobComp, float elapsed){
-		return bobComp.bobHeight * MathUtils.cos(bobComp.elapsed * bobComp.bobSpeed * MathUtils.PI2);
+		float freq = bobComp.bobSpeed * MathUtils.PI2;
+		return bobComp.bobHeight * freq * MathUtils.cos(freq * bobComp.elapsed);
 	}
 	
 }
