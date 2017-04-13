@@ -2285,7 +2285,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createBoomerang(Entity parent, float x, float y, float speed, float turnSpeed, float angle, float damage, EntityType type){
-		Entity boomerang = new ProjectileBuilder("boomerang", type, x, y, speed, angle)
+		Entity boomerang = new ProjectileBuilder("boomerang", type, "boomerang.json", x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
 				.animate(assets.getAnimation(Asset.ROGUE_BOOMERANG_PROJECTILE))

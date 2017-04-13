@@ -32,6 +32,12 @@ public class BoomerangCollisionListener implements CollisionListener {
 
 	@Override
 	public void endCollision(CollisionInfo info) {
+		Entity hit = info.getOther();
+		
+		if(info.getOtherCollisionType() == CollisionBodyType.TILE) return;
+		if(!hit.equals(player)){
+			hitEntities.remove(hit);
+		}
 	}
 
 	@Override

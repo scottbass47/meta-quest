@@ -30,7 +30,7 @@ public class BoomerangAbility extends Ability {
 	private float elapsed;
 	
 	private float speed;
-	private float turnSpeed = 450f;
+	private float turnSpeed = 900f;
 	private float damage;
 	private float distanceOut = 10.0f;
 	private float timeOut;
@@ -76,7 +76,7 @@ public class BoomerangAbility extends Ability {
 			Vector2 playerPos = PhysicsUtils.getPos(entity);
 			Vector2 boomerangPos = PhysicsUtils.getPos(boomerang);
 			Vector2 boomerangVel = Mappers.body.get(boomerang).body.getLinearVelocity();
-			float threshold = 5.0f;
+			float threshold = 30.0f;
 			
 			float posAngle = MathUtils.radiansToDegrees * MathUtils.atan2(playerPos.y - boomerangPos.y, playerPos.x - boomerangPos.x);
 			float velAngle = MathUtils.radiansToDegrees * MathUtils.atan2(boomerangVel.y, boomerangVel.x);
@@ -84,7 +84,7 @@ public class BoomerangAbility extends Ability {
 			if(Math.abs(posAngle - velAngle) < threshold){
 				currentPhase = Phase.BACK;
 				Mappers.controlledMovement.get(boomerang).changeMovement(Phase.BACK.ordinal());
-				((BoomerangLineMovement)Mappers.controlledMovement.get(boomerang).getCurrentMovement()).setAngle(velAngle);
+				((BoomerangLineMovement)Mappers.controlledMovement.get(boomerang).getCurrentMovement()).setAngle(posAngle);
 				elapsed = 0;
 			}
 			break;
