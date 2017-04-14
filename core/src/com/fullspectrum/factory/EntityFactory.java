@@ -2306,7 +2306,6 @@ public class EntityFactory {
 						new BoomerangLineMovement(speed, angle),
 						new BoomerangCurveMovement(parent, speed, turnSpeed, angle < 90),
 						new BoomerangLineMovement(speed, 0.0f))
-				.disableTileCollisions()
 				.build();
 		
 		CollisionListenerComponent listenerComp = Mappers.collisionListener.get(boomerang);
@@ -2561,7 +2560,9 @@ public class EntityFactory {
 		}
 		
 		public ProjectileBuilder disableTileCollisions(){
-			Mappers.projectile.get(projectile).tileCollisionOn = false;
+			CollisionData data = Mappers.collisionListener.get(projectile).collisionData;
+			FixtureInfo info = data.getFixtureInfo(FixtureType.BULLET);
+			info.addBehavior(new CollisionFilter.Builder().addBodyTypes(TILE).allEntityTypes().build(), new SensorBehavior());
 			return this;
 		}
 		
@@ -2683,7 +2684,6 @@ public class EntityFactory {
 		return tile;
 	}
 
-	// IMPORTANT Make TypeComponent global
 	public static class EntityBuilder{
 		private Entity entity;
 		
