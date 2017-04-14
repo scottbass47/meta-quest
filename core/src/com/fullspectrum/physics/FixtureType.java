@@ -1,157 +1,160 @@
 package com.fullspectrum.physics;
 
 
-import static com.fullspectrum.physics.collision.CollisionBodyType.ALL;
-import static com.fullspectrum.physics.collision.CollisionBodyType.ITEM;
 import static com.fullspectrum.physics.collision.CollisionBodyType.MOB;
-import static com.fullspectrum.physics.collision.CollisionBodyType.PROJECTILE;
+import static com.fullspectrum.physics.collision.CollisionBodyType.SENSOR;
 import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.physics.collision.CollisionBodyType;
-import com.fullspectrum.physics.collision.CollisionInfo;
-import com.fullspectrum.physics.collision.CollisionListener;
-import com.fullspectrum.physics.collision.NullCollisionListener;
-import com.fullspectrum.physics.collision.listener.DropCollisionListener;
-import com.fullspectrum.physics.collision.listener.ExplosiveParticleCollisionListener;
-import com.fullspectrum.physics.collision.listener.FeetCollisionListener;
-import com.fullspectrum.physics.collision.listener.LevelTriggerCollisionListener;
-import com.fullspectrum.physics.collision.listener.ProjectileCollisionListener;
-import com.fullspectrum.physics.collision.listener.TileCollisionListener;
+import com.fullspectrum.physics.collision.FixtureInfo;
+import com.fullspectrum.physics.collision.behavior.DamageOnCollideBehavior;
+import com.fullspectrum.physics.collision.behavior.DeathOnCollideBehavior;
+import com.fullspectrum.physics.collision.behavior.DropBehavior;
+import com.fullspectrum.physics.collision.behavior.ExplosiveParticleBehavior;
+import com.fullspectrum.physics.collision.behavior.FeetBehavior;
+import com.fullspectrum.physics.collision.behavior.LevelTriggerBehavior;
+import com.fullspectrum.physics.collision.behavior.SolidBehavior;
+import com.fullspectrum.physics.collision.filter.CollisionFilter;
+import com.fullspectrum.physics.collision.filter.PlayerFilter;
 
 public enum FixtureType {
 
 	BODY {
 		@Override
-		public CollisionListener getListener() {
-			return new NullCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			return info;
 		}
 	},
 	GROUND {
 		@Override
-		public CollisionListener getListener() {
-			return new TileCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(MOB, PROJECTILE, ITEM);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.allBodyTypes()
+					.removeBodyType(SENSOR)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new SolidBehavior());
+			return info;
 		}
 	},
 	BULLET{
 		@Override
-		public CollisionListener getListener() {
-			return new ProjectileCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(MOB, TILE);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			// Mob Collision
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(MOB)
+					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.build();
+			
+			info.addBehaviors(filter, 
+					new DeathOnCollideBehavior(),
+					new DamageOnCollideBehavior());
+			
+			// Tile Collision
+			filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new DeathOnCollideBehavior());
+			
+			return info;
 		}
 	},
 	DROP{
 		@Override
-		public CollisionListener getListener() {
-			return new DropCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(TILE, MOB);
-		}
-	},
-	EXPLOSIVE {
-		@Override
-		public CollisionListener getListener() {
-			return new NullCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(ALL);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addCustomFilter(new PlayerFilter())
+					.build();
+			
+			info.addBehaviors(filter, 
+					new DropBehavior(),
+					new DeathOnCollideBehavior());
+					
+			return info;
 		}
 	},
 	EXPLOSIVE_PARTICLE {
 		@Override
-		public CollisionListener getListener() {
-			return new ExplosiveParticleCollisionListener();
-		}
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			// Mob Collision
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(MOB)
+					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.build();
+			
+			info.addBehavior(filter, new ExplosiveParticleBehavior());
 
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(TILE, MOB);
+			// Tile Collision
+			filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new DeathOnCollideBehavior());
+			
+			return info;
 		}
 	},
 	LEVEL_TRIGGER {
 		@Override
-		public CollisionListener getListener() {
-			return new LevelTriggerCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(MOB);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addCustomFilter(new PlayerFilter())
+					.build();
+			
+			info.addBehavior(filter, new LevelTriggerBehavior());
+			
+			return info;
 		}
 	},
 	FEET {
 		@Override
-		public CollisionListener getListener() {
-			return new FeetCollisionListener();
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(TILE);
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new FeetBehavior());
+			
+			return info;
 		}
 	},
 	CONTACT_DAMAGE {
 		@Override
-		public CollisionListener getListener() {
-			return new NullCollisionListener();
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(MOB)
+					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.build();
+			
+			info.addBehavior(filter, new DamageOnCollideBehavior());
+			
+			return info;
 		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(MOB);
-		}
-	},
-	HOMING_KNIFE {
-		@Override
-		public CollisionListener getListener() {
-			return new CollisionListener() {
-				@Override
-				public void beginCollision(CollisionInfo info) {
-					if(info.getOtherCollisionType() == CollisionBodyType.TILE){
-						Mappers.death.get(info.getMe()).triggerDeath();
-					}
-				}
-				@Override
-				public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
-					contact.setEnabled(false);
-				}
-				public void endCollision(CollisionInfo info) {}
-				public void postSolveCollision(CollisionInfo info, Contact contact, ContactImpulse impulse) { }
-			};
-		}
-
-		@Override
-		public Array<CollisionBodyType> collidesWith() {
-			return Array.with(TILE, MOB);
-		}
-		
 	};
 	
-	public abstract CollisionListener getListener();
-	public abstract Array<CollisionBodyType> collidesWith();
+	public abstract FixtureInfo getDefaultInfo(Entity entity);
 	
 	public static FixtureType get(String name){
 		for(FixtureType type : values()){

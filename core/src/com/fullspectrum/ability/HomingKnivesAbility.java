@@ -2,9 +2,7 @@ package com.fullspectrum.ability;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -16,7 +14,6 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
@@ -147,7 +144,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 			@Override
 			public void onTime(Entity entity) {
 				// Setup Proper Collision
-				Mappers.collisionListener.get(entity).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.BULLET.getListener());
+				Mappers.collisionListener.get(entity).collisionData.setFixtureInfo(FixtureType.BULLET, FixtureType.BULLET.getDefaultInfo(entity));
 				
 				// Target Enemy
 				Array<Entity> targets = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {

@@ -30,6 +30,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.Tile.Side;
@@ -359,7 +360,7 @@ public class Level {
 			float height = (Float) o.getProperties().get("height");
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
 			
-			Entity entity = new EntityFactory.EntityBuilder("level_trigger")
+			Entity entity = new EntityFactory.EntityBuilder("level_trigger", EntityType.NEUTRAL)
 					.physics("level_trigger.json", spawnPoint.x, spawnPoint.y, false)
 					.build();
 			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));

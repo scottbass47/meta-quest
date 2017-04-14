@@ -1,5 +1,7 @@
 package com.fullspectrum.factory;
 
+import static com.fullspectrum.physics.collision.CollisionBodyType.*;
+
 import java.util.Comparator;
 
 import com.badlogic.ashley.core.Engine;
@@ -15,9 +17,6 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -52,7 +51,6 @@ import com.fullspectrum.component.BehaviorComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
-import com.fullspectrum.component.BulletStatsComponent;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
@@ -166,10 +164,16 @@ import com.fullspectrum.movement.BoomerangLineMovement;
 import com.fullspectrum.movement.Movement;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.FixtureType;
+import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionData;
-import com.fullspectrum.physics.collision.CollisionInfo;
-import com.fullspectrum.physics.collision.CollisionListener;
-import com.fullspectrum.physics.collision.listener.BoomerangCollisionListener;
+import com.fullspectrum.physics.collision.FixtureInfo;
+import com.fullspectrum.physics.collision.behavior.BoomerangBehavior;
+import com.fullspectrum.physics.collision.behavior.DamageOnCollideBehavior;
+import com.fullspectrum.physics.collision.behavior.DeathOnCollideBehavior;
+import com.fullspectrum.physics.collision.behavior.SensorBehavior;
+import com.fullspectrum.physics.collision.behavior.SpawnExplosionBehavior;
+import com.fullspectrum.physics.collision.filter.CollisionFilter;
+import com.fullspectrum.physics.collision.filter.PlayerFilter;
 import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.EntityUtils;
@@ -326,11 +330,11 @@ public class EntityFactory {
 		animMap.put(EntityAnim.TORNADO_INIT, assets.getAnimation(Asset.KNIGHT_TORNADO_INIT));
 		animMap.put(EntityAnim.TORNADO_SWING, assets.getAnimation(Asset.KNIGHT_TORNADO_SWING));
 		
-		Entity knight = new EntityBuilder("knight")
+		Entity knight = new EntityBuilder("knight", EntityType.FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, EntityType.FRIENDLY, knightStats.get("health"))
+			.mob(null, knightStats.get("health"))
 			.build();
 		
 		// Abilities
@@ -1095,11 +1099,11 @@ public class EntityFactory {
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		
-		Entity rogue = new EntityBuilder("rogue")
+		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, EntityType.FRIENDLY, rogueStats.get("health"))
+			.mob(null, rogueStats.get("health"))
 			.build();
 		
 		// Player Related Components
@@ -1545,12 +1549,13 @@ public class EntityFactory {
 		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
 		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
+		animMap.put(EntityAnim.SWING_1, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
-		Entity mage = new EntityBuilder("mage")
+		Entity mage = new EntityBuilder("mage", EntityType.FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, EntityType.FRIENDLY, mageStats.get("health"))
+			.mob(null, mageStats.get("health"))
 			.build();
 		
 		// Player Related Components
@@ -1680,9 +1685,9 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		
 		// Setup Player
-		Entity player = new EntityBuilder(EntityIndex.AI_PLAYER.getName())
+		Entity player = new EntityBuilder(EntityIndex.AI_PLAYER.getName(), EntityType.ENEMY)
 				.animation(animMap)
-				.mob(controller, EntityType.ENEMY, stats.get("health"))
+				.mob(controller, stats.get("health"))
 				.physics("player.json", x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
 				.build();
@@ -1822,11 +1827,11 @@ public class EntityFactory {
 		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.SPITTER_ATTACK));
 //		animMap.put(EntityAnim.FLAPPING, assets.getAnimation(Assets.spitterWings));
 		AIController controller = new AIController();
-		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName())
+		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName(), EntityType.ENEMY)
 				.animation(animMap)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.physics("spitter.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
-				.mob(controller, EntityType.ENEMY, stats.get("health"))
+				.mob(controller, stats.get("health"))
 				.build();
 		
 		float baseMoney = stats.get("money");
@@ -2000,8 +2005,8 @@ public class EntityFactory {
 		
 		AIController controller = new AIController();
 		
-		Entity slime = new EntityBuilder(EntityIndex.SLIME.getName())
-				.mob(controller, EntityType.ENEMY, stats.get("health"))
+		Entity slime = new EntityBuilder(EntityIndex.SLIME.getName(), EntityType.ENEMY)
+				.mob(controller, stats.get("health"))
 				.physics("slime.json", x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.animation(animMap)
@@ -2112,9 +2117,9 @@ public class EntityFactory {
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
 		
-		Entity spawner = new EntityBuilder(EntityIndex.SPAWNER.getName())
+		Entity spawner = new EntityBuilder(EntityIndex.SPAWNER.getName(), EntityType.ENEMY)
 				.physics("spawner.json", new BodyProperties.Builder().setSleepingAllowed(false).build(), x, y, false)
-				.mob(controller, EntityType.ENEMY, stats.get("health"))
+				.mob(controller, stats.get("health"))
 				.build();
 		
 		float baseMoney = stats.get("money");
@@ -2151,7 +2156,7 @@ public class EntityFactory {
 	public static Entity createWings(Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, flapping);
-		Entity wings = new EntityBuilder("wings of " + Mappers.entity.get(owner).name)
+		Entity wings = new EntityBuilder("wings of " + Mappers.entity.get(owner).name, Mappers.type.get(owner).type)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.animation(animMap)
 				.build();
@@ -2190,7 +2195,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
 		animMap.put(EntityAnim.DROP_DISAPPEAR, dropDisappear);
 		
-		Entity drop = new EntityBuilder(type.name().toLowerCase())
+		Entity drop = new EntityBuilder(type.name().toLowerCase(), EntityType.NEUTRAL)
 				.animation(animMap)
 				.physics(physicsBody, x, y, false)
 				.render(dropIdle.getKeyFrame(0), false)
@@ -2198,7 +2203,6 @@ public class EntityFactory {
 		
 		drop.add(engine.createComponent(ForceComponent.class).set(fx, fy));
 		drop.add(engine.createComponent(DropComponent.class).set(type));
-		drop.add(engine.createComponent(TypeComponent.class).set(EntityType.NEUTRAL).setCollideWith(EntityType.FRIENDLY));
 
 		drop.getComponent(DropComponent.class).canPickUp = false;
 		drop.getComponent(TimerComponent.class).add("pickup_delay", 0.5f, false, new TimeListener() {
@@ -2279,8 +2283,17 @@ public class EntityFactory {
 				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
 				.build();
 		knife.getComponent(StateComponent.class).time = MathUtils.random(8) * GameVars.ANIM_FRAME;
-		Mappers.collisionListener.get(knife).collisionData.setCollisionListener(FixtureType.BULLET, FixtureType.HOMING_KNIFE.getListener());
+
+		CollisionData data = Mappers.collisionListener.get(knife).collisionData;
+		FixtureInfo info = new FixtureInfo();
 		
+		CollisionFilter filter = new CollisionFilter.Builder()
+				.addBodyTypes(TILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehavior(filter, new DeathOnCollideBehavior());
+		data.setFixtureInfo(FixtureType.BULLET, info);
 		return knife;
 	}
 	
@@ -2295,10 +2308,33 @@ public class EntityFactory {
 						new BoomerangLineMovement(speed, 0.0f))
 				.disableTileCollisions()
 				.build();
+		
 		CollisionListenerComponent listenerComp = Mappers.collisionListener.get(boomerang);
 		CollisionData data = listenerComp.collisionData;
-		data.setCollisionListener(FixtureType.BULLET, new BoomerangCollisionListener(parent));
-		Mappers.type.get(boomerang).setCollideWith(EntityType.ENEMY, EntityType.FRIENDLY);
+
+		FixtureInfo info = new FixtureInfo();
+		
+		CollisionFilter filter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.addEntityTypes(type.getOpposite())
+				.build();
+		
+		info.addBehavior(filter, new DamageOnCollideBehavior());
+		
+		filter = new CollisionFilter.Builder()
+				.addCustomFilter(new PlayerFilter())
+				.build();
+		
+		info.addBehavior(filter, new BoomerangBehavior());
+	
+		filter = new CollisionFilter.Builder()
+				.addBodyTypes(TILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehavior(filter, new SensorBehavior());
+		data.setFixtureInfo(FixtureType.BULLET, info);
+		
 		return boomerang;
 	}
 	
@@ -2373,7 +2409,7 @@ public class EntityFactory {
 		}
 		
 		public ProjectileBuilder(String name, EntityType type, String physics, float x, float y, float speed, float angle){
-			projectile = new EntityBuilder(name)
+			projectile = new EntityBuilder(name, type)
 					.physics(physics, new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
 					.build();
 			projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, false));
@@ -2382,7 +2418,7 @@ public class EntityFactory {
 		}
 		
 		public ProjectileBuilder addDamage(float damage){
-			projectile.add(engine.createComponent(BulletStatsComponent.class).set(damage));
+			projectile.add(engine.createComponent(DamageComponent.class).set(damage));
 			return this;
 		}
 		
@@ -2402,25 +2438,17 @@ public class EntityFactory {
 		
 		public ProjectileBuilder makeExplosive(final float radius, float speed, final float damage, float damageDropOffRate, final float knockback){
 			CollisionListenerComponent listenerComp = Mappers.collisionListener.get(projectile);
-			listenerComp.collisionData.addListener(FixtureType.BULLET, new CollisionListener() {
-				public void beginCollision(CollisionInfo info) {
-					Entity me = info.getMe();
-					
-					BodyComponent bodyComp = Mappers.body.get(me);
-					Body body = bodyComp.body;
-					Vector2 pos = body.getPosition();
-					
-					Entity explosion = createExplosion(
-							pos.x, pos.y, 
-							radius, damage, knockback, 
-							Mappers.type.get(me).type);
-					EntityManager.addEntity(explosion);
-				}
-				
-				public void endCollision(CollisionInfo info) {}
-				public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {}
-				public void postSolveCollision(CollisionInfo info, Contact contact, ContactImpulse impulse) {}
-			});
+			CollisionData data = listenerComp.collisionData;
+			
+			FixtureInfo info = data.getFixtureInfo(FixtureType.BULLET);
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(CollisionBodyType.MOB, CollisionBodyType.TILE)
+					.allEntityTypes()
+					.removeEntityType(Mappers.type.get(projectile).type)
+					.build();
+			
+			info.addBehavior(filter, new SpawnExplosionBehavior(radius, damage, knockback));
 			return this;
 		}
 		
@@ -2548,7 +2576,7 @@ public class EntityFactory {
 	public static Entity createExplosion(float x, float y, float radius, float damage, float knockback, EntityType type){
 		final float SPEED = 15.0f;
 		
-		Entity explosion = new EntityBuilder("explosion").build();
+		Entity explosion = new EntityBuilder("explosion", type).build();
 		explosion.add(engine.createComponent(PositionComponent.class).set(x, y));
 		EntityUtils.add(explosion, CombustibleComponent.class).set(radius, SPEED, damage, 5.0f, knockback).shouldExplode = true; // HACK speed and drop off is hardcoded
 		explosion.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
@@ -2568,7 +2596,7 @@ public class EntityFactory {
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, smokeAnimation);
 		
-		Entity smoke = new EntityBuilder("smoke")
+		Entity smoke = new EntityBuilder("smoke", EntityType.NEUTRAL)
 				.render(false)
 				.animation(animMap)
 				.build();
@@ -2588,7 +2616,7 @@ public class EntityFactory {
 	// -                DAMAGE TEXT                 -
 	// ----------------------------------------------
 	public static Entity createDamageText(String text, Color color, BitmapFont font, float x, float y, float speed){
-		Entity entity = new EntityBuilder("damage text").build();
+		Entity entity = new EntityBuilder("damage text", EntityType.NEUTRAL).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
@@ -2608,7 +2636,7 @@ public class EntityFactory {
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.JUMP, animation);
 		
-		Entity entity = new EntityBuilder("particle")
+		Entity entity = new EntityBuilder("particle", EntityType.NEUTRAL)
 				.render(animation.getKeyFrame(0.0f), false)
 				.animation(animMap)
 				.build();
@@ -2629,7 +2657,7 @@ public class EntityFactory {
 	// -                   CAMERA                  -
 	// ---------------------------------------------
 	public static Entity createCamera(OrthographicCamera worldCamera){
-		Entity camera = new EntityBuilder("camera").build();
+		Entity camera = new EntityBuilder("camera", EntityType.NEUTRAL).build();
 		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
 		cameraComp.locked = true;
 		cameraComp.camera = worldCamera;
@@ -2650,11 +2678,12 @@ public class EntityFactory {
 	// -                   TILES                   -
 	// ---------------------------------------------
 	public static Entity createTile(Body body){
-		Entity tile = new EntityBuilder("tile").build();
+		Entity tile = new EntityBuilder("tile", EntityType.NEUTRAL).build();
 		tile.add(engine.createComponent(BodyComponent.class).set(body));
 		return tile;
 	}
 
+	// IMPORTANT Make TypeComponent global
 	public static class EntityBuilder{
 		private Entity entity;
 		
@@ -2664,7 +2693,7 @@ public class EntityFactory {
 		 * @param world
 		 * @param level
 		 */
-		public EntityBuilder(String name){
+		public EntityBuilder(String name, EntityType type){
 			entity = engine.createEntity();
 			EntityUtils.setTargetable(entity, true);
 			entity.add(engine.createComponent(EntityComponent.class).set(name));
@@ -2672,7 +2701,8 @@ public class EntityFactory {
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));
 			entity.add(engine.createComponent(TimerComponent.class));
-			entity.add(engine.createComponent(DeathComponent.class));				
+			entity.add(engine.createComponent(DeathComponent.class));		
+			entity.add(engine.createComponent(TypeComponent.class).set(type));
 		}
 		
 		/**
@@ -2765,16 +2795,15 @@ public class EntityFactory {
 		}
 		
 		/**
-		 * Adds Input, Type, Health, Effect and Invincibility components.
+		 * Adds Input, Health, Effect and Invincibility components.
 		 * 
 		 * @param input
 		 * @param type
 		 * @param health
 		 * @return
 		 */ 
-		public EntityBuilder mob(Input input, EntityType type, float health){
+		public EntityBuilder mob(Input input, float health){
 			entity.add(engine.createComponent(InputComponent.class).set(input));
-			entity.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
 			entity.add(engine.createComponent(InvincibilityComponent.class));
 			entity.add(engine.createComponent(EffectComponent.class));

@@ -151,7 +151,7 @@ public class PhysicsUtils {
 		if(isSensor) fdef.isSensor = true;
 		Fixture fixture = body.createFixture(fdef);
 		fixture.setUserData(fixtureType);
-		data.registerDefault(fixtureType);
+		data.registerDefault(fixtureType, (Entity)body.getUserData());
 	}
 	
 	public static Rectangle getAABB(Body body){
@@ -214,7 +214,7 @@ public class PhysicsUtils {
 		
 		listenerComp.collisionData = data;
 		listenerComp.type = CollisionBodyType.TILE;
-		data.registerDefault(FixtureType.GROUND);
+		data.registerDefault(FixtureType.GROUND, tile);
 		return body;
 	}
 	

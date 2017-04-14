@@ -1,4 +1,4 @@
-package com.fullspectrum.physics.collision.listener;
+package com.fullspectrum.physics.collision.behavior;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
@@ -6,32 +6,20 @@ import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.component.CombustibleComponent;
-import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
-import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.handlers.DamageHandler;
-import com.fullspectrum.physics.collision.CollisionBodyType;
-import com.fullspectrum.physics.collision.CollisionInfo;
-import com.fullspectrum.physics.collision.CollisionListener;
+import com.fullspectrum.physics.collision.BodyInfo;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.Maths;
 
-public class ExplosiveParticleCollisionListener implements CollisionListener{
+public class ExplosiveParticleBehavior implements CollisionBehavior{
 
 	@Override
-	public void beginCollision(CollisionInfo info) {
-		Entity projectile = info.getMe();
-		Entity otherEntity = info.getOther();
-		
-		if(info.getOtherCollisionType() == CollisionBodyType.TILE){
-			projectile.add(new RemoveComponent());
-			return;
-		}
-
-		HealthComponent enemyHealth = Mappers.heatlh.get(otherEntity);
-		if(enemyHealth == null) return;
+	public void beginCollision(BodyInfo me, BodyInfo other, Contact contact) {
+		Entity projectile = me.getEntity();
+		Entity otherEntity = other.getEntity();
 		
 		Entity explosion = Mappers.parent.get(projectile).parent;
 		if(explosion == null || !EntityUtils.isValid(explosion)) return;
@@ -70,22 +58,19 @@ public class ExplosiveParticleCollisionListener implements CollisionListener{
 				break;
 			}
 		}
-		DamageHandler.dealDamage(projectile, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockback, angle);
+		DamageHandler.dealDamage(projectile, otherEntity, MathUtils.clamp((int)(combustibleComp.damage - distanceTraveled * combustibleComp.dropOffRate), 1, Integer.MAX_VALUE), knockback, angle);		
 	}
 
 	@Override
-	public void endCollision(CollisionInfo info) {
-		
+	public void endCollision(BodyInfo me, BodyInfo other, Contact contact) {
 	}
 
 	@Override
-	public void preSolveCollision(CollisionInfo info, Contact contact, Manifold manifold) {
-		
+	public void preSolveCollision(BodyInfo me, BodyInfo other, Contact contact, Manifold manifold) {
 	}
 
 	@Override
-	public void postSolveCollision(CollisionInfo info, Contact contact, ContactImpulse impulse) {
-		
+	public void postSolveCollision(BodyInfo me, BodyInfo other, Contact contact, ContactImpulse impulse) {
 	}
 
 }
