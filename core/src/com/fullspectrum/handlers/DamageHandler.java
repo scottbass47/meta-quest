@@ -45,6 +45,8 @@ public class DamageHandler {
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);
 		BlacksmithComponent blacksmithComp = Mappers.blacksmith.get(toEntity);
 		BodyComponent bodyComp = Mappers.body.get(toEntity);
+		
+		if(healthComp == null || bodyComp == null) return;
 		Body body = bodyComp.body;
 
 		if (MathUtils.isEqual(healthComp.health, 0.0f)) return;

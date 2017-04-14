@@ -1,0 +1,53 @@
+Collision System
+-----------------
+- Split between filters, behaviors and the exception table
+- All physics bodies have known fixture types
+- Filters and behaviors are tied to fixtures (using fixture types), which then make up the entity's physics body
+
+Filters
+--------
+- Collision Type (i.e. projectile, mob, tile, sensor)
+- Entity Type (i.e. friendly, neutral, enemy)
+- Custom (implement method that filters collisions based defined conditionals)
+- 
+
+Behaviors
+--------
+- Used to define what should happen upon collision
+- Multiple behaviors can be associated with a filter
+- Behaviors should be modular and reusable
+
+Possible Behaviors
+------------------
+- Damage on contact -> when collision occurs, damage is applied to colliding entity (ignored if colliding entity can't receive damage)
+- Continuous damage on contact -> same as damage on contact, but damage is continually applied (define interval)
+- Death on contact -> entity death occurs when colliding
+
+Exception Table
+---------------
+- A 2D table of defined exceptions
+- Exceptions are declared by FixtureType
+
+Features
+--------
+- Default registration of filters and behaviors (lookup table for default collision behavior based on fixture type)
+- Multiple behaviors defined per filter, and multiple filters can be defined per fixture type
+- Exception table used for exceptions to general rules (always overrides general rule)
+
+Process
+-------
+1. Collision occurs between two fixtures
+2. Fixture type, collision data, and entity are extracted from fixtures
+3. Fixtures are looked up in exception table to see if there is an entry (if there is, the collision is processed and no more processing is required)
+4. Loop through list of filters to see if colliding fixture passes through the filters
+5. If the fixture passes the filter test, loop through the list of behaviors associated with the filter and run those
+
+Questions
+---------
+- What methods should be used for handling collisions (begin, pre-solve, post-solve, end)?
+- How are behaviors defined?
+- How to handle multiple fixtures per entity problem (i.e. damage on contact been called once for each fixture, not once for each entity)?
+
+Code Changes
+------------
+- Damage needs to be in one place
