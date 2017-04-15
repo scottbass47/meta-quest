@@ -11,7 +11,7 @@ public class DamageOnCollideBehavior implements CollisionBehavior{
 
 	@Override
 	public void beginCollision(BodyInfo me, BodyInfo other, Contact contact) {
-		DamageHandler.dealDamage(me.getEntity(), other.getEntity(), Mappers.damage.get(me.getEntity()).damage);
+		DamageHandler.dealDamage(me.getEntity(), other.getEntity(), Mappers.damage.get(me.getEntity()) == null ? 0.0f : Mappers.damage.get(me.getEntity()).damage);
 	}
 
 	@Override

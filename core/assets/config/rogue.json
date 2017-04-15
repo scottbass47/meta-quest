@@ -51,5 +51,9 @@
 	// Bow
 	bow_cooldown: 1.0,
 	bow_damage: 75.0,
-	bow_speed: 15.0
+	bow_speed: 15.0,
+	
+	// Flash Powder
+	flash_powder_cooldown: 1.0,
+	flash_powder_stun_duration: 7.5,
 }

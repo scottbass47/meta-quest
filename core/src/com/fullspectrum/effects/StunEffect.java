@@ -12,6 +12,7 @@ import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.ChildrenComponent;
 import com.fullspectrum.component.CollisionComponent;
+import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.DeathComponent;
 import com.fullspectrum.component.EffectComponent;
 import com.fullspectrum.component.EngineComponent;
@@ -62,13 +63,13 @@ public class StunEffect extends Effect{
 				FacingComponent.class,
 				CollisionComponent.class,
 				ShaderComponent.class,
-				TypeComponent.class,
 				OffsetComponent.class,
 				ParentComponent.class,
 				WingComponent.class,
 				EffectComponent.class,
 				RotationComponent.class,
 				RenderLevelComponent.class,
+				CollisionListenerComponent.class,
 				
 				// Global Components (always required)
 				TimerComponent.class,
@@ -76,7 +77,8 @@ public class StunEffect extends Effect{
 				WorldComponent.class,
 				LevelComponent.class,
 				DeathComponent.class,
-				EntityComponent.class
+				EntityComponent.class,
+				TypeComponent.class
 		);
 	}
 	

@@ -21,6 +21,8 @@ public enum AbilityType {
 	BOOMERANG,
 	EXECUTE,
 	BOW,
+	FLASH_POWDER,
+	BALLOON_TRAP,
 	
 	// Mage
 	MANA_BOMB,

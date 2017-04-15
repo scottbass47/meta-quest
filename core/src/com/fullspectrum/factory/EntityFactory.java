@@ -35,6 +35,7 @@ import com.fullspectrum.ability.rogue.BoomerangAbility;
 import com.fullspectrum.ability.rogue.BowAbility;
 import com.fullspectrum.ability.rogue.DashAbility;
 import com.fullspectrum.ability.rogue.ExecuteAbility;
+import com.fullspectrum.ability.rogue.FlashPowderAbility;
 import com.fullspectrum.ability.rogue.HomingKnivesAbility;
 import com.fullspectrum.ability.rogue.SlingshotAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
@@ -1102,6 +1103,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.FLASH_POWDER_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		
 		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
 			.animation(animMap)
@@ -1196,6 +1198,13 @@ public class EntityFactory {
 				animMap.get(EntityAnim.BOW_ATTACK), 
 				rogueStats.get("bow_damage"),
 				rogueStats.get("bow_speed"));
+		bowAbility.deactivate();
+		
+		FlashPowderAbility flashPowderAbility = new FlashPowderAbility(
+				rogueStats.get("flash_powder_cooldown"), 
+				Actions.ABILITY_3, 
+				animMap.get(EntityAnim.FLASH_POWDER_ARMS),
+				rogueStats.get("flash_powder_stun_duration"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
@@ -1204,7 +1213,8 @@ public class EntityFactory {
 				.add(dashAbility)
 				.add(boomerangAbility)
 				.add(executeAbility)
-				.add(bowAbility));
+				.add(bowAbility)
+				.add(flashPowderAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1371,9 +1381,11 @@ public class EntityFactory {
 								return false;
 							}
 						}, EntityAnim.THROW_ARMS);
-		upperBodyASM.addTransition(EntityAnim.THROW_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
-		upperBodyASM.addTransition(EntityAnim.SMOKE_BOMB_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
-		upperBodyASM.addTransition(EntityAnim.BOOMERANG_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
+		upperBodyASM.addTransition(upperBodyASM.one(
+						EntityAnim.THROW_ARMS,
+						EntityAnim.SMOKE_BOMB_ARMS,
+						EntityAnim.BOOMERANG_ARMS,
+						EntityAnim.FLASH_POWDER_ARMS), Transitions.ANIMATION_FINISHED, EntityAnim.INIT);
 		
 		AnimationStateMachine lowerBodyASM = new AnimationStateMachine(rogue, new StateObjectCreator());
 		lowerBodyASM.setDebugName("Rogue Lower Body ASM");
