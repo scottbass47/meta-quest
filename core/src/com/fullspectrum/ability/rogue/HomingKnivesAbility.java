@@ -6,10 +6,9 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.ability.Ability;
-import com.fullspectrum.ability.AbilityConstraints;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BobComponent;
@@ -56,12 +55,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 		this.range = range;
 		this.speed = speed;
 		addTemporaryImmunties(EffectType.values());
-		setAbilityConstraints(new AbilityConstraints() {
-			@Override
-			public boolean canUse(Ability ability, Entity entity) {
-				return Mappers.collision.get(entity).onGround();
-			}
-		});
+		setAbilityConstraints(new OnGroundConstraint());
 	}
 
 	@Override

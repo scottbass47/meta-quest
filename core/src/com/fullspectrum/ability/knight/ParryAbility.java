@@ -4,8 +4,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.ability.Ability;
-import com.fullspectrum.ability.AbilityConstraints;
 import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
@@ -34,12 +34,7 @@ public class ParryAbility extends Ability{
 		this.swingDuration = parrySwingAnimation.getAnimationDuration();
 		this.swing = swing;
 		swing.addEffect(new StunDef(stunDuration));
-		setAbilityConstraints(new AbilityConstraints() {
-			@Override
-			public boolean canUse(Ability ability, Entity entity) {
-				return Mappers.collision.get(entity).onGround();
-			}
-		});
+		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
 		lockFacing();
 	}

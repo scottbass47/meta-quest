@@ -32,6 +32,7 @@ import com.fullspectrum.ability.knight.SlamAbility;
 import com.fullspectrum.ability.knight.SpinSliceAbility;
 import com.fullspectrum.ability.knight.TornadoAbility;
 import com.fullspectrum.ability.rogue.BoomerangAbility;
+import com.fullspectrum.ability.rogue.BowAbility;
 import com.fullspectrum.ability.rogue.DashAbility;
 import com.fullspectrum.ability.rogue.ExecuteAbility;
 import com.fullspectrum.ability.rogue.HomingKnivesAbility;
@@ -1100,6 +1101,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
 		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
 			.animation(animMap)
@@ -1186,6 +1188,14 @@ public class EntityFactory {
 				rogueStats.get("execute_cooldown"), 
 				Actions.ABILITY_3, 
 				animMap.get(EntityAnim.EXECUTE));
+		executeAbility.deactivate();
+		
+		BowAbility bowAbility = new BowAbility(
+				rogueStats.get("bow_cooldown"), 
+				Actions.ABILITY_3, 
+				animMap.get(EntityAnim.BOW_ATTACK), 
+				rogueStats.get("bow_damage"),
+				rogueStats.get("bow_speed"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
@@ -1193,7 +1203,8 @@ public class EntityFactory {
 				.add(vanishAbility)
 				.add(dashAbility)
 				.add(boomerangAbility)
-				.add(executeAbility));
+				.add(executeAbility)
+				.add(bowAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1422,43 +1433,19 @@ public class EntityFactory {
 		fallState.addSubstateMachine(lowerBodyASM);
 		fallState.addSubstateMachine(upperBodyASM);
 		
-//		esm.createState(EntityStates.DASH)
-//			.addAnimation(EntityAnim.SWING)
-//			.addChangeListener(new StateChangeListener(){
-//				@Override
-//				public void onEnter(State prevState, Entity entity) {
-//					BodyComponent bodyComp = Mappers.body.get(entity);
-//					FacingComponent facingComp = Mappers.facing.get(entity);
-//					ForceComponent forceComp = Mappers.engine.get(entity).engine.createComponent(ForceComponent.class);
-//					
-//					Body body = bodyComp.body;
-//					body.setLinearVelocity(body.getLinearVelocity().x, 0);
-//					body.setGravityScale(0.0f);
-//					
-//					// CLEANUP Dash speed should be in config file
-//					forceComp.set(facingComp.facingRight ? 30f : -30f, 0);
-//					entity.add(forceComp);
-//				}
-//
-//				@Override
-//				public void onExit(State nextState, Entity entity) {
-//					BodyComponent bodyComp = Mappers.body.get(entity);
-//					Body body = bodyComp.body;
-//					
-//					body.setLinearVelocity(0.0f, 0.0f);
-//					body.setGravityScale(1.0f);
-//				}
-//			});
-				
 		esm.createState(EntityStates.HOMING_KNIVES)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
 		
+		// IMPORTANT Abilities need a movement system
 		esm.createState(EntityStates.EXECUTE)
 			.addAnimation(EntityAnim.EXECUTE);
-			
+		
+		esm.createState(EntityStates.BOW_ATTACK)
+			.addAnimation(EntityAnim.BOW_ATTACK);
+		
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.DASH);
 		
@@ -2347,6 +2334,34 @@ public class EntityFactory {
 		data.setFixtureInfo(FixtureType.BULLET, info);
 		
 		return boomerang;
+	}
+	
+	public static Entity createArrow(float x, float y, float speed, float angle, float damage, EntityType type) {
+		Entity arrow = new ProjectileBuilder("arrow", type, "arrow.json", x, y, speed, angle)
+			.addDamage(damage)
+			.render(true)
+			.animate(assets.getAnimation(Asset.ROGUE_BOOMERANG_PROJECTILE))
+			.build();
+		
+		CollisionData data = Mappers.collisionListener.get(arrow).collisionData;
+		FixtureInfo info = new FixtureInfo();
+		
+		CollisionFilter filter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.allEntityTypes()
+				.removeEntityType(type)
+				.build();
+		
+		info.addBehavior(filter, new DamageOnCollideBehavior());
+		
+		filter = new CollisionFilter.Builder()
+				.addBodyTypes(TILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehavior(filter, new DeathOnCollideBehavior());
+		data.setFixtureInfo(FixtureType.BULLET, info);
+		return arrow;
 	}
 	
 	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityType type){

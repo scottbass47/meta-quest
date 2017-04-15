@@ -35,7 +35,8 @@ public enum EntityStates implements State{
 	PROJECTILE_FLY,
 	PROJECTILE_DEATH,
 	HOMING_KNIVES,
-	EXECUTE;
+	EXECUTE,
+	BOW_ATTACK;
 	
 	@Override
 	public int getIndex() {

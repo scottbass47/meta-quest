@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BodyComponent;
@@ -30,6 +31,7 @@ public class ExecuteAbility extends AnimationAbility{
 	public ExecuteAbility(float cooldown, Actions input, Animation animation) {
 		super(AbilityType.EXECUTE, AssetLoader.getInstance().getRegion(Asset.EXECUTE_ICON), cooldown, input, animation);
 		addTemporaryImmunties(EffectType.values());
+		setAbilityConstraints(new OnGroundConstraint());
 	}
 
 	@Override

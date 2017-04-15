@@ -8,15 +8,14 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.fullspectrum.ability.Ability;
-import com.fullspectrum.ability.AbilityConstraints;
 import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.ability.TimedAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ControlledMovementComponent;
-import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.HealthComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TypeComponent;
 import com.fullspectrum.debug.DebugRender;
@@ -49,12 +48,7 @@ public class TornadoAbility extends TimedAbility{
 		this.range = range;
 		this.startingFrame = startingFrame;
 		addTemporaryImmunties(EffectType.values());
-		setAbilityConstraints(new AbilityConstraints() {
-			@Override
-			public boolean canUse(Ability ability, Entity entity) {
-				return Mappers.collision.get(entity).onGround();
-			}
-		});
+		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryInvincibilities(InvincibilityType.ALL);
 		lockFacing();
 		pulled = new ObjectSet<Entity>();

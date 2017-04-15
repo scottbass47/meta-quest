@@ -2,10 +2,9 @@ package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.fullspectrum.ability.Ability;
-import com.fullspectrum.ability.AbilityConstraints;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
@@ -22,12 +21,7 @@ public class SpinSliceAbility extends AnimationAbility{
 	public SpinSliceAbility(float cooldown, Actions input, Animation swingAnimation, SwingComponent swing) {
 		super(AbilityType.SPIN_SLICE, AssetLoader.getInstance().getRegion(Asset.SPIN_SLICE_ICON), cooldown, input, swingAnimation);
 		this.swing = swing;
-		setAbilityConstraints(new AbilityConstraints() {
-			@Override
-			public boolean canUse(Ability ability, Entity entity) {
-				return Mappers.collision.get(entity).onGround();
-			}
-		});
+		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
 		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}

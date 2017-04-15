@@ -37,6 +37,7 @@ public enum EntityAnim implements State{
 	PROJECTILE_DEATH,
 	EXECUTE,
 	HOMING_KNIVES_THROW,
+	BOW_ATTACK,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

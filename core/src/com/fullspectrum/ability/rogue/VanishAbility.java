@@ -3,13 +3,13 @@ package com.fullspectrum.ability.rogue;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.ability.Ability;
-import com.fullspectrum.ability.AbilityConstraints;
 import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
-import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
@@ -31,12 +31,7 @@ public class VanishAbility extends Ability {
 	public VanishAbility(float cooldown, Actions input, float duration){
 		super(AbilityType.VANISH, AssetLoader.getInstance().getRegion(Asset.VANISH_ICON), cooldown, input, true);
 		this.duration = duration;
-		setAbilityConstraints(new AbilityConstraints() {
-			@Override
-			public boolean canUse(Ability ability, Entity entity) {
-				return Mappers.collision.get(entity).onGround();
-			}
-		});
+		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryImmunties(EffectType.values());
 		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}

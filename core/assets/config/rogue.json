@@ -46,5 +46,10 @@
 	boomerang_max_duration: 2.0,
 	
 	// Execute
-	execute_cooldown: 1.0
+	execute_cooldown: 1.0,
+	
+	// Bow
+	bow_cooldown: 1.0,
+	bow_damage: 75.0,
+	bow_speed: 15.0
 }
