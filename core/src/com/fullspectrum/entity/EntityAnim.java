@@ -38,6 +38,8 @@ public enum EntityAnim implements State{
 	EXECUTE,
 	HOMING_KNIVES_THROW,
 	BOW_ATTACK,
+	INFLATE,
+	POP,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,
@@ -64,7 +66,7 @@ public enum EntityAnim implements State{
 	
 	// Rogue Upper Body Abilities
 	THROW_ARMS,
-	SLINGHOT_ARMS,
+	DYNAMITE_ARMS,
 	FLASH_POWDER_ARMS,
 	BOOMERANG_ARMS,
 	SMOKE_BOMB_ARMS,

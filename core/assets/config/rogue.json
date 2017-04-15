@@ -18,10 +18,11 @@
 	climb_speed: 6.0,
 	jump_force: 15.0,
 	
-	// Slingshot
-	slingshot_cooldown: 1.0,
-	slingshot_knockback: 7.0,
-	slingshot_damage: 20,
+	// Dynamite
+	dynamite_cooldown: 1.0,
+	dynamite_knockback: 3.5,
+	dynamite_damage: 20,
+	dynamite_explosion_radius: 5.0,
 	
 	// Homing Knives
 	homing_knives_cooldown: 1.0,
@@ -56,4 +57,11 @@
 	// Flash Powder
 	flash_powder_cooldown: 1.0,
 	flash_powder_stun_duration: 7.5,
+	
+	// Balloon
+	balloon_cooldown: 1.0,
+	balloon_damage_per_pellet: 10.0,
+	balloon_num_pellets: 20,
+	balloon_pellet_speed: 20.0,
+	balloon_max_balloons: 3,
 }

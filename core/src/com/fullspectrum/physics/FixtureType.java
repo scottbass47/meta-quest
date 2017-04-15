@@ -14,6 +14,7 @@ import com.fullspectrum.physics.collision.behavior.DropBehavior;
 import com.fullspectrum.physics.collision.behavior.ExplosiveParticleBehavior;
 import com.fullspectrum.physics.collision.behavior.FeetBehavior;
 import com.fullspectrum.physics.collision.behavior.LevelTriggerBehavior;
+import com.fullspectrum.physics.collision.behavior.SensorBehavior;
 import com.fullspectrum.physics.collision.behavior.SolidBehavior;
 import com.fullspectrum.physics.collision.filter.CollisionFilter;
 import com.fullspectrum.physics.collision.filter.PlayerFilter;
@@ -25,6 +26,12 @@ public enum FixtureType {
 		public FixtureInfo getDefaultInfo(Entity entity) {
 			FixtureInfo info = new FixtureInfo();
 			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(MOB)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new SensorBehavior());
 			return info;
 		}
 	},
@@ -51,7 +58,8 @@ public enum FixtureType {
 			// Mob Collision
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(MOB)
-					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.allEntityTypes()
+					.removeEntityType(Mappers.type.get(entity).type)
 					.build();
 			
 			info.addBehaviors(filter, 
@@ -69,7 +77,7 @@ public enum FixtureType {
 			return info;
 		}
 	},
-	DROP{
+	DROP {
 		@Override
 		public FixtureInfo getDefaultInfo(Entity entity) {
 			FixtureInfo info = new FixtureInfo();
@@ -93,10 +101,13 @@ public enum FixtureType {
 			// Mob Collision
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(MOB)
-					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.allEntityTypes()
+					.removeEntityType(Mappers.type.get(entity).type)
 					.build();
 			
-			info.addBehavior(filter, new ExplosiveParticleBehavior());
+			info.addBehaviors(filter, 
+					new ExplosiveParticleBehavior(),
+					new SensorBehavior());
 
 			// Tile Collision
 			filter = new CollisionFilter.Builder()

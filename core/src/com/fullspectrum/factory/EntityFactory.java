@@ -31,13 +31,14 @@ import com.fullspectrum.ability.knight.ParryAbility;
 import com.fullspectrum.ability.knight.SlamAbility;
 import com.fullspectrum.ability.knight.SpinSliceAbility;
 import com.fullspectrum.ability.knight.TornadoAbility;
+import com.fullspectrum.ability.rogue.BalloonTrapAbility;
 import com.fullspectrum.ability.rogue.BoomerangAbility;
 import com.fullspectrum.ability.rogue.BowAbility;
 import com.fullspectrum.ability.rogue.DashAbility;
 import com.fullspectrum.ability.rogue.ExecuteAbility;
 import com.fullspectrum.ability.rogue.FlashPowderAbility;
 import com.fullspectrum.ability.rogue.HomingKnivesAbility;
-import com.fullspectrum.ability.rogue.SlingshotAbility;
+import com.fullspectrum.ability.rogue.DynamiteAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
@@ -170,6 +171,7 @@ import com.fullspectrum.physics.FixtureType;
 import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionData;
 import com.fullspectrum.physics.collision.FixtureInfo;
+import com.fullspectrum.physics.collision.behavior.BalloonTrapBehavior;
 import com.fullspectrum.physics.collision.behavior.BoomerangBehavior;
 import com.fullspectrum.physics.collision.behavior.DamageOnCollideBehavior;
 import com.fullspectrum.physics.collision.behavior.DeathOnCollideBehavior;
@@ -1096,13 +1098,13 @@ public class EntityFactory {
 		animMap.put(EntityAnim.FALL_ARMS, assets.getAnimation(Asset.ROGUE_FALL_ARMS));
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ROGUE_RISE_LEGS));
 		animMap.put(EntityAnim.RISE_ARMS, assets.getAnimation(Asset.ROGUE_RISE_ARMS));
-		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_DYNAMITE_ARMS));
+		animMap.put(EntityAnim.DYNAMITE_ARMS, assets.getAnimation(Asset.ROGUE_DYNAMITE_ARMS));
 		animMap.put(EntityAnim.SMOKE_BOMB_ARMS, assets.getAnimation(Asset.ROGUE_SMOKE_BOMB_ARMS));
 		animMap.put(EntityAnim.BOOMERANG_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
-		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.ROGUE_BOW));
 		animMap.put(EntityAnim.FLASH_POWDER_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		
 		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
@@ -1149,13 +1151,13 @@ public class EntityFactory {
 			}
 		});
 
-		SlingshotAbility slingshotAbility = new SlingshotAbility(
-				rogueStats.get("slingshot_cooldown"),
+		DynamiteAbility dynamiteAbility = new DynamiteAbility(
+				rogueStats.get("dynamite_cooldown"),
 				Actions.ABILITY_1,
-				animMap.get(EntityAnim.SLINGHOT_ARMS), 
-				rogueStats.get("slingshot_knockback"),
-				rogueStats.get("slingshot_damage"));
-		slingshotAbility.deactivate();
+				animMap.get(EntityAnim.DYNAMITE_ARMS), 
+				rogueStats.get("dynamite_knockback"),
+				rogueStats.get("dynamite_damage"),
+				rogueStats.get("dynamite_explosion_radius"));
 		
 		HomingKnivesAbility homingKnivesAbility = new HomingKnivesAbility(
 				rogueStats.get("homing_knives_cooldown"), 
@@ -1165,11 +1167,13 @@ public class EntityFactory {
 				rogueStats.get("homing_knives_damage"),
 				rogueStats.get("homing_knives_range"),
 				rogueStats.get("homing_knives_speed"));
+		homingKnivesAbility.deactivate();
 		
 		VanishAbility vanishAbility = new VanishAbility(
 				rogueStats.get("vanish_cooldown"),
 				Actions.ABILITY_2,
 				rogueStats.get("vanish_duration"));
+		vanishAbility.deactivate();
 		
 		DashAbility dashAbility = new DashAbility(
 				rogueStats.get("dash_cooldown"),
@@ -1180,7 +1184,7 @@ public class EntityFactory {
 		
 		BoomerangAbility boomerangAbility = new BoomerangAbility(
 				rogueStats.get("boomerang_cooldown"), 
-				Actions.ABILITY_3,
+				Actions.ABILITY_1,
 				rogueStats.get("boomerang_speed"),
 				rogueStats.get("boomerang_damage"),
 				rogueStats.get("boomerang_max_duration"));
@@ -1194,27 +1198,36 @@ public class EntityFactory {
 		
 		BowAbility bowAbility = new BowAbility(
 				rogueStats.get("bow_cooldown"), 
-				Actions.ABILITY_3, 
+				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.BOW_ATTACK), 
 				rogueStats.get("bow_damage"),
 				rogueStats.get("bow_speed"));
-		bowAbility.deactivate();
 		
 		FlashPowderAbility flashPowderAbility = new FlashPowderAbility(
 				rogueStats.get("flash_powder_cooldown"), 
 				Actions.ABILITY_3, 
 				animMap.get(EntityAnim.FLASH_POWDER_ARMS),
 				rogueStats.get("flash_powder_stun_duration"));
+		flashPowderAbility.deactivate();
+		
+		BalloonTrapAbility balloonAbility = new BalloonTrapAbility(
+				rogueStats.get("balloon_cooldown"),
+				Actions.ABILITY_3, 
+				rogueStats.get("balloon_damage_per_pellet"),
+				(int) rogueStats.get("balloon_num_pellets"), 
+				rogueStats.get("balloon_pellet_speed"),
+				(int) rogueStats.get("balloon_max_balloons"));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
-				.add(slingshotAbility)
+				.add(dynamiteAbility)
 				.add(homingKnivesAbility)
 				.add(vanishAbility)
 				.add(dashAbility)
 				.add(boomerangAbility)
 				.add(executeAbility)
 				.add(bowAbility)
-				.add(flashPowderAbility));
+				.add(flashPowderAbility)
+				.add(balloonAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1318,7 +1331,7 @@ public class EntityFactory {
 			public void onExit(State nextState, Entity entity) {
 			}
 		});
-		upperBodyASM.createState(EntityAnim.SLINGHOT_ARMS);
+		upperBodyASM.createState(EntityAnim.DYNAMITE_ARMS);
 		upperBodyASM.createState(EntityAnim.FLASH_POWDER_ARMS);
 		upperBodyASM.createState(EntityAnim.BOOMERANG_ARMS);
 		upperBodyASM.createState(EntityAnim.SMOKE_BOMB_ARMS);
@@ -1451,11 +1464,14 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
 		
-		// IMPORTANT Abilities need a movement system
 		esm.createState(EntityStates.EXECUTE)
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(DirectionComponent.class))
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.EXECUTE);
 		
 		esm.createState(EntityStates.BOW_ATTACK)
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_bow"))
 			.addAnimation(EntityAnim.BOW_ATTACK);
 		
 		esm.createState(EntityStates.DASH)
@@ -2352,7 +2368,7 @@ public class EntityFactory {
 		Entity arrow = new ProjectileBuilder("arrow", type, "arrow.json", x, y, speed, angle)
 			.addDamage(damage)
 			.render(true)
-			.animate(assets.getAnimation(Asset.ROGUE_BOOMERANG_PROJECTILE))
+			.animate(assets.getAnimation(Asset.ROGUEG_ARROW_PROJECTILE))
 			.build();
 		
 		CollisionData data = Mappers.collisionListener.get(arrow).collisionData;
@@ -2374,6 +2390,18 @@ public class EntityFactory {
 		info.addBehavior(filter, new DeathOnCollideBehavior());
 		data.setFixtureInfo(FixtureType.BULLET, info);
 		return arrow;
+	}
+	
+	public static Entity createBalloonPellet(float x, float y, float speed, float angle, float damage, EntityType type) {
+		Entity pellet = new ProjectileBuilder("pellet", type, x, y, speed, angle)
+				.render(false)
+				.animate(assets.getAnimation(Asset.ROGUE_BALLOON_PROJECTILE))
+				.addDamage(damage)
+				.addTimedDeath(4.0f / speed)
+				.makeRotatable()
+				.build();
+		
+		return pellet;
 	}
 	
 	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
@@ -2421,11 +2449,52 @@ public class EntityFactory {
 				assets.getAnimation(Asset.MANA_BOMB_EXPLOSION));
 	}
 	
-	public static Entity createSlingshotProjectile(float x, float y, float angle, float damage, float knockback, EntityType type){
-		return createExplosiveProjectile(10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
-				null, 
-				assets.getAnimation(Asset.ROGUE_DYNAMITE_PROJECTILE), 
-				assets.getAnimation(Asset.SMOKE_BOMB));
+	public static Entity createDynamiteProjectile(float x, float y, float angle, float speed, float damage, float knockback, float radius, EntityType type){
+		Entity dynamite = new ProjectileBuilder("dynamite", type, x, y, speed, angle)
+				.render(false)
+				.animate(null, assets.getAnimation(Asset.ROGUE_DYNAMITE_PROJECTILE), assets.getAnimation(Asset.SMOKE_BOMB))
+				.addStateMachine()
+				.makeArced()
+				.build();
+		
+		final boolean facingRight = angle < 90;
+		Mappers.timer.get(dynamite).add("rotation", 0.0f, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Mappers.rotation.get(entity).rotation += facingRight ? -15.0f : 15.0f;
+			}
+		});
+		
+		Mappers.death.get(dynamite).add(new DeathBehavior() {
+			@Override
+			public void onDeath(Entity entity) {
+				Mappers.rotation.get(entity).rotation = 0.0f;
+				Mappers.timer.get(entity).remove("rotation");
+			}
+		});
+		
+		CollisionData data = Mappers.collisionListener.get(dynamite).collisionData;
+		FixtureInfo info = new FixtureInfo();
+		
+		CollisionFilter filter = new CollisionFilter.Builder()
+				.addBodyTypes(TILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehaviors(filter, 
+				new SpawnExplosionBehavior(radius, damage, knockback),
+				new DeathOnCollideBehavior());
+		
+		filter = new CollisionFilter.Builder()
+				.allBodyTypes()
+				.removeBodyType(TILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehavior(filter, new SensorBehavior());
+		data.setFixtureInfo(FixtureType.BULLET, info);
+
+		return dynamite;
 	}
 	
 	public static Entity createExplosiveParticle(Entity parent, float speed, float angle, float x, float y){
@@ -2611,6 +2680,79 @@ public class EntityFactory {
 	}
 	
 	// ---------------------------------------------
+	// -                   MISC                    -
+	// ---------------------------------------------
+	public static Entity createBalloonTrap(float x, float y, int numPellets, float damagePerPellet, float speed, EntityType type){
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.INFLATE, assets.getAnimation(Asset.ROGUE_BALLOON_INFLATE));
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ROGUE_BALLOON_IDLE));
+		animMap.put(EntityAnim.POP, assets.getAnimation(Asset.ROGUE_BALLOON_POP));
+		
+		Entity balloon = new EntityBuilder("balloon_trap", EntityType.NEUTRAL)
+				.render(false)
+				.animation(animMap)
+				.physics("balloon.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
+				.build();
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Balloon Trap ESM", engine, balloon).build();
+		esm.createState(EntityStates.INIT)
+			.addAnimation(EntityAnim.INFLATE);
+		esm.createState(EntityStates.IDLING)
+			.addAnimation(EntityAnim.IDLE)
+			.add(engine.createComponent(BobComponent.class).set(0.25f, 0.25f));
+		esm.createState(EntityStates.DYING)
+			.addAnimation(EntityAnim.POP)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					entity.add(new RemoveComponent());
+				}
+				
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+				}
+			});
+		
+		Mappers.death.get(balloon).add(new DeathBehavior() {
+			@Override
+			public void onDeath(Entity entity) {
+				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
+				Mappers.body.get(entity).body.setActive(false);
+			}
+		});
+		
+		esm.addTransition(EntityStates.INIT, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.INIT);
+		
+		esm.changeState(EntityStates.INIT);
+		
+		CollisionData data = Mappers.collisionListener.get(balloon).collisionData;
+		FixtureInfo info = new FixtureInfo();
+		
+		CollisionFilter filter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.allEntityTypes()
+				.removeEntityType(type)
+				.build();
+		
+		info.addBehaviors(filter, 
+				new BalloonTrapBehavior(type, numPellets, damagePerPellet, speed),
+				new DeathOnCollideBehavior());
+		
+		filter = new CollisionFilter.Builder()
+				.addBodyTypes(PROJECTILE)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehaviors(filter, 
+				new BalloonTrapBehavior(type, numPellets, damagePerPellet, speed),
+				new DeathOnCollideBehavior());
+		
+		data.setFixtureInfo(FixtureType.BODY, info);
+		return balloon;
+	}
+	
+	// ---------------------------------------------
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
 	public static Entity createExplosion(float x, float y, float radius, float damage, float knockback, EntityType type){
@@ -2727,10 +2869,9 @@ public class EntityFactory {
 		private Entity entity;
 		
 		/**
-		 * Setups base entity with Engine, World and Level components.
-		 * @param engine
-		 * @param world
-		 * @param level
+		 * Setups base entity with Engine, World, Level, Entity, Timer, Death, and Type components.
+		 * @param name
+		 * @param type
 		 */
 		public EntityBuilder(String name, EntityType type){
 			entity = engine.createEntity();

@@ -14,7 +14,7 @@ public enum AbilityType {
 	DASH_SLASH,
 	
 	// Rogue
-	SLINGSHOT,
+	DYNAMITE,
 	HOMING_KNIVES,
 	VANISH,
 	DASH,

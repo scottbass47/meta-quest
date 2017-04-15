@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
+import com.fullspectrum.factory.EntityFactory;
 
 public class EntityUtils {
 	
@@ -56,8 +57,8 @@ public class EntityUtils {
 	} 
 	
 	@SuppressWarnings("unchecked")
-	public static Entity getPlayer(Engine engine){
-		return engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
+	public static Entity getPlayer(){
+		return EntityFactory.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
 	}
 	
 }

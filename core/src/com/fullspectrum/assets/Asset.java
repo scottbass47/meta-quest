@@ -18,7 +18,7 @@ public enum Asset {
 	SPIN_SLICE_ICON(Atlas.HUD, "spin_slice_icon"),
 	DASH_SLASH_ICON(Atlas.HUD, "dash_slash_icon"),
 	TORNADO_ICON(Atlas.HUD, "tornado_icon"),
-	SLINGSHOT_ICON(Atlas.HUD, "slingshot_icon"),
+	DYNAMITE(Atlas.HUD, "slingshot_icon"),
 	BALLOON_ICON(Atlas.HUD, "balloon_icon"),
 	BOOMERANG_ICON(Atlas.HUD, "boomerang_icon"),
 	BOW_ICON(Atlas.HUD, "bow_icon"),
@@ -85,6 +85,7 @@ public enum Asset {
 	ROGUEG_ARROW_PROJECTILE(Atlas.ENTITY, "arrow_projectile/rogue_arrow_projectile"),
 	ROGUE_BALLOON_INFLATE(Atlas.ENTITY, "balloon_inflate/rogue_balloon_inflate"),
 	ROGUE_BALLOON_POP(Atlas.ENTITY, "balloon_pop/rogue_balloon_pop"),
+	ROGUE_BALLOON_IDLE(Atlas.ENTITY, "balloon_idle/rogue_balloon_idle"),
 	ROGUE_BALLOON_PROJECTILE(Atlas.ENTITY, "balloon_projectile/rogue_balloon_projectile"),
 	
 		

@@ -1,7 +1,7 @@
 {
   "BodyDef": {
     "type": "DynamicBody",
-    "collisionType": "sensor",
+    "collisionType": "projectile",
     "gravityScale": 0,
     "bullet": "true"
   },

@@ -89,7 +89,7 @@ public class TornadoAbility extends TimedAbility{
 				@Override
 				public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
 					// Get the player
-					Entity player = EntityUtils.getPlayer(Mappers.engine.get(entity).engine);
+					Entity player = EntityUtils.getPlayer();
 					
 					Vector2 entityPos = PhysicsUtils.getPos(entity);
 					Vector2 playerPos = PhysicsUtils.getPos(player);
