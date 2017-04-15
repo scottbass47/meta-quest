@@ -1,8 +1,10 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.rogue;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
@@ -43,6 +45,7 @@ public class BoomerangAbility extends Ability {
 		this.damage = damage;
 		this.maxDuration = maxDuration;
 		timeOut = distanceOut / speed;
+		lockFacing();
 	}
 
 	@Override
@@ -61,6 +64,7 @@ public class BoomerangAbility extends Ability {
 			ProjectileData data = ProjectileFactory.initProjectile(entity, 10f, -5f, throwAngle);
 			boomerang = EntityFactory.createBoomerang(entity, data.x, data.y, speed, turnSpeed, data.angle, damage, Mappers.type.get(entity).type);
 			EntityManager.addEntity(boomerang);
+			Mappers.facing.get(entity).locked = false;
 		}
 		
 		switch(currentPhase){

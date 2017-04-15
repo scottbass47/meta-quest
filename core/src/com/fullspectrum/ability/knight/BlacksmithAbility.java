@@ -1,9 +1,11 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.TimedAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BarrierComponent;

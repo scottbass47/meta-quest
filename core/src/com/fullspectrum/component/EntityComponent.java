@@ -16,4 +16,9 @@ public class EntityComponent implements Component, Poolable{
 	public void reset() {
 		name = null;
 	}
+	
+	@Override
+	public String toString() {
+		return name;
+	}
 }

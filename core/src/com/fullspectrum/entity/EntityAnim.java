@@ -35,6 +35,8 @@ public enum EntityAnim implements State{
 	PROJECTILE_INIT,
 	PROJECTILE_FLY,
 	PROJECTILE_DEATH,
+	EXECUTE,
+	HOMING_KNIVES_THROW,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,
@@ -49,7 +51,6 @@ public enum EntityAnim implements State{
 	SWING_2,
 	SWING_3,
 	SWING_4,
-	HOMING_KNIVES_THROW,
 	
 	// Rogue Upper Body Defaults
 	IDLE_ARMS,

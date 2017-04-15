@@ -30,6 +30,7 @@ public abstract class Ability {
 	private boolean activated = true; // whether or not you have this ability selected
 	protected boolean isBlocking = false; // whether or not the ability blocks
 	private boolean inUse = false;
+	private boolean lockFacing;
 	
 	public Ability(AbilityType type, TextureRegion icon, float cooldown, Actions input) {
 		this(type, icon, cooldown, input, false, null);
@@ -64,6 +65,9 @@ public abstract class Ability {
 		savedInvincibilities.addAll(invincibilityComp.getInvincibilities());
 		invincibilityComp.addAll(tempInvincibilities);
 		
+		// Lock Facing
+		if(lockFacing) Mappers.facing.get(entity).locked = true;
+		
 		init(entity);
 	}
 	
@@ -75,6 +79,9 @@ public abstract class Ability {
 		// Restore Immunities
 		Mappers.immune.get(entity).setImmunities(savedImmunities);
 		Mappers.inviciblity.get(entity).setInvincibilities(savedInvincibilities);
+		
+		// Unlock Facing
+		Mappers.facing.get(entity).locked = false;
 		
 		destroy(entity);
 	}
@@ -166,6 +173,10 @@ public abstract class Ability {
 	
 	public boolean isBlocking(){
 		return isBlocking;
+	}
+	
+	protected void lockFacing(){
+		lockFacing = true;
 	}
 	
 	public void setInUse(boolean inUse) {

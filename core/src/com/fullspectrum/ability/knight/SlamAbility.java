@@ -1,4 +1,4 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -7,6 +7,10 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityConstraints;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.AnimationAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.BodyComponent;

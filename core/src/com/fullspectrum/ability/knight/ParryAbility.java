@@ -1,8 +1,11 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityConstraints;
+import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
@@ -38,13 +41,13 @@ public class ParryAbility extends Ability{
 			}
 		});
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
+		lockFacing();
 	}
 
 	@Override
 	public void init(Entity entity) {
 		this.entity = entity;
 		Mappers.esm.get(entity).get(EntityStates.PARRY_BLOCK).changeState(EntityStates.PARRY_BLOCK);
-		Mappers.facing.get(entity).locked = true;
 	}
 
 	@Override
@@ -91,7 +94,6 @@ public class ParryAbility extends Ability{
 		hasBlocked = false;
 		blocking = true;
 		entity.remove(SwingComponent.class);
-		Mappers.facing.get(entity).locked = false;
 	}
 
 }

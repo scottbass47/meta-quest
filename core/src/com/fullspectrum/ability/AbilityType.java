@@ -19,6 +19,7 @@ public enum AbilityType {
 	VANISH,
 	DASH,
 	BOOMERANG,
+	EXECUTE,
 	
 	// Mage
 	MANA_BOMB,

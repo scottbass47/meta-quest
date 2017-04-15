@@ -4,8 +4,8 @@ import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.ability.AbilityType;
-import com.fullspectrum.ability.BoomerangAbility;
-import com.fullspectrum.ability.BoomerangAbility.Phase;
+import com.fullspectrum.ability.rogue.BoomerangAbility;
+import com.fullspectrum.ability.rogue.BoomerangAbility.Phase;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.physics.collision.BodyInfo;
 

@@ -1,7 +1,9 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.rogue;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.TimedAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.FacingComponent;
@@ -24,6 +26,7 @@ public class DashAbility extends TimedAbility{
 		duration = distance / speed;
 		addTemporaryImmunties(EffectType.values());
 		addTemporaryInvincibilities(InvincibilityType.ALL);
+		lockFacing();
 	}
 
 	@Override
@@ -34,18 +37,14 @@ public class DashAbility extends TimedAbility{
 		Mappers.esm.get(entity).get(EntityStates.DASH).changeState(EntityStates.DASH);
 		
 		FacingComponent facingComp = Mappers.facing.get(entity);
-		if(!facingComp.locked){
+		Input input = Mappers.input.get(entity).input;
+		boolean right = input.isPressed(Actions.MOVE_RIGHT);
+		boolean left = input.isPressed(Actions.MOVE_LEFT);
+		
+		if(right == left){
 			EntityUtils.add(entity, ForceComponent.class).set(facingComp.facingRight ? speed : -speed, 0.0f);
 		} else {
-			Input input = Mappers.input.get(entity).input;
-			boolean right = input.isPressed(Actions.MOVE_RIGHT);
-			boolean left = input.isPressed(Actions.MOVE_LEFT);
-			
-			if(right == left){
-				EntityUtils.add(entity, ForceComponent.class).set(facingComp.facingRight ? speed : -speed, 0.0f);
-			} else {
-				EntityUtils.add(entity, ForceComponent.class).set(right ? speed : -speed, 0.0f);
-			}
+			EntityUtils.add(entity, ForceComponent.class).set(right ? speed : -speed, 0.0f);
 		}
 	}
 

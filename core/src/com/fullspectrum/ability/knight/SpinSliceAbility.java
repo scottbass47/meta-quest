@@ -1,7 +1,11 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.fullspectrum.ability.Ability;
+import com.fullspectrum.ability.AbilityConstraints;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.AnimationAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;

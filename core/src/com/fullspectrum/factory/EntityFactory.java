@@ -21,21 +21,22 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
-import com.fullspectrum.ability.AntiMagneticAbility;
-import com.fullspectrum.ability.BlacksmithAbility;
-import com.fullspectrum.ability.BoomerangAbility;
-import com.fullspectrum.ability.DashAbility;
-import com.fullspectrum.ability.DashSlashAbility;
-import com.fullspectrum.ability.HomingKnivesAbility;
-import com.fullspectrum.ability.KickAbility;
 import com.fullspectrum.ability.ManaBombAbility;
-import com.fullspectrum.ability.OverheadSwingAbility;
-import com.fullspectrum.ability.ParryAbility;
-import com.fullspectrum.ability.SlamAbility;
-import com.fullspectrum.ability.SlingshotAbility;
-import com.fullspectrum.ability.SpinSliceAbility;
-import com.fullspectrum.ability.TornadoAbility;
-import com.fullspectrum.ability.VanishAbility;
+import com.fullspectrum.ability.knight.AntiMagneticAbility;
+import com.fullspectrum.ability.knight.BlacksmithAbility;
+import com.fullspectrum.ability.knight.DashSlashAbility;
+import com.fullspectrum.ability.knight.KickAbility;
+import com.fullspectrum.ability.knight.OverheadSwingAbility;
+import com.fullspectrum.ability.knight.ParryAbility;
+import com.fullspectrum.ability.knight.SlamAbility;
+import com.fullspectrum.ability.knight.SpinSliceAbility;
+import com.fullspectrum.ability.knight.TornadoAbility;
+import com.fullspectrum.ability.rogue.BoomerangAbility;
+import com.fullspectrum.ability.rogue.DashAbility;
+import com.fullspectrum.ability.rogue.ExecuteAbility;
+import com.fullspectrum.ability.rogue.HomingKnivesAbility;
+import com.fullspectrum.ability.rogue.SlingshotAbility;
+import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
@@ -1093,11 +1094,12 @@ public class EntityFactory {
 		animMap.put(EntityAnim.FALL_ARMS, assets.getAnimation(Asset.ROGUE_FALL_ARMS));
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ROGUE_RISE_LEGS));
 		animMap.put(EntityAnim.RISE_ARMS, assets.getAnimation(Asset.ROGUE_RISE_ARMS));
-		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_SLINGSHOT_ARMS));
+		animMap.put(EntityAnim.SLINGHOT_ARMS, assets.getAnimation(Asset.ROGUE_DYNAMITE_ARMS));
 		animMap.put(EntityAnim.SMOKE_BOMB_ARMS, assets.getAnimation(Asset.ROGUE_SMOKE_BOMB_ARMS));
 		animMap.put(EntityAnim.BOOMERANG_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
+		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
 		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
 			.animation(animMap)
@@ -1178,13 +1180,20 @@ public class EntityFactory {
 				rogueStats.get("boomerang_speed"),
 				rogueStats.get("boomerang_damage"),
 				rogueStats.get("boomerang_max_duration"));
+		boomerangAbility.deactivate();
+		
+		ExecuteAbility executeAbility = new ExecuteAbility(
+				rogueStats.get("execute_cooldown"), 
+				Actions.ABILITY_3, 
+				animMap.get(EntityAnim.EXECUTE));
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(slingshotAbility)
 				.add(homingKnivesAbility)
 				.add(vanishAbility)
 				.add(dashAbility)
-				.add(boomerangAbility));
+				.add(boomerangAbility)
+				.add(executeAbility));
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
@@ -1446,6 +1455,9 @@ public class EntityFactory {
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
+		
+		esm.createState(EntityStates.EXECUTE)
+			.addAnimation(EntityAnim.EXECUTE);
 			
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.DASH);
@@ -2385,7 +2397,7 @@ public class EntityFactory {
 	public static Entity createSlingshotProjectile(float x, float y, float angle, float damage, float knockback, EntityType type){
 		return createExplosiveProjectile(10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
 				null, 
-				assets.getAnimation(Asset.ROGUE_SLINGSHOT_PROJECTILE), 
+				assets.getAnimation(Asset.ROGUE_DYNAMITE_PROJECTILE), 
 				assets.getAnimation(Asset.SMOKE_BOMB));
 	}
 	

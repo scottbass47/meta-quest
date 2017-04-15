@@ -1,4 +1,4 @@
-package com.fullspectrum.ability;
+package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -7,6 +7,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.ability.TimedAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.FacingComponent;
@@ -38,12 +40,12 @@ public class DashSlashAbility extends TimedAbility{
 		this.knockUp = knockUp;
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
 		addTemporaryInvincibilities(InvincibilityType.ALL);
+		lockFacing();
 		hitEntities = new ObjectSet<Entity>();
 	}
 
 	@Override
 	protected void init(Entity entity) {
-		Mappers.facing.get(entity).locked = true;
 		Mappers.body.get(entity).body.setGravityScale(0.0f);
 		Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
 		Mappers.esm.get(entity).get(EntityStates.DASH).changeState(EntityStates.DASH);
@@ -102,7 +104,6 @@ public class DashSlashAbility extends TimedAbility{
 
 	@Override
 	protected void destroy(Entity entity) {
-		Mappers.facing.get(entity).locked = false;
 		Mappers.body.get(entity).body.setGravityScale(1.0f);
 		Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
 		Mappers.esm.get(entity).get(EntityStates.DASH).changeState(EntityStates.IDLING);

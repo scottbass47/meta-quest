@@ -11,5 +11,6 @@ public abstract class AnimationAbility extends TimedAbility{
 	public AnimationAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, Animation animation) {
 		super(type, icon, cooldown, input, animation.getAnimationDuration(), true);
 		this.animation = animation;
+		lockFacing();
 	}
 }
