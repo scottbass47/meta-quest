@@ -94,7 +94,7 @@ public class AssetLoader {
 	public Animation getAnimation(Atlas atlas, Asset asset){
 		Animation animation = new Animation(ANIM_SPEED, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
 		if(animation.getAnimationDuration() < 0.001f){
-			//throw new RuntimeException(asset + " was not loaded properly.");
+			throw new RuntimeException(asset + " was not loaded properly.");
 		}
 		return animation;
 	}

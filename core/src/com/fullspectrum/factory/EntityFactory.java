@@ -1208,7 +1208,6 @@ public class EntityFactory {
 				Actions.ABILITY_3, 
 				animMap.get(EntityAnim.FLASH_POWDER_ARMS),
 				rogueStats.get("flash_powder_stun_duration"));
-		flashPowderAbility.deactivate();
 		
 		BalloonTrapAbility balloonAbility = new BalloonTrapAbility(
 				rogueStats.get("balloon_cooldown"),
@@ -1217,6 +1216,7 @@ public class EntityFactory {
 				(int) rogueStats.get("balloon_num_pellets"), 
 				rogueStats.get("balloon_pellet_speed"),
 				(int) rogueStats.get("balloon_max_balloons"));
+		balloonAbility.deactivate();
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(dynamiteAbility)
@@ -2774,12 +2774,12 @@ public class EntityFactory {
 		return explosion;
 	}
 	
-	public static Entity createSmoke(float x, float y, Animation smokeAnimation){
+	public static Entity createSmoke(float x, float y, Animation smokeAnimation, boolean facing){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, smokeAnimation);
 		
 		Entity smoke = new EntityBuilder("smoke", EntityType.NEUTRAL)
-				.render(false)
+				.render(facing)
 				.animation(animMap)
 				.build();
 		smoke.add(engine.createComponent(StateComponent.class).set(EntityAnim.IDLE));
@@ -2792,6 +2792,12 @@ public class EntityFactory {
 			}
 		});
 		return smoke;	
+	}
+	
+	public static Entity createFlashPowder(float x, float y, boolean facingRight) {
+		Entity powder = createSmoke(x, y, assets.getAnimation(Asset.FLASH_POWDER_EXPLOSION), true);
+		Mappers.facing.get(powder).facingRight = facingRight;
+		return powder;
 	}
 	
 	// ----------------------------------------------

@@ -51,7 +51,7 @@ public class VanishAbility extends Ability {
 		if(frame == smokeBombFrame && !hasThrown){
 			hasThrown = true;
 			Vector2 pos = PhysicsUtils.getPos(entity);
-			EntityManager.addEntity(EntityFactory.createSmoke(pos.x, pos.y - 0.3f, AssetLoader.getInstance().getAnimation(Asset.SMOKE_BOMB)));
+			EntityManager.addEntity(EntityFactory.createSmoke(pos.x, pos.y - 0.3f, AssetLoader.getInstance().getAnimation(Asset.SMOKE_BOMB), false));
 			Mappers.shader.get(entity).shader = vanishShader;
 			Mappers.ability.get(entity).unlockAllBlocking();
 		}

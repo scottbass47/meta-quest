@@ -19,6 +19,8 @@ import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityAnim;
+import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
@@ -41,6 +43,11 @@ public class FlashPowderAbility extends AnimationAbility{
 			@Override
 			public void onTime(Entity entity) {
 				throwFlashPowder(entity);
+				
+				boolean facingRight = Mappers.facing.get(entity).facingRight;
+				Vector2 pos = PhysicsUtils.getPos(entity);
+				Entity powder = EntityFactory.createFlashPowder(facingRight ?  pos.x + 2.0f : pos.x - 2.0f, pos.y, facingRight);
+				EntityManager.addEntity(powder);
 			}
 		});
 	}
@@ -49,7 +56,7 @@ public class FlashPowderAbility extends AnimationAbility{
 		boolean facingRight = Mappers.facing.get(entity).facingRight;
 		Vector2 pos = PhysicsUtils.getPos(entity);
 		
-		float xRange = 2.5f;
+		float xRange = 3.5f;
 		float yRange = 1.0f;
 		
 		final Rectangle rect = new Rectangle(
@@ -58,9 +65,9 @@ public class FlashPowderAbility extends AnimationAbility{
 				xRange, 
 				yRange);
 		
-		DebugRender.setColor(Color.RED);
-		DebugRender.setType(ShapeType.Line);
-		DebugRender.rect(rect.x, rect.y, rect.width, rect.height, 1.0f);
+//		DebugRender.setColor(Color.RED);
+//		DebugRender.setType(ShapeType.Line);
+//		DebugRender.rect(rect.x, rect.y, rect.width, rect.height, 1.0f);
 		
 		Array<Entity> hit = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
 			@Override

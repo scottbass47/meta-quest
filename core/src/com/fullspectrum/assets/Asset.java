@@ -80,7 +80,7 @@ public enum Asset {
 	ROGUE_HOMING_KNIVES_THROW(Atlas.ENTITY, "homing_knives_throw/rogue_homing_knives_throw"),
 	ROGUE_SMOKE_BOMB_ARMS(Atlas.ENTITY, "smoke_bomb_arms/rogue_smoke_bomb_arms"),
 	ROGUE_BOOMERANG_ARMS(Atlas.ENTITY, "boomerang_arms/rogue_boomerang_arms"),
-	ROGUE_EXECUTE(Atlas.ENTITY, "execute/rogue_execute"),
+//	ROGUE_EXECUTE(Atlas.ENTITY, "execute/rogue_execute"),
 	ROGUE_BOW(Atlas.ENTITY, "bow/rogue_bow"),
 	ROGUEG_ARROW_PROJECTILE(Atlas.ENTITY, "arrow_projectile/rogue_arrow_projectile"),
 	ROGUE_BALLOON_INFLATE(Atlas.ENTITY, "balloon_inflate/rogue_balloon_inflate"),
@@ -118,6 +118,7 @@ public enum Asset {
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),
 	MANA_BOMB_EXPLOSION(Atlas.ENTITY, "mana_bomb_explosion"),
+	FLASH_POWDER_EXPLOSION(Atlas.ENTITY, "flash_powder_explosion"),
 	SMOKE_BOMB(Atlas.ENTITY, "smoke_bomb"),
 	JUMP_PARTICLE(Atlas.ENTITY, "jump_particle");
 	
