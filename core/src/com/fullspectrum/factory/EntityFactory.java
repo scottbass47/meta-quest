@@ -1158,6 +1158,7 @@ public class EntityFactory {
 				rogueStats.get("dynamite_knockback"),
 				rogueStats.get("dynamite_damage"),
 				rogueStats.get("dynamite_explosion_radius"));
+		dynamiteAbility.deactivate();
 		
 		HomingKnivesAbility homingKnivesAbility = new HomingKnivesAbility(
 				rogueStats.get("homing_knives_cooldown"), 
@@ -1198,14 +1199,14 @@ public class EntityFactory {
 		
 		BowAbility bowAbility = new BowAbility(
 				rogueStats.get("bow_cooldown"), 
-				Actions.ABILITY_2, 
+				Actions.ABILITY_1, 
 				animMap.get(EntityAnim.BOW_ATTACK), 
 				rogueStats.get("bow_damage"),
 				rogueStats.get("bow_speed"));
 		
 		FlashPowderAbility flashPowderAbility = new FlashPowderAbility(
 				rogueStats.get("flash_powder_cooldown"), 
-				Actions.ABILITY_3, 
+				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.FLASH_POWDER_ARMS),
 				rogueStats.get("flash_powder_stun_duration"));
 		
@@ -1216,7 +1217,6 @@ public class EntityFactory {
 				(int) rogueStats.get("balloon_num_pellets"), 
 				rogueStats.get("balloon_pellet_speed"),
 				(int) rogueStats.get("balloon_max_balloons"));
-		balloonAbility.deactivate();
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(dynamiteAbility)
@@ -2756,7 +2756,7 @@ public class EntityFactory {
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
 	public static Entity createExplosion(float x, float y, float radius, float damage, float knockback, EntityType type){
-		final float SPEED = 15.0f;
+		final float SPEED = 20.0f;
 		
 		Entity explosion = new EntityBuilder("explosion", type).build();
 		explosion.add(engine.createComponent(PositionComponent.class).set(x, y));

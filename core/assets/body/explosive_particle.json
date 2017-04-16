@@ -10,7 +10,6 @@
        "FixtureType": "explosive_particle",
        "shape": "Circle",
        "radius": 2,
-       "isSensor": "true",
        "Category": "item"
      }
   ]

@@ -1,9 +1,9 @@
 package com.fullspectrum.utils;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
+import com.badlogic.ashley.utils.ImmutableArray;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.factory.EntityFactory;
@@ -58,7 +58,8 @@ public class EntityUtils {
 	
 	@SuppressWarnings("unchecked")
 	public static Entity getPlayer(){
-		return EntityFactory.engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
+		ImmutableArray<Entity> players = EntityFactory.engine.getEntitiesFor(Family.all(PlayerComponent.class).get());
+		return players.size() == 0 ? null : players.first();
 	}
 	
 }

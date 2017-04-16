@@ -2,9 +2,7 @@ package com.fullspectrum.ability.rogue;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -16,7 +14,6 @@ import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityManager;
