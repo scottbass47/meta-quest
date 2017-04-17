@@ -62,4 +62,8 @@ public class EntityUtils {
 		return players.size() == 0 ? null : players.first();
 	}
 	
+	public static int getID(Entity entity){
+		return Mappers.entity.get(entity).getID();
+	}
+	
 }

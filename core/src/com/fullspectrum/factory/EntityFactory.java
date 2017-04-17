@@ -194,6 +194,7 @@ public class EntityFactory {
 	public static Engine engine;
 	public static World world;
 	public static Level level;
+	public static int ID;
 	
 	private EntityFactory(){}
 	
@@ -2898,13 +2899,13 @@ public class EntityFactory {
 		public EntityBuilder(EntityType type, EntityStatus status){
 			entity = engine.createEntity();
 			EntityUtils.setTargetable(entity, true);
-			entity.add(engine.createComponent(EntityComponent.class).set(type));
+			entity.add(engine.createComponent(EntityComponent.class).set(type, ID++));
 			entity.add(engine.createComponent(EngineComponent.class).set(engine));
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));
 			entity.add(engine.createComponent(TimerComponent.class));
 			entity.add(engine.createComponent(DeathComponent.class));		
-			entity.add(engine.createComponent(StatusComponent.class).set(status));
+			entity.add(engine.createComponent(StatusComponent.class).set(status).setCollideWith(status.getOpposite()));
 		}
 		
 		/**

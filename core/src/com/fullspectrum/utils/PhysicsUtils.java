@@ -111,8 +111,8 @@ public class PhysicsUtils {
 		fdef.restitution = root.getFloat("restitution", 0.0f);
 		fdef.friction = root.getFloat("friction", 0.2f);
 		CollisionBits bit = CollisionBits.getValue(root.getString("Category", "null"));
-//		fdef.filter.categoryBits = bit == null ? -1 : bit.getBit();
-//		fdef.filter.maskBits = bit == null ? -1 : CollisionBits.getOtherBits(bit);
+		fdef.filter.categoryBits = bit == null ? -1 : bit.getBit();
+		fdef.filter.maskBits = bit == null ? -1 : CollisionBits.getOtherBits(bit);
 		fdef.isSensor = bit == CollisionBits.SENSOR;
 		
 		float x = root.getFloat("xOff", 0.0f) * PPM_INV;
@@ -205,8 +205,8 @@ public class PhysicsUtils {
 		shape.setAsBox(width * 0.5f, height * 0.5f);
 		fdef.shape = shape;
 		fdef.friction = 0.0f;
-//		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
-//		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
+		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
+		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
 		body.createFixture(fdef).setUserData(FixtureType.GROUND);
 		
 		CollisionListenerComponent listenerComp = EntityUtils.add(tile, CollisionListenerComponent.class);

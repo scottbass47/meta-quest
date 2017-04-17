@@ -10,7 +10,7 @@
 	   "FixtureType": "bullet",
        "shape": "Box",
        "width": 10,
-       "height": 10,
+       "height": 40,
        "Category": "item"
      }
   ]

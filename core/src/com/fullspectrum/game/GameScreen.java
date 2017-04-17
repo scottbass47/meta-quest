@@ -64,7 +64,7 @@ import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Theme;
 import com.fullspectrum.level.Tile;
-import com.fullspectrum.physics.WorldCollision;
+import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
@@ -122,6 +122,7 @@ public class GameScreen extends AbstractScreen {
 	
 	// Box2D
 	private World world;
+	private WorldCollision worldCollision;
 
 	// Rendering
 	private FrameBuffer frameBuffer;
@@ -143,7 +144,8 @@ public class GameScreen extends AbstractScreen {
 		assets = AssetLoader.getInstance();
 		b2dr = new Box2DDebugRenderer();
 		world = new World(new Vector2(0, GameVars.GRAVITY), true);
-		world.setContactListener(new WorldCollision());
+		worldCollision = new WorldCollision();
+		world.setContactListener(worldCollision);
 
 		// Load Assets
 		assets.loadHUD();
@@ -335,6 +337,7 @@ public class GameScreen extends AbstractScreen {
 		EntityUtils.engineUpdating = false;
 		
 		world.step(delta, 6, 2);
+		worldCollision.update();
 		EntityManager.update(delta);
 		
 		if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
