@@ -59,7 +59,7 @@ public enum FixtureType {
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(MOB)
 					.allEntityTypes()
-					.removeEntityType(Mappers.type.get(entity).type)
+					.removeEntityType(Mappers.status.get(entity).status)
 					.build();
 			
 			info.addBehaviors(filter, 
@@ -102,7 +102,7 @@ public enum FixtureType {
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(MOB)
 					.allEntityTypes()
-					.removeEntityType(Mappers.type.get(entity).type)
+					.removeEntityType(Mappers.status.get(entity).status)
 					.build();
 			
 			info.addBehaviors(filter, 
@@ -156,7 +156,7 @@ public enum FixtureType {
 			
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(MOB)
-					.addEntityTypes(Mappers.type.get(entity).type.getOpposite())
+					.addEntityTypes(Mappers.status.get(entity).status.getOpposite())
 					.build();
 			
 			info.addBehavior(filter, new DamageOnCollideBehavior());

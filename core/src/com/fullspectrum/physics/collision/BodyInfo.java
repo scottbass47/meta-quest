@@ -3,7 +3,8 @@ package com.fullspectrum.physics.collision;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Fixture;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.entity.EntityStatus;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.physics.FixtureType;
 
 public class BodyInfo {
@@ -11,18 +12,20 @@ public class BodyInfo {
 	private Entity entity;
 	private Body body;
 	private Fixture fixture;
-	private FixtureType type;
+	private FixtureType fixtureType;
 	private CollisionBodyType bodyType;
+	private EntityStatus entityStatus;
 	private EntityType entityType;
 	private CollisionData data;
 	
-	public BodyInfo(Entity entity, Body body, Fixture fixture, FixtureType type, CollisionBodyType bodyType, EntityType entityType, CollisionData data) {
+	public BodyInfo(Entity entity, Body body, Fixture fixture, FixtureType fixtureType, CollisionBodyType bodyType, EntityStatus entityStatus, EntityType entityType, CollisionData data) {
 		this.entity = entity;
 		this.body = body;
 		this.fixture = fixture;
-		this.type = type;
+		this.fixtureType = fixtureType;
 		this.bodyType = bodyType;
-		this.entityType = entityType;
+		this.entityStatus = entityStatus;
+		this.setEntityType(entityType);
 		this.data = data;
 	}
 
@@ -50,12 +53,12 @@ public class BodyInfo {
 		this.fixture = fixture;
 	}
 
-	public FixtureType getType() {
-		return type;
+	public FixtureType getFixtureType() {
+		return fixtureType;
 	}
 
-	public void setType(FixtureType type) {
-		this.type = type;
+	public void setFixtureType(FixtureType fixtureType) {
+		this.fixtureType = fixtureType;
 	}
 
 	public CollisionBodyType getBodyType() {
@@ -66,6 +69,14 @@ public class BodyInfo {
 		this.bodyType = bodyType;
 	}
 
+	public EntityStatus getEntityStatus() {
+		return entityStatus;
+	}
+
+	public void setEntityStatus(EntityStatus entityStatus) {
+		this.entityStatus = entityStatus;
+	}
+	
 	public EntityType getEntityType() {
 		return entityType;
 	}
@@ -73,7 +84,7 @@ public class BodyInfo {
 	public void setEntityType(EntityType entityType) {
 		this.entityType = entityType;
 	}
-	
+
 	public CollisionData getData() {
 		return data;
 	}

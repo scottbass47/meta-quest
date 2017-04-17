@@ -120,9 +120,4 @@ public class RenderingSystem extends EntitySystem {
 		return Mappers.renderLevel.get(entity).renderLevel;
 	}
 	
-	private void printRenderLevels(){
-		for(Entity entity : sorted){
-			System.out.println(Mappers.entity.get(entity).name + " - " + getRL(entity));
-		}
-	}
 }

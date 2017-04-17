@@ -41,7 +41,7 @@ public class BalloonTrapAbility extends InstantAbility {
 			Mappers.esm.get(balloon).first().changeState(EntityStates.INIT);
 			balloons.add(balloon);
 		} else {
-			Entity balloon = EntityFactory.createBalloonTrap(pos.x, pos.y + 0.5f, numPellets, damagePerPellet, speed, Mappers.type.get(entity).type);
+			Entity balloon = EntityFactory.createBalloonTrap(pos.x, pos.y + 0.5f, numPellets, damagePerPellet, speed, Mappers.status.get(entity).status);
 			EntityManager.addEntity(balloon);
 			balloons.add(balloon);
 			numBalloons++;

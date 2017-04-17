@@ -69,7 +69,7 @@ public class FlashPowderAbility extends AnimationAbility{
 		Array<Entity> hit = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				if(!Mappers.type.get(me).type.getOpposite().equals(Mappers.type.get(other).type)) return false;
+				if(!Mappers.status.get(me).status.getOpposite().equals(Mappers.status.get(other).status)) return false;
 				
 				Vector2 targetPos = PhysicsUtils.getPos(other);
 				Rectangle aabb = Mappers.body.get(other).getAABB();

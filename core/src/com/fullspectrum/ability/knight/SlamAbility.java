@@ -17,7 +17,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
@@ -67,7 +67,7 @@ public class SlamAbility extends AnimationAbility{
 				@Override
 				public boolean validEntity(Entity me, Entity other) {
 					// Same type enemies aren't affected
-					if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+					if(Mappers.status.get(me).same(Mappers.status.get(other))) return false;
 					
 					Body myBody = Mappers.body.get(me).body;
 					Body otherBody = Mappers.body.get(other).body;
@@ -94,7 +94,7 @@ public class SlamAbility extends AnimationAbility{
 				@SuppressWarnings("unchecked")
 				@Override
 				public Family componentsNeeded() {
-					return Family.all(TypeComponent.class, BodyComponent.class, HealthComponent.class).get();
+					return Family.all(StatusComponent.class, BodyComponent.class, HealthComponent.class).get();
 				}
 			});
 			

@@ -15,7 +15,7 @@ import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
@@ -50,7 +50,7 @@ public class KickAbility extends AnimationAbility{
 				@Override
 				public boolean validEntity(Entity me, Entity other) {
 					// Same type enemies aren't affected
-					if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+					if(Mappers.status.get(me).same(Mappers.status.get(other))) return false;
 					
 					FacingComponent facingComp = Mappers.facing.get(me);
 					Body myBody = Mappers.body.get(me).body;
@@ -81,7 +81,7 @@ public class KickAbility extends AnimationAbility{
 				@SuppressWarnings("unchecked")
 				@Override
 				public Family componentsNeeded() {
-					return Family.all(HealthComponent.class, TypeComponent.class).get();
+					return Family.all(HealthComponent.class, StatusComponent.class).get();
 				}
 			});
 			

@@ -16,7 +16,7 @@ import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
@@ -121,7 +121,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 		Entity knife = EntityFactory.createHomingKnife(
 				PhysicsUtils.getPos(entity), 
 				knifePos, 
-				shootOutTime, damage, Mappers.type.get(entity).type);
+				shootOutTime, damage, Mappers.status.get(entity).status);
 		
 		Mappers.timer.get(knife).add("shoot_out", shootOutTime, false, new TimeListener() {
 			@Override
@@ -148,7 +148,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 				Array<Entity> targets = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
 					@Override
 					public boolean validEntity(Entity me, Entity other) {
-						if(!Mappers.type.get(me).shouldCollide(Mappers.type.get(other))) return false;
+						if(!Mappers.status.get(me).shouldCollide(Mappers.status.get(other))) return false;
 						if(PhysicsUtils.getDistanceSqr(me, other) > range * range) return false;
 						Vector2 myPos = PhysicsUtils.getPos(me);
 						Vector2 otherPos = PhysicsUtils.getPos(other);
@@ -158,7 +158,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 					@SuppressWarnings("unchecked")
 					@Override
 					public Family componentsNeeded() {
-						return Family.all(TypeComponent.class, HealthComponent.class).get();
+						return Family.all(StatusComponent.class, HealthComponent.class).get();
 					}
 				});
 				

@@ -1,7 +1,5 @@
 package com.fullspectrum.game;
 
-import java.nio.ByteBuffer;
-
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.EntityListener;
@@ -14,7 +12,6 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.PixmapIO;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
@@ -54,6 +51,7 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -343,21 +341,21 @@ public class GameScreen extends AbstractScreen {
 			Entity player = levelManager.getPlayer();
 			
 			// If you're not the knight currently, then switch
-			if(!Mappers.entity.get(player).name.equals("knight")){
+			if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
 				levelManager.switchPlayer(EntityIndex.KNIGHT);
 			}
 		} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
 			Entity player = levelManager.getPlayer();
 			
 			// If you're not the rogue currently, then switch
-			if(!Mappers.entity.get(player).name.equals("rogue")){
+			if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
 				levelManager.switchPlayer(EntityIndex.ROGUE);
 			}
 		} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
 			Entity player = levelManager.getPlayer();
 			
 			// If you're not the mage currently, then switch
-			if(!Mappers.entity.get(player).name.equals("mage")){
+			if(!Mappers.entity.get(player).type.equals(EntityType.MAGE)){
 				levelManager.switchPlayer(EntityIndex.MAGE);
 			}
 		}

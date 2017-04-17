@@ -39,7 +39,7 @@ public class BowAbility extends AnimationAbility{
 			@Override
 			public void onTime(Entity entity) {
 				ProjectileData data = ProjectileFactory.initProjectile(entity, 8, -4, 0.0f);
-				EntityManager.addEntity(EntityFactory.createArrow(data.x, data.y, speed, data.angle, damage, Mappers.type.get(entity).type));
+				EntityManager.addEntity(EntityFactory.createArrow(data.x, data.y, speed, data.angle, damage, Mappers.status.get(entity).status));
 			}
 		});
 	}

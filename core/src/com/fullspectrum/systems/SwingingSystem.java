@@ -21,7 +21,7 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.SwingComponent;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.EffectDef;
@@ -63,13 +63,13 @@ public class SwingingSystem extends IteratingSystem{
 			@SuppressWarnings("unchecked")
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(BodyComponent.class, HealthComponent.class, TypeComponent.class).get();
+				return Family.all(BodyComponent.class, HealthComponent.class, StatusComponent.class).get();
 			}
 
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				TypeComponent swordTypeComp = Mappers.type.get(me);
-				TypeComponent otherTypeComp = Mappers.type.get(other);
+				StatusComponent swordTypeComp = Mappers.status.get(me);
+				StatusComponent otherTypeComp = Mappers.status.get(other);
 				
 				// Don't deal damage to entities that aren't compatible
 				if(!swordTypeComp.shouldCollide(otherTypeComp)) return false;

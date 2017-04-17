@@ -13,11 +13,11 @@ import com.fullspectrum.ability.TimedAbility;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
+import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.ProjectileComponent;
-import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.level.EntityGrabber;
@@ -55,7 +55,7 @@ public class AntiMagneticAbility extends TimedAbility{
 		Array<Entity> projectiles = helper.getEntities(new EntityGrabber() {
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				if(!Mappers.type.get(me).shouldCollide(Mappers.type.get(other))) return false;
+				if(!Mappers.status.get(me).shouldCollide(Mappers.status.get(other))) return false;
 				
 				Body myBody = Mappers.body.get(me).body;
 				Body otherBody = Mappers.body.get(other).body;
@@ -73,7 +73,7 @@ public class AntiMagneticAbility extends TimedAbility{
 			@SuppressWarnings("unchecked")
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(ProjectileComponent.class, TypeComponent.class, VelocityComponent.class).get();
+				return Family.all(ProjectileComponent.class, StatusComponent.class, VelocityComponent.class).get();
 			}
 		});
 		
@@ -109,8 +109,8 @@ public class AntiMagneticAbility extends TimedAbility{
 //				DebugRender.setColor(Color.GREEN);
 //				DebugRender.line(x1, y1, x2, y2, 1.0f);
 				
-				Mappers.type.get(projectile).set(EntityType.FRIENDLY);
-				Mappers.type.get(projectile).setCollideWith(EntityType.ENEMY);
+				Mappers.status.get(projectile).set(EntityStatus.FRIENDLY);
+				Mappers.status.get(projectile).setCollideWith(EntityStatus.ENEMY);
 				
 				// BUG Deflected projectiles don't collide with enemies that are too close to the player
 				deflected.add(projectile);

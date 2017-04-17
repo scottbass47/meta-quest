@@ -107,7 +107,7 @@ public enum Sensors {
 			if(enemyHealth == null) return;
 			
 			// No damage dealt to entities of same type
-			if(!Mappers.type.get(entity).shouldCollide(Mappers.type.get(otherEntity))) return;
+			if(!Mappers.status.get(entity).shouldCollide(Mappers.status.get(otherEntity))) return;
 			
 			BulletStatsComponent bulletStatsComp = Mappers.bulletStats.get(entity);
 			DamageHandler.dealDamage(entity, otherEntity, bulletStatsComp.damage);
@@ -136,7 +136,7 @@ public enum Sensors {
 			if(enemyHealth == null) return;
 			
 			// No damage dealt to entities of same type
-			if(!Mappers.type.get(projectile).shouldCollide(Mappers.type.get(otherEntity))) return;
+			if(!Mappers.status.get(projectile).shouldCollide(Mappers.status.get(otherEntity))) return;
 			
 			Entity explosion = Mappers.parent.get(projectile).parent;
 			if(explosion == null || !EntityUtils.isValid(explosion)) return;

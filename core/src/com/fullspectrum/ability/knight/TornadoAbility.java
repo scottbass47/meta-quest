@@ -17,7 +17,7 @@ import com.fullspectrum.component.ControlledMovementComponent;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.Effects;
@@ -73,14 +73,14 @@ public class TornadoAbility extends TimedAbility{
 		Array<Entity> toPull = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+				if(Mappers.status.get(me).same(Mappers.status.get(other))) return false;
 
 				return PhysicsUtils.getDistanceSqr(me, other) <= range * range && !pulled.contains(other);
 			}
 			
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(TypeComponent.class, HealthComponent.class).get();
+				return Family.all(StatusComponent.class, HealthComponent.class).get();
 			}
 		});
 		
@@ -111,7 +111,7 @@ public class TornadoAbility extends TimedAbility{
 		Array<Entity> toHit = Mappers.level.get(entity).levelHelper.getEntities(new EntityGrabber() {
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				if(Mappers.type.get(me).same(Mappers.type.get(other))) return false;
+				if(Mappers.status.get(me).same(Mappers.status.get(other))) return false;
 
 				Vector2 myPos = PhysicsUtils.getPos(me).add(0.0f, yOff);
 				Vector2 entityPos = PhysicsUtils.getPos(other);
@@ -120,7 +120,7 @@ public class TornadoAbility extends TimedAbility{
 			
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(TypeComponent.class, HealthComponent.class).get();
+				return Family.all(StatusComponent.class, HealthComponent.class).get();
 			}
 		});
 		

@@ -67,7 +67,7 @@ public class ExecuteAbility extends AnimationAbility{
 		DebugRender.rect(rect.x, rect.y, rect.width, rect.height, 1.0f);
 		
 		for(Entity target : Mappers.engine.get(entity).engine.getEntitiesFor(Family.all(HealthComponent.class, BodyComponent.class).get())){
-			if(!Mappers.type.get(target).type.equals(Mappers.type.get(entity).type.getOpposite())) continue;
+			if(!Mappers.status.get(target).status.equals(Mappers.status.get(entity).status.getOpposite())) continue;
 			Vector2 targetPos = PhysicsUtils.getPos(target);
 			Rectangle aabb = Mappers.body.get(target).getAABB();
 			Rectangle hitBox = new Rectangle(aabb).setCenter(targetPos);

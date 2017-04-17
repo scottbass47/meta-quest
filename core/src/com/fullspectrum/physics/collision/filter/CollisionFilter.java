@@ -1,19 +1,19 @@
 package com.fullspectrum.physics.collision.filter;
 
 import com.badlogic.gdx.utils.ObjectSet;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.physics.collision.BodyInfo;
 import com.fullspectrum.physics.collision.CollisionBodyType;
 
 public class CollisionFilter {
 
 	private ObjectSet<CollisionBodyType> collisionBodyTypes;
-	private ObjectSet<EntityType> entityTypes;
+	private ObjectSet<EntityStatus> entityTypes;
 	private ObjectSet<CustomFilter> customFilters;
 	
 	public CollisionFilter() {
 		collisionBodyTypes = new ObjectSet<CollisionBodyType>();
-		entityTypes = new ObjectSet<EntityType>();
+		entityTypes = new ObjectSet<EntityStatus>();
 		customFilters = new ObjectSet<CustomFilter>();
 	}
 
@@ -22,7 +22,7 @@ public class CollisionFilter {
 			if(filter.passesFilter(me, other)) return true;
 		}
 		if(!collisionBodyTypes.contains(other.getBodyType())) return false;
-		if(!entityTypes.contains(other.getEntityType())) return false;
+		if(!entityTypes.contains(other.getEntityStatus())) return false;
 		return true;
 	}
 	
@@ -39,7 +39,7 @@ public class CollisionFilter {
 			return this;
 		}
 		
-		public Builder addEntityTypes(EntityType... entityTypes){
+		public Builder addEntityTypes(EntityStatus... entityTypes){
 			filter.entityTypes.addAll(entityTypes);
 			return this;
 		}
@@ -55,7 +55,7 @@ public class CollisionFilter {
 		}
 		
 		public Builder allEntityTypes(){
-			filter.entityTypes.addAll(EntityType.values());
+			filter.entityTypes.addAll(EntityStatus.values());
 			return this;
 		}
 		
@@ -64,7 +64,7 @@ public class CollisionFilter {
 			return this;
 		}
 		
-		public Builder removeEntityType(EntityType entityType){
+		public Builder removeEntityType(EntityStatus entityType){
 			filter.entityTypes.remove(entityType);
 			return this;
 		}

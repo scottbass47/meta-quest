@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
-import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
@@ -28,10 +27,9 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
@@ -57,9 +55,6 @@ public class Level {
 	private Vector2 playerSpawn;
 	private Array<EntitySpawn> entitySpawns;
 	
-	// Engine
-	private Engine engine;
-	
 	// Level Info
 	private LevelManager manager;
 	private LevelInfo info;
@@ -70,7 +65,6 @@ public class Level {
 	
 	public Level(LevelManager manager, LevelInfo info) {
 		this.manager = manager;
-		this.engine = manager.getEngine();
 		this.world = manager.getWorld();
 		this.info = info;
 		loader = new TmxMapLoader();
@@ -359,12 +353,7 @@ public class Level {
 			float width = (Float) o.getProperties().get("width");
 			float height = (Float) o.getProperties().get("height");
 			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
-			
-			Entity entity = new EntityFactory.EntityBuilder("level_trigger", EntityType.NEUTRAL)
-					.physics("level_trigger.json", spawnPoint.x, spawnPoint.y, false)
-					.build();
-			entity.add(engine.createComponent(LevelSwitchComponent.class).set(o.getName()));
-			engine.addEntity(entity);
+			EntityManager.addEntity(EntityFactory.createLevelTrigger(spawnPoint.x, spawnPoint.y, o.getName()));
 		}
 	}
 	

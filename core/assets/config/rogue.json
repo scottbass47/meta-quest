@@ -43,7 +43,7 @@
 	// Boomerang
 	boomerang_cooldown: 1.0,
 	boomerang_speed: 15.0,
-	boomerang_damage: 100.0,
+	boomerang_damage: 60.0,
 	boomerang_max_duration: 2.0,
 	
 	// Execute

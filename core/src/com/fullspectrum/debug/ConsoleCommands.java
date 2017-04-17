@@ -7,9 +7,9 @@ import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
@@ -119,10 +119,10 @@ public class ConsoleCommands extends CommandExecutor {
 		Array<Entity> entities = helper.getEntities(new EntityGrabber() {
 			@Override
 			public boolean validEntity(Entity me, Entity other) {
-				TypeComponent typeComp = Mappers.type.get(other);
+				StatusComponent typeComp = Mappers.status.get(other);
 				
 				// Only kill enemies
-				if(typeComp.type != EntityType.ENEMY) return false;
+				if(typeComp.status != EntityStatus.ENEMY) return false;
 				
 				// Don't kill spawners
 				if(Mappers.spawnerPool.get(other) != null) return false;
@@ -133,7 +133,7 @@ public class ConsoleCommands extends CommandExecutor {
 			@SuppressWarnings("unchecked")
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(HealthComponent.class, TypeComponent.class).get();
+				return Family.all(HealthComponent.class, StatusComponent.class).get();
 			}
 		});
 		

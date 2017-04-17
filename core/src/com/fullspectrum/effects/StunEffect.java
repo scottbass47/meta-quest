@@ -33,7 +33,7 @@ import com.fullspectrum.component.ShaderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TintComponent;
-import com.fullspectrum.component.TypeComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.State;
@@ -78,7 +78,7 @@ public class StunEffect extends Effect{
 				LevelComponent.class,
 				DeathComponent.class,
 				EntityComponent.class,
-				TypeComponent.class
+				StatusComponent.class
 		);
 	}
 	

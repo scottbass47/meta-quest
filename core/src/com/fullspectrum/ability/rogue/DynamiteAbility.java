@@ -8,9 +8,9 @@ import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimeListener;
-import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.factory.ProjectileFactory;
 import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
@@ -38,7 +38,7 @@ public class DynamiteAbility extends AnimationAbility{
 			@Override
 			public void onTime(Entity entity) {
 				ProjectileData data = ProjectileFactory.initProjectile(entity, 5.0f, 0.0f, 15f);
-				EntityManager.addEntity(EntityFactory.createDynamiteProjectile(data.x, data.y, data.angle, speed, damage, knockback, explosionRadius, EntityType.FRIENDLY));
+				EntityManager.addEntity(EntityFactory.createDynamiteProjectile(data.x, data.y, data.angle, speed, damage, knockback, explosionRadius, EntityStatus.FRIENDLY));
 			}
 		});
 	}

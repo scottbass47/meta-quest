@@ -7,8 +7,8 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.component.StatusComponent;
+import com.fullspectrum.entity.EntityStatus;
 
 public class LevelHelper {
 
@@ -31,10 +31,10 @@ public class LevelHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Array<Entity> getEntities(EntityType type){
+	public Array<Entity> getEntities(EntityStatus type){
 		Array<Entity> ret = new Array<Entity>();
-		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, TypeComponent.class).get())){
-			if(Mappers.type.get(entity).type.equals(type)){
+		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, StatusComponent.class).get())){
+			if(Mappers.status.get(entity).status.equals(type)){
 				ret.add(entity);
 			}
 		}
@@ -42,10 +42,10 @@ public class LevelHelper {
 	}
 	
 	@SuppressWarnings("unchecked")
-	public Array<Entity> getAliveEntities(EntityType type){
+	public Array<Entity> getAliveEntities(EntityStatus type){
 		Array<Entity> ret = new Array<Entity>();
-		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, TypeComponent.class, HealthComponent.class).get())){
-			if(Mappers.type.get(entity).type.equals(type)){
+		for(Entity entity : engine.getEntitiesFor(Family.all(LevelComponent.class, StatusComponent.class, HealthComponent.class).get())){
+			if(Mappers.status.get(entity).status.equals(type)){
 				ret.add(entity);
 			}
 		}

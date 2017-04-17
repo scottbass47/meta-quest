@@ -33,7 +33,7 @@ public class SpawnExplosionBehavior implements CollisionBehavior{
 		Entity explosion = EntityFactory.createExplosion(
 				pos.x, pos.y, 
 				radius, damage, knockback, 
-				me.getEntityType());
+				me.getEntityStatus());
 		EntityManager.addEntity(explosion);
 	}
 

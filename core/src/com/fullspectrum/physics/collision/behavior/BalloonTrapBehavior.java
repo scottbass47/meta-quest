@@ -9,8 +9,8 @@ import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.rogue.BalloonTrapAbility;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.component.TypeComponent.EntityType;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.physics.collision.BodyInfo;
 import com.fullspectrum.utils.EntityUtils;
@@ -19,12 +19,12 @@ import com.fullspectrum.utils.PhysicsUtils;
 public class BalloonTrapBehavior implements CollisionBehavior{
 
 	private boolean spawnedBullets = false;
-	private EntityType type;
+	private EntityStatus type;
 	private int numPellets;
 	private float damagePerPellet;
 	private float speed;
 	
-	public BalloonTrapBehavior(EntityType type, int numPellets, float damagePerPellet, float speed) {
+	public BalloonTrapBehavior(EntityStatus type, int numPellets, float damagePerPellet, float speed) {
 		this.type = type;
 		this.numPellets = numPellets;
 		this.damagePerPellet = damagePerPellet;

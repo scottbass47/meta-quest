@@ -32,7 +32,7 @@ public class TargetingSystem extends IteratingSystem{
 		LevelHelper helper = levelComp.levelHelper;
 		
 		Entity newTarget = null;
-		Array<Entity> candidates = helper.getAliveEntities(Mappers.type.get(entity).type.getOpposite());;
+		Array<Entity> candidates = helper.getAliveEntities(Mappers.status.get(entity).status.getOpposite());;
 		
 		float cost = Float.MAX_VALUE;
 		for(Entity e : candidates){

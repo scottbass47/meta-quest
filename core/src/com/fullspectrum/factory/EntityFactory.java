@@ -1,6 +1,8 @@
 package com.fullspectrum.factory;
 
 import static com.fullspectrum.physics.collision.CollisionBodyType.*;
+import static com.fullspectrum.entity.EntityType.*;
+import static com.fullspectrum.entity.EntityStatus.*;
 
 import java.util.Comparator;
 
@@ -89,6 +91,7 @@ import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.KnightComponent.KnightAttack;
 import com.fullspectrum.component.LevelComponent;
+import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.OffsetComponent;
@@ -114,8 +117,7 @@ import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TintComponent;
-import com.fullspectrum.component.TypeComponent;
-import com.fullspectrum.component.TypeComponent.EntityType;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
@@ -129,6 +131,8 @@ import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityStats;
+import com.fullspectrum.entity.EntityStatus;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
@@ -335,7 +339,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.TORNADO_INIT, assets.getAnimation(Asset.KNIGHT_TORNADO_INIT));
 		animMap.put(EntityAnim.TORNADO_SWING, assets.getAnimation(Asset.KNIGHT_TORNADO_SWING));
 		
-		Entity knight = new EntityBuilder("knight", EntityType.FRIENDLY)
+		Entity knight = new EntityBuilder(KNIGHT, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
@@ -693,7 +697,7 @@ public class EntityFactory {
 						Array<Entity> entities = helper.getEntities(new EntityGrabber() {
 							@Override
 							public boolean validEntity(Entity me, Entity other) {
-								if(Mappers.type.get(other).same(Mappers.type.get(me))) return false;
+								if(Mappers.status.get(other).same(Mappers.status.get(me))) return false;
 								if(Mappers.heatlh.get(other).health <= 0) return false;
 								if(Mappers.knight.get(me).hitEnemies.contains(other)) return false;
 								
@@ -822,7 +826,7 @@ public class EntityFactory {
 							@SuppressWarnings("unchecked")
 							@Override
 							public Family componentsNeeded() {
-								return Family.all(LevelComponent.class, TypeComponent.class, HealthComponent.class, BodyComponent.class).get();
+								return Family.all(LevelComponent.class, StatusComponent.class, HealthComponent.class, BodyComponent.class).get();
 							}
 						});
 						
@@ -1107,7 +1111,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.ROGUE_BOW));
 		animMap.put(EntityAnim.FLASH_POWDER_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		
-		Entity rogue = new EntityBuilder("rogue", EntityType.FRIENDLY)
+		Entity rogue = new EntityBuilder(ROGUE, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
@@ -1578,14 +1582,14 @@ public class EntityFactory {
 		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
 		animMap.put(EntityAnim.SWING_1, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
-		Entity mage = new EntityBuilder("mage", EntityType.FRIENDLY)
+		Entity mage = new EntityBuilder(MAGE, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
 			.mob(null, mageStats.get("health"))
 			.build();
 		
-		// Player Related Components
+		// Player Related Components4
 		mage.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		mage.add(engine.createComponent(MoneyComponent.class));
 		mage.add(engine.createComponent(PlayerComponent.class));
@@ -1616,7 +1620,7 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, 0.0f);
-					Entity bomb = EntityFactory.createManaBomb(data.x, data.y, data.angle, mageStats.get("mana_bomb_damage"), 5.0f, EntityType.FRIENDLY);
+					Entity bomb = EntityFactory.createManaBomb(data.x, data.y, data.angle, mageStats.get("mana_bomb_damage"), 5.0f, EntityStatus.FRIENDLY);
 					EntityManager.addEntity(bomb);
 				}
 
@@ -1712,7 +1716,7 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		
 		// Setup Player
-		Entity player = new EntityBuilder(EntityIndex.AI_PLAYER.getName(), EntityType.ENEMY)
+		Entity player = new EntityBuilder(AI_PLAYER, ENEMY)
 				.animation(animMap)
 				.mob(controller, stats.get("health"))
 				.physics("player.json", x, y, true)
@@ -1854,7 +1858,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.SPITTER_ATTACK));
 //		animMap.put(EntityAnim.FLAPPING, assets.getAnimation(Assets.spitterWings));
 		AIController controller = new AIController();
-		Entity entity = new EntityBuilder(EntityIndex.SPITTER.getName(), EntityType.ENEMY)
+		Entity entity = new EntityBuilder(SPITTER, ENEMY)
 				.animation(animMap)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.physics("spitter.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
@@ -2032,7 +2036,7 @@ public class EntityFactory {
 		
 		AIController controller = new AIController();
 		
-		Entity slime = new EntityBuilder(EntityIndex.SLIME.getName(), EntityType.ENEMY)
+		Entity slime = new EntityBuilder(SLIME, ENEMY)
 				.mob(controller, stats.get("health"))
 				.physics("slime.json", x, y, true)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
@@ -2144,7 +2148,7 @@ public class EntityFactory {
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
 		
-		Entity spawner = new EntityBuilder(EntityIndex.SPAWNER.getName(), EntityType.ENEMY)
+		Entity spawner = new EntityBuilder(SPAWNER, ENEMY)
 				.physics("spawner.json", new BodyProperties.Builder().setSleepingAllowed(false).build(), x, y, false)
 				.mob(controller, stats.get("health"))
 				.build();
@@ -2183,7 +2187,7 @@ public class EntityFactory {
 	public static Entity createWings(Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, flapping);
-		Entity wings = new EntityBuilder("wings of " + Mappers.entity.get(owner).name, Mappers.type.get(owner).type)
+		Entity wings = new EntityBuilder(WINGS, Mappers.status.get(owner).status)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 				.animation(animMap)
 				.build();
@@ -2212,17 +2216,17 @@ public class EntityFactory {
 			animation = assets.getAnimation(Asset.COIN_SILVER);
 			break;
 		}
-		Entity coin = createDrop(x, y, fx, fy, "coin.json", animation, assets.getAnimation(Asset.COIN_EXPLOSION), DropType.COIN);
+		Entity coin = createDrop(x, y, fx, fy, "coin.json", animation, assets.getAnimation(Asset.COIN_EXPLOSION), DropType.COIN, COIN);
 		coin.add(engine.createComponent(MoneyComponent.class).set(amount));
 		return coin;
 	}
 	
-	private static Entity createDrop(float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type){
+	private static Entity createDrop(float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type, EntityType entityType){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
 		animMap.put(EntityAnim.DROP_DISAPPEAR, dropDisappear);
 		
-		Entity drop = new EntityBuilder(type.name().toLowerCase(), EntityType.NEUTRAL)
+		Entity drop = new EntityBuilder(entityType, NEUTRAL)
 				.animation(animMap)
 				.physics(physicsBody, x, y, false)
 				.render(dropIdle.getKeyFrame(0), false)
@@ -2287,15 +2291,15 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                PROJECTILES                -
 	// ---------------------------------------------
-	public static Entity createBullet(float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type) {
-		return new ProjectileBuilder("bullet", type, x, y, speed, angle)
+	public static Entity createBullet(float speed, float angle, float x, float y, float damage, boolean isArc, EntityStatus status) {
+		return new ProjectileBuilder(BULLET, status, x, y, speed, angle)
 				.addDamage(damage)
 				.makeArced(isArc)
 				.build();
 	}
 	
-	public static Entity createThrowingKnife(float x, float y, float speed, float angle, float damage, EntityType type){
-		Entity knife = new ProjectileBuilder("knife", type, x, y, speed, angle)
+	public static Entity createThrowingKnife(float x, float y, float speed, float angle, float damage, EntityStatus status){
+		Entity knife = new ProjectileBuilder(THROWING_KNIFE, status, x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
 				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
@@ -2303,8 +2307,8 @@ public class EntityFactory {
 		return knife;
 	}
 	
-	public static Entity createHomingKnife(Vector2 fromPos, Vector2 toPos, float time, float damage, EntityType type){
-		Entity knife = new ProjectileBuilder("homing_knife", type, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.radiansToDegrees * MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
+	public static Entity createHomingKnife(Vector2 fromPos, Vector2 toPos, float time, float damage, EntityStatus status){
+		Entity knife = new ProjectileBuilder(HOMING_KNIFE, status, fromPos.x, fromPos.y, Vector2.dst(fromPos.x, fromPos.y, toPos.x, toPos.y) / time, MathUtils.radiansToDegrees * MathUtils.atan2(toPos.y - fromPos.y, toPos.x - fromPos.x))
 				.addDamage(damage)
 				.render(false)
 				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
@@ -2324,8 +2328,8 @@ public class EntityFactory {
 		return knife;
 	}
 	
-	public static Entity createBoomerang(Entity parent, float x, float y, float speed, float turnSpeed, float angle, float damage, EntityType type){
-		Entity boomerang = new ProjectileBuilder("boomerang", type, "boomerang.json", x, y, speed, angle)
+	public static Entity createBoomerang(Entity parent, float x, float y, float speed, float turnSpeed, float angle, float damage, EntityStatus status){
+		Entity boomerang = new ProjectileBuilder(BOOMERANG, status, "boomerang.json", x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
 				.animate(assets.getAnimation(Asset.ROGUE_BOOMERANG_PROJECTILE))
@@ -2342,7 +2346,7 @@ public class EntityFactory {
 		
 		CollisionFilter filter = new CollisionFilter.Builder()
 				.addBodyTypes(MOB)
-				.addEntityTypes(type.getOpposite())
+				.addEntityTypes(status.getOpposite())
 				.build();
 		
 		info.addBehavior(filter, new DamageOnCollideBehavior());
@@ -2364,8 +2368,8 @@ public class EntityFactory {
 		return boomerang;
 	}
 	
-	public static Entity createArrow(float x, float y, float speed, float angle, float damage, EntityType type) {
-		Entity arrow = new ProjectileBuilder("arrow", type, "arrow.json", x, y, speed, angle)
+	public static Entity createArrow(float x, float y, float speed, float angle, float damage, EntityStatus status) {
+		Entity arrow = new ProjectileBuilder(ARROW, status, "arrow.json", x, y, speed, angle)
 			.addDamage(damage)
 			.render(true)
 			.animate(assets.getAnimation(Asset.ROGUEG_ARROW_PROJECTILE))
@@ -2377,7 +2381,7 @@ public class EntityFactory {
 		CollisionFilter filter = new CollisionFilter.Builder()
 				.addBodyTypes(MOB)
 				.allEntityTypes()
-				.removeEntityType(type)
+				.removeEntityType(status)
 				.build();
 		
 		info.addBehavior(filter, new DamageOnCollideBehavior());
@@ -2392,8 +2396,8 @@ public class EntityFactory {
 		return arrow;
 	}
 	
-	public static Entity createBalloonPellet(float x, float y, float speed, float angle, float damage, EntityType type) {
-		Entity pellet = new ProjectileBuilder("pellet", type, x, y, speed, angle)
+	public static Entity createBalloonPellet(float x, float y, float speed, float angle, float damage, EntityStatus status) {
+		Entity pellet = new ProjectileBuilder(BALLOON_PELLET, status, x, y, speed, angle)
 				.render(false)
 				.animate(assets.getAnimation(Asset.ROGUE_BALLOON_PROJECTILE))
 				.addDamage(damage)
@@ -2404,13 +2408,13 @@ public class EntityFactory {
 		return pellet;
 	}
 	
-	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityType type){
+	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityStatus status){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.PROJECTILE_INIT, assets.getAnimation(Asset.SPIT_INIT));
 		animMap.put(EntityAnim.PROJECTILE_FLY, assets.getAnimation(Asset.SPIT_FLY));
 		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getAnimation(Asset.SPIT_DEATH));
 		
-		Entity spit = new ProjectileBuilder("spit", type, x, y, speed, angle)
+		Entity spit = new ProjectileBuilder(SPIT, status, x, y, speed, angle)
 				.addDamage(damage)
 				.render(true)
 				.animate(
@@ -2424,14 +2428,14 @@ public class EntityFactory {
 		return spit;
 	}
 	
-	public static Entity createExplosiveProjectile(float speed, float angle, float x, float y, float damage, boolean isArc, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation init, Animation fly, Animation death){
+	private static Entity createExplosiveProjectile(float speed, float angle, float x, float y, float damage, boolean isArc, EntityStatus status, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation init, Animation fly, Animation death){
 		// CLEANUP Generic explosive projectile uses all mana bomb stuff
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.PROJECTILE_INIT, init);
 		animMap.put(EntityAnim.PROJECTILE_FLY, fly);
 		animMap.put(EntityAnim.PROJECTILE_DEATH, death);
 		
-		Entity explosive = new ProjectileBuilder("explosive_projectile", type, physicsBody, x, y, speed, angle)
+		Entity explosive = new ProjectileBuilder(type, status, physicsBody, x, y, speed, angle)
 				.render(true)
 				.makeArced(isArc)
 				.makeExplosive(radius, speed, damage, damageDropOffRate, knockback)
@@ -2442,15 +2446,15 @@ public class EntityFactory {
 		return explosive;
 	}
 	
-	public static Entity createManaBomb(float x, float y, float angle, float damage, float knockback, EntityType type){
-		return createExplosiveProjectile(10.0f, angle, x, y, damage, true, type, "mana_bomb.json", 5.0f, 0.0f, knockback,
+	public static Entity createManaBomb(float x, float y, float angle, float damage, float knockback, EntityStatus status){
+		return createExplosiveProjectile(10.0f, angle, x, y, damage, true, status, MANA_BOMB, "mana_bomb.json", 5.0f, 0.0f, knockback,
 				null, 
 				new Animation(0.1f, assets.getAnimation(Asset.MANA_BOMB_EXPLOSION).getKeyFrames()[0]), 
 				assets.getAnimation(Asset.MANA_BOMB_EXPLOSION));
 	}
 	
-	public static Entity createDynamiteProjectile(float x, float y, float angle, float speed, float damage, float knockback, float radius, EntityType type){
-		Entity dynamite = new ProjectileBuilder("dynamite", type, x, y, speed, angle)
+	public static Entity createDynamiteProjectile(float x, float y, float angle, float speed, float damage, float knockback, float radius, EntityStatus status){
+		Entity dynamite = new ProjectileBuilder(DYNAMITE, status, x, y, speed, angle)
 				.render(false)
 				.animate(null, assets.getAnimation(Asset.ROGUE_DYNAMITE_PROJECTILE), assets.getAnimation(Asset.SMOKE_BOMB))
 				.addStateMachine()
@@ -2499,7 +2503,7 @@ public class EntityFactory {
 	
 	public static Entity createExplosiveParticle(Entity parent, float speed, float angle, float x, float y){
 		CombustibleComponent combustibleComp = Mappers.combustible.get(parent);
-		Entity particle = new ProjectileBuilder("explosive_particle", Mappers.type.get(parent).type, "explosive_particle.json", x, y, speed, angle)
+		Entity particle = new ProjectileBuilder(EXPLOSIVE_PARTICLE, Mappers.status.get(parent).status, "explosive_particle.json", x, y, speed, angle)
 				.addTimedDeath(combustibleComp.radius / combustibleComp.speed)
 				.build();
 		particle.add(engine.createComponent(ParentComponent.class).set(parent));
@@ -2511,16 +2515,16 @@ public class EntityFactory {
 		
 		private Entity projectile;
 		
-		public ProjectileBuilder(String name, EntityType type, float x, float y, float speed, float angle){
-			this(name, type, "bullet.json", x, y, speed, angle);
+		public ProjectileBuilder(EntityType type, EntityStatus status, float x, float y, float speed, float angle){
+			this(type, status, "bullet.json", x, y, speed, angle);
 		}
 		
-		public ProjectileBuilder(String name, EntityType type, String physics, float x, float y, float speed, float angle){
-			projectile = new EntityBuilder(name, type)
+		public ProjectileBuilder(EntityType type, EntityStatus status, String physics, float x, float y, float speed, float angle){
+			projectile = new EntityBuilder(type, status)
 					.physics(physics, new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
 					.build();
 			projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, false));
-			projectile.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
+			projectile.add(engine.createComponent(StatusComponent.class).set(status).setCollideWith(status.getOpposite()));
 			projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
 		}
 		
@@ -2552,7 +2556,7 @@ public class EntityFactory {
 			CollisionFilter filter = new CollisionFilter.Builder()
 					.addBodyTypes(CollisionBodyType.MOB, CollisionBodyType.TILE)
 					.allEntityTypes()
-					.removeEntityType(Mappers.type.get(projectile).type)
+					.removeEntityType(Mappers.status.get(projectile).status)
 					.build();
 			
 			info.addBehavior(filter, new SpawnExplosionBehavior(radius, damage, knockback));
@@ -2594,7 +2598,7 @@ public class EntityFactory {
 		
 		public ProjectileBuilder addStateMachine(){
 			if(Mappers.animation.get(projectile) == null) throw new RuntimeException("Make sure you give the projectile animation capabilities before adding a state machine.");
-			EntityStateMachine esm = new StateFactory.EntityStateBuilder(Mappers.entity.get(projectile).name + " ESM", engine, projectile).build();
+			EntityStateMachine esm = new StateFactory.EntityStateBuilder(Mappers.entity.get(projectile) + " ESM", engine, projectile).build();
 			
 			ArrayMap<State, Animation> animMap = Mappers.animation.get(projectile).animations;
 			if(animMap.containsKey(EntityAnim.PROJECTILE_INIT)){
@@ -2682,13 +2686,13 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                   MISC                    -
 	// ---------------------------------------------
-	public static Entity createBalloonTrap(float x, float y, int numPellets, float damagePerPellet, float speed, EntityType type){
+	public static Entity createBalloonTrap(float x, float y, int numPellets, float damagePerPellet, float speed, EntityStatus status){
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.INFLATE, assets.getAnimation(Asset.ROGUE_BALLOON_INFLATE));
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ROGUE_BALLOON_IDLE));
 		animMap.put(EntityAnim.POP, assets.getAnimation(Asset.ROGUE_BALLOON_POP));
 		
-		Entity balloon = new EntityBuilder("balloon_trap", EntityType.NEUTRAL)
+		Entity balloon = new EntityBuilder(BALLOON_TRAP, NEUTRAL)
 				.render(false)
 				.animation(animMap)
 				.physics("balloon.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
@@ -2732,11 +2736,11 @@ public class EntityFactory {
 		CollisionFilter filter = new CollisionFilter.Builder()
 				.addBodyTypes(MOB)
 				.allEntityTypes()
-				.removeEntityType(type)
+				.removeEntityType(status)
 				.build();
 		
 		info.addBehaviors(filter, 
-				new BalloonTrapBehavior(type, numPellets, damagePerPellet, speed),
+				new BalloonTrapBehavior(status, numPellets, damagePerPellet, speed),
 				new DeathOnCollideBehavior());
 		
 		filter = new CollisionFilter.Builder()
@@ -2745,7 +2749,7 @@ public class EntityFactory {
 				.build();
 		
 		info.addBehaviors(filter, 
-				new BalloonTrapBehavior(type, numPellets, damagePerPellet, speed),
+				new BalloonTrapBehavior(status, numPellets, damagePerPellet, speed),
 				new DeathOnCollideBehavior());
 		
 		data.setFixtureInfo(FixtureType.BODY, info);
@@ -2755,13 +2759,13 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
-	public static Entity createExplosion(float x, float y, float radius, float damage, float knockback, EntityType type){
+	public static Entity createExplosion(float x, float y, float radius, float damage, float knockback, EntityStatus status){
 		final float SPEED = 20.0f;
 		
-		Entity explosion = new EntityBuilder("explosion", type).build();
+		Entity explosion = new EntityBuilder(EXPLOSION, status).build();
 		explosion.add(engine.createComponent(PositionComponent.class).set(x, y));
 		EntityUtils.add(explosion, CombustibleComponent.class).set(radius, SPEED, damage, 5.0f, knockback).shouldExplode = true; // HACK speed and drop off is hardcoded
-		explosion.add(engine.createComponent(TypeComponent.class).set(type).setCollideWith(type.getOpposite()));
+		explosion.add(engine.createComponent(StatusComponent.class).set(status).setCollideWith(status.getOpposite()));
 		
 		// Setup timed death after explosive particles are dead
 		Mappers.timer.get(explosion).add("death", radius / SPEED, false, new TimeListener() {
@@ -2778,7 +2782,7 @@ public class EntityFactory {
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, smokeAnimation);
 		
-		Entity smoke = new EntityBuilder("smoke", EntityType.NEUTRAL)
+		Entity smoke = new EntityBuilder(SMOKE, NEUTRAL)
 				.render(facing)
 				.animation(animMap)
 				.build();
@@ -2804,7 +2808,7 @@ public class EntityFactory {
 	// -                DAMAGE TEXT                 -
 	// ----------------------------------------------
 	public static Entity createDamageText(String text, Color color, BitmapFont font, float x, float y, float speed){
-		Entity entity = new EntityBuilder("damage text", EntityType.NEUTRAL).build();
+		Entity entity = new EntityBuilder(DAMAGE_TEXT, NEUTRAL).build();
 		entity.add(engine.createComponent(TextRenderComponent.class).set(font, color, text));
 		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		entity.add(engine.createComponent(VelocityComponent.class).set(0, speed));
@@ -2824,7 +2828,7 @@ public class EntityFactory {
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.JUMP, animation);
 		
-		Entity entity = new EntityBuilder("particle", EntityType.NEUTRAL)
+		Entity entity = new EntityBuilder(PARTICLE, NEUTRAL)
 				.render(animation.getKeyFrame(0.0f), false)
 				.animation(animMap)
 				.build();
@@ -2845,7 +2849,7 @@ public class EntityFactory {
 	// -                   CAMERA                  -
 	// ---------------------------------------------
 	public static Entity createCamera(OrthographicCamera worldCamera){
-		Entity camera = new EntityBuilder("camera", EntityType.NEUTRAL).build();
+		Entity camera = new EntityBuilder(CAMERA, NEUTRAL).build();
 		CameraComponent cameraComp = engine.createComponent(CameraComponent.class);
 		cameraComp.locked = true;
 		cameraComp.camera = worldCamera;
@@ -2866,29 +2870,41 @@ public class EntityFactory {
 	// -                   TILES                   -
 	// ---------------------------------------------
 	public static Entity createTile(Body body){
-		Entity tile = new EntityBuilder("tile", EntityType.NEUTRAL).build();
+		Entity tile = new EntityBuilder(BASE_TILE, NEUTRAL).build();
 		tile.add(engine.createComponent(BodyComponent.class).set(body));
 		return tile;
 	}
-
+	
+	// ---------------------------------------------
+	// -               LEVEL TRIGGER               -
+	// --------------------------------------------- 
+	public static Entity createLevelTrigger(float x, float y, String trigger) {
+		Entity levelTrigger = new EntityFactory.EntityBuilder(LEVEL_TRIGGER, NEUTRAL)
+				.physics("level_trigger.json", x, y, false)
+				.build();
+		levelTrigger.add(engine.createComponent(LevelSwitchComponent.class).set(trigger));
+		return levelTrigger;
+	}
+	
+	
 	public static class EntityBuilder{
 		private Entity entity;
 		
 		/**
 		 * Setups base entity with Engine, World, Level, Entity, Timer, Death, and Type components.
 		 * @param name
-		 * @param type
+		 * @param status
 		 */
-		public EntityBuilder(String name, EntityType type){
+		public EntityBuilder(EntityType type, EntityStatus status){
 			entity = engine.createEntity();
 			EntityUtils.setTargetable(entity, true);
-			entity.add(engine.createComponent(EntityComponent.class).set(name));
+			entity.add(engine.createComponent(EntityComponent.class).set(type));
 			entity.add(engine.createComponent(EngineComponent.class).set(engine));
 			entity.add(engine.createComponent(WorldComponent.class).set(world));
 			entity.add(engine.createComponent(LevelComponent.class).set(level, entity));
 			entity.add(engine.createComponent(TimerComponent.class));
 			entity.add(engine.createComponent(DeathComponent.class));		
-			entity.add(engine.createComponent(TypeComponent.class).set(type));
+			entity.add(engine.createComponent(StatusComponent.class).set(status));
 		}
 		
 		/**
@@ -2984,7 +3000,7 @@ public class EntityFactory {
 		 * Adds Input, Health, Effect and Invincibility components.
 		 * 
 		 * @param input
-		 * @param type
+		 * @param status
 		 * @param health
 		 * @return
 		 */ 
