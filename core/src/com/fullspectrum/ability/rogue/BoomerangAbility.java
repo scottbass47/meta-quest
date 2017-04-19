@@ -121,6 +121,11 @@ public class BoomerangAbility extends Ability {
 		return currentPhase;
 	}
 	
+	@Override
+	public boolean unblockOnDestroy() {
+		return false;
+	}
+	
 	public enum Phase {
 		OUT,
 		TURN,

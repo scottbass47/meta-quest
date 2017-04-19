@@ -3,7 +3,7 @@
 	air_speed: 8.0,
 	
 	// Base Stats
-	money: 100.0,
+	money: 75.0,
 	health: 100.0,
 	
 	// Projectile

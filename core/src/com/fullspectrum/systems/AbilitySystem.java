@@ -45,7 +45,7 @@ public class AbilitySystem extends IteratingSystem {
 				ability.setDone(false);
 				ability.setInUse(false);
 				//If ability is blocking, unlock other blocking abilities
-				if(ability.isBlocking()){
+				if(ability.isBlocking() && ability.unblockOnDestroy()){
 					abilityComp.unlockAllBlocking();
 				}
 			}else if(ability.inUse()){

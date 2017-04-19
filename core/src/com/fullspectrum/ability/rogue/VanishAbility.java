@@ -79,4 +79,9 @@ public class VanishAbility extends Ability {
 		hasThrown = false;
 	}
 	
+	@Override
+	public boolean unblockOnDestroy() {
+		return false;
+	}
+	
 }

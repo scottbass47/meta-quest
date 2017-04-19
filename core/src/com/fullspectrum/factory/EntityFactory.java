@@ -1173,7 +1173,6 @@ public class EntityFactory {
 				rogueStats.get("homing_knives_damage"),
 				rogueStats.get("homing_knives_range"),
 				rogueStats.get("homing_knives_speed"));
-		homingKnivesAbility.deactivate();
 		
 		VanishAbility vanishAbility = new VanishAbility(
 				rogueStats.get("vanish_cooldown"),
@@ -1190,11 +1189,10 @@ public class EntityFactory {
 		
 		BoomerangAbility boomerangAbility = new BoomerangAbility(
 				rogueStats.get("boomerang_cooldown"), 
-				Actions.ABILITY_1,
+				Actions.ABILITY_2,
 				rogueStats.get("boomerang_speed"),
 				rogueStats.get("boomerang_damage"),
 				rogueStats.get("boomerang_max_duration"));
-		boomerangAbility.deactivate();
 		
 		ExecuteAbility executeAbility = new ExecuteAbility(
 				rogueStats.get("execute_cooldown"), 
@@ -1208,12 +1206,14 @@ public class EntityFactory {
 				animMap.get(EntityAnim.BOW_ATTACK), 
 				rogueStats.get("bow_damage"),
 				rogueStats.get("bow_speed"));
+		bowAbility.deactivate();
 		
 		FlashPowderAbility flashPowderAbility = new FlashPowderAbility(
 				rogueStats.get("flash_powder_cooldown"), 
 				Actions.ABILITY_2, 
 				animMap.get(EntityAnim.FLASH_POWDER_ARMS),
 				rogueStats.get("flash_powder_stun_duration"));
+		flashPowderAbility.deactivate();
 		
 		BalloonTrapAbility balloonAbility = new BalloonTrapAbility(
 				rogueStats.get("balloon_cooldown"),
@@ -1222,6 +1222,7 @@ public class EntityFactory {
 				(int) rogueStats.get("balloon_num_pellets"), 
 				rogueStats.get("balloon_pellet_speed"),
 				(int) rogueStats.get("balloon_max_balloons"));
+		balloonAbility.deactivate();
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(dynamiteAbility)

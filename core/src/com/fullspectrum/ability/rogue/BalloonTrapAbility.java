@@ -49,6 +49,7 @@ public class BalloonTrapAbility extends InstantAbility {
 	}
 	
 	public void removeBalloon(Entity balloon) {
+		if(balloons.size < 1) return;
 		balloons.removeIndex(balloons.indexOf(balloon, false));
 		numBalloons--;
 	}

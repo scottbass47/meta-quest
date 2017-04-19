@@ -183,6 +183,15 @@ public abstract class Ability {
 		this.inUse = inUse;
 	}
 	
+	/** 
+	 * Default behavior is to unblock other abilities onDestroy if this ability is blocking.
+	 * Override this method if you already unblock before destroying.
+	 * @return
+	 */
+	public boolean unblockOnDestroy(){
+		return isBlocking;
+	}
+	
 	public boolean canUse(Entity entity){
 		return !locked && (constraints == null ? true : constraints.canUse(this, entity));
 	}
