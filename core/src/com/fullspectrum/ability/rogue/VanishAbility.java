@@ -40,7 +40,6 @@ public class VanishAbility extends Ability {
 	protected void init(Entity entity) {
 		Mappers.asm.get(entity).get(EntityAnim.SMOKE_BOMB_ARMS).changeState(EntityAnim.SMOKE_BOMB_ARMS);
 		EntityUtils.setTargetable(entity, false);
-		
 	}
 
 	@Override

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.knight.BlacksmithAbility;
@@ -21,6 +22,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.ShaderComponent;
+import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.debug.DebugVars;
@@ -30,12 +32,14 @@ import com.fullspectrum.factory.DropFactory;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.shader.HurtShader;
 import com.fullspectrum.shader.Shader;
+import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.Maths;
 
 public class DamageHandler {
 	
 	private final static Shader hurtShader = new HurtShader();
-
+	private static ArrayMap<Entity, Entity> damageMap = new ArrayMap<Entity, Entity>();
+	
 	private DamageHandler() {
 	}
 
@@ -171,7 +175,20 @@ public class DamageHandler {
 			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, Color.BLUE, font, x, y, 2.0f));
 		}
 		else {
-			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x, y, 2.0f));
+			// If there is damage text for this entity and it's a valid entity, then update it
+			if(damageMap.containsKey(toEntity) && EntityUtils.isValid(damageMap.get(toEntity))) {
+				Entity damageText = damageMap.get(toEntity);
+				TextRenderComponent textComp = Mappers.textRender.get(damageText);
+				int damage = Integer.parseInt(textComp.text.substring(1));
+				damage += displayHealth;
+				textComp.text = "-" + damage;
+			}
+			else {
+				Entity damageText = EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x, y, 2.0f);
+				damageMap.put(toEntity, damageText);
+				EntityUtils.setValid(damageText, true);
+				EntityManager.addEntity(damageText);
+			}
 		}
 	}
 

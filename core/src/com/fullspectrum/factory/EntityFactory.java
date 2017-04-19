@@ -1222,7 +1222,6 @@ public class EntityFactory {
 				(int) rogueStats.get("balloon_num_pellets"), 
 				rogueStats.get("balloon_pellet_speed"),
 				(int) rogueStats.get("balloon_max_balloons"));
-		balloonAbility.deactivate();
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(dynamiteAbility)
