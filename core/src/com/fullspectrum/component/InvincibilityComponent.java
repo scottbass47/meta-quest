@@ -24,7 +24,7 @@ public class InvincibilityComponent implements Component, Poolable {
 	}
 	
 	public InvincibilityComponent addAll(ObjectSet<InvincibilityType> types){
-		types.addAll(types);
+		this.types.addAll(types);
 		return this;
 	}
 	

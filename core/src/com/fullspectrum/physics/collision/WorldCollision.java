@@ -18,7 +18,7 @@ import com.fullspectrum.physics.collision.exception.CollisionException;
 import com.fullspectrum.physics.collision.exception.ExceptionTable;
 import com.fullspectrum.physics.collision.filter.CollisionFilter;
 
-// PERFORMANCE Slows down with lots of entities
+// PERFORMANCE IMPORTANT Huge lag spikes with many enemies
 public class WorldCollision implements ContactListener {
 
 	private ExceptionTable exceptionTable;
