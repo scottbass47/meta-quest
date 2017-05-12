@@ -1108,7 +1108,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.BOOMERANG_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		animMap.put(EntityAnim.HOMING_KNIVES_THROW, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
 		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.ROGUE_HOMING_KNIVES_THROW));
-		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.EXECUTE, assets.getAnimation(Asset.ROGUE_EXECUTE));
 		animMap.put(EntityAnim.BOW_ATTACK, assets.getAnimation(Asset.ROGUE_BOW));
 		animMap.put(EntityAnim.FLASH_POWDER_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
 		
@@ -1470,9 +1470,7 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
 		
 		esm.createState(EntityStates.EXECUTE)
-			.add(engine.createComponent(GroundMovementComponent.class))
-			.add(engine.createComponent(DirectionComponent.class))
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(FrameMovementComponent.class).set("frames_execute"))
 			.addAnimation(EntityAnim.EXECUTE);
 		
 		esm.createState(EntityStates.BOW_ATTACK)

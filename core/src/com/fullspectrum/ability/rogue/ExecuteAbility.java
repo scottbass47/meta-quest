@@ -26,7 +26,7 @@ import com.fullspectrum.utils.PhysicsUtils;
 
 public class ExecuteAbility extends AnimationAbility{
 
-	private int executeFrame = 1;
+	private int executeFrame = 4;
 	
 	public ExecuteAbility(float cooldown, Actions input, Animation animation) {
 		super(AbilityType.EXECUTE, AssetLoader.getInstance().getRegion(Asset.EXECUTE_ICON), cooldown, input, animation);
