@@ -17,6 +17,10 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Logger;
 import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
+import com.fullspectrum.audio.AudioHandler;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.StandardAudio;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.InputProfile;
 import com.fullspectrum.input.RawInput;
@@ -44,6 +48,9 @@ public class GdxGame extends Game {
 
 	// Screens
 	private ArrayMap<ScreenState, Screen> screens;
+	
+	// Audio Handler
+	private AudioHandler audioHandler;
 
 	@Override
 	public void create() {
@@ -75,6 +82,11 @@ public class GdxGame extends Game {
 		// Center HUD Camera
 		hudCamera.position.x = SCREEN_WIDTH * 0.5f;
 		hudCamera.position.y = SCREEN_HEIGHT * 0.5f;
+
+		// Provide Audio
+		AudioLocator.provide(DebugVars.SOUND_ON ? new StandardAudio() : null);
+		audioHandler = new AudioHandler();
+		audioHandler.startAudio();
 		
 		GLProfiler.enable();
 		Gdx.app.setLogLevel(Logger.DEBUG);

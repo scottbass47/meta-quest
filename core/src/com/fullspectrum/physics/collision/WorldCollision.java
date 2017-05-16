@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.physics.FixtureType;

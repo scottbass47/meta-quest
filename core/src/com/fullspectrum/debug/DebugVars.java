@@ -5,7 +5,7 @@ import com.fullspectrum.entity.EntityIndex;
 public class DebugVars {
 
 	// Window
-	public static boolean FULLSCREEN_MODE = true;
+	public static boolean FULLSCREEN_MODE = false;
 	
 	// Show
 	public static boolean NAVMESH_ON = false;
@@ -36,6 +36,7 @@ public class DebugVars {
 	public static boolean FPS_ON = false;
 
 	public static boolean COMMANDS_ON = false;
+	public static boolean SOUND_ON = false;
 
 	public static void resetAll() {
 		NAVMESH_ON = false;

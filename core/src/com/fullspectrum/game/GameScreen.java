@@ -29,6 +29,7 @@ import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.audio.AudioLocator;
 import com.fullspectrum.component.AISMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.BarrierComponent;
@@ -151,6 +152,7 @@ public class GameScreen extends AbstractScreen {
 		assets.loadHUD();
 		assets.loadSprites();
 		assets.loadFont();
+		assets.loadSounds();
 		font = assets.getFont(AssetLoader.font28);
 		
 		// Setup Debug Console
@@ -339,6 +341,7 @@ public class GameScreen extends AbstractScreen {
 		world.step(delta, 6, 2);
 		worldCollision.update();
 		EntityManager.update(delta);
+		AudioLocator.getAudio().update();
 		
 		if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
 			Entity player = levelManager.getPlayer();

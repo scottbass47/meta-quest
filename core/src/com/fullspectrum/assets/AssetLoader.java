@@ -2,12 +2,14 @@ package com.fullspectrum.assets;
 
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
+import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.Animation.PlayMode;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.fullspectrum.audio.Sounds;
 
 public class AssetLoader {
 
@@ -73,6 +75,15 @@ public class AssetLoader {
 		manager.load(font28, BitmapFont.class);
 		manager.load(consoleMain, BitmapFont.class);
 		manager.finishLoading();
+	}
+	
+	public void loadSounds() {
+		manager.load(Sounds.COIN_PICKUP.getFilename(), Sound.class);
+		manager.finishLoading();
+	}
+	
+	public Sound getSound(Sounds sound) {
+		return manager.get(sound.getFilename(), Sound.class);
 	}
 	
 	public TextureRegion getRegion(Asset asset){

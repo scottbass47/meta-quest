@@ -47,6 +47,8 @@ import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.Sounds;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -1052,7 +1054,7 @@ public class EntityFactory {
 		MultiTransition throwTransition = new MultiTransition(Transitions.INPUT, attacking).and(canThrowTransition);
 		
 		rogueSM.addTransition(EntityStates.IDLING, throwTransition, EntityStates.PROJECTILE_ATTACK);
-		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.8f), EntityStates.IDLING);
+		rogueSM.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.TIME, new TimeTransitionData(0.4f), EntityStates.IDLING);
 		
 		rogueSM.changeState(EntityStates.IDLING);
 //		rogueSM.setDebugOutput(true);

@@ -5,6 +5,9 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.NullAudio;
+import com.fullspectrum.audio.StandardAudio;
 import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.StatusComponent;
@@ -67,7 +70,15 @@ public class ConsoleCommands extends CommandExecutor {
 		}
 		else if (name.equalsIgnoreCase("ai")) {
 			DebugVars.AI_DISABLED = !DebugVars.AI_DISABLED;
-		} else {
+		} 
+		else if(name.equals("sound")){
+			if(AudioLocator.getAudio() instanceof NullAudio){
+				AudioLocator.provide(new StandardAudio());
+			} else {
+				AudioLocator.provide(null);
+			}
+		}
+		else {
 			console.log("No option to disable '" + name + "'. Use command 'help disable' to get a list of possible options.", LogLevel.ERROR);
 		}
 	}

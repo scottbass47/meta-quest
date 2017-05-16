@@ -4,9 +4,12 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.Sounds;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.physics.collision.BodyInfo;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class DropBehavior implements CollisionBehavior{
 
@@ -32,6 +35,8 @@ public class DropBehavior implements CollisionBehavior{
 		
 		moneyComp.money += coinAmount.money;
 		coinAmount.money = 0;
+		
+		AudioLocator.getAudio().playSound(Sounds.COIN_PICKUP, PhysicsUtils.getPos(coin));
 	}
 
 	@Override
