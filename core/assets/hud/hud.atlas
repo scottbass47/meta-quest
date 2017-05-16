@@ -5,56 +5,56 @@ filter: Nearest,Nearest
 repeat: none
 anti_magnetic_armor_icon
   rotate: false
-  xy: 48, 48
+  xy: 70, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 balloon_icon
   rotate: false
-  xy: 70, 48
+  xy: 92, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 blacksmith_icon
   rotate: false
-  xy: 26, 48
+  xy: 48, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 boomerang_icon
   rotate: false
-  xy: 92, 48
+  xy: 4, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 bow_icon
   rotate: false
-  xy: 4, 48
+  xy: 26, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 c4_detonator_icon
   rotate: false
-  xy: 4, 70
+  xy: 26, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 c4_icon
   rotate: false
-  xy: 70, 70
+  xy: 92, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 dash_icon
   rotate: false
-  xy: 26, 70
+  xy: 70, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
@@ -62,6 +62,13 @@ dash_icon
 dash_slash_icon
   rotate: false
   xy: 48, 70
+  size: 18, 18
+  orig: 18, 18
+  offset: 0, 0
+  index: -1
+execute_icon
+  rotate: false
+  xy: 4, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
@@ -75,14 +82,14 @@ flash_powder_icon
   index: -1
 healthbar_empty
   rotate: false
-  xy: 4, 128
+  xy: 4, 116
   size: 100, 8
   orig: 100, 8
   offset: 0, 0
   index: -1
 healthbar_full
   rotate: false
-  xy: 4, 116
+  xy: 4, 128
   size: 100, 8
   orig: 100, 8
   offset: 0, 0
@@ -145,14 +152,14 @@ spin_slice_icon
   index: -1
 staminabar_empty
   rotate: false
-  xy: 4, 92
+  xy: 4, 104
   size: 69, 8
   orig: 69, 8
   offset: 0, 0
   index: -1
 staminabar_full
   rotate: false
-  xy: 4, 104
+  xy: 4, 92
   size: 69, 8
   orig: 69, 8
   offset: 0, 0
