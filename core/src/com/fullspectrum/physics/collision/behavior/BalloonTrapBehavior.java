@@ -4,8 +4,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.rogue.BalloonTrapAbility;
 import com.fullspectrum.component.Mappers;
@@ -16,7 +14,7 @@ import com.fullspectrum.physics.collision.BodyInfo;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
 
-public class BalloonTrapBehavior implements CollisionBehavior{
+public class BalloonTrapBehavior extends CollisionBehavior{
 
 	private boolean spawnedBullets = false;
 	private EntityStatus type;
@@ -50,20 +48,8 @@ public class BalloonTrapBehavior implements CollisionBehavior{
 	}
 	
 	@Override
-	public void beginCollision(BodyInfo me, BodyInfo other, Contact contact) {
-	}
-
-	@Override
 	public void endCollision(BodyInfo me, BodyInfo other, Contact contact) {
 		spawnPellets(me.getEntity());
-	}
-
-	@Override
-	public void preSolveCollision(BodyInfo me, BodyInfo other, Contact contact, Manifold manifold) {
-	}
-
-	@Override
-	public void postSolveCollision(BodyInfo me, BodyInfo other, Contact contact, ContactImpulse impulse) {
 	}
 
 }

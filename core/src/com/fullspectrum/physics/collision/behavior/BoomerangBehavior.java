@@ -1,7 +1,6 @@
 package com.fullspectrum.physics.collision.behavior;
 
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.rogue.BoomerangAbility;
@@ -9,8 +8,12 @@ import com.fullspectrum.ability.rogue.BoomerangAbility.Phase;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.physics.collision.BodyInfo;
 
-public class BoomerangBehavior implements CollisionBehavior {
+public class BoomerangBehavior extends CollisionBehavior {
 
+	public BoomerangBehavior() {
+		preSolveType = PreSolveType.USE;
+	}
+	
 	@Override
 	public void preSolveCollision(BodyInfo me, BodyInfo other, Contact contact, Manifold manifold) {
 		contact.setEnabled(false);
@@ -20,20 +23,5 @@ public class BoomerangBehavior implements CollisionBehavior {
 			Mappers.death.get(me.getEntity()).triggerDeath();
 			boomerangAbility.setDone(true);
 		}
-	}
-
-	@Override
-	public void postSolveCollision(BodyInfo me, BodyInfo other, Contact contact, ContactImpulse impulse) {
-		
-	}
-
-	@Override
-	public void beginCollision(BodyInfo me, BodyInfo other, Contact contact) {
-		
-	}
-
-	@Override
-	public void endCollision(BodyInfo me, BodyInfo other, Contact contact) {
-		
 	}
 }

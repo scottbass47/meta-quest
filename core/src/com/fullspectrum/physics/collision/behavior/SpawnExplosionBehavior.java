@@ -4,15 +4,13 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.Contact;
-import com.badlogic.gdx.physics.box2d.ContactImpulse;
-import com.badlogic.gdx.physics.box2d.Manifold;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.physics.collision.BodyInfo;
 
-public class SpawnExplosionBehavior implements CollisionBehavior{
+public class SpawnExplosionBehavior extends CollisionBehavior{
 
 	private float radius;
 	private float damage;
@@ -37,19 +35,4 @@ public class SpawnExplosionBehavior implements CollisionBehavior{
 		EntityManager.addEntity(explosion);
 	}
 
-	@Override
-	public void endCollision(BodyInfo me, BodyInfo other, Contact contact) {
-		
-	}
-
-	@Override
-	public void preSolveCollision(BodyInfo me, BodyInfo other, Contact contact, Manifold manifold) {
-		
-	}
-
-	@Override
-	public void postSolveCollision(BodyInfo me, BodyInfo other, Contact contact, ContactImpulse impulse) {
-		
-	}
-	
 }

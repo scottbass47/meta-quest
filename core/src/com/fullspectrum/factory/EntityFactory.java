@@ -2325,6 +2325,14 @@ public class EntityFactory {
 				.build();
 		
 		info.addBehavior(filter, new DeathOnCollideBehavior());
+
+		filter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.allEntityTypes()
+				.build();
+		
+		info.addBehavior(filter, new SensorBehavior());
+
 		data.setFixtureInfo(FixtureType.BULLET, info);
 		return knife;
 	}

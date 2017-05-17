@@ -19,7 +19,7 @@ import com.fullspectrum.physics.collision.exception.CollisionException;
 import com.fullspectrum.physics.collision.exception.ExceptionTable;
 import com.fullspectrum.physics.collision.filter.CollisionFilter;
 
-// PERFORMANCE IMPORTANT Huge lag spikes with many enemies
+// PERFORMANCE PreSolveMap and PostSolveMap clearing is much better now, but still some performance problems with a lot of enemies
 public class WorldCollision implements ContactListener {
 
 	private ExceptionTable exceptionTable;
@@ -153,62 +153,88 @@ public class WorldCollision implements ContactListener {
 	public void preSolve(Contact contact, Manifold oldManifold) {
 		BodyInfo b1 = createBodyInfo(contact.getFixtureA());
 		BodyInfo b2 = createBodyInfo(contact.getFixtureB());
+		
+		DisableType type1 = handlePreSolve(b1, b2, contact, oldManifold);
+		DisableType type2 = handlePreSolve(b2, b1, contact, oldManifold);
 
+		// If both types are inactive, then the collision should be disabled
+		// If one of the types is active, then the collision should be disabled
+		if((type1 == DisableType.INACTIVE && type2 == DisableType.INACTIVE) ||
+			type1 == DisableType.ACTIVE || type2 == DisableType.ACTIVE) {
+			contact.setEnabled(false);
+		}
+	}
+	
+	/**
+	 * Returns true if the contact should be disabled. The contact should only be disabled if all 
+	 * the behaviors tied to it have the <code>PreSolveType</code> DISABLE_CONTACT.
+	 * 
+	 * @param b1
+	 * @param b2
+	 * @param contact
+	 * @param oldManifold
+	 * @return
+	 */
+	private DisableType handlePreSolve(BodyInfo b1, BodyInfo b2, Contact contact, Manifold oldManifold) {
 		// b1 as me
 		CollisionData data = b1.getData();
 		FixtureInfo info = data.getFixtureInfo(b1.getFixtureType());
+		
 		CollisionInstance instance = getCollisionInstance(b1, b2);
-
-		boolean disableContact = true;
+		boolean inactiveCollision = true; // true if no filters are passed (i.e. b1 has no collision behaviors for b2)
+		boolean disableContact = false; // true if b1 wants to disable the contact
+		boolean saveInstance = false; // do we want to keep this collision instance in the pre-solve map?
 
 		if (!preSolveMap.containsKey(instance) || !preSolveMap.get(instance)) {
 			// Handle exceptions
 			if (exceptionTable.hasException(b1, b2)) {
+				inactiveCollision = false;
 				for (CollisionBehavior behavior : exceptionTable.getBehaviors(b1, b2)) {
-					behavior.preSolveCollision(b1, b2, contact, oldManifold);
+					disableContact = disableContact || behavior.shouldBeDisabled();
+					if(behavior.shouldPreSolve()) {
+						saveInstance = true;
+						behavior.preSolveCollision(b1, b2, contact, oldManifold);
+					}
 				}
 			}
 			else {
 				for (CollisionFilter filter : info.getFilters()) {
 					if (filter.passesFilter(b1, b2)) {
-						disableContact = false;
+						inactiveCollision = false; // If one filter is passed, then the collision is being handled. By default handled collision don't disable on contact
 						for (CollisionBehavior behavior : info.getBehaviors(filter)) {
-							behavior.preSolveCollision(b1, b2, contact, oldManifold);
+							disableContact = disableContact || behavior.shouldBeDisabled();
+							if(behavior.shouldPreSolve()) {
+								saveInstance = true; // if one behavior uses pre-solve, then this collision instance must be saved
+								behavior.preSolveCollision(b1, b2, contact, oldManifold);
+							}
 						}
 					}
 				}
 			}
 		}
-		preSolveMap.put(instance, true);
-
-		// b2 as me
-		data = b2.getData();
-		info = data.getFixtureInfo(b2.getFixtureType());
-		instance = getCollisionInstance(b2, b1);
-
-		if (!preSolveMap.containsKey(instance) || !preSolveMap.get(instance)) {
-			// Handle exceptions
-			if (exceptionTable.hasException(b2, b1)) {
-				for (CollisionBehavior behavior : exceptionTable.getBehaviors(b2, b1)) {
-					behavior.preSolveCollision(b2, b1, contact, oldManifold);
-				}
-			}
-			else {
-				for (CollisionFilter filter : info.getFilters()) {
-					if (filter.passesFilter(b2, b1)) {
-						disableContact = false;
-						for (CollisionBehavior behavior : info.getBehaviors(filter)) {
-							behavior.preSolveCollision(b2, b1, contact, oldManifold);
-						}
-					}
-				}
-			}
+		if(saveInstance) preSolveMap.put(instance, true);
+		if(inactiveCollision) {
+			return DisableType.INACTIVE;
+		} else if(disableContact) {
+			return DisableType.ACTIVE;
+		} else {
+			return DisableType.NONE;
 		}
-		preSolveMap.put(instance, true);
-
-		if (disableContact) {
-			contact.setEnabled(false);
-		}
+	}
+	
+	/**
+	 * Represents what type of disabling a collision wants. <br><br>
+	 * INACTIVE - collision has no behaviors associated with the collision <br>
+	 * ACTIVE - collision has at least 1 behavior associated with the colliison with a <code>PreSolveType</code> of <code>DISABLE_CONTACT</code><br>
+	 * NONE - collision has filters that are compatible with the body being collided with, but doesn't specify an active DISABLE_CONTACT
+	 * 
+	 * @author Scott
+	 *
+	 */
+	private enum DisableType {
+		INACTIVE,
+		ACTIVE,
+		NONE
 	}
 
 	@Override
@@ -217,58 +243,58 @@ public class WorldCollision implements ContactListener {
 		BodyInfo b2 = createBodyInfo(contact.getFixtureB());
 
 		// b1 as me
+		handlePostSolve(b1, b2, contact, impulse);
+		handlePostSolve(b2, b1, contact, impulse);
+	}
+
+	private void handlePostSolve(BodyInfo b1, BodyInfo b2, Contact contact, ContactImpulse impulse) {
 		CollisionData data = b1.getData();
 		FixtureInfo info = data.getFixtureInfo(b1.getFixtureType());
+		
 		CollisionInstance instance = getCollisionInstance(b1, b2);
+		boolean saveInstance = false;
 
 		if (!postSolveMap.containsKey(instance) || !postSolveMap.get(instance)) {
 			// Handle exceptions
 			if (exceptionTable.hasException(b1, b2)) {
 				for (CollisionBehavior behavior : exceptionTable.getBehaviors(b1, b2)) {
-					behavior.postSolveCollision(b1, b2, contact, impulse);
+					if(behavior.shouldPreSolve()) {
+						saveInstance = true;
+						behavior.postSolveCollision(b1, b2, contact, impulse);
+					}
 				}
 			}
 			else {
 				for (CollisionFilter filter : info.getFilters()) {
 					if (filter.passesFilter(b1, b2)) {
 						for (CollisionBehavior behavior : info.getBehaviors(filter)) {
-							behavior.postSolveCollision(b1, b2, contact, impulse);
+							if(behavior.shouldPreSolve()) {
+								saveInstance = true;
+								behavior.postSolveCollision(b1, b2, contact, impulse);
+							}
 						}
 					}
 				}
 			}
 		}
-		postSolveMap.put(instance, true);
-
-		// b2 as me
-		data = b2.getData();
-		info = data.getFixtureInfo(b2.getFixtureType());
-		instance = getCollisionInstance(b2, b1);
-
-		if (!postSolveMap.containsKey(instance) || !postSolveMap.get(instance)) {
-			// Handle exceptions
-			if (exceptionTable.hasException(b2, b1)) {
-				for (CollisionBehavior behavior : exceptionTable.getBehaviors(b2, b1)) {
-					behavior.postSolveCollision(b2, b1, contact, impulse);
-				}
-			}
-			else {
-				for (CollisionFilter filter : info.getFilters()) {
-					if (filter.passesFilter(b2, b1)) {
-						for (CollisionBehavior behavior : info.getBehaviors(filter)) {
-							behavior.postSolveCollision(b2, b1, contact, impulse);
-						}
-					}
-				}
-			}
-		}
-		postSolveMap.put(instance, true);
+		if(saveInstance) postSolveMap.put(instance, true);
 	}
-
+	
 	public void update() {
+		Time.start("Clearing - " + preSolveMap.size);
+		if(preSolveMap.size == 0) {
+			Time.stop();
+			return;
+		}
 		preSolveMap.clear();
 		postSolveMap.clear();
+		Time.stop();
 	}
+	
+//	private boolean collisionBetween(EntityType t1, EntityType t2, BodyInfo b1, BodyInfo b2) {
+//		return (b1.getEntityType() == t1 && b2.getEntityType() == t2) ||
+//			   (b2.getEntityType() == t1 && b1.getEntityType() == t2);
+//	}
 
 	private BodyInfo createBodyInfo(Fixture fixture) {
 		Body body = fixture.getBody();

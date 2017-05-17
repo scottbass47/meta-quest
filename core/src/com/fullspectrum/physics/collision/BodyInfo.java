@@ -92,4 +92,9 @@ public class BodyInfo {
 	public void setData(CollisionData data) {
 		this.data = data;
 	}
+	
+	@Override
+	public String toString() {
+		return entityType + ", " + entityStatus + ", " + bodyType + ", " + fixtureType;
+	}
 }
