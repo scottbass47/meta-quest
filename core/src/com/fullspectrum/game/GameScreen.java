@@ -60,6 +60,7 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
+import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -120,6 +121,8 @@ public class GameScreen extends AbstractScreen {
 
 	// Tile Map
 	private LevelManager levelManager;
+	private final Color bc = new Color(0x6885e3ff);
+
 	
 	// Box2D
 	private World world;
@@ -137,6 +140,7 @@ public class GameScreen extends AbstractScreen {
 	private Console console;
 	private boolean pauseMenuOpen = false;
 	private PauseMenu pauseMenu;
+	private boolean editorOpen = false;
 
 //	private int ups = 0;
 
@@ -262,6 +266,20 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
+		
+		// GRID TEST
+		// REMOVE WHEN FINISHED
+		System.out.println("Grid test");
+		System.out.println("----------");
+		ExpandableGrid<String> grid = new ExpandableGrid<String>(3,3);
+		grid.addXY(0, 0, "+");
+		System.out.println(grid);
+		grid.addXY(-10, 0, "+");
+		System.out.println("\n" + grid);
+		grid.removeXY(-10, 0);
+		System.out.println("\n" + grid);
+		grid.removeXY(0, 0);
+		System.out.println("\n" + grid);
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -306,19 +324,23 @@ public class GameScreen extends AbstractScreen {
 
 	@Override
 	public void update(float delta) {
-//		ups++;
-//		if(DebugInput.isToggled(DebugToggle.CONSOLE)){
-////			console.setOpen(true);
-////			console.update(delta);
-//			return;
-//		} else{
-////			console.setOpen(false);
-//		}
 		if(console.isVisible()){
 			return;
 		}
 		
-		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW)){
+		if(DebugInput.isJustPressed(DebugKeys.EDITOR)) {
+			editorOpen = !editorOpen;
+			pauseMenuOpen = false;
+			console.setDisabled(editorOpen);
+			
+			if(editorOpen) {
+				setupEditorMode();
+			}
+		}
+		
+		
+		
+		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW) && !editorOpen){
 			pauseMenuOpen = !pauseMenuOpen;
 		}
 		
@@ -454,6 +476,16 @@ public class GameScreen extends AbstractScreen {
 //			cameraComp.toFollow = enemies.get(index - 1);
 //		}
 //	}
+	
+	private void setupEditorMode() {
+		// Steps
+		// 1. Clear all entities 
+		// 2. Set the current level into the editor
+		// 3. Set the position into the editor
+		// 4. Initialize the editor view (includes loading the level)
+		
+		
+	}
 
 	@SuppressWarnings("unchecked")
 	@Override
@@ -465,7 +497,6 @@ public class GameScreen extends AbstractScreen {
 		// Render Buffer
 		frameBuffer.begin();
 
-		Color bc = new Color(0x6885e3ff);
 		Gdx.gl.glClearColor(bc.r, bc.g, bc.b, bc.a);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 

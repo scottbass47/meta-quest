@@ -2,7 +2,6 @@ package com.fullspectrum.level;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
-import java.util.Arrays;
 import java.util.Comparator;
 import java.util.Iterator;
 
@@ -48,7 +47,7 @@ public class Level {
 	private OrthogonalTiledMapRenderer mapRenderer;
 	private int width;
 	private int height;
-	private Tile[][] mapTiles;
+	private ExpandableGrid<Tile> tileMap;
 	private Array<Tile> ladders;
 
 	// Spawns
@@ -72,6 +71,7 @@ public class Level {
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
 		meshes = new Array<EntityIndex>();
+		tileMap = new ExpandableGrid<Tile>();
 	}
 
 	public void loadMap(SpriteBatch batch) {
@@ -151,14 +151,13 @@ public class Level {
 		height = layer.getHeight();
 
 		Array<Tile> tiles = new Array<Tile>();
-		mapTiles = new Tile[height][width];
 		Boolean[][] tileExists = new Boolean[height][width];
 		for (int row = 0; row < height; row++) {
 			for (int col = 0; col < width; col++) {
 				Cell cell = layer.getCell(col, row);
 				if (cell == null || cell.getTile() == null) {
 					tileExists[row][col] = false;
-					mapTiles[row][col] = new Tile(row, col, TileType.AIR);
+					tileMap.add(row, col, new Tile(row, col, TileType.AIR));
 					continue;
 				}
 
@@ -198,32 +197,32 @@ public class Level {
 					}
 					tileExists[row][col] = false;
 				}
-				mapTiles[row][col] = tile;
+				tileMap.add(row, col, tile);
 			}
 		}
 		for (Tile tile : tiles) {
 			int row = tile.getRow();
 			int col = tile.getCol();
 			if (row > 0) {
-				Tile t = mapTiles[row - 1][col];
+				Tile t = tileMap.get(row - 1, col);
 				if (!t.isSolid()) {
 					tile.addSide(Side.SOUTH);
 				}
 			}
 			if (row < height - 1) {
-				Tile t = mapTiles[row + 1][col];
+				Tile t = tileMap.get(row + 1, col);
 				if (!t.isSolid()) {
 					tile.addSide(Side.NORTH);
 				}
 			}
 			if (col > 0) {
-				Tile t = mapTiles[row][col - 1];
+				Tile t = tileMap.get(row, col - 1);
 				if (!t.isSolid()) {
 					tile.addSide(Side.WEST);
 				}
 			}
 			if (col < width - 1) {
-				Tile t = mapTiles[row][col + 1];
+				Tile t = tileMap.get(row, col + 1);
 				if (!t.isSolid()) {
 					tile.addSide(Side.EAST);
 				}
@@ -297,7 +296,7 @@ public class Level {
 			
 			// Traverse Up
 			for(int row = startRow + 1; row < height; row++){
-				if(mapTiles[row][startCol].getType() != TileType.LADDER){
+				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
 					break;
 				}
 				endRow++;
@@ -305,7 +304,7 @@ public class Level {
 			
 			// Traverse Down
 			for(int row = startRow - 1; row >= 0; row--){
-				if(mapTiles[row][startCol].getType() != TileType.LADDER){
+				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
 					break;
 				}
 				startRow--;
@@ -363,8 +362,6 @@ public class Level {
 			world.destroyBody(iter.next());
 			iter.remove();
 		}
-		
-		
 	}
 	
 	public Array<EntitySpawn> getEntitySpawns(){
@@ -376,12 +373,12 @@ public class Level {
 	}
 
 	public Tile tileAt(int row, int col) {
-		return mapTiles[row][col];
+		return tileMap.get(row, col);
 	}
 
 	public boolean isSolid(int row, int col) {
-		if (!inBounds(row, col)) return false;
-		return mapTiles[row][col].isSolid();
+		if (!tileMap.contains(row, col)) return false;
+		return tileMap.get(row, col).isSolid();
 	}
 
 	public boolean isSolid(float x, float y) {
@@ -568,6 +565,59 @@ public class Level {
 			return pos;
 		}
 	}
+
+	public ExpandableGrid<Tile> getTileMap() {
+		return tileMap;
+	}
+
+	public void setTileMap(ExpandableGrid<Tile> tileMap) {
+		this.tileMap = tileMap;
+	}
+
+	public Vector2 getPlayerSpawn() {
+		return playerSpawn;
+	}
+
+	public void setPlayerSpawn(Vector2 playerSpawn) {
+		this.playerSpawn = playerSpawn;
+	}
+
+	public void setWidth(int width) {
+		this.width = width;
+	}
+
+	public void setHeight(int height) {
+		this.height = height;
+	}
+
+	public void setEntitySpawns(Array<EntitySpawn> entitySpawns) {
+		this.entitySpawns = entitySpawns;
+	}
+
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + height;
+		result = prime * result + ((tileMap == null) ? 0 : tileMap.hashCode());
+		result = prime * result + width;
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		Level other = (Level) obj;
+		if (height != other.height) return false;
+		if (tileMap == null) {
+			if (other.tileMap != null) return false;
+		}
+		else if (!tileMap.equals(other.tileMap)) return false;
+		if (width != other.width) return false;
+		return true;
+	}
 	
 //	public class LevelTrigger{
 //		private String data;
@@ -587,29 +637,7 @@ public class Level {
 //		}
 //	}
 	
-	@Override
-	public int hashCode() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + height;
-		for(Tile[] row : mapTiles){
-			for(Tile t : row){
-				result = prime * result + t.hashCode();
-			}
-		}
-		result = prime * result + width;
-		return result;
-	}
-
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) return true;
-		if (obj == null) return false;
-		if (getClass() != obj.getClass()) return false;
-		Level other = (Level) obj;
-		if (height != other.height) return false;
-		if (!Arrays.deepEquals(mapTiles, other.mapTiles)) return false;
-		if (width != other.width) return false;
-		return true;
-	}
+	
+	
+	
 }

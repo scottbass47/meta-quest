@@ -71,8 +71,8 @@ public class GdxGame extends Game {
 		rawInput = new RawInput();
 		Gdx.input.setInputProcessor(rawInput);
 		Controllers.addListener(rawInput);
-		rawInput.registerGameInput(input);	
-
+		rawInput.registerGameInput(input);
+		
 		// Initialize Screens
 		screens = new ArrayMap<ScreenState, Screen>();
 		screens.put(ScreenState.MENU, new MenuScreen(worldCamera, hudCamera, this, screens, input));

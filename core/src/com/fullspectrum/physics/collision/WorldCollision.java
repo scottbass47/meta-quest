@@ -9,7 +9,6 @@ import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.debug.Time;
 import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.physics.FixtureType;
@@ -281,14 +280,9 @@ public class WorldCollision implements ContactListener {
 	}
 	
 	public void update() {
-		Time.start("Clearing - " + preSolveMap.size);
-		if(preSolveMap.size == 0) {
-			Time.stop();
-			return;
-		}
+		if(preSolveMap.size == 0) return;
 		preSolveMap.clear();
 		postSolveMap.clear();
-		Time.stop();
 	}
 	
 //	private boolean collisionBetween(EntityType t1, EntityType t2, BodyInfo b1, BodyInfo b2) {

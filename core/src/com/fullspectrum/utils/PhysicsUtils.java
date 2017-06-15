@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -19,9 +20,9 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.Shape;
 import com.badlogic.gdx.physics.box2d.Shape.Type;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.utils.JsonReader;
 import com.badlogic.gdx.utils.JsonValue;
+import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
@@ -219,18 +220,16 @@ public class PhysicsUtils {
 	}
 	
 	public static Vector2 getPos(Entity e1){
-		if(Mappers.body.get(e1) == null || Mappers.body.get(e1).body == null){
+		BodyComponent bodyComp = Mappers.body.get(e1);
+		if(bodyComp == null || bodyComp.body == null){
 			PositionComponent posComp = Mappers.position.get(e1);
 			return new Vector2(posComp.x, posComp.y);
 		}
-		return Mappers.body.get(e1).body.getPosition();
+		return bodyComp.body.getPosition();
 	}
 	
 	public static float getDistanceSqr(Entity e1, Entity e2){
-		if(Mappers.body.get(e1) == null || Mappers.body.get(e1).body == null || Mappers.body.get(e1) == null || Mappers.body.get(e2).body == null){
-			return getDistanceSqr(getPos(e1), getPos(e2));
-		}
-		return getDistanceSqr(Mappers.body.get(e1).body, Mappers.body.get(e2).body);
+		return getDistanceSqr(getPos(e1), getPos(e2));
 	}
 	
 	public static float getDistanceSqr(Body b1, Body b2){

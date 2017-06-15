@@ -1,0 +1,139 @@
+grassy.png
+size: 128, 128
+
+tile[0]:
+	slot: top_left
+	xy: 0, 0
+	cluster: 0
+tile[1]:
+	slot: top_middle
+	xy: 16, 0
+	cluster: 0
+tile[2]:
+	slot: top_right
+	xy: 32, 0
+	cluster: 0
+tile[3]:
+	slot: vert_top
+	xy: 48, 0
+	cluster: 0
+tile[4]:
+	slot: inside
+	xy: 64, 0
+	cluster: 0
+tile[5]:
+	slot: left_middle
+	xy: 80, 0
+	cluster: 0
+tile[6]:
+	slot: middle
+	xy: 96, 0
+	cluster: 0
+tile[7]:
+	slot: right_middle
+	xy: 112, 0
+	cluster: 0
+tile[8]:
+	slot: vert_middle
+	xy: 0, 16
+	cluster: 0
+tile[9]:
+	slot: bottom_left
+	xy: 16, 16
+	cluster: 0
+tile[10]:
+	slot: bottom_middle
+	xy: 32, 16
+	cluster: 0
+tile[11]:
+	slot: bottom_right
+	xy: 48, 16
+	cluster: 0
+tile[12]:
+	slot: vert_bottom
+	xy: 64, 16
+	cluster: 0
+tile[13]:
+	slot: horiz_left
+	xy: 80, 16
+	cluster: 0
+tile[14]:
+	slot: horiz_middle
+	xy: 96, 16
+	cluster: 0
+tile[15]:
+	slot: horiz_right
+	xy: 112, 16
+	cluster: 0
+tile[16]:
+	slot: solo
+	xy: 0, 32
+	cluster: 0
+tile[17]:
+	slot: top_left
+	xy: 16, 32
+	cluster: 1
+tile[18]:
+	slot: top_middle
+	xy: 32, 32
+	cluster: 1
+tile[19]:
+	slot: top_right
+	xy: 48, 32
+	cluster: 1
+tile[20]:
+	slot: vert_top
+	xy: 64, 32
+	cluster: 1
+tile[21]:
+	slot: inside
+	xy: 80, 32
+	cluster: 1
+tile[22]:
+	slot: left_middle
+	xy: 96, 32
+	cluster: 1
+tile[23]:
+	slot: middle
+	xy: 112, 32
+	cluster: 1
+tile[24]:
+	slot: right_middle
+	xy: 0, 48
+	cluster: 1
+tile[25]:
+	slot: vert_middle
+	xy: 16, 48
+	cluster: 1
+tile[26]:
+	slot: bottom_left
+	xy: 32, 48
+	cluster: 1
+tile[27]:
+	slot: bottom_middle
+	xy: 48, 48
+	cluster: 1
+tile[28]:
+	slot: bottom_right
+	xy: 64, 48
+	cluster: 1
+tile[29]:
+	slot: vert_bottom
+	xy: 80, 48
+	cluster: 1
+tile[30]:
+	slot: horiz_left
+	xy: 96, 48
+	cluster: 1
+tile[31]:
+	slot: horiz_middle
+	xy: 112, 48
+	cluster: 1
+tile[32]:
+	slot: horiz_right
+	xy: 0, 64
+	cluster: 1
+tile[33]:
+	slot: solo
+	xy: 16, 64
+	cluster: 1

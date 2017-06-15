@@ -4,8 +4,8 @@ import com.badlogic.gdx.utils.Array;
 
 public class Tile {
 
-	private final int row;
-	private final int col;
+	private int row;
+	private int col;
 	private Array<Side> sidesOpen;
 	private final TileType type;
 	
@@ -51,8 +51,6 @@ public class Tile {
 		return "Row: " + row + ", Col: " + col + ", Surrounded: " + (isSurrounded() ? "true" : "false");
 	}
 
-	
-	
 	@Override
 	public int hashCode() {
 		final int prime = 31;

@@ -4,6 +4,10 @@ public class AudioHandler extends Thread {
 
 	private boolean running;
 	
+	public AudioHandler() {
+		setDaemon(true);
+	}
+	
 	public synchronized void startAudio() {
 		start();
 		running = true;

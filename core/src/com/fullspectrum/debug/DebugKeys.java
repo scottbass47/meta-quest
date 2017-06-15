@@ -8,7 +8,8 @@ public enum DebugKeys {
 	KNIGHT(Keys.NUM_1),
 	ROGUE(Keys.NUM_2),
 	MAGE(Keys.NUM_3),
-	PAUSE_WINDOW(Keys.ESCAPE);
+	PAUSE_WINDOW(Keys.ESCAPE),
+	EDITOR(Keys.F1);
 	
 	private final int key;
 	

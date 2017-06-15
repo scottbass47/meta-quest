@@ -25,7 +25,7 @@ public class AnimationSystem extends IteratingSystem {
 		StateComponent stateComp = Mappers.state.get(entity);
 
 		if (asmComp != null) {
-			// Grow / shrink texture region array
+			// PERFORMANCE Grow / shrink texture region array
 			while(asmComp.size() > texComp.numTextures()) texComp.getRegions().add(null);
 			while(asmComp.size() < texComp.numTextures()) texComp.getRegions().removeIndex(texComp.numTextures() - 1);
 			
