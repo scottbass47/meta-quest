@@ -255,8 +255,8 @@ public class GameScreen extends AbstractScreen {
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
-//		levelManager.switchHub(Theme.GRASSY);
-		levelManager.switchLevel(Theme.GRASSY, 1, 1);
+		levelManager.switchHub(Theme.GRASSY);
+//		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 		
 		ConsoleCommands.setPlayer(levelManager.getPlayer());
 		console = new GUIConsole();
@@ -266,20 +266,6 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
-		
-		// GRID TEST
-		// REMOVE WHEN FINISHED
-		System.out.println("Grid test");
-		System.out.println("----------");
-		ExpandableGrid<String> grid = new ExpandableGrid<String>(3,3);
-		grid.addXY(0, 0, "+");
-		System.out.println(grid);
-		grid.addXY(-10, 0, "+");
-		System.out.println("\n" + grid);
-		grid.removeXY(-10, 0);
-		System.out.println("\n" + grid);
-		grid.removeXY(0, 0);
-		System.out.println("\n" + grid);
 	}
 	
 	private void spawnEnemy(Node node) {

@@ -12,6 +12,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
@@ -186,29 +187,30 @@ public class PhysicsUtils {
 				}
 				break;
 			default:
-				Gdx.app.error("ERROR", " - invalid shape type for calculating AABB.");
+				Gdx.app.error("ERROR", "Invalid shape type for calculating AABB.");
 				break;
 			}
 		}
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
-	public static Body createTilePhysics(World world, Entity tile, float x, float y, float width, float height){
+	public static Body createTilePhysics(World world, Entity tile, Vector2[] vertices){
 		BodyDef bdef = new BodyDef();
-		bdef.position.set(new Vector2(x + width * 0.5f, y + height * 0.5f));
 		bdef.fixedRotation = true;
 		bdef.type = BodyType.StaticBody;
 		Body body = world.createBody(bdef);
 		body.setUserData(tile);
 		
 		FixtureDef fdef = new FixtureDef();
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(width * 0.5f, height * 0.5f);
+		ChainShape shape = new ChainShape();
+		shape.createLoop(vertices);
 		fdef.shape = shape;
 		fdef.friction = 0.0f;
 //		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
 //		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
 		body.createFixture(fdef).setUserData(FixtureType.GROUND);
+		
+		shape.dispose();
 		
 		CollisionListenerComponent listenerComp = EntityUtils.add(tile, CollisionListenerComponent.class);
 		CollisionData data = new CollisionData();

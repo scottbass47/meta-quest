@@ -27,7 +27,6 @@ import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
-import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
 import com.fullspectrum.utils.RenderUtils;
 import com.fullspectrum.utils.StringUtils;
@@ -35,7 +34,7 @@ import com.fullspectrum.utils.StringUtils;
 public class NavMesh{
 
 	// Version
-	private static final int VERSION = 2;
+	private static final int VERSION = 3;
 	
 	// Nodes
 	private Array<Node> nodes;
@@ -534,8 +533,18 @@ public class NavMesh{
 		return true;
 	}
 
+	/**
+	 * Row and col represent the position of the TILE underneath. This method returns true if the TILE at position row, col 
+	 * has space above it to accommodate the bounding box.
+	 * 
+	 * @param row
+	 * @param col
+	 * @param level
+	 * @param boundingBox
+	 * @return
+	 */
 	private static boolean isValidNode(int row, int col, Level level, Rectangle boundingBox) {
-		if (row + 1 > level.getHeight() || !level.tileAt(row, col).isOpen(Side.NORTH)) return false;
+		if (row + 1 >= level.getHeight() || level.isSolid(row + 1, col) || !level.isSolid(row, col)) return false;
 		int tilesTall = (int) (boundingBox.height + 1.0f);
 		for (int i = 1; i <= tilesTall; i++) {
 			if (!level.inBounds(row + i, (int) col)) return true;

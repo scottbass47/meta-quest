@@ -1,19 +1,15 @@
 package com.fullspectrum.level;
 
-import com.badlogic.gdx.utils.Array;
-
 public class Tile {
 
 	private int row;
 	private int col;
-	private Array<Side> sidesOpen;
 	private final TileType type;
 	
 	public Tile(int row, int col, TileType type){
 		this.row = row;
 		this.col = col;
 		this.type = type;
-		sidesOpen = new Array<Side>();
 	}
 	
 	public int getRow() {
@@ -28,27 +24,13 @@ public class Tile {
 		return row * width + col;
 	}
 	
-	public void addSide(Side side){
-		if(sidesOpen.contains(side, false)) return;
-		sidesOpen.add(side);
-	}
-	
-	public void removeSide(Side side){
-		if(!sidesOpen.contains(side, false)) return;
-		sidesOpen.removeValue(side, false);
-	}
-	
-	public boolean isOpen(Side side){
-		return sidesOpen.contains(side, false);
-	}
-	
 	public TileType getType(){
 		return type;
 	}
 	
 	@Override
 	public String toString() {
-		return "Row: " + row + ", Col: " + col + ", Surrounded: " + (isSurrounded() ? "true" : "false");
+		return "Row: " + row + ", Col: " + col;
 	}
 
 	@Override
@@ -57,7 +39,6 @@ public class Tile {
 		int result = 1;
 		result = prime * result + col;
 		result = prime * result + row;
-		result = prime * result + (isSurrounded() ? 1231 : 1237);
 		result = prime * result + ((type == null) ? 0 : type.name().hashCode());
 		return result;
 	}
@@ -70,18 +51,10 @@ public class Tile {
 		Tile other = (Tile) obj;
 		if (col != other.col) return false;
 		if (row != other.row) return false;
-		if (sidesOpen == null) {
-			if (other.sidesOpen != null) return false;
-		}
-		else if (!sidesOpen.equals(other.sidesOpen)) return false;
 		if (type != other.type) return false;
 		return true;
 	}
 
-	public boolean isSurrounded(){
-		return sidesOpen.size > 0;
-	}
-	
 	public boolean isSolid(){
 		return type.isSolid;
 	}

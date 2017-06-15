@@ -2,7 +2,6 @@ package com.fullspectrum.level;
 
 import static com.fullspectrum.game.GameVars.PPM_INV;
 
-import java.util.Comparator;
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
@@ -20,19 +19,19 @@ import com.badlogic.gdx.maps.tiled.TmxMapLoader.Parameters;
 import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
-import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
-import com.badlogic.gdx.physics.box2d.FixtureDef;
-import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugRender;
+import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.Tile.Side;
 import com.fullspectrum.level.Tile.TileType;
-import com.fullspectrum.physics.CollisionBits;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
@@ -48,7 +47,7 @@ public class Level {
 	private int width;
 	private int height;
 	private ExpandableGrid<Tile> tileMap;
-	private Array<Tile> ladders;
+//	private Array<Tile> ladders;
 
 	// Spawns
 	private Vector2 playerSpawn;
@@ -62,16 +61,19 @@ public class Level {
 	private boolean isCameraLocked;
 	private float cameraZoom;
 	
+	private ArrayMap<Integer, Array<GridPoint>> edgeGroups;
+	
 	public Level(LevelManager manager, LevelInfo info) {
 		this.manager = manager;
 		this.world = manager.getWorld();
 		this.info = info;
 		loader = new TmxMapLoader();
-		ladders = new Array<Tile>();
+//		ladders = new Array<Tile>();
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
 		meshes = new Array<EntityIndex>();
 		tileMap = new ExpandableGrid<Tile>();
+		edgeGroups = new ArrayMap<Integer, Array<GridPoint>>();
 	}
 
 	public void loadMap(SpriteBatch batch) {
@@ -95,7 +97,9 @@ public class Level {
 		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
 		
 		setupGround();
-		setupLadders();
+		mooreNeighborhood();
+		
+//		setupLadders();
 		setupSpawnPoints();
 		setupLevelTriggers();
 	}
@@ -133,8 +137,71 @@ public class Level {
 	}
 	
 	public void render(OrthographicCamera worldCamera) {
-		mapRenderer.setView(worldCamera);
-		mapRenderer.render();
+		if(!DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) {
+			mapRenderer.setView(worldCamera);
+			mapRenderer.render();
+		}
+		
+//		for(Integer id : edgeGroups.keys()) {
+//			Color color = id == 0 ? Color.MAGENTA : (id == 1 ? Color.FIREBRICK : Color.CYAN);
+//			DebugRender.setColor(color);
+//			Array<GridPoint> run = edgeGroups.get(id);
+//
+//			for(int i = 0; i < run.size; i++) {
+//				GridPoint p1 = run.get(i);
+//				Tile tile = tileAt(p1.row, p1.col);
+//				
+//				boolean outlines = false;
+//				if(outlines) {
+//					DebugRender.setType(ShapeType.Filled);
+//					boolean north = !tileMap.contains(tile.getRow() + 1, tile.getCol()) || !isSolid(tile.getRow() + 1, tile.getCol());
+//					boolean south = !tileMap.contains(tile.getRow() - 1, tile.getCol()) || !isSolid(tile.getRow() - 1, tile.getCol());
+//					boolean east  = !tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1);
+//					boolean west  = !tileMap.contains(tile.getRow(), tile.getCol() - 1) || !isSolid(tile.getRow(), tile.getCol() - 1);;
+//					
+//					float thickness = 0.05f;
+//					
+//					if(north) {
+//						drawEdge(p1, Side.NORTH, thickness);
+//					}
+//					if(south) {
+//						drawEdge(p1, Side.SOUTH, thickness);
+//					}
+//					if(east) {
+//						drawEdge(p1, Side.EAST, thickness);
+//					}
+//					if(west) {
+//						drawEdge(p1, Side.WEST, thickness);
+//					}
+//				} else {
+//					if(i == 0) DebugRender.setColor(Color.WHITE);
+//					else DebugRender.setColor(color);
+//
+//					DebugRender.setType(ShapeType.Line);
+//					GridPoint p2 = i < run.size - 1 ? run.get(i + 1) : run.get(run.size - 1);
+//					DebugRender.line(p1.col + 0.5f, p1.row + 0.5f, p2.col + 0.5f, p2.row + 0.5f);
+//				}
+//			}
+//		}
+	}
+	
+	public void drawEdge(GridPoint point, Side side, float thickness) {
+		switch(side) {
+		case NORTH:
+			DebugRender.rect(point.col, point.row + 1.0f - thickness, 1.0f, thickness);
+			break;
+		case SOUTH:
+			DebugRender.rect(point.col, point.row, 1.0f, thickness);
+			break;
+		case EAST:
+			DebugRender.rect(point.col + 1.0f - thickness, point.row, thickness, 1.0f);
+			break;
+		case WEST:
+			DebugRender.rect(point.col, point.row, thickness, 1.0f);
+			break;
+		default:
+			break;
+		}
 	}
 
 	public boolean inBounds(int row, int col) {
@@ -145,188 +212,370 @@ public class Level {
 		return inBounds((int) y, (int) x);
 	}
 
+	private void mooreNeighborhood() {
+		ArrayMap<GridPoint, ObjectSet<Side>> visited = new ArrayMap<GridPoint, ObjectSet<Side>>();
+		int id = 0;
+		
+		for(int row = 0; row < tileMap.getRows(); row++) {
+			for(int col = 0; col < tileMap.getCols(); col++) {
+				GridPoint startPoint = new GridPoint(row, col);
+
+				Tile start = tileMap.get(row, col);
+				boolean touchingAir = isTouchingAir(start);
+				if(!touchingAir || !isSolid(start.getRow(), start.getCol())) continue;
+
+				
+				// Pick previous and get it's moore point
+				GridPoint previous = new GridPoint(row, col - 1);
+				MoorePoint moorePoint = MoorePoint.getMoorePoint(startPoint, previous);
+				
+				// Find starting moore point (can't have already been used and must have a non-null side
+				boolean success = false;
+				for(int i = 0; i < 4; i++) {
+					if(moorePoint.getSide() == null) moorePoint = moorePoint.getNext();
+					
+					// Check if moore point is valid
+					previous = moorePoint.add(startPoint);
+					if((!visited.containsKey(startPoint) || !visited.get(startPoint).contains(moorePoint.getSide())) && !isSolid(previous.row, previous.col)) {
+						success = true;
+						previous = moorePoint.add(startPoint);
+						break;
+					}
+					
+					moorePoint = moorePoint.getNext();
+				}
+				
+				// If no open moore points that haven't been checked yet are found, skip to the next tile
+				if(!success) {
+					continue;
+				}
+
+				// -----------------------------
+				// CONTOUR TRACING STARTS HERE
+				// -----------------------------
+				
+				// Save start
+				MoorePoint startingMoorePoint = moorePoint;
+				if(!visited.containsKey(startPoint)) {
+					visited.put(startPoint, new ObjectSet<Side>());
+				}
+				visited.get(startPoint).add(startingMoorePoint.getSide());
+				
+				Array<GridPoint> run = new Array<GridPoint>();
+				run.add(startPoint);
+				
+				GridPoint center = new GridPoint(startPoint);
+				
+				// For case where platform is only one tile, if all moore points have been traversed, the run should be ended
+				ObjectSet<MoorePoint> mooreSet = new ObjectSet<MoorePoint>();
+				mooreSet.add(moorePoint);
+				
+				Side side = null;
+				GridPoint edgeStart = new GridPoint(startPoint);
+				GridPoint edgeEnd = new GridPoint(startPoint);
+				Array<Vector2> edgeVertices = new Array<Vector2>(Vector2.class);
+				
+				do {
+					// Check if moore point is a solid tile
+					if(isSolid(previous.row, previous.col)) {
+						run.add(previous);
+						if(!visited.containsKey(previous)) {
+							visited.put(previous, new ObjectSet<Side>());
+						}
+
+						previous = moorePoint.getPrevious().add(center);
+						center = new GridPoint(moorePoint.add(center));
+						
+						// Update previous
+						moorePoint = MoorePoint.getMoorePoint(center, previous);
+						
+						mooreSet.clear();
+						mooreSet.add(moorePoint);
+					} else {
+						// Check if moore point is axis-aligned
+						if(moorePoint.getSide() != null) {
+							if(moorePoint.getSide() == side) {
+								edgeEnd.set(center);
+							} else if(side != null) {
+								// Edge is finished
+								if(edgeVertices.size == 0) {
+									edgeVertices.add(getVertex(edgeStart, side, true));
+								}
+								edgeVertices.add(getVertex(edgeEnd, side, false));
+								edgeStart.set(center);
+								edgeEnd.set(center);
+							}
+							side = moorePoint.getSide();
+							visited.get(center).add(side);
+						}
+						
+						moorePoint = moorePoint.getNext();
+						previous = moorePoint.add(center);
+						
+						// If all moore points have been visited, then you must be on a single block platform
+						// No need to handle edges, single block platforms work as expected
+						if(mooreSet.contains(moorePoint)){
+							break;
+						}
+						
+						mooreSet.add(moorePoint);
+					}
+				} while(!(center.equals(startPoint) && moorePoint == startingMoorePoint));
+
+				edgeGroups.put(id++, run);
+				Entity tile = EntityFactory.createTile(null);
+				Body body = PhysicsUtils.createTilePhysics(world, tile, edgeVertices.toArray());
+				Mappers.body.get(tile).set(body);
+				bodies.add(body);
+			}
+		}
+	}
+	
+	/**
+	 * Assumes clockwise traversal. Returns the position of the vertex at specified GridPoint. If start is true, 
+	 * then the first vertex will be returned (in the clockwise direction). 
+	 * 
+	 * @param point
+	 * @param side
+	 * @param start
+	 * @return
+	 */
+	private Vector2 getVertex(GridPoint point, Side side, boolean start) {
+		switch (side) {
+		case EAST:
+			if(start) {
+				return new Vector2(point.col + 1.0f, point.row + 1.0f);
+			} else {
+				return new Vector2(point.col + 1.0f, point.row);
+			}
+		case NORTH:
+			if(start) {
+				return new Vector2(point.col, point.row + 1.0f);
+			} else {
+				return new Vector2(point.col + 1.0f, point.row + 1.0f);
+			}
+		case SOUTH:
+			if(start) {
+				return new Vector2(point.col + 1.0f, point.row);
+			} else {
+				return new Vector2(point.col, point.row);
+			}
+		case WEST:
+			if(start) {
+				return new Vector2(point.col, point.row);
+			} else {
+				return new Vector2(point.col, point.row + 1.0f);
+			}
+		default:
+			return null;
+		}
+	}
+	
+	private enum MoorePoint {
+		P1(1, -1, null) {
+			@Override
+			public MoorePoint getNext() {
+				return P2;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P8;
+			}
+		},
+		P2(1, 0, Side.NORTH) {
+			@Override
+			public MoorePoint getNext() {
+				return P3;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P1;
+			}
+		},
+		P3(1, 1, null) {
+			@Override
+			public MoorePoint getNext() {
+				return P4;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P2;
+			}
+		},
+		P4(0, 1, Side.EAST) {
+			@Override
+			public MoorePoint getNext() {
+				return P5;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P3;
+			}
+		},
+		P5(-1, 1, null) {
+			@Override
+			public MoorePoint getNext() {
+				return P6;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P4;
+			}
+		},
+		P6(-1, 0, Side.SOUTH) {
+			@Override
+			public MoorePoint getNext() {
+				return P7;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P5;
+			}
+		},
+		P7(-1, -1, null) {
+			@Override
+			public MoorePoint getNext() {
+				return P8;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P6;
+			}
+		},
+		P8(0, -1, Side.WEST) {
+			@Override
+			public MoorePoint getNext() {
+				return P1;
+			}
+
+			@Override
+			public MoorePoint getPrevious() {
+				return P7;
+			}
+		};
+		
+		// Relative positioning
+		private int row;
+		private int col;
+		private Side side;
+		
+		private MoorePoint(int row, int col, Side side) {
+			this.row = row;
+			this.col = col;
+			this.side = side;
+		}
+		
+		public Side getSide() {
+			return side;
+		}
+		
+		public abstract MoorePoint getNext();
+		public abstract MoorePoint getPrevious();
+		
+		public GridPoint add(GridPoint point) {
+			return new GridPoint(row + point.row, col + point.col);
+		}
+		
+		public static MoorePoint getMoorePoint(int centerRow, int centerCol, int mooreRow, int mooreCol) {
+			int relRow = mooreRow - centerRow;
+			int relCol = mooreCol - centerCol;
+			
+			for(MoorePoint point : values()) {
+				if(point.row == relRow && point.col == relCol) return point;
+			}
+			return null;
+		}
+		
+		public static MoorePoint getMoorePoint(GridPoint center, GridPoint moore) {
+			return getMoorePoint(center.row, center.col, moore.row, moore.col);
+		}
+	}
+	
+	private boolean isTouchingAir(Tile tile) {
+		return (!tileMap.contains(tile.getRow() - 1, tile.getCol()) || !isSolid(tile.getRow() - 1, tile.getCol())) ||
+			   (!tileMap.contains(tile.getRow() + 1, tile.getCol()) || !isSolid(tile.getRow() + 1, tile.getCol())) ||
+			   (!tileMap.contains(tile.getRow(), tile.getCol() - 1) || !isSolid(tile.getRow(), tile.getCol() - 1)) ||
+			   (!tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1));
+	}
+	
 	private void setupGround() {
 		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
 		width = layer.getWidth();
 		height = layer.getHeight();
 
-		Array<Tile> tiles = new Array<Tile>();
-		Boolean[][] tileExists = new Boolean[height][width];
 		for (int row = 0; row < height; row++) {
 			for (int col = 0; col < width; col++) {
 				Cell cell = layer.getCell(col, row);
 				if (cell == null || cell.getTile() == null) {
-					tileExists[row][col] = false;
 					tileMap.add(row, col, new Tile(row, col, TileType.AIR));
 					continue;
 				}
-
 				Tile tile = new Tile(row, col, TileType.getType((String) cell.getTile().getProperties().get("type")));
-
-				// if(row > 0){
-				// Cell c = layer.getCell(col, row - 1);
-				// if(c == null || c.getTile() == null) {
-				// tile.addSide(Side.SOUTH);
-				// }
-				// }
-				// if(row < height - 1){
-				// Cell c = layer.getCell(col, row + 1);
-				// if(c == null || c.getTile() == null) {
-				// tile.addSide(Side.NORTH);
-				// }
-				// }
-				// if(col > 0){
-				// Cell c = layer.getCell(col - 1, row);
-				// if(c == null || c.getTile() == null) {
-				// tile.addSide(Side.WEST);
-				// }
-				// }
-				// if(col < width - 1){
-				// Cell c = layer.getCell(col + 1, row);
-				// if(c == null || c.getTile() == null) {
-				// tile.addSide(Side.EAST);
-				// }
-				// }
-				if (tile.getType() == TileType.GROUND) {
-					tiles.add(tile);
-					tileExists[row][col] = true;
-				}
-				else{
-					if(tile.getType() == TileType.LADDER){
-						ladders.add(tile);
-					}
-					tileExists[row][col] = false;
-				}
 				tileMap.add(row, col, tile);
 			}
-		}
-		for (Tile tile : tiles) {
-			int row = tile.getRow();
-			int col = tile.getCol();
-			if (row > 0) {
-				Tile t = tileMap.get(row - 1, col);
-				if (!t.isSolid()) {
-					tile.addSide(Side.SOUTH);
-				}
-			}
-			if (row < height - 1) {
-				Tile t = tileMap.get(row + 1, col);
-				if (!t.isSolid()) {
-					tile.addSide(Side.NORTH);
-				}
-			}
-			if (col > 0) {
-				Tile t = tileMap.get(row, col - 1);
-				if (!t.isSolid()) {
-					tile.addSide(Side.WEST);
-				}
-			}
-			if (col < width - 1) {
-				Tile t = tileMap.get(row, col + 1);
-				if (!t.isSolid()) {
-					tile.addSide(Side.EAST);
-				}
-			}
-		}
-		tiles.sort(new Comparator<Tile>() {
-			@Override
-			public int compare(Tile o1, Tile o2) {
-				if (o1.isSurrounded() && !o2.isSurrounded()) return 1;
-				if (!o1.isSurrounded() && o2.isSurrounded()) return -1;
-				return o1.getIndex(layer.getWidth()) < o2.getIndex(layer.getWidth()) ? -1 : 1;
-			}
-		});
-		while (tiles.size > 0) {
-			Tile t = tiles.first();
-			if (!tileExists[t.getRow()][t.getCol()]) continue;
-			tileExists[t.getRow()][t.getCol()] = false;
-			int startCol = t.getCol();
-			int startRow = t.getRow();
-			int endCol = t.getCol();
-			int endRow = t.getRow();
-
-			// Do expansion
-			if (!t.isSurrounded() && (t.isOpen(Side.WEST) || t.isOpen(Side.EAST))) {
-				int[] coords = expandCol(startRow, t.getCol(), layer.getHeight(), tileExists);
-				startRow = coords[0];
-				endRow = coords[1];
-				coords = expandRow(startRow, endRow, startCol, layer.getWidth(), tileExists);
-				startCol = coords[0];
-				endCol = coords[1];
-			} else {
-				int[] coords = expandRow(startCol, t.getRow(), layer.getWidth(), tileExists);
-				startCol = coords[0];
-				endCol = coords[1];
-				coords = expandCol(startCol, endCol, startRow, layer.getHeight(), tileExists);
-				startRow = coords[0];
-				endRow = coords[1];
-			}
-
-			int width = endCol - startCol + 1;
-			int height = endRow - startRow + 1;
-			
-			Entity tile = EntityFactory.createTile(null);
-			Body body = PhysicsUtils.createTilePhysics(world, tile, startCol, startRow, width, height);
-			Mappers.body.get(tile).set(body);
-			bodies.add(body);
-			
-			removeTiles(startCol, endCol, startRow, endRow, tiles);
 		}
 	}
 	
 	// CLEANUP WON'T WORK ANYMORE
-	private void setupLadders(){
-		BodyDef bdef = new BodyDef();
-		bdef.type = BodyType.StaticBody;
-		PolygonShape shape = new PolygonShape();
-		shape.setAsBox(0.5f, 0.5f);
-		FixtureDef fdef = new FixtureDef();
-		fdef.shape = shape;
-		fdef.friction = 0.0f;
-		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
-		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
-		fdef.isSensor = true;
-		
-		while(ladders.size > 0){
-			Tile ladder = ladders.first();
-			int startCol = ladder.getCol();
-			int startRow = ladder.getRow();
-			int endCol = ladder.getCol();
-			int endRow = ladder.getRow();
-			
-			// Traverse Up
-			for(int row = startRow + 1; row < height; row++){
-				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
-					break;
-				}
-				endRow++;
-			}
-			
-			// Traverse Down
-			for(int row = startRow - 1; row >= 0; row--){
-				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
-					break;
-				}
-				startRow--;
-			}
-			
-			// Remove Ladders
-			for(Iterator<Tile> iter = ladders.iterator(); iter.hasNext();){
-				Tile t = iter.next();
-				if(t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >= startCol && t.getCol() <= endCol){
-					iter.remove();
-				}
-			}
-			
-			int width = endCol - startCol + 1;
-			int height = endRow - startRow + 1;
-			shape.setAsBox(width * 0.5f - 0.4f, height * 0.5f);
-			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-			Body body = world.createBody(bdef);
-			body.createFixture(fdef).setUserData("ladder");
-			bodies.add(body);
-		}
-	}
+//	private void setupLadders(){
+//		BodyDef bdef = new BodyDef();
+//		bdef.type = BodyType.StaticBody;
+//		PolygonShape shape = new PolygonShape();
+//		shape.setAsBox(0.5f, 0.5f);
+//		FixtureDef fdef = new FixtureDef();
+//		fdef.shape = shape;
+//		fdef.friction = 0.0f;
+//		fdef.filter.categoryBits = CollisionBits.TILE.getBit();
+//		fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
+//		fdef.isSensor = true;
+//		
+//		while(ladders.size > 0){
+//			Tile ladder = ladders.first();
+//			int startCol = ladder.getCol();
+//			int startRow = ladder.getRow();
+//			int endCol = ladder.getCol();
+//			int endRow = ladder.getRow();
+//			
+//			// Traverse Up
+//			for(int row = startRow + 1; row < height; row++){
+//				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
+//					break;
+//				}
+//				endRow++;
+//			}
+//			
+//			// Traverse Down
+//			for(int row = startRow - 1; row >= 0; row--){
+//				if(tileMap.get(row, startCol).getType() != TileType.LADDER){
+//					break;
+//				}
+//				startRow--;
+//			}
+//			
+//			// Remove Ladders
+//			for(Iterator<Tile> iter = ladders.iterator(); iter.hasNext();){
+//				Tile t = iter.next();
+//				if(t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >= startCol && t.getCol() <= endCol){
+//					iter.remove();
+//				}
+//			}
+//			
+//			int width = endCol - startCol + 1;
+//			int height = endRow - startRow + 1;
+//			shape.setAsBox(width * 0.5f - 0.4f, height * 0.5f);
+//			bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
+//			Body body = world.createBody(bdef);
+//			body.createFixture(fdef).setUserData("ladder");
+//			bodies.add(body);
+//		}
+//	}
 
 	private void setupSpawnPoints() {
 		MapObjects objects = map.getLayers().get("spawns").getObjects();
@@ -437,117 +686,6 @@ public class Level {
 		return true;
 	}
 
-	private int[] expandRow(int startCol, int row, int maxWidth, Boolean[][] tileExists) {
-		int[] coords = new int[2];
-		int sCol = startCol;
-		int eCol = startCol;
-		for (int col = startCol - 1; col >= 0; col--) {
-			if (!tileExists[row][col]) break;
-			sCol--;
-			tileExists[row][col] = false;
-		}
-		for (int col = startCol + 1; col < maxWidth; col++) {
-			if (!tileExists[row][col]) break;
-			eCol++;
-			tileExists[row][col] = false;
-		}
-		coords[0] = sCol;
-		coords[1] = eCol;
-		return coords;
-	}
-
-	private int[] expandCol(int startRow, int col, int maxHeight, Boolean[][] tileExists) {
-		int[] coords = new int[2];
-		int sRow = startRow;
-		int eRow = startRow;
-		for (int row = startRow - 1; row >= 0; row--) {
-			if (!tileExists[row][col]) break;
-			sRow--;
-			tileExists[row][col] = false;
-		}
-		for (int row = startRow + 1; row < maxHeight; row++) {
-			if (!tileExists[row][col]) break;
-			eRow++;
-			tileExists[row][col] = false;
-		}
-		coords[0] = sRow;
-		coords[1] = eRow;
-		return coords;
-	}
-
-	private int[] expandRow(int startRow, int endRow, int startCol, int maxWidth, Boolean[][] tileExists) {
-		int[] coords = new int[2];
-		int sCol = startCol;
-		int eCol = startCol;
-		for (int col = startCol - 1; col >= 0; col--) {
-			if (!validCol(startRow, endRow, col, tileExists)) break;
-			invalidateCol(startRow, endRow, col, tileExists);
-			sCol--;
-		}
-		for (int col = startCol + 1; col < maxWidth; col++) {
-			if (!validCol(startRow, endRow, col, tileExists)) break;
-			invalidateCol(startRow, endRow, col, tileExists);
-			eCol++;
-		}
-		coords[0] = sCol;
-		coords[1] = eCol;
-		return coords;
-	}
-
-	private int[] expandCol(int startCol, int endCol, int startRow, int maxHeight, Boolean[][] tileExists) {
-		int[] coords = new int[2];
-		int sRow = startRow;
-		int eRow = startRow;
-		for (int row = startRow - 1; row >= 0; row--) {
-			if (!validRow(startCol, endCol, row, tileExists)) break;
-			invalidateRow(startCol, endCol, row, tileExists);
-			sRow--;
-		}
-		for (int row = startRow + 1; row < maxHeight; row++) {
-			if (!validRow(startCol, endCol, row, tileExists)) break;
-			invalidateRow(startCol, endCol, row, tileExists);
-			eRow++;
-		}
-		coords[0] = sRow;
-		coords[1] = eRow;
-		return coords;
-	}
-
-	private boolean validRow(int startCol, int endCol, int row, Boolean[][] tileExists) {
-		for (int i = startCol; i <= endCol; i++) {
-			if (!tileExists[row][i]) return false;
-		}
-		return true;
-	}
-
-	private boolean validCol(int startRow, int endRow, int col, Boolean[][] tileExists) {
-		for (int i = startRow; i <= endRow; i++) {
-			if (!tileExists[i][col]) return false;
-		}
-		return true;
-	}
-
-	private void invalidateRow(int startCol, int endCol, int row, Boolean[][] tileExists) {
-		for (int i = startCol; i <= endCol; i++) {
-			tileExists[row][i] = false;
-		}
-	}
-
-	private void invalidateCol(int startRow, int endRow, int col, Boolean[][] tileExists) {
-		for (int i = startRow; i <= endRow; i++) {
-			tileExists[i][col] = false;
-		}
-	}
-
-	private void removeTiles(int startCol, int endCol, int startRow, int endRow, Array<Tile> tiles) {
-		for (Iterator<Tile> iter = tiles.iterator(); iter.hasNext();) {
-			Tile t = iter.next();
-			if (t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >= startCol && t.getCol() <= endCol) {
-				iter.remove();
-			}
-		}
-	}
-	
 	public class EntitySpawn{
 		private EntityIndex index;
 		private Vector2 pos;
@@ -618,26 +756,5 @@ public class Level {
 		if (width != other.width) return false;
 		return true;
 	}
-	
-//	public class LevelTrigger{
-//		private String data;
-//		private Vector2 pos;
-//		
-//		public LevelTrigger(String data, Vector2 pos){
-//			this.data = data;
-//			this.pos = pos;
-//		}
-//		
-//		public String getSwitchData(){
-//			return data;
-//		}
-//		
-//		public Vector2 getPos(){
-//			return pos;
-//		}
-//	}
-	
-	
-	
 	
 }
