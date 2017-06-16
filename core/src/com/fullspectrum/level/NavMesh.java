@@ -27,7 +27,8 @@ import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
-import com.fullspectrum.level.Tile.TileType;
+import com.fullspectrum.level.tiles.Tile;
+import com.fullspectrum.level.tiles.Tile.TileType;
 import com.fullspectrum.utils.RenderUtils;
 import com.fullspectrum.utils.StringUtils;
 

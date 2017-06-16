@@ -65,7 +65,7 @@ import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Theme;
-import com.fullspectrum.level.Tile;
+import com.fullspectrum.level.tiles.Tile;
 import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -254,7 +254,7 @@ public class GameScreen extends AbstractScreen {
 
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
-		levelManager = new LevelManager(engine, world, batch, worldCamera, input);
+		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input);
 		levelManager.switchHub(Theme.GRASSY);
 //		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 		
@@ -320,11 +320,11 @@ public class GameScreen extends AbstractScreen {
 			console.setDisabled(editorOpen);
 			
 			if(editorOpen) {
-				setupEditorMode();
+				levelManager.switchToEditorMode();
+			} else {
+				levelManager.switchToPlayMode();
 			}
 		}
-		
-		
 		
 		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW) && !editorOpen){
 			pauseMenuOpen = !pauseMenuOpen;
@@ -340,6 +340,8 @@ public class GameScreen extends AbstractScreen {
 
 		worldCamera.update();
 		batch.setProjectionMatrix(worldCamera.combined);
+		
+		levelManager.update(delta);
 
 		// Update the Engine
 		EntityUtils.engineUpdating = true;
@@ -463,16 +465,6 @@ public class GameScreen extends AbstractScreen {
 //		}
 //	}
 	
-	private void setupEditorMode() {
-		// Steps
-		// 1. Clear all entities 
-		// 2. Set the current level into the editor
-		// 3. Set the position into the editor
-		// 4. Initialize the editor view (includes loading the level)
-		
-		
-	}
-
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render() {

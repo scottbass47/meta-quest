@@ -16,6 +16,7 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.debug.ConsoleCommands;
+import com.fullspectrum.editor.LevelEditor;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
 import com.fullspectrum.entity.EntityManager;
@@ -28,11 +29,13 @@ import com.fullspectrum.systems.FlowFieldSystem;
 
 public class LevelManager{
 
+	// Gloabal vars
 	private Engine engine;
 	private World world;
 	private SpriteBatch batch;
 	private Entity camera;
 	private OrthographicCamera worldCamera;
+	private OrthographicCamera hudCamera;
 	private GameInput input;
 	private Level currentLevel;
 	private FlowFieldManager flowManager;
@@ -41,17 +44,24 @@ public class LevelManager{
 	// Level
 	private LevelInfo previous;
 	private LevelInfo lastLevel;
+
+	// Editor
+	private LevelEditor editor;
+	private boolean editorActive = false;
 	
-	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, GameInput input){
+	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, OrthographicCamera hudCamera, GameInput input){
 		this.engine = engine;
 		this.world = world;
 		this.batch = batch;
 		this.worldCamera = worldCamera;
+		this.hudCamera = hudCamera;
 		this.input = input;
 		
 		// Create Camera
 		camera = EntityFactory.createCamera(worldCamera);
 		EntityManager.addEntity(camera);
+		
+		editor = new LevelEditor();
 	}
 	
 	// SWITCHING LEVELS
@@ -79,7 +89,7 @@ public class LevelManager{
 		// 3. Load in new level
 		LevelInfo info = new LevelInfo(theme, type, level, secret, section);
 		Level newLevel = new Level(this, info);
-		newLevel.loadMap(batch);
+		newLevel.init(batch);
 		
 		EntityFactory.level = newLevel;
 		
@@ -122,6 +132,32 @@ public class LevelManager{
 			previous = currentLevel.getInfo();
 		}
 		currentLevel = newLevel;
+	}
+	
+	public void switchToEditorMode() {
+		// Assume current level is non-null, editor mode should only be available in levels...
+		currentLevel.destroy();
+
+		// Despawn all entities except for the camera
+		for(int i = 0; i < engine.getEntities().size(); i++) {
+			Entity entity = engine.getEntities().get(i);
+			if(Mappers.camera.get(entity) != null) continue;
+			EntityManager.cleanUp(entity);
+		}
+		
+		// Setup editor
+		editor.setCurrentLevel(currentLevel);
+		editor.setWorldCamera(worldCamera);
+		editor.setHudCamera(hudCamera);
+		input.getRawInput().addInput(editor);
+		
+		editorActive = true;
+	}
+	
+	public void switchToPlayMode() {
+		editorActive = false;
+		input.getRawInput().removeInput(editor);
+		switchLevel(currentLevel.getInfo());
 	}
 	
 	@SuppressWarnings("unchecked")
@@ -185,8 +221,17 @@ public class LevelManager{
 		return Gdx.files.internal(info.toFileFormatExtension()).exists();
 	}
 	
+	public void update(float delta) {
+		if(editorActive) {
+			editor.update(delta);
+		}
+	}
+	
 	public void render(){
-		if(currentLevel != null){
+		if(editorActive) {
+			editor.render();
+		}
+		else if(currentLevel != null){
 			currentLevel.render(worldCamera);
 		}
 	}

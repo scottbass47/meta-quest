@@ -6,6 +6,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.level.NavLink.LinkType;
+import com.fullspectrum.level.tiles.Tile;
 
 public class Node{
 	

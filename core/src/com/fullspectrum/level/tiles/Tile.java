@@ -1,10 +1,18 @@
-package com.fullspectrum.level;
+package com.fullspectrum.level.tiles;
 
 public class Tile {
 
+	private int id;
 	private int row;
 	private int col;
 	private final TileType type;
+	
+	public Tile() {
+		id = -1;
+		row = 0;
+		col = 0;
+		type = TileType.AIR;
+	}
 	
 	public Tile(int row, int col, TileType type){
 		this.row = row;
@@ -26,6 +34,10 @@ public class Tile {
 	
 	public TileType getType(){
 		return type;
+	}
+	
+	public int getID() {
+		return id;
 	}
 	
 	@Override

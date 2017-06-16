@@ -5,9 +5,11 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.MapProperties;
@@ -30,8 +32,9 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
-import com.fullspectrum.level.Tile.Side;
-import com.fullspectrum.level.Tile.TileType;
+import com.fullspectrum.level.tiles.Tile;
+import com.fullspectrum.level.tiles.Tile.Side;
+import com.fullspectrum.level.tiles.Tile.TileType;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
@@ -76,7 +79,7 @@ public class Level {
 		edgeGroups = new ArrayMap<Integer, Array<GridPoint>>();
 	}
 
-	public void loadMap(SpriteBatch batch) {
+	private void loadMap(SpriteBatch batch) {
 		Parameters params = new Parameters();
 		params.textureMagFilter = TextureFilter.Nearest;
 		params.textureMinFilter = TextureFilter.Nearest;
@@ -95,13 +98,18 @@ public class Level {
 		requiresFlowField = prop.containsKey("flow_field");
 		isCameraLocked = prop.containsKey("camera_locked");
 		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
-		
+	}
+	
+	public void init(SpriteBatch batch) {
+		loadMap(batch);
+
 		setupGround();
 		mooreNeighborhood();
 		
 //		setupLadders();
 		setupSpawnPoints();
 		setupLevelTriggers();
+		
 	}
 
 	public int getWidth() {
@@ -142,47 +150,50 @@ public class Level {
 			mapRenderer.render();
 		}
 		
-//		for(Integer id : edgeGroups.keys()) {
-//			Color color = id == 0 ? Color.MAGENTA : (id == 1 ? Color.FIREBRICK : Color.CYAN);
-//			DebugRender.setColor(color);
-//			Array<GridPoint> run = edgeGroups.get(id);
-//
-//			for(int i = 0; i < run.size; i++) {
-//				GridPoint p1 = run.get(i);
-//				Tile tile = tileAt(p1.row, p1.col);
-//				
-//				boolean outlines = false;
-//				if(outlines) {
-//					DebugRender.setType(ShapeType.Filled);
-//					boolean north = !tileMap.contains(tile.getRow() + 1, tile.getCol()) || !isSolid(tile.getRow() + 1, tile.getCol());
-//					boolean south = !tileMap.contains(tile.getRow() - 1, tile.getCol()) || !isSolid(tile.getRow() - 1, tile.getCol());
-//					boolean east  = !tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1);
-//					boolean west  = !tileMap.contains(tile.getRow(), tile.getCol() - 1) || !isSolid(tile.getRow(), tile.getCol() - 1);;
-//					
-//					float thickness = 0.05f;
-//					
-//					if(north) {
-//						drawEdge(p1, Side.NORTH, thickness);
-//					}
-//					if(south) {
-//						drawEdge(p1, Side.SOUTH, thickness);
-//					}
-//					if(east) {
-//						drawEdge(p1, Side.EAST, thickness);
-//					}
-//					if(west) {
-//						drawEdge(p1, Side.WEST, thickness);
-//					}
-//				} else {
-//					if(i == 0) DebugRender.setColor(Color.WHITE);
-//					else DebugRender.setColor(color);
-//
-//					DebugRender.setType(ShapeType.Line);
-//					GridPoint p2 = i < run.size - 1 ? run.get(i + 1) : run.get(run.size - 1);
-//					DebugRender.line(p1.col + 0.5f, p1.row + 0.5f, p2.col + 0.5f, p2.row + 0.5f);
-//				}
-//			}
-//		}
+		boolean debug = false;
+		if(debug) {
+			for(Integer id : edgeGroups.keys()) {
+				Color color = id == 0 ? Color.MAGENTA : (id == 1 ? Color.FIREBRICK : Color.CYAN);
+				DebugRender.setColor(color);
+				Array<GridPoint> run = edgeGroups.get(id);
+	
+				for(int i = 0; i < run.size; i++) {
+					GridPoint p1 = run.get(i);
+					Tile tile = tileAt(p1.row, p1.col);
+					
+					boolean outlines = false;
+					if(outlines) {
+						DebugRender.setType(ShapeType.Filled);
+						boolean north = !tileMap.contains(tile.getRow() + 1, tile.getCol()) || !isSolid(tile.getRow() + 1, tile.getCol());
+						boolean south = !tileMap.contains(tile.getRow() - 1, tile.getCol()) || !isSolid(tile.getRow() - 1, tile.getCol());
+						boolean east  = !tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1);
+						boolean west  = !tileMap.contains(tile.getRow(), tile.getCol() - 1) || !isSolid(tile.getRow(), tile.getCol() - 1);;
+						
+						float thickness = 0.05f;
+						
+						if(north) {
+							drawEdge(p1, Side.NORTH, thickness);
+						}
+						if(south) {
+							drawEdge(p1, Side.SOUTH, thickness);
+						}
+						if(east) {
+							drawEdge(p1, Side.EAST, thickness);
+						}
+						if(west) {
+							drawEdge(p1, Side.WEST, thickness);
+						}
+					} else {
+						if(i == 0) DebugRender.setColor(Color.WHITE);
+						else DebugRender.setColor(color);
+	
+						DebugRender.setType(ShapeType.Line);
+						GridPoint p2 = i < run.size - 1 ? run.get(i + 1) : run.get(run.size - 1);
+						DebugRender.line(p1.col + 0.5f, p1.row + 0.5f, p2.col + 0.5f, p2.row + 0.5f);
+					}
+				}
+			}
+		}
 	}
 	
 	public void drawEdge(GridPoint point, Side side, float thickness) {
@@ -371,6 +382,12 @@ public class Level {
 		}
 	}
 	
+	// Moore points represent adjacent tiles. Traversal is in the clockwise direction.
+	//
+	// Structure:
+	// P1 P2 P3
+	// P8 C  P4
+	// P7 P6 P5
 	private enum MoorePoint {
 		P1(1, -1, null) {
 			@Override
