@@ -372,7 +372,7 @@ public class GameScreen extends AbstractScreen {
 			
 			// If you're not the mage currently, then switch
 			if(!Mappers.entity.get(player).type.equals(EntityType.MAGE)){
-				levelManager.switchPlayer(EntityIndex.MAGE);
+				levelManager.switchPlayer(EntityIndex.ALCHEMIST);
 			}
 		}
 		

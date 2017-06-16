@@ -24,10 +24,10 @@ public enum EntityIndex {
 			return EntityFactory.createRogue(x, y);
 		}
 	},
-	MAGE {
+	ALCHEMIST {
 		@Override
 		public Entity create(float x, float y) {
-			return EntityFactory.createMage(x, y);
+			return EntityFactory.createAlchemist(x, y);
 		}
 	},
 	

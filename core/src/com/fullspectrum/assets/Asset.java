@@ -89,9 +89,13 @@ public enum Asset {
 	ROGUE_BALLOON_PROJECTILE(Atlas.ENTITY, "balloon_projectile/rogue_balloon_projectile"),
 	
 		
-	// Mage
-	MAGE_IDLE(Atlas.ENTITY, "idle/mage_idle"),
-	MAGE_RUN(Atlas.ENTITY, "run/mage_run"),
+	// Alchemist
+	ALCHEMIST_IDLE(Atlas.ENTITY, "idle/alchemist_idle"),
+	ALCHEMIST_RUN(Atlas.ENTITY, "run/alchemist_run"),
+	ALCHEMIST_JUMP(Atlas.ENTITY, "jump/alchemist_jump"),
+	ALCHEMIST_RISE(Atlas.ENTITY, "rise/alchemist_rise"),
+	ALCHEMIST_APEX(Atlas.ENTITY, "apex/alchemist_apex"),
+	ALCHEMIST_FALL(Atlas.ENTITY, "fall/alchemist_fall"),
 		
 	// Coins
 	COIN_SILVER(Atlas.ENTITY, "coin_silver"),

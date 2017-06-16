@@ -1,8 +1,38 @@
 package com.fullspectrum.factory;
 
-import static com.fullspectrum.physics.collision.CollisionBodyType.*;
-import static com.fullspectrum.entity.EntityType.*;
-import static com.fullspectrum.entity.EntityStatus.*;
+import static com.fullspectrum.entity.EntityStatus.ENEMY;
+import static com.fullspectrum.entity.EntityStatus.FRIENDLY;
+import static com.fullspectrum.entity.EntityStatus.NEUTRAL;
+import static com.fullspectrum.entity.EntityType.AI_PLAYER;
+import static com.fullspectrum.entity.EntityType.ARROW;
+import static com.fullspectrum.entity.EntityType.BALLOON_PELLET;
+import static com.fullspectrum.entity.EntityType.BALLOON_TRAP;
+import static com.fullspectrum.entity.EntityType.BASE_TILE;
+import static com.fullspectrum.entity.EntityType.BOOMERANG;
+import static com.fullspectrum.entity.EntityType.BULLET;
+import static com.fullspectrum.entity.EntityType.CAMERA;
+import static com.fullspectrum.entity.EntityType.COIN;
+import static com.fullspectrum.entity.EntityType.DAMAGE_TEXT;
+import static com.fullspectrum.entity.EntityType.DYNAMITE;
+import static com.fullspectrum.entity.EntityType.EXPLOSION;
+import static com.fullspectrum.entity.EntityType.EXPLOSIVE_PARTICLE;
+import static com.fullspectrum.entity.EntityType.HOMING_KNIFE;
+import static com.fullspectrum.entity.EntityType.KNIGHT;
+import static com.fullspectrum.entity.EntityType.LEVEL_TRIGGER;
+import static com.fullspectrum.entity.EntityType.MAGE;
+import static com.fullspectrum.entity.EntityType.MANA_BOMB;
+import static com.fullspectrum.entity.EntityType.PARTICLE;
+import static com.fullspectrum.entity.EntityType.ROGUE;
+import static com.fullspectrum.entity.EntityType.SLIME;
+import static com.fullspectrum.entity.EntityType.SMOKE;
+import static com.fullspectrum.entity.EntityType.SPAWNER;
+import static com.fullspectrum.entity.EntityType.SPIT;
+import static com.fullspectrum.entity.EntityType.SPITTER;
+import static com.fullspectrum.entity.EntityType.THROWING_KNIFE;
+import static com.fullspectrum.entity.EntityType.WINGS;
+import static com.fullspectrum.physics.collision.CollisionBodyType.MOB;
+import static com.fullspectrum.physics.collision.CollisionBodyType.PROJECTILE;
+import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 
 import java.util.Comparator;
 
@@ -37,18 +67,16 @@ import com.fullspectrum.ability.rogue.BalloonTrapAbility;
 import com.fullspectrum.ability.rogue.BoomerangAbility;
 import com.fullspectrum.ability.rogue.BowAbility;
 import com.fullspectrum.ability.rogue.DashAbility;
+import com.fullspectrum.ability.rogue.DynamiteAbility;
 import com.fullspectrum.ability.rogue.ExecuteAbility;
 import com.fullspectrum.ability.rogue.FlashPowderAbility;
 import com.fullspectrum.ability.rogue.HomingKnivesAbility;
-import com.fullspectrum.ability.rogue.DynamiteAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
-import com.fullspectrum.audio.AudioLocator;
-import com.fullspectrum.audio.Sounds;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -112,6 +140,7 @@ import com.fullspectrum.component.SpawnComponent;
 import com.fullspectrum.component.SpawnerPoolComponent;
 import com.fullspectrum.component.SpeedComponent;
 import com.fullspectrum.component.StateComponent;
+import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
 import com.fullspectrum.component.TextRenderComponent;
@@ -119,7 +148,6 @@ import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TintComponent;
-import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
@@ -1568,26 +1596,26 @@ public class EntityFactory {
 		return rogue;
 	}
 	
-	public static Entity createMage(float x, float y){
+	public static Entity createAlchemist(float x, float y){
 //		Entity sword = createSword(engine, world, level, player, x, y, 100);
 		
-		final EntityStats mageStats = EntityLoader.get(EntityIndex.MAGE);
+		final EntityStats alchemistStats = EntityLoader.get(EntityIndex.ALCHEMIST);
 		
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.MAGE_IDLE));
-		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.MAGE_RUN));
-		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ALCHEMIST_IDLE));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.ALCHEMIST_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.ALCHEMIST_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.ALCHEMIST_FALL));
+		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ALCHEMIST_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.ALCHEMIST_APEX));
 		animMap.put(EntityAnim.SWING_1, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
 		Entity mage = new EntityBuilder(MAGE, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, mageStats.get("health"))
+			.mob(null, alchemistStats.get("health"))
 			.build();
 		
 		// Player Related Components4
@@ -1595,19 +1623,19 @@ public class EntityFactory {
 		mage.add(engine.createComponent(MoneyComponent.class));
 		mage.add(engine.createComponent(PlayerComponent.class));
 		mage.add(engine.createComponent(BarrierComponent.class)
-				.set(mageStats.get("shield"), 
-					 mageStats.get("shield"), 
-					 mageStats.get("shield_rate"), 
-					 mageStats.get("shield_delay")));
+				.set(alchemistStats.get("shield"), 
+					 alchemistStats.get("shield"), 
+					 alchemistStats.get("shield_rate"), 
+					 alchemistStats.get("shield_delay")));
 		mage.add(engine.createComponent(AbilityComponent.class)
-			.add(new ManaBombAbility(mageStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
+			.add(new ManaBombAbility(alchemistStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()
-			.run(mageStats.get("ground_speed"))
-			.jump(mageStats.get("jump_force"), mageStats.get("air_speed"), true, true)
-			.fall(mageStats.get("air_speed"), true)
-			.climb(mageStats.get("climb_speed"))
+			.run(alchemistStats.get("ground_speed"))
+			.jump(alchemistStats.get("jump_force"), alchemistStats.get("air_speed"), true, true)
+			.fall(alchemistStats.get("air_speed"), true)
+			.climb(alchemistStats.get("climb_speed"))
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
 			.build();
 		
@@ -1621,7 +1649,7 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, 0.0f);
-					Entity bomb = EntityFactory.createManaBomb(data.x, data.y, data.angle, mageStats.get("mana_bomb_damage"), 5.0f, EntityStatus.FRIENDLY);
+					Entity bomb = EntityFactory.createManaBomb(data.x, data.y, data.angle, alchemistStats.get("mana_bomb_damage"), 5.0f, EntityStatus.FRIENDLY);
 					EntityManager.addEntity(bomb);
 				}
 
