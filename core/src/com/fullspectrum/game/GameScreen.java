@@ -60,7 +60,6 @@ import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
-import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -122,7 +121,6 @@ public class GameScreen extends AbstractScreen {
 	// Tile Map
 	private LevelManager levelManager;
 	private final Color bc = new Color(0x6885e3ff);
-
 	
 	// Box2D
 	private World world;
