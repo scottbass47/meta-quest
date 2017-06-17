@@ -27,8 +27,8 @@ import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
-import com.fullspectrum.level.tiles.Tile;
-import com.fullspectrum.level.tiles.Tile.TileType;
+import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.MapTile.TileType;
 import com.fullspectrum.utils.RenderUtils;
 import com.fullspectrum.utils.StringUtils;
 
@@ -549,7 +549,7 @@ public class NavMesh{
 		int tilesTall = (int) (boundingBox.height + 1.0f);
 		for (int i = 1; i <= tilesTall; i++) {
 			if (!level.inBounds(row + i, (int) col)) return true;
-			Tile t = level.tileAt(row + i, col);
+			MapTile t = level.tileAt(row + i, col);
 			if (t.isSolid()) return false;
 		}
 		return true;

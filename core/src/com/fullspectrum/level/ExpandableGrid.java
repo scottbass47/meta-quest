@@ -65,7 +65,7 @@ public class ExpandableGrid<T> {
 			throw new ArrayIndexOutOfBoundsException("Grid does not contain a point at " + row + ", " + col);
 		}
 		set(row, col, null);
-		shrink();
+//		shrink();
 	}
 	
 	public void removeXY(int x, int y) {
@@ -199,6 +199,39 @@ public class ExpandableGrid<T> {
 		return grid.get(row - minRow).get(col - minCol);
 	}
 	
+	public void addRow(boolean above) {
+		// Generate row of null values
+		Array<T> row = new Array<T>();
+		for(int col = 0; col < getCols(); col++) {
+			row.add(null);
+		}
+		
+		if(above) {
+			grid.add(row);
+			maxRow++;
+		} else {
+			grid.insert(0, row);
+			minRow--;
+		}
+	}
+	
+	public void addCol(boolean right) {
+		int index = 0;
+		if(right) {
+			index = getRows();
+			maxCol++;
+		} else {
+			minCol--;
+		}
+		
+		for(int row = 0; row < getRows(); row++) {
+			Array<T> gridRow = grid.get(row);
+			for(int col = 0; col < getCols(); col++) {
+				gridRow.insert(index, null);
+			}
+		}
+	}
+	
 	public T getXY(int x, int y) {
 		return get(y, x);
 	}
@@ -231,7 +264,22 @@ public class ExpandableGrid<T> {
 		return grid;
 	}
 	
-	@Override
+	public int getMinRow() {
+		return minRow;
+	}
+	
+	public int getMinCol() {
+		return minCol;
+	}
+	
+	public int getMaxCol() {
+		return maxCol;
+	}
+	
+	public int getMaxRow() {
+		return maxRow;
+	}
+	
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
 		builder.append("minRow: " + minRow + ", minCol: " + minCol + ", maxRow: " + maxRow + ", maxCol: " + maxCol + "\n");

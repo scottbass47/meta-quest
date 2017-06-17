@@ -1,24 +1,15 @@
 package com.fullspectrum.level;
 
-import static com.fullspectrum.game.GameVars.PPM_INV;
-
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.maps.MapObject;
-import com.badlogic.gdx.maps.MapObjects;
-import com.badlogic.gdx.maps.MapProperties;
-import com.badlogic.gdx.maps.tiled.TiledMap;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer;
-import com.badlogic.gdx.maps.tiled.TiledMapTileLayer.Cell;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader;
 import com.badlogic.gdx.maps.tiled.TmxMapLoader.Parameters;
-import com.badlogic.gdx.maps.tiled.renderers.OrthogonalTiledMapRenderer;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
@@ -30,11 +21,11 @@ import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityIndex;
-import com.fullspectrum.entity.EntityManager;
 import com.fullspectrum.factory.EntityFactory;
-import com.fullspectrum.level.tiles.Tile;
-import com.fullspectrum.level.tiles.Tile.Side;
-import com.fullspectrum.level.tiles.Tile.TileType;
+import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.MapTile.Side;
+import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.level.tiles.TilesetLoader;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
@@ -44,12 +35,11 @@ public class Level {
 	private Array<Body> bodies;
 
 	// Tile Map
-	private TiledMap map;
-	private TmxMapLoader loader;
-	private OrthogonalTiledMapRenderer mapRenderer;
-	private int width;
-	private int height;
-	private ExpandableGrid<Tile> tileMap;
+//	private TiledMap map;
+//	private TmxMapLoader loader;
+//	private OrthogonalTiledMapRenderer mapRenderer;
+	private MapRenderer mapRenderer;
+	private ExpandableGrid<MapTile> tileMap;
 //	private Array<Tile> ladders;
 
 	// Spawns
@@ -70,54 +60,77 @@ public class Level {
 		this.manager = manager;
 		this.world = manager.getWorld();
 		this.info = info;
-		loader = new TmxMapLoader();
+//		loader = new TmxMapLoader();
 //		ladders = new Array<Tile>();
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
 		meshes = new Array<EntityIndex>();
-		tileMap = new ExpandableGrid<Tile>();
+		tileMap = new ExpandableGrid<MapTile>(20, 10);
 		edgeGroups = new ArrayMap<Integer, Array<GridPoint>>();
+		mapRenderer = new MapRenderer();
 	}
 
-	private void loadMap(SpriteBatch batch) {
-		Parameters params = new Parameters();
-		params.textureMagFilter = TextureFilter.Nearest;
-		params.textureMinFilter = TextureFilter.Nearest;
+	private void loadMap() {
+//		Parameters params = new Parameters();
+//		params.textureMagFilter = TextureFilter.Nearest;
+//		params.textureMinFilter = TextureFilter.Nearest;
+//		
+//		map = loader.load("map/" + info.toFileFormatExtension(), params);
+//		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
+//		if(map.getProperties().containsKey("meshes")){
+//			String meshList = (String) map.getProperties().get("meshes");
+//			meshList.replaceAll("\\s+", "");
+//			String[] parts = meshList.split(",");
+//			for(String part : parts){
+//				meshes.add(EntityIndex.get(part));
+//			}
+//		}
+//		MapProperties prop = map.getProperties();
+//		requiresFlowField = prop.containsKey("flow_field");
+//		isCameraLocked = prop.containsKey("camera_locked");
+//		isCameraLocked = false;
+//		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
 		
-		map = loader.load("map/" + info.toFileFormatExtension(), params);
-		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
-		if(map.getProperties().containsKey("meshes")){
-			String meshList = (String) map.getProperties().get("meshes");
-			meshList.replaceAll("\\s+", "");
-			String[] parts = meshList.split(",");
-			for(String part : parts){
-				meshes.add(EntityIndex.get(part));
+		for(int row = 0; row < 5; row++) {
+			for(int col = 0; col < 20; col++) {
+				
+				MapTile mapTile = new MapTile();
+				
+				mapTile.setId(6);
+				mapTile.setRow(row);
+				mapTile.setCol(col);
+				mapTile.setType(TileType.GROUND);
+				
+				tileMap.add(row, col, mapTile);
 			}
 		}
-		MapProperties prop = map.getProperties();
-		requiresFlowField = prop.containsKey("flow_field");
-		isCameraLocked = prop.containsKey("camera_locked");
-		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
+		
+		playerSpawn = new Vector2(10, 10);
+		cameraZoom = 3.0f;
+		
+		TilesetLoader loader = new TilesetLoader();
+		
+		mapRenderer.setTileMap(tileMap);
+		mapRenderer.setTileset(loader.load(Gdx.files.internal("map/grassy.atlas")));
 	}
 	
-	public void init(SpriteBatch batch) {
-		loadMap(batch);
+	public void init() {
+		loadMap();
 
-		setupGround();
+//		setupGround();
 		mooreNeighborhood();
 		
 //		setupLadders();
-		setupSpawnPoints();
-		setupLevelTriggers();
-		
+//		setupSpawnPoints();
+//		setupLevelTriggers();
 	}
 
 	public int getWidth() {
-		return width;
+		return tileMap.getHeight();
 	}
 
 	public int getHeight() {
-		return height;
+		return tileMap.getWidth();
 	}
 	
 	public LevelManager getManager(){
@@ -144,10 +157,11 @@ public class Level {
 		return cameraZoom;
 	}
 	
-	public void render(OrthographicCamera worldCamera) {
+	public void render(SpriteBatch batch, OrthographicCamera worldCamera) {
 		if(!DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) {
+			
 			mapRenderer.setView(worldCamera);
-			mapRenderer.render();
+			mapRenderer.render(batch);
 		}
 		
 		boolean debug = false;
@@ -159,7 +173,7 @@ public class Level {
 	
 				for(int i = 0; i < run.size; i++) {
 					GridPoint p1 = run.get(i);
-					Tile tile = tileAt(p1.row, p1.col);
+					MapTile tile = tileAt(p1.row, p1.col);
 					
 					boolean outlines = false;
 					if(outlines) {
@@ -216,7 +230,7 @@ public class Level {
 	}
 
 	public boolean inBounds(int row, int col) {
-		return row >= 0 && row < height && col >= 0 && col < width;
+		return tileMap.contains(row, col);
 	}
 
 	public boolean inBounds(float x, float y) {
@@ -231,7 +245,9 @@ public class Level {
 			for(int col = 0; col < tileMap.getCols(); col++) {
 				GridPoint startPoint = new GridPoint(row, col);
 
-				Tile start = tileMap.get(row, col);
+				MapTile start = tileMap.get(row, col);
+				if(start == null) continue;
+				
 				boolean touchingAir = isTouchingAir(start);
 				if(!touchingAir || !isSolid(start.getRow(), start.getCol())) continue;
 
@@ -515,30 +531,38 @@ public class Level {
 		}
 	}
 	
-	private boolean isTouchingAir(Tile tile) {
+	private boolean isTouchingAir(MapTile tile) {
 		return (!tileMap.contains(tile.getRow() - 1, tile.getCol()) || !isSolid(tile.getRow() - 1, tile.getCol())) ||
 			   (!tileMap.contains(tile.getRow() + 1, tile.getCol()) || !isSolid(tile.getRow() + 1, tile.getCol())) ||
 			   (!tileMap.contains(tile.getRow(), tile.getCol() - 1) || !isSolid(tile.getRow(), tile.getCol() - 1)) ||
 			   (!tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1));
 	}
 	
-	private void setupGround() {
-		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
-		width = layer.getWidth();
-		height = layer.getHeight();
-
-		for (int row = 0; row < height; row++) {
-			for (int col = 0; col < width; col++) {
-				Cell cell = layer.getCell(col, row);
-				if (cell == null || cell.getTile() == null) {
-					tileMap.add(row, col, new Tile(row, col, TileType.AIR));
-					continue;
-				}
-				Tile tile = new Tile(row, col, TileType.getType((String) cell.getTile().getProperties().get("type")));
-				tileMap.add(row, col, tile);
-			}
-		}
-	}
+//	private void setupGround() {
+//		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
+//		width = layer.getWidth();
+//		height = layer.getHeight();
+//
+//		for (int row = 0; row < height; row++) {
+//			for (int col = 0; col < width; col++) {
+//				Cell cell = layer.getCell(col, row);
+//				
+//				MapTile mapTile = new MapTile();
+//				mapTile.setRow(row);
+//				mapTile.setCol(col);
+//
+//				if (cell == null || cell.getTile() == null) {
+//					mapTile.setId(-1);
+//					mapTile.setType(TileType.AIR);
+//				} else {
+//					mapTile.setId(cell.getTile().getId());
+//					mapTile.setType(TileType.GROUND);
+//				}
+//				
+//				tileMap.add(row, col, mapTile);
+//			}
+//		}
+//	}
 	
 	// CLEANUP WON'T WORK ANYMORE
 //	private void setupLadders(){
@@ -594,33 +618,33 @@ public class Level {
 //		}
 //	}
 
-	private void setupSpawnPoints() {
-		MapObjects objects = map.getLayers().get("spawns").getObjects();
-		for (MapObject o : objects) {
-			float x = (Float) o.getProperties().get("x");
-			float y = (Float) o.getProperties().get("y");
-			float width = (Float) o.getProperties().get("width");
-			float height = (Float) o.getProperties().get("height");
-			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
-			if (o.getName().equals("player_spawn")) {
-				playerSpawn = spawnPoint;
-			}else {
-				entitySpawns.add(new EntitySpawn(EntityIndex.get(o.getName()), spawnPoint));
-			}
-		}
-	}
-	
-	private void setupLevelTriggers() {
-		MapObjects objects = map.getLayers().get("triggers").getObjects();
-		for (MapObject o : objects) {
-			float x = (Float) o.getProperties().get("x");
-			float y = (Float) o.getProperties().get("y");
-			float width = (Float) o.getProperties().get("width");
-			float height = (Float) o.getProperties().get("height");
-			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
-			EntityManager.addEntity(EntityFactory.createLevelTrigger(spawnPoint.x, spawnPoint.y, o.getName()));
-		}
-	}
+//	private void setupSpawnPoints() {
+//		MapObjects objects = map.getLayers().get("spawns").getObjects();
+//		for (MapObject o : objects) {
+//			float x = (Float) o.getProperties().get("x");
+//			float y = (Float) o.getProperties().get("y");
+//			float width = (Float) o.getProperties().get("width");
+//			float height = (Float) o.getProperties().get("height");
+//			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
+//			if (o.getName().equals("player_spawn")) {
+//				playerSpawn = spawnPoint;
+//			}else {
+//				entitySpawns.add(new EntitySpawn(EntityIndex.get(o.getName()), spawnPoint));
+//			}
+//		}
+//	}
+//	
+//	private void setupLevelTriggers() {
+//		MapObjects objects = map.getLayers().get("triggers").getObjects();
+//		for (MapObject o : objects) {
+//			float x = (Float) o.getProperties().get("x");
+//			float y = (Float) o.getProperties().get("y");
+//			float width = (Float) o.getProperties().get("width");
+//			float height = (Float) o.getProperties().get("height");
+//			Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height * 0.5f).scl(PPM_INV);
+//			EntityManager.addEntity(EntityFactory.createLevelTrigger(spawnPoint.x, spawnPoint.y, o.getName()));
+//		}
+//	}
 	
 	public void destroy(){
 		// Destroy Physics Bodies
@@ -638,12 +662,12 @@ public class Level {
 		return tileAt(row, col).getType() == TileType.LADDER;
 	}
 
-	public Tile tileAt(int row, int col) {
+	public MapTile tileAt(int row, int col) {
 		return tileMap.get(row, col);
 	}
 
 	public boolean isSolid(int row, int col) {
-		if (!tileMap.contains(row, col)) return false;
+		if (!tileMap.contains(row, col) || tileMap.get(row, col) == null) return false;
 		return tileMap.get(row, col).isSolid();
 	}
 
@@ -721,11 +745,11 @@ public class Level {
 		}
 	}
 
-	public ExpandableGrid<Tile> getTileMap() {
+	public ExpandableGrid<MapTile> getTileMap() {
 		return tileMap;
 	}
 
-	public void setTileMap(ExpandableGrid<Tile> tileMap) {
+	public void setTileMap(ExpandableGrid<MapTile> tileMap) {
 		this.tileMap = tileMap;
 	}
 
@@ -737,14 +761,6 @@ public class Level {
 		this.playerSpawn = playerSpawn;
 	}
 
-	public void setWidth(int width) {
-		this.width = width;
-	}
-
-	public void setHeight(int height) {
-		this.height = height;
-	}
-
 	public void setEntitySpawns(Array<EntitySpawn> entitySpawns) {
 		this.entitySpawns = entitySpawns;
 	}
@@ -753,9 +769,9 @@ public class Level {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + height;
+		result = prime * result + getHeight();
 		result = prime * result + ((tileMap == null) ? 0 : tileMap.hashCode());
-		result = prime * result + width;
+		result = prime * result + getWidth();
 		return result;
 	}
 
@@ -765,12 +781,12 @@ public class Level {
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
 		Level other = (Level) obj;
-		if (height != other.height) return false;
+		if (getHeight() != other.getHeight()) return false;
 		if (tileMap == null) {
 			if (other.tileMap != null) return false;
 		}
 		else if (!tileMap.equals(other.tileMap)) return false;
-		if (width != other.width) return false;
+		if (getWidth() != other.getWidth()) return false;
 		return true;
 	}
 	

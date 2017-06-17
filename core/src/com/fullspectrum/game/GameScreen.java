@@ -64,7 +64,9 @@ import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Theme;
-import com.fullspectrum.level.tiles.Tile;
+import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.Tileset;
+import com.fullspectrum.level.tiles.TilesetLoader;
 import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -139,7 +141,7 @@ public class GameScreen extends AbstractScreen {
 	private boolean pauseMenuOpen = false;
 	private PauseMenu pauseMenu;
 	private boolean editorOpen = false;
-
+	
 //	private int ups = 0;
 
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
@@ -264,6 +266,11 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
+		
+		// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
+		// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
+		TilesetLoader tileLoader = new TilesetLoader();
+		Tileset tileset = tileLoader.load(Gdx.files.internal("map/grassy.atlas"));
 	}
 	
 	private void spawnEnemy(Node node) {
@@ -351,26 +358,28 @@ public class GameScreen extends AbstractScreen {
 		EntityManager.update(delta);
 		AudioLocator.getAudio().update();
 		
-		if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
-			Entity player = levelManager.getPlayer();
-			
-			// If you're not the knight currently, then switch
-			if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
-				levelManager.switchPlayer(EntityIndex.KNIGHT);
-			}
-		} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
-			Entity player = levelManager.getPlayer();
-			
-			// If you're not the rogue currently, then switch
-			if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
-				levelManager.switchPlayer(EntityIndex.ROGUE);
-			}
-		} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
-			Entity player = levelManager.getPlayer();
-			
-			// If you're not the mage currently, then switch
-			if(!Mappers.entity.get(player).type.equals(EntityType.MAGE)){
-				levelManager.switchPlayer(EntityIndex.ALCHEMIST);
+		if(!editorOpen) {
+			if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the knight currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
+					levelManager.switchPlayer(EntityIndex.KNIGHT);
+				}
+			} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the rogue currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
+					levelManager.switchPlayer(EntityIndex.ROGUE);
+				}
+			} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the mage currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.MAGE)){
+					levelManager.switchPlayer(EntityIndex.ALCHEMIST);
+				}
 			}
 		}
 		
@@ -544,7 +553,7 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(hudCamera.combined);
 		if(DebugVars.MAP_COORDS_ON){
 			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-			Tile mouseTile = levelManager.getCurrentLevel().tileAt((int)mousePos.y, (int)mousePos.x);
+			MapTile mouseTile = levelManager.getCurrentLevel().tileAt((int)mousePos.y, (int)mousePos.x);
 			if(mouseTile != null){
 				batch.begin();
 				font.draw(batch, mouseTile.getRow() + ", " + mouseTile.getCol(), 10, 40);

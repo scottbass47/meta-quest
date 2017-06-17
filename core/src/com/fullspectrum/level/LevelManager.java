@@ -89,7 +89,7 @@ public class LevelManager{
 		// 3. Load in new level
 		LevelInfo info = new LevelInfo(theme, type, level, secret, section);
 		Level newLevel = new Level(this, info);
-		newLevel.init(batch);
+		newLevel.init();
 		
 		EntityFactory.level = newLevel;
 		
@@ -143,6 +143,7 @@ public class LevelManager{
 			Entity entity = engine.getEntities().get(i);
 			if(Mappers.camera.get(entity) != null) continue;
 			EntityManager.cleanUp(entity);
+			i--;
 		}
 		
 		// Setup editor
@@ -229,10 +230,10 @@ public class LevelManager{
 	
 	public void render(){
 		if(editorActive) {
-			editor.render();
+			editor.render(batch);
 		}
 		else if(currentLevel != null){
-			currentLevel.render(worldCamera);
+			currentLevel.render(batch, worldCamera);
 		}
 	}
 	
@@ -276,7 +277,7 @@ public class LevelManager{
 		ConsoleCommands.setPlayer(player);
 		PauseMenu.setPlayer(player);
 
-		 Mappers.camera.get(camera).toFollow = player;
+		Mappers.camera.get(camera).toFollow = player;
 	}
 	
 }

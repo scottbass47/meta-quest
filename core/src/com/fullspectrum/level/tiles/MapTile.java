@@ -1,20 +1,19 @@
 package com.fullspectrum.level.tiles;
 
-public class Tile {
+public class MapTile {
 
 	private int id;
 	private int row;
 	private int col;
-	private final TileType type;
+	private TileType type;
 	
-	public Tile() {
+	public MapTile() {
 		id = -1;
 		row = 0;
 		col = 0;
-		type = TileType.AIR;
 	}
 	
-	public Tile(int row, int col, TileType type){
+	public MapTile(int row, int col, TileType type){
 		this.row = row;
 		this.col = col;
 		this.type = type;
@@ -40,6 +39,22 @@ public class Tile {
 		return id;
 	}
 	
+	public void setRow(int row) {
+		this.row = row;
+	}
+	
+	public void setCol(int col) {
+		this.col = col;
+	}
+	
+	public void setId(int id) {
+		this.id = id;
+	}
+	
+	public void setType(TileType type) {
+		this.type = type;
+	}
+	
 	@Override
 	public String toString() {
 		return "Row: " + row + ", Col: " + col;
@@ -60,7 +75,7 @@ public class Tile {
 		if (this == obj) return true;
 		if (obj == null) return false;
 		if (getClass() != obj.getClass()) return false;
-		Tile other = (Tile) obj;
+		MapTile other = (MapTile) obj;
 		if (col != other.col) return false;
 		if (row != other.row) return false;
 		if (type != other.type) return false;
@@ -79,7 +94,6 @@ public class Tile {
 	}
 	
 	public enum TileType{
-		AIR(false),
 		GROUND(true),
 		LADDER(false),
 		DECOR(false);

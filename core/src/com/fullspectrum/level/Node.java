@@ -6,13 +6,13 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.level.NavLink.LinkType;
-import com.fullspectrum.level.tiles.Tile;
+import com.fullspectrum.level.tiles.MapTile;
 
 public class Node{
 	
 	protected int row;
 	protected int col;
-	protected Tile tile;
+	protected MapTile tile;
 	
 	public NodeType type = NodeType.MIDDLE;
 	private Array<NavLink> links;
@@ -45,7 +45,7 @@ public class Node{
 		return col;
 	}
 	
-	public Tile getTile(){
+	public MapTile getTile(){
 		return tile;
 	}
 	
