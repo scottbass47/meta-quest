@@ -46,6 +46,7 @@ public class TilesetLoader {
 			}
 			if(currentTile != null) currentTile.add(line.trim());
 		}
+		tiles.add(parseTilesetTile(currentTile));
 		scanner.close();
 		
 		tileset.addTiles(tiles);

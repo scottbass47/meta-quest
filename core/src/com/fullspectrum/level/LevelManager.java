@@ -25,6 +25,7 @@ import com.fullspectrum.game.PauseMenu;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.LevelInfo.LevelType;
+import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.systems.FlowFieldSystem;
 
 public class LevelManager{
@@ -86,9 +87,16 @@ public class LevelManager{
 				entity.add(engine.createComponent(RemoveComponent.class));
 			}
 		}
+		
 		// 3. Load in new level
 		LevelInfo info = new LevelInfo(theme, type, level, secret, section);
-		Level newLevel = new Level(this, info);
+		
+		// Load from disk if you're changing levels
+		Level newLevel = currentLevel;
+		if(currentLevel == null || !currentLevel.getInfo().equals(info)) {
+			newLevel = new Level(this, info);
+			newLevel.load();
+		}
 		newLevel.init();
 		
 		EntityFactory.level = newLevel;
@@ -118,8 +126,13 @@ public class LevelManager{
 		CameraComponent cameraComp = Mappers.camera.get(camera);
 		cameraComp.x = body.getPosition().x;
 		cameraComp.y = body.getPosition().y;
-		cameraComp.maxX = newLevel.getWidth();
-		cameraComp.maxY = newLevel.getHeight();
+		
+		ExpandableGrid<MapTile> tileMap = newLevel.getTileMap();
+		cameraComp.minX = tileMap.getMinCol();
+		cameraComp.minY = tileMap.getMinRow();
+		cameraComp.maxX = tileMap.getMaxCol() + 1;
+		cameraComp.maxY = tileMap.getMaxRow() + 1;
+		
 		cameraComp.locked = newLevel.isCameraLocked();
 		cameraComp.toFollow = player;
 		cameraComp.zoom = newLevel.getCameraZoom();

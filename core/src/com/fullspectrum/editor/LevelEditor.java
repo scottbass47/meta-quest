@@ -3,22 +3,32 @@ package com.fullspectrum.editor;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.fullspectrum.game.GameVars;
+import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.MapRenderer;
+import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.MapTile.TileType;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
 
 public class LevelEditor implements InputProcessor{
 
 	private Level currentLevel;
+	private ExpandableGrid<MapTile> tileMap;
 	private TilePanel tilePanel;
 	private MapRenderer mapRenderer;
+	private Texture overlayTexture;
 	
 	// Camera
 	private OrthographicCamera worldCamera;
@@ -28,6 +38,9 @@ public class LevelEditor implements InputProcessor{
 	private boolean mouseOnMap = false;
 	private float mouseX;
 	private float mouseY;
+	private boolean mouseDown = false;
+	private int ctrlCount = 0;
+	private int shiftCount = 0;
 	
 	public LevelEditor() {
 		tilePanel = new TilePanel();
@@ -37,6 +50,11 @@ public class LevelEditor implements InputProcessor{
 		mapRenderer = new MapRenderer();
 		mapRenderer.setGridLinesOn(true);
 		mapRenderer.setTileset(tilePanel.getTileset());
+		
+		Pixmap pixmap = new Pixmap(16, 16, Format.RGBA8888);
+		pixmap.setColor(Color.DARK_GRAY.mul(1.0f, 1.0f, 1.0f, 0.65f));
+		pixmap.fillRectangle(0, 0, 16, 16);
+		overlayTexture = new Texture(pixmap);
 	}
 	
 	public Level getCurrentLevel() {
@@ -46,6 +64,7 @@ public class LevelEditor implements InputProcessor{
 	public void setCurrentLevel(Level currentLevel) {
 		this.currentLevel = currentLevel;
 		mapRenderer.setTileMap(currentLevel.getTileMap());
+		tileMap = currentLevel.getTileMap();
 	}
 	
 	public void setWorldCamera(OrthographicCamera camera) {
@@ -86,7 +105,6 @@ public class LevelEditor implements InputProcessor{
 		tilePanel.render(hudCamera, batch);
 		
 		if(mouseOnMap) {
-			Gdx.input.setCursorCatched(true);
 			batch.setProjectionMatrix(worldCamera.combined);
 			batch.begin();
 			
@@ -96,11 +114,75 @@ public class LevelEditor implements InputProcessor{
 			x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
 			y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
 			
-			drawTile(batch, tilePanel.getActiveTile(), x - 0.5f, y - 0.5f);
+			int row = (int) (y < 0 ? y - 1 : y);
+			int col = (int) (x < 0 ? x - 1 : x);
+			
+			if(tilePanel.getActiveTile() == null) {
+				batch.draw(overlayTexture, col, row, 0.0f, 0.0f, overlayTexture.getWidth(), overlayTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, overlayTexture.getWidth(), overlayTexture.getHeight(), false, false);
+			} else {
+				drawTile(batch, tilePanel.getActiveTile(), col, row);
+			}
 			batch.end();
+			
+			if(mouseDown) {
+				if(tilePanel.getActiveTile() == null && tileMap.contains(row, col)) {
+					tileMap.set(row, col, null);
+				}
+				else if(tilePanel.getActiveTile() != null && (!tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getID() != tilePanel.getActiveTile().getID())) {
+					MapTile mapTile = new MapTile();
+					mapTile.setRow(row);
+					mapTile.setCol(col);
+					mapTile.setId(tilePanel.getActiveTile().getID());
+					mapTile.setType(TileType.GROUND);
+					
+					tileMap.add(row, col, mapTile);
+				}
+			}
+			
 		} else {
-			Gdx.input.setCursorCatched(false);
+			if(mouseDown) {
+				TilesetTile tile = tilePanel.getTileAt(mouseX, mouseY);
+				if(tile != null) {
+					tilePanel.setActiveTile(tile);
+				}
+			}
 		}
+		
+		// Adding rows/cols
+		if(ctrlDown()) {
+			if(Gdx.input.isKeyJustPressed(Keys.UP)) {
+				tileMap.addRow(true);
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.DOWN)) {
+				tileMap.addRow(false);	
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.LEFT)) {
+				tileMap.addCol(false);
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
+				tileMap.addCol(true);
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.E)) {
+				tilePanel.setActiveTile(null);
+			}
+		}
+		
+		// Removing rows/cols
+		if(shiftDown()) {
+			if(Gdx.input.isKeyJustPressed(Keys.DOWN)) {
+				tileMap.removeRow(true, true);
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.UP)) {
+				tileMap.removeRow(false, true);	
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
+				tileMap.removeCol(false, true);
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.LEFT)) {
+				tileMap.removeCol(true, true);			}
+		}
+		
+//		System.out.println("Min Row: " + tileMap.getMinRow() + ", Min Col: " + tileMap.getMinCol() + ", Max Row: " + tileMap.getMaxRow() + ", Max Col: " + tileMap.getMaxCol());
 	}
 	
 	private void drawTile(SpriteBatch batch, TilesetTile tile, float x, float y) {
@@ -114,11 +196,23 @@ public class LevelEditor implements InputProcessor{
 	
 	@Override
 	public boolean keyDown(int keycode) {
+		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
+			shiftCount++;
+		}
+		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
+			ctrlCount++;
+		}
 		return false;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
+		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
+			shiftCount--;
+		}
+		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
+			ctrlCount--;
+		}
 		return false;
 	}
 
@@ -129,18 +223,22 @@ public class LevelEditor implements InputProcessor{
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		Vector2 screenPos = toHudCoords(screenX, screenY);
-		if(onTilePanel(screenPos.x, screenPos.y)) System.out.println("On panel");
+		mouseDown = true;
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		mouseDown = false;
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		Vector2 screenPos = toHudCoords(screenX, screenY);
+		mouseX = screenPos.x;
+		mouseY = screenPos.y;
+		mouseOnMap = !onTilePanel(screenPos.x, screenPos.y);
 		return false;
 	}
 
@@ -170,4 +268,11 @@ public class LevelEditor implements InputProcessor{
 		return new Vector2(result.x, result.y);
 	}
 	
+	private boolean shiftDown() {
+		return shiftCount > 0;
+	}
+	
+	private boolean ctrlDown() {
+		return ctrlCount > 0;
+	}
 }

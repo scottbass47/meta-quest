@@ -98,6 +98,14 @@ public class ExpandableGrid<T> {
 				grid.insert(rows < 0 ? 0 : grid.size, row);
 			}
 		} 
+		
+		// Update row bounds
+		if(rows < 0) {
+			minRow += rows;
+		} else if(rows > 0) {
+			maxRow += rows;
+		}
+		
 		if(cols != 0) {
 			for(int i = 0; i < Math.abs(cols); i++) {
 				for(int j = 0; j < getRows(); j++) {
@@ -106,12 +114,7 @@ public class ExpandableGrid<T> {
 			}
 		}
 		
-		// Update the bounds
-		if(rows < 0) {
-			minRow += rows;
-		} else if(rows > 0) {
-			maxRow += rows;
-		}
+		// Update column bounds
 		if(cols < 0) {
 			minCol += cols;
 		} else if(cols > 0) {
@@ -218,7 +221,7 @@ public class ExpandableGrid<T> {
 	public void addCol(boolean right) {
 		int index = 0;
 		if(right) {
-			index = getRows();
+			index = getCols();
 			maxCol++;
 		} else {
 			minCol--;
@@ -226,9 +229,50 @@ public class ExpandableGrid<T> {
 		
 		for(int row = 0; row < getRows(); row++) {
 			Array<T> gridRow = grid.get(row);
-			for(int col = 0; col < getCols(); col++) {
-				gridRow.insert(index, null);
+			gridRow.insert(index, null);
+		}
+	}
+	
+	public void removeRow(boolean above, boolean allEmpty) {
+		int index = 0;
+		if(above) {
+			index = getRows() - 1;
+		}
+		
+		if(allEmpty) {
+			Array<T> row = grid.get(index);
+			for(T value : row) {
+				if(value != null) return;
 			}
+		}
+		
+		if(above) {
+			maxRow--;
+		} else {
+			minRow++;
+		}
+		grid.removeIndex(index);
+	}
+	
+	public void removeCol(boolean right, boolean allEmpty) {
+		int index = 0;
+		if(right) {
+			index = getCols() - 1;
+		}
+		
+		if(allEmpty) {
+			for(Array<T> row : grid) {
+				if(row.get(index) != null) return;
+			}
+		}
+		
+		if(right) {
+			maxCol--;
+		} else {
+			minCol++;
+		}
+		for(Array<T> row : grid) {
+			row.removeIndex(index);
 		}
 	}
 	

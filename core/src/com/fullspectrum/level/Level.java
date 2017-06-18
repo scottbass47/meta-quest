@@ -6,10 +6,8 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
-import com.badlogic.gdx.maps.tiled.TmxMapLoader.Parameters;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
@@ -114,8 +112,11 @@ public class Level {
 		mapRenderer.setTileset(loader.load(Gdx.files.internal("map/grassy.atlas")));
 	}
 	
-	public void init() {
+	public void load() {
 		loadMap();
+	}
+	
+	public void init() {
 
 //		setupGround();
 		mooreNeighborhood();
@@ -126,11 +127,11 @@ public class Level {
 	}
 
 	public int getWidth() {
-		return tileMap.getHeight();
+		return tileMap.getWidth();
 	}
 
 	public int getHeight() {
-		return tileMap.getWidth();
+		return tileMap.getHeight();
 	}
 	
 	public LevelManager getManager(){
@@ -241,8 +242,8 @@ public class Level {
 		ArrayMap<GridPoint, ObjectSet<Side>> visited = new ArrayMap<GridPoint, ObjectSet<Side>>();
 		int id = 0;
 		
-		for(int row = 0; row < tileMap.getRows(); row++) {
-			for(int col = 0; col < tileMap.getCols(); col++) {
+		for(int row = tileMap.getMinRow(); row <= tileMap.getMaxRow(); row++) {
+			for(int col = tileMap.getMinCol(); col <= tileMap.getMaxCol(); col++) {
 				GridPoint startPoint = new GridPoint(row, col);
 
 				MapTile start = tileMap.get(row, col);
