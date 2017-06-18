@@ -65,8 +65,6 @@ import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Theme;
 import com.fullspectrum.level.tiles.MapTile;
-import com.fullspectrum.level.tiles.Tileset;
-import com.fullspectrum.level.tiles.TilesetLoader;
 import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -266,11 +264,6 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
-		
-		// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
-		// TEMPORARY// TEMPORARY// TEMPORARY// TEMPORARY
-		TilesetLoader tileLoader = new TilesetLoader();
-		Tileset tileset = tileLoader.load(Gdx.files.internal("map/grassy.atlas"));
 	}
 	
 	private void spawnEnemy(Node node) {

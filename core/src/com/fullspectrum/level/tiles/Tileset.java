@@ -37,6 +37,17 @@ public class Tileset {
 		clusterIDMap.get(id).add(tile);
 	}
 	
+	public TilesetTile getTile(int clusterID, TileSlot slot) {
+		for(TilesetTile tile : clusterIDMap.get(clusterID)) {
+			if(tile.getSlot() == slot) return tile;
+		}
+		return null;
+	}
+	
+	public int getClusterID(int tileID) {
+		return tileIDMap.get(tileID).getClusterID();
+	}
+	
 	public TilesetTile getTilesetTile(int tileID) {
 		return tileIDMap.get(tileID);
 	}

@@ -4,7 +4,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Cursor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -13,12 +12,15 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.MapTile.Side;
 import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.level.tiles.TileSlot;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
 
@@ -28,7 +30,8 @@ public class LevelEditor implements InputProcessor{
 	private ExpandableGrid<MapTile> tileMap;
 	private TilePanel tilePanel;
 	private MapRenderer mapRenderer;
-	private Texture overlayTexture;
+	private Texture selectTexture;
+	private Texture eraseTexture;
 	
 	// Camera
 	private OrthographicCamera worldCamera;
@@ -42,6 +45,8 @@ public class LevelEditor implements InputProcessor{
 	private int ctrlCount = 0;
 	private int shiftCount = 0;
 	
+	private EditorActions currentAction = EditorActions.SELECT;
+	
 	public LevelEditor() {
 		tilePanel = new TilePanel();
 		tilePanel.setX(0.0f);
@@ -54,7 +59,13 @@ public class LevelEditor implements InputProcessor{
 		Pixmap pixmap = new Pixmap(16, 16, Format.RGBA8888);
 		pixmap.setColor(Color.DARK_GRAY.mul(1.0f, 1.0f, 1.0f, 0.65f));
 		pixmap.fillRectangle(0, 0, 16, 16);
-		overlayTexture = new Texture(pixmap);
+		selectTexture = new Texture(pixmap);
+		
+		pixmap.setColor(Color.PINK.mul(1.0f, 1.0f, 1.0f, 0.65f));
+		pixmap.fillRectangle(0, 0, 16, 16);
+		eraseTexture = new Texture(pixmap);
+		
+		pixmap.dispose();
 	}
 	
 	public Level getCurrentLevel() {
@@ -117,25 +128,77 @@ public class LevelEditor implements InputProcessor{
 			int row = (int) (y < 0 ? y - 1 : y);
 			int col = (int) (x < 0 ? x - 1 : x);
 			
-			if(tilePanel.getActiveTile() == null) {
-				batch.draw(overlayTexture, col, row, 0.0f, 0.0f, overlayTexture.getWidth(), overlayTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, overlayTexture.getWidth(), overlayTexture.getHeight(), false, false);
-			} else {
+			switch(currentAction) {
+			case AUTO_PLACE:
+				batch.setColor(Color.DARK_GRAY);
 				drawTile(batch, tilePanel.getActiveTile(), col, row);
+				batch.setColor(Color.WHITE);
+				break;
+			case AUTO_ERASE:
+				batch.setColor(Color.DARK_GRAY);
+				batch.draw(eraseTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
+				batch.setColor(Color.WHITE);
+				break;
+			case ERASE:
+				batch.draw(eraseTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
+				break;
+			case PLACE:
+				drawTile(batch, tilePanel.getActiveTile(), col, row);
+				break;
+			case SELECT:
+				batch.draw(selectTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
+				break;
+			default:
+				break;
 			}
+			
 			batch.end();
 			
 			if(mouseDown) {
-				if(tilePanel.getActiveTile() == null && tileMap.contains(row, col)) {
-					tileMap.set(row, col, null);
-				}
-				else if(tilePanel.getActiveTile() != null && (!tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getID() != tilePanel.getActiveTile().getID())) {
-					MapTile mapTile = new MapTile();
-					mapTile.setRow(row);
-					mapTile.setCol(col);
-					mapTile.setId(tilePanel.getActiveTile().getID());
-					mapTile.setType(TileType.GROUND);
-					
-					tileMap.add(row, col, mapTile);
+				switch (currentAction) {
+				case AUTO_PLACE:
+					// Local variable 'mapTile' has naming conflict with another switch statement...
+					if(true) {
+						MapTile mapTile = new MapTile();
+						mapTile.setRow(row);
+						mapTile.setCol(col);
+						
+						
+						TilesetTile tilesetTile = calculateTilesetTileAt(row, col, tilePanel.getActiveTile().getClusterID());
+						mapTile.setId(tilesetTile.getID());
+						mapTile.setType(TileType.GROUND);
+						
+						tileMap.add(row, col, mapTile);
+						
+						updateSurroundingTiles(row, col);
+					}
+					break;
+				case AUTO_ERASE:
+					if(tileMap.contains(row, col) && tileMap.get(row, col) != null) {
+						tileMap.set(row, col, null);
+						updateSurroundingTiles(row, col);
+					}
+					break;
+				case ERASE:
+					if(tileMap.contains(row, col)) {
+						tileMap.set(row, col, null);
+					}
+					break;
+				case PLACE:
+					if(!tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getID() != tilePanel.getActiveTile().getID()) {
+						MapTile mapTile = new MapTile();
+						mapTile.setRow(row);
+						mapTile.setCol(col);
+						mapTile.setId(tilePanel.getActiveTile().getID());
+						mapTile.setType(TileType.GROUND);
+						
+						tileMap.add(row, col, mapTile);
+					}
+					break;
+				case SELECT:
+					break;
+				default:
+					break;
 				}
 			}
 			
@@ -144,6 +207,7 @@ public class LevelEditor implements InputProcessor{
 				TilesetTile tile = tilePanel.getTileAt(mouseX, mouseY);
 				if(tile != null) {
 					tilePanel.setActiveTile(tile);
+					currentAction = EditorActions.PLACE;
 				}
 			}
 		}
@@ -164,6 +228,18 @@ public class LevelEditor implements InputProcessor{
 			}
 			if(Gdx.input.isKeyJustPressed(Keys.E)) {
 				tilePanel.setActiveTile(null);
+				if(currentAction == EditorActions.AUTO_PLACE) {
+					currentAction = EditorActions.AUTO_ERASE;
+				} else{
+					currentAction = EditorActions.ERASE;
+				}
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.M)) {
+				if(currentAction == EditorActions.PLACE) {
+					currentAction = EditorActions.AUTO_PLACE;
+				} else if(currentAction == EditorActions.ERASE) {
+					currentAction = EditorActions.AUTO_ERASE;
+				}
 			}
 		}
 		
@@ -183,6 +259,47 @@ public class LevelEditor implements InputProcessor{
 		}
 		
 //		System.out.println("Min Row: " + tileMap.getMinRow() + ", Min Col: " + tileMap.getMinCol() + ", Max Row: " + tileMap.getMaxRow() + ", Max Col: " + tileMap.getMaxCol());
+	}
+	
+	private void updateSurroundingTiles(int row, int col) {
+		boolean erasing = tileMap.get(row, col) == null;
+		MapTile centerTile = tileMap.get(row, col);
+		for(int r = row - 1; r <= row + 1; r++) {
+			for(int c = col - 1; c <= col + 1; c++) {
+				if(!tileMap.contains(r, c) || tileMap.get(r, c) == null || (r == row && c == col)) continue;
+				MapTile mapTile = tileMap.get(r, c);
+				Tileset tileset = tilePanel.getTileset();
+				
+				int clusterID = tileset.getClusterID(mapTile.getID());
+				
+				// Don't update surrounding tiles if they are apart of another clusters unless you're erasing
+				if(!erasing && tileset.getClusterID(centerTile.getID()) != clusterID) continue; 
+				
+				TilesetTile tile = calculateTilesetTileAt(r, c, clusterID);
+				mapTile.setId(tile.getID());
+				tileMap.set(r, c, mapTile);
+			}
+		}
+		
+	}
+	
+	private TilesetTile calculateTilesetTileAt(int row, int col, int clusterID){
+		Array<Side> sidesOpen = new Array<Side>(Side.class);
+		
+		if(isOpen(row + 1, col, clusterID)) sidesOpen.add(Side.NORTH);
+		if(isOpen(row - 1, col, clusterID)) sidesOpen.add(Side.SOUTH);
+		if(isOpen(row, col + 1, clusterID)) sidesOpen.add(Side.EAST);
+		if(isOpen(row, col - 1, clusterID)) sidesOpen.add(Side.WEST);
+		
+		TileSlot slot = TileSlot.getSlot(sidesOpen.toArray());
+		
+		Tileset tileset = tilePanel.getTileset();
+		TilesetTile tilesetTile = tileset.getTile(clusterID, slot);
+		return tilesetTile;
+	}
+
+	private boolean isOpen(int row, int col, int clusterID) {
+		return !tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getType() != TileType.GROUND || tilePanel.getTileset().getClusterID(tileMap.get(row, col).getID()) != clusterID;
 	}
 	
 	private void drawTile(SpriteBatch batch, TilesetTile tile, float x, float y) {
