@@ -89,6 +89,8 @@ public class Level {
 //		isCameraLocked = false;
 //		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
 		
+		
+		
 		for(int row = 0; row < 5; row++) {
 			for(int col = 0; col < 20; col++) {
 				

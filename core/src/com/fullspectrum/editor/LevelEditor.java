@@ -106,10 +106,8 @@ public class LevelEditor implements InputProcessor{
 	}
 	
 	public void render(SpriteBatch batch) {
-//		currentLevel.render(batch, worldCamera);
 		worldCamera.update();
 		hudCamera.update();
-		
 		
 		mapRenderer.setView(worldCamera);
 		mapRenderer.render(batch);
