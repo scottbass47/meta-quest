@@ -16,6 +16,7 @@ import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
@@ -91,6 +92,7 @@ public class LevelEditor implements InputProcessor{
 	}
 	
 	private void moveCamera(float delta) {
+		if(ctrlDown() || shiftDown()) return;
 		if(Gdx.input.isKeyPressed(Keys.W)) {
 			worldCamera.position.y += delta * moveVel * worldCamera.zoom * 0.5f + 0.15f;
 		}
@@ -238,6 +240,10 @@ public class LevelEditor implements InputProcessor{
 				} else if(currentAction == EditorActions.ERASE) {
 					currentAction = EditorActions.AUTO_ERASE;
 				}
+			}
+			if(Gdx.input.isKeyJustPressed(Keys.S)){
+				System.out.println("Saving level " + currentLevel.getInfo());
+				LevelUtils.saveLevel(currentLevel);
 			}
 		}
 		

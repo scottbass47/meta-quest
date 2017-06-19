@@ -26,8 +26,8 @@ public class LevelInfo {
 		}
 	}
 	
-	public String toFileFormatExtension(){
-		return toFileFormat() + ".tmx";
+	public String toFileFormatWithExtension(){
+		return toFileFormat() + ".map";
 	}
 	
 	public Theme getTheme(){

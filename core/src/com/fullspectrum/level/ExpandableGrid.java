@@ -366,5 +366,4 @@ public class ExpandableGrid<T> {
 		return true;
 	}
 	
-	
 }

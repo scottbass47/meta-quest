@@ -4,6 +4,7 @@ import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -14,6 +15,10 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
@@ -38,6 +43,7 @@ public class Level {
 //	private OrthogonalTiledMapRenderer mapRenderer;
 	private MapRenderer mapRenderer;
 	private ExpandableGrid<MapTile> tileMap;
+	private FileHandle tilesetFile;
 //	private Array<Tile> ladders;
 
 	// Spawns
@@ -54,18 +60,21 @@ public class Level {
 	
 	private ArrayMap<Integer, Array<GridPoint>> edgeGroups;
 	
+	public Level() {
+		this(null, null);
+	}
+	
 	public Level(LevelManager manager, LevelInfo info) {
 		this.manager = manager;
-		this.world = manager.getWorld();
 		this.info = info;
-//		loader = new TmxMapLoader();
-//		ladders = new Array<Tile>();
+		
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
 		meshes = new Array<EntityIndex>();
-		tileMap = new ExpandableGrid<MapTile>(20, 10);
+		tileMap = new ExpandableGrid<MapTile>();
 		edgeGroups = new ArrayMap<Integer, Array<GridPoint>>();
 		mapRenderer = new MapRenderer();
+		tilesetFile = Gdx.files.internal("map/grassy.atlas");
 	}
 
 	private void loadMap() {
@@ -91,19 +100,19 @@ public class Level {
 		
 		
 		
-		for(int row = 0; row < 5; row++) {
-			for(int col = 0; col < 20; col++) {
-				
-				MapTile mapTile = new MapTile();
-				
-				mapTile.setId(6);
-				mapTile.setRow(row);
-				mapTile.setCol(col);
-				mapTile.setType(TileType.GROUND);
-				
-				tileMap.add(row, col, mapTile);
-			}
-		}
+//		for(int row = 0; row < 5; row++) {
+//			for(int col = 0; col < 20; col++) {
+//				
+//				MapTile mapTile = new MapTile();
+//				
+//				mapTile.setId(6);
+//				mapTile.setRow(row);
+//				mapTile.setCol(col);
+//				mapTile.setType(TileType.GROUND);
+//				
+//				tileMap.add(row, col, mapTile);
+//			}
+//		}
 		
 		playerSpawn = new Vector2(10, 10);
 		cameraZoom = 3.0f;
@@ -111,10 +120,11 @@ public class Level {
 		TilesetLoader loader = new TilesetLoader();
 		
 		mapRenderer.setTileMap(tileMap);
-		mapRenderer.setTileset(loader.load(Gdx.files.internal("map/grassy.atlas")));
+		mapRenderer.setTileset(loader.load(tilesetFile));
 	}
 	
 	public void load() {
+		this.world = manager.getWorld();
 		loadMap();
 	}
 	
@@ -136,8 +146,16 @@ public class Level {
 		return tileMap.getHeight();
 	}
 	
+	public void setManager(LevelManager manager) {
+		this.manager = manager;
+	}
+	
 	public LevelManager getManager(){
 		return manager;
+	}
+	
+	public void setInfo(LevelInfo info) {
+		this.info = info;
 	}
 	
 	public LevelInfo getInfo(){
@@ -791,6 +809,58 @@ public class Level {
 		else if (!tileMap.equals(other.tileMap)) return false;
 		if (getWidth() != other.getWidth()) return false;
 		return true;
+	}
+
+	public static LevelSerializer getSerializer() {
+		return new LevelSerializer();
+	}
+	
+	public static class LevelSerializer extends Serializer<Level> {
+
+		// Things to serialize:
+		// 1. Tileset
+		// 2. Tilemap
+		// 3. Spawn points
+		// 4. Level triggers
+		
+		@Override
+		public void write(Kryo kryo, Output output, Level object) {
+			output.writeString(object.tilesetFile.path());
+			
+			ExpandableGrid<MapTile> tileMap = object.tileMap;
+			output.writeInt(tileMap.getMinRow());
+			output.writeInt(tileMap.getMinCol());
+			output.writeInt(tileMap.getMaxRow());
+			output.writeInt(tileMap.getMaxCol());
+			
+			for(int row = tileMap.getMinRow(); row <= tileMap.getMaxRow(); row++) {
+				for(int col = tileMap.getMinCol(); col <= tileMap.getMaxCol(); col++) {
+					kryo.writeObjectOrNull(output, tileMap.get(row, col), MapTile.class);
+				}
+			}
+		}
+
+		@Override
+		public Level read(Kryo kryo, Input input, Class<Level> type) {
+			Level level = new Level();
+			level.tilesetFile = Gdx.files.local(input.readString());
+			
+			ExpandableGrid<MapTile> grid = new ExpandableGrid<MapTile>();
+			int minRow = input.readInt();
+			int minCol = input.readInt();
+			int maxRow = input.readInt();
+			int maxCol = input.readInt();
+			
+			for(int row = minRow; row <= maxRow; row++) {
+				for(int col = minCol; col <= maxCol; col++) {
+					MapTile mapTile = kryo.readObjectOrNull(input, MapTile.class);
+					grid.add(row, col, mapTile);
+				}
+			}
+			level.tileMap = grid;
+			return level;
+		}
+		
 	}
 	
 }

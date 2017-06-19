@@ -94,7 +94,10 @@ public class LevelManager{
 		// Load from disk if you're changing levels
 		Level newLevel = currentLevel;
 		if(currentLevel == null || !currentLevel.getInfo().equals(info)) {
-			newLevel = new Level(this, info);
+			newLevel = LevelUtils.loadLevel(this, info);
+			if(newLevel == null) {
+				newLevel = new Level(this, info);
+			}
 			newLevel.load();
 		}
 		newLevel.init();
@@ -232,7 +235,7 @@ public class LevelManager{
 	}
 	
 	public boolean levelExists(LevelInfo info){
-		return Gdx.files.internal(info.toFileFormatExtension()).exists();
+		return Gdx.files.internal(info.toFileFormatWithExtension()).exists();
 	}
 	
 	public void update(float delta) {

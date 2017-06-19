@@ -1,5 +1,10 @@
 package com.fullspectrum.level.tiles;
 
+import com.esotericsoftware.kryo.Kryo;
+import com.esotericsoftware.kryo.Serializer;
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
+
 public class MapTile {
 
 	private int id;
@@ -114,5 +119,31 @@ public class MapTile {
 			}
 			return null;
 		}
+	}
+	
+	public static MapTileSerializer getSerializer() {
+		return new MapTileSerializer();
+	}
+	
+	public static class MapTileSerializer extends Serializer<MapTile> {
+
+		@Override
+		public void write(Kryo kryo, Output output, MapTile object) {
+			output.writeShort((short)object.id);
+			output.writeShort((short)object.row);
+			output.writeShort((short)object.col);
+			output.writeByte(object.type.ordinal());
+		}
+
+		@Override
+		public MapTile read(Kryo kryo, Input input, Class<MapTile> type) {
+			MapTile mapTile = new MapTile();
+			mapTile.id = input.readShort();
+			mapTile.row = input.readShort();
+			mapTile.col = input.readShort();
+			mapTile.type = TileType.values()[input.readByte()];
+			return mapTile;
+		}
+		
 	}
 }
