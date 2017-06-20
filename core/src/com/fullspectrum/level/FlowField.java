@@ -10,6 +10,7 @@ import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Queue;
+import com.fullspectrum.utils.Maths;
 
 public class FlowField {
 
@@ -83,8 +84,8 @@ public class FlowField {
 	}
 	
 	private void initNodes(){
-		for(int row = 0; row < height; row++){
-			for(int col = 0; col < width; col++){
+		for(int row = level.getMinRow(); row <= level.getMaxRow(); row++){
+			for(int col = level.getMinCol(); col <= level.getMaxCol(); col++){
 				if(!level.isSolid(row, col)){
 					FlowNode node = new FlowNode(row, col);
 					nodeMap.put(new GridPoint2(col, row), node);
@@ -200,7 +201,7 @@ public class FlowField {
 	}
 	
 	public FlowNode getNode(float x, float y){
-		return getNode((int)y, (int)x);
+		return getNode(Maths.toGridCoord(y), Maths.toGridCoord(x));
 	}
 	
 	public FlowNode getNode(int row, int col){

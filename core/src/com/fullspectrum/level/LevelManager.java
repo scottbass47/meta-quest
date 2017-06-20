@@ -9,7 +9,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
-import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
@@ -105,7 +105,7 @@ public class LevelManager{
 		EntityFactory.level = newLevel;
 		
 		// 4. Setup nav meshes and flow field for new level
-		Array<EntityIndex> meshes = newLevel.getMeshes();
+		ObjectSet<EntityIndex> meshes = newLevel.getMeshes();
 		for(EntityIndex index : meshes){
 			NavMesh.createNavMesh(newLevel, EntityLoader.get(index));
 		}

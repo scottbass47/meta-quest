@@ -53,7 +53,7 @@ public class Level {
 	// Level Info
 	private LevelManager manager;
 	private LevelInfo info;
-	private Array<EntityIndex> meshes;
+	private ObjectSet<EntityIndex> meshes;
 	private boolean requiresFlowField;
 	private boolean isCameraLocked;
 	private float cameraZoom;
@@ -70,7 +70,7 @@ public class Level {
 		
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
-		meshes = new Array<EntityIndex>();
+		meshes = new ObjectSet<EntityIndex>();
 		tileMap = new ExpandableGrid<MapTile>();
 		edgeGroups = new ArrayMap<Integer, Array<GridPoint>>();
 		mapRenderer = new MapRenderer();
@@ -116,6 +116,7 @@ public class Level {
 				meshes.add(EntityIndex.AI_PLAYER);
 			}
 		}
+		requiresFlowField = true; // TEMPORARY For ease of use
 //		setupGround();
 		mooreNeighborhood();
 		
@@ -164,7 +165,7 @@ public class Level {
 		return info;
 	}
 	
-	public Array<EntityIndex> getMeshes(){
+	public ObjectSet<EntityIndex> getMeshes(){
 		return meshes;
 	}
 	
@@ -689,6 +690,10 @@ public class Level {
 		return entitySpawns;
 	}
 	
+	public void removeSpawn(EntitySpawn spawn) {
+		entitySpawns.removeValue(spawn, false);
+	}
+	
 	public boolean isLadder(int row, int col){
 		MapTile tile = tileAt(row, col);
 		return tile != null && tile.getType() == TileType.LADDER;
@@ -711,7 +716,7 @@ public class Level {
 	public Vector2 getPlayerSpawnPoint() {
 		return playerSpawn;
 	}
-
+	
 	public boolean performRayTrace(float x1, float y1, float x2, float y2) {
 		int startCol = (int) x1;
 		int startRow = (int) y1;
@@ -804,6 +809,29 @@ public class Level {
 		@Override
 		public String toString() {
 			return index + ", " + pos + ", " + facingRight;
+		}
+
+		@Override
+		public int hashCode() {
+			final int prime = 31;
+			int result = 1;
+			result = prime * result + ((index == null) ? 0 : index.hashCode());
+			result = prime * result + ((pos == null) ? 0 : pos.hashCode());
+			return result;
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj) return true;
+			if (obj == null) return false;
+			if (getClass() != obj.getClass()) return false;
+			EntitySpawn other = (EntitySpawn) obj;
+			if (index != other.index) return false;
+			if (pos == null) {
+				if (other.pos != null) return false;
+			}
+			else if (!pos.equals(other.pos)) return false;
+			return true;
 		}
 	}
 

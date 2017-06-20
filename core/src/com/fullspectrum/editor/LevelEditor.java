@@ -26,6 +26,7 @@ import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
 import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.utils.Maths;
 import com.fullspectrum.level.tiles.TileSlot;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -38,6 +39,7 @@ public class LevelEditor implements InputProcessor{
 	private MapRenderer mapRenderer;
 	private Texture selectTexture;
 	private Texture eraseTexture;
+	private Array<EntitySpawn> selectedSpawnPoints;
 	
 	// Camera
 	private OrthographicCamera worldCamera;
@@ -69,6 +71,8 @@ public class LevelEditor implements InputProcessor{
 		mapRenderer.setGridLinesOn(true);
 		mapRenderer.setTileset(tilePanel.getTileset());
 
+		selectedSpawnPoints = new Array<EntitySpawn>();
+		
 		setupTextures();
 
 		enemyPanel = new EnemyPanel();
@@ -131,6 +135,28 @@ public class LevelEditor implements InputProcessor{
 		}
 		moveCamera(delta);
 		updateMap();
+		
+		if(currentAction == EditorActions.SELECT && mouseClicked) {
+			float x = mouseX * GameVars.PPM_INV * worldCamera.zoom;
+			float y = mouseY * GameVars.PPM_INV * worldCamera.zoom;
+
+			x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
+			y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
+			
+			for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
+				Vector2 spawnPoint = spawn.getPos();
+				EntityIndex index = spawn.getIndex();
+				Rectangle hitbox = Maths.scl(index.getHitBox(), GameVars.PPM_INV);
+				
+				float lowerX = spawnPoint.x - hitbox.width * 0.5f;
+				float lowerY = spawnPoint.y - hitbox.height * 0.5f;
+				
+				if(x >= lowerX && x <= lowerX + hitbox.width && y >= lowerY && y <= lowerY + hitbox.height) {
+					if(selectedSpawnPoints.contains(spawn, false)) selectedSpawnPoints.removeValue(spawn, false);
+					else selectedSpawnPoints.add(spawn);
+				}
+			}
+		}
 		
 		mouseClicked = false;
 	}
@@ -220,6 +246,11 @@ public class LevelEditor implements InputProcessor{
 		
 		if(currentAction == EditorActions.PLACE_SPAWNPOINT && Gdx.input.isKeyJustPressed(Keys.R)) {
 			facingRight = !facingRight;
+		}  else if (currentAction == EditorActions.SELECT && Gdx.input.isKeyJustPressed(Keys.DEL)) {
+			for(EntitySpawn spawn : selectedSpawnPoints) {
+				currentLevel.getEntitySpawns().removeValue(spawn, false);
+			}
+			selectedSpawnPoints.clear();
 		}
 	}
 	
@@ -314,8 +345,8 @@ public class LevelEditor implements InputProcessor{
 		
 		// Render entity spawns
 		batch.begin();
-		batch.setColor(1.0f, 1.0f, 1.0f, 0.75f);
 		for(EntitySpawn entitySpawn : currentLevel.getEntitySpawns()) {
+			boolean selected = selectedSpawnPoints.contains(entitySpawn, false);
 			EntityIndex index = entitySpawn.getIndex();
 			Vector2 pos = entitySpawn.getPos();
 			Animation animation = index.getIdleAnimation();
@@ -329,6 +360,12 @@ public class LevelEditor implements InputProcessor{
 			
 			if(!entitySpawn.isFacingRight()) {
 				frame.flip(true, false);
+			}
+			
+			if(selected) {
+				batch.setColor(Color.WHITE);
+			} else {
+				batch.setColor(1.0f, 1.0f, 1.0f, 0.75f);
 			}
 			batch.draw(frame, x, y, w * 0.5f, h * 0.5f, w, h, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f);
 			frame.flip(frame.isFlipX(), false);
@@ -395,7 +432,7 @@ public class LevelEditor implements InputProcessor{
 				drawTile(batch, tilePanel.getActiveTile(), col, row);
 				break;
 			case SELECT:
-				batch.draw(selectTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
+//				batch.draw(selectTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
 				break;
 			default:
 				break;
@@ -456,10 +493,10 @@ public class LevelEditor implements InputProcessor{
 	}
 	
 	private boolean collidingWithMap(float x, float y, float width, float height) {
-		int minRow = (int) (y < 0 ? y - 1 : y);
-		int minCol = (int) (x < 0 ? x - 1 : x);
-		int maxRow = (int) (y + height < 0 ? y + height - 1 : y + height);
-		int maxCol = (int) (x + width < 0 ? x + width - 1 : x + width);
+		int minRow = Math.abs(y - (int) y) < 0.0005f ? (int)y : Maths.toGridCoord(y);
+		int minCol = Maths.toGridCoord(x);
+		int maxRow = Maths.toGridCoord(y + height);
+		int maxCol = Maths.toGridCoord(x + width);
 		
 		for(int row = minRow; row <= maxRow; row++) {
 			for(int col = minCol; col <= maxCol; col++) {
