@@ -14,6 +14,7 @@ public class DropFactory {
 
 	private final static int MIN_COIN_DROPS = 3;
 	
+	// BUG Not spawning coins when killing enemies
 	public static void spawnCoin(float x, float y, float fx, float fy, int amount){
 		EntityManager.addEntity(EntityFactory.createCoin(x, y, fx, fy, amount));
 	}

@@ -29,6 +29,7 @@ public class MapRenderer {
 		this.camera = camera;
 	}
 	
+	// PERFORMANCE Should only render visible map
 	public void render(SpriteBatch batch) {
 		if(gridLinesOn) {
 			shapeRenderer.setProjectionMatrix(camera.combined);

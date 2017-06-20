@@ -55,6 +55,7 @@ public class GdxGame extends Game {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		
 		worldCamera = new OrthographicCamera();
 		worldViewport = new FitViewport(SCREEN_WIDTH * PPM_INV, SCREEN_HEIGHT * PPM_INV, worldCamera);
 		worldCamera.zoom = 1.0f;

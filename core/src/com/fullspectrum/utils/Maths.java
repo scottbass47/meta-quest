@@ -2,6 +2,7 @@ package com.fullspectrum.utils;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 
 public class Maths {
@@ -44,5 +45,21 @@ public class Maths {
 			while(angle > 360) angle -= 360;
 		}
 		return angle;
+	}
+	
+	/** Scales the width and height of the specified rectangle and returns a new rectangle with the new dimensions. */
+	public static Rectangle scl(Rectangle rectangle, float scale) {
+		Rectangle rect = new Rectangle(rectangle);
+		rect.width *= scale;
+		rect.height *= scale;
+		return rect;
+	}
+	
+	/** 
+	 * Use when converting floating point coordinates to grid tiles<br><br>
+	 * returns (int)(x < 0 ? x - 1 : x) 
+	 */
+	public static int toGridCoord(float x) {
+		return (int)(x < 0 ? x - 1 : x);
 	}
 }

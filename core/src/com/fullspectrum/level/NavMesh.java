@@ -29,6 +29,7 @@ import com.fullspectrum.level.NavLink.LinkType;
 import com.fullspectrum.level.Node.NodeType;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.utils.Maths;
 import com.fullspectrum.utils.RenderUtils;
 import com.fullspectrum.utils.StringUtils;
 
@@ -69,9 +70,9 @@ public class NavMesh{
 		hitBoxes = new ArrayMap<EntityIndex, Rectangle>();
 		
 		// Manually put in hitbox info
-		hitBoxes.put(EntityIndex.AI_PLAYER, new Rectangle(0, 0, 15.0f * PPM_INV, 40.0f * PPM_INV));
+		hitBoxes.put(EntityIndex.AI_PLAYER, Maths.scl(EntityIndex.AI_PLAYER.getHitBox(), GameVars.PPM_INV));
 	}
-
+	
 	private NavMesh(Level level, EntityStats stats) {
 		init(level, stats);
 		calculate();
@@ -234,15 +235,20 @@ public class NavMesh{
 		sRender.end();
 	}
 	
+	public static boolean usesNavMesh(EntityIndex index) {
+		return hitBoxes.containsKey(index);
+	}
+	
 	public static NavMesh get(EntityIndex index){
 		if(!meshMap.containsKey(index)) throw new RuntimeException("No mesh loaded for entity " + index);
 		return meshMap.get(index);
 	}
 	
 	private void createNodes() {
-		for (int row = 0; row < level.getHeight(); row++) {
-			for (int col = 0; col < level.getWidth(); col++) {
-				if (isValidNode(row, col, level, boundingBox) || (row + 1 < level.getHeight() && level.isLadder(row + 1, col))) {
+		ExpandableGrid<MapTile> tileMap = level.getTileMap();
+		for (int row = tileMap.getMinRow(); row <= tileMap.getMaxRow(); row++) {
+			for (int col = tileMap.getMinCol(); col <= tileMap.getMaxCol(); col++) {
+				if (isValidNode(row, col, level, boundingBox) || (row + 1 < level.getMaxRow() && level.isLadder(row + 1, col))) {
 					Node node = new Node();
 					node.row = row + 1;
 					node.col = col;
@@ -263,7 +269,7 @@ public class NavMesh{
 			tileOnLeft = getAdjacentNode(node, Direction.LEFT) != null && isSolidNode(getAdjacentNode(node, Direction.LEFT));
 			tileOnRight = getAdjacentNode(node, Direction.RIGHT) != null && isSolidNode(getAdjacentNode(node, Direction.RIGHT));
 			
-			if(node.getTile().getType() == TileType.LADDER)
+			if(node.getTile() != null && node.getTile().getType() == TileType.LADDER)
 				node.type = NodeType.LADDER;
 			else if (tileOnLeft && tileOnRight)
 				node.type = NodeType.MIDDLE;
@@ -299,10 +305,33 @@ public class NavMesh{
 		}
 		for (Node edgeNode : edgeNodes) {
 			if (edgeNode.type == NodeType.LEFT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col - 1 < 0 || level.isSolid(edgeNode.row, edgeNode.col - 1) || compareAdjacentNode(edgeNode, Direction.LEFT, NodeType.LADDER)) {
+				if (edgeNode.col - 1 < level.getMinCol() || level.isSolid(edgeNode.row, edgeNode.col - 1) || compareAdjacentNode(edgeNode, Direction.LEFT, NodeType.LADDER)) {
 					if (edgeNode.type != NodeType.SOLO) continue;
 				} else {
 					Array<Node> fallToNodes = nodeCols.get(edgeNode.col - 1);
+					
+					// If fallToNodes is null that means that you're at a cliff edge that falls off the map
+					if(fallToNodes != null) {
+						fallToNodes.sort(new Comparator<Node>() {
+							@Override
+							public int compare(Node o1, Node o2) {
+								return o1.row < o2.row ? 1 : -1;
+							}
+						});
+						for (Node fallNode : fallToNodes) {
+							if (fallNode.row > edgeNode.row) continue;
+							edgeNode.addLink(new NavLink(NavLink.LinkType.FALL_OVER, null, edgeNode, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
+							break;
+						}
+					}
+				}
+			}
+			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
+				if (edgeNode.col + 1 > level.getMaxCol() || level.isSolid(edgeNode.row, edgeNode.col + 1) || compareAdjacentNode(edgeNode, Direction.RIGHT, NodeType.LADDER)) continue;
+				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
+				
+				// If fallToNodes is null that means that you're at a cliff edge that falls off the map
+				if(fallToNodes != null) {
 					fallToNodes.sort(new Comparator<Node>() {
 						@Override
 						public int compare(Node o1, Node o2) {
@@ -314,21 +343,6 @@ public class NavMesh{
 						edgeNode.addLink(new NavLink(NavLink.LinkType.FALL_OVER, null, edgeNode, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
 						break;
 					}
-				}
-			}
-			if (edgeNode.type == NodeType.RIGHT_EDGE || edgeNode.type == NodeType.SOLO) {
-				if (edgeNode.col + 1 > level.getWidth() - 1 || level.isSolid(edgeNode.row, edgeNode.col + 1) || compareAdjacentNode(edgeNode, Direction.RIGHT, NodeType.LADDER)) continue;
-				Array<Node> fallToNodes = nodeCols.get(edgeNode.col + 1);
-				fallToNodes.sort(new Comparator<Node>() {
-					@Override
-					public int compare(Node o1, Node o2) {
-						return o1.row < o2.row ? 1 : -1;
-					}
-				});
-				for (Node fallNode : fallToNodes) {
-					if (fallNode.row > edgeNode.row) continue;
-					edgeNode.addLink(new NavLink(NavLink.LinkType.FALL_OVER, null, edgeNode, fallNode, getFallingCost(edgeNode.row - fallNode.row)));
-					break;
 				}
 			}
 		}
@@ -463,20 +477,20 @@ public class NavMesh{
 
 	private TrajectoryData getTrajectory(float fromX, float fromY, float toX, float toY, float speed, float jumpForce, Rectangle boundingBox, boolean right) {
 		float interval = 0.0015f;
-		Node targetNode = nodeMap.get(new Point((int)(toY - boundingBox.height * 0.5f), (int)toX));
+		Node targetNode = nodeMap.get(new Point((int)(toY - boundingBox.height * 0.5f), Maths.toGridCoord(toX)));
 		boolean finished = false;
 		Node toNode = null;
 		float time = 0;
 		while (!finished) {
 			Point2f point = new Point2f(fromX + speed * time * (right ? 1.0f : -1.0f), fromY + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
-			if (point.y < level.getHeight() && !level.inBounds(point.x, point.y)) return null;
+			if (point.y < level.getMaxRow() && !level.inBounds(point.x, point.y)) return null;
 			if (!isValidPoint(point.x, point.y)) {
 				return null;
 			}
 			time += interval;
 			float deriv = jumpForce + GameVars.GRAVITY * time;
 			if (deriv >= 0) continue;
-			Node node = nodeMap.get(new Point((int)(point.y - boundingBox.height * 0.5f), (int) point.x));
+			Node node = nodeMap.get(new Point(Maths.toGridCoord(point.y - boundingBox.height * 0.5f), Maths.toGridCoord(point.x)));
 			if (node != null && node.row == targetNode.row && node.col == targetNode.col) {
 				toNode = node;
 				finished = true;
@@ -515,6 +529,12 @@ public class NavMesh{
 		return cost + (float) Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
 	}
 
+	/**
+	 * Returns true if the bounding box centered at x, y is not colliding with any solid tiles
+	 * @param x
+	 * @param y
+	 * @return
+	 */
 	private boolean isValidPoint(float x, float y) {
 		float hw = boundingBox.width * 0.5f;
 		float hh = boundingBox.height * 0.5f;
@@ -522,13 +542,15 @@ public class NavMesh{
 		float minY = y - hh;
 		float maxX = x + hw;
 		float maxY = y + hh;
+		
+		int minRow = Maths.toGridCoord(minY);
+		int minCol = Maths.toGridCoord(minX);
+		int maxRow = Maths.toGridCoord(maxY);
+		int maxCol = Maths.toGridCoord(maxX);
 
-		for (int row = (int) minY; row <= (int) maxY; row++) {
-			for (int col = (int) minX; col <= (int) maxX; col++) {
-				if (!level.inBounds(row, col)) return true;
-				if (level.isSolid(row, col)) {
-					return false;
-				}
+		for (int row = minRow; row <= maxRow; row++) {
+			for (int col = minCol; col <= maxCol; col++) {
+				if (level.isSolid(row, col)) return false;
 			}
 		}
 		return true;
@@ -545,12 +567,11 @@ public class NavMesh{
 	 * @return
 	 */
 	private static boolean isValidNode(int row, int col, Level level, Rectangle boundingBox) {
-		if (row + 1 >= level.getHeight() || level.isSolid(row + 1, col) || !level.isSolid(row, col)) return false;
+		if (row + 1 >= level.getMaxRow() || level.isSolid(row + 1, col) || !level.isSolid(row, col)) return false;
 		int tilesTall = (int) (boundingBox.height + 1.0f);
 		for (int i = 1; i <= tilesTall; i++) {
-			if (!level.inBounds(row + i, (int) col)) return true;
-			MapTile t = level.tileAt(row + i, col);
-			if (t.isSolid()) return false;
+			if (!level.inBounds(row + i, col)) return true;
+			if (level.isSolid(row + i, col)) return false;
 		}
 		return true;
 	}
@@ -568,7 +589,7 @@ public class NavMesh{
 	}
 
 	public Node getNodeAt(float x, float y) {
-		return nodeMap.get(new Point((int) y, (int) x));
+		return nodeMap.get(new Point(Maths.toGridCoord(y), Maths.toGridCoord(x)));
 	}
 	
 	public boolean compareAdjacentNode(Node node, Direction direction, NodeType type){
@@ -598,7 +619,6 @@ public class NavMesh{
 	}
 	
 	public boolean isSolidNode(Node node){
-		if(node.row - 1 < 0) return false;
 		return level.isSolid(node.row - 1, node.col);
 	}
 	
@@ -626,7 +646,7 @@ public class NavMesh{
 		float y = position.y + yOff;
 		Node node = getNodeAt(x, y);
 		if(node != null) return node;
-		int closestCol = (int)(x + 0.5f);
+		int closestCol = Maths.toGridCoord(x + 0.5f);
 		Node right = getNodeAt(x + 1.0f, y);
 		Node left = getNodeAt(x - 1.0f, y);
 		if(closestCol > x){

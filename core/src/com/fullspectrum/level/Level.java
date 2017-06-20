@@ -77,43 +77,10 @@ public class Level {
 		tilesetFile = Gdx.files.internal("map/grassy.atlas");
 	}
 
+	/**
+	 * Called once when level is loaded from disk. Do stuff in here that won't change when using editor mode.
+	 */
 	private void loadMap() {
-//		Parameters params = new Parameters();
-//		params.textureMagFilter = TextureFilter.Nearest;
-//		params.textureMinFilter = TextureFilter.Nearest;
-//		
-//		map = loader.load("map/" + info.toFileFormatExtension(), params);
-//		mapRenderer = new OrthogonalTiledMapRenderer(map, PPM_INV, batch);
-//		if(map.getProperties().containsKey("meshes")){
-//			String meshList = (String) map.getProperties().get("meshes");
-//			meshList.replaceAll("\\s+", "");
-//			String[] parts = meshList.split(",");
-//			for(String part : parts){
-//				meshes.add(EntityIndex.get(part));
-//			}
-//		}
-//		MapProperties prop = map.getProperties();
-//		requiresFlowField = prop.containsKey("flow_field");
-//		isCameraLocked = prop.containsKey("camera_locked");
-//		isCameraLocked = false;
-//		cameraZoom = prop.containsKey("camera_zoom") ? (Float)prop.get("camera_zoom") : 3.0f;
-		
-		
-		
-//		for(int row = 0; row < 5; row++) {
-//			for(int col = 0; col < 20; col++) {
-//				
-//				MapTile mapTile = new MapTile();
-//				
-//				mapTile.setId(6);
-//				mapTile.setRow(row);
-//				mapTile.setCol(col);
-//				mapTile.setType(TileType.GROUND);
-//				
-//				tileMap.add(row, col, mapTile);
-//			}
-//		}
-		
 		playerSpawn = new Vector2(10, 10);
 		cameraZoom = 3.0f;
 		
@@ -128,8 +95,27 @@ public class Level {
 		loadMap();
 	}
 	
+	/**
+	 * Called every time the map is changed to and from editor mode.
+	 */
 	public void init() {
-
+		// Load meshes
+		for(EntitySpawn spawn : entitySpawns) {
+			EntityIndex index = spawn.getIndex();
+			
+			if(NavMesh.usesNavMesh(index)){
+				meshes.add(index);
+			}
+			
+			if(index == EntityIndex.SPITTER) {
+				requiresFlowField = true;
+			}
+			
+			if(index == EntityIndex.SPAWNER) {
+				requiresFlowField = true;
+				meshes.add(EntityIndex.AI_PLAYER);
+			}
+		}
 //		setupGround();
 		mooreNeighborhood();
 		
@@ -144,6 +130,22 @@ public class Level {
 
 	public int getHeight() {
 		return tileMap.getHeight();
+	}
+	
+	public int getMinRow() {
+		return tileMap.getMinRow();
+	}
+	
+	public int getMinCol() {
+		return tileMap.getMinCol();
+	}
+	
+	public int getMaxRow() {
+		return tileMap.getMaxRow();
+	}
+	
+	public int getMaxCol() {
+		return tileMap.getMaxCol();
 	}
 	
 	public void setManager(LevelManager manager) {
@@ -675,15 +677,25 @@ public class Level {
 		}
 	}
 	
+	public void addEntitySpawn(EntityIndex index, Vector2 pos, boolean facingRight) {
+		EntitySpawn spawn = new EntitySpawn();
+		spawn.setIndex(index);
+		spawn.setPos(pos);
+		spawn.setFacingRight(facingRight);
+		entitySpawns.add(spawn);
+	}
+	
 	public Array<EntitySpawn> getEntitySpawns(){
 		return entitySpawns;
 	}
 	
 	public boolean isLadder(int row, int col){
-		return tileAt(row, col).getType() == TileType.LADDER;
+		MapTile tile = tileAt(row, col);
+		return tile != null && tile.getType() == TileType.LADDER;
 	}
 
 	public MapTile tileAt(int row, int col) {
+		if(!tileMap.contains(row, col)) return null;
 		return tileMap.get(row, col);
 	}
 
@@ -748,13 +760,21 @@ public class Level {
 		return true;
 	}
 
-	public class EntitySpawn{
+	public static class EntitySpawn {
 		private EntityIndex index;
 		private Vector2 pos;
+		private boolean facingRight;
 		
-		public EntitySpawn(EntityIndex index, Vector2 pos){
+		public EntitySpawn() {
+			pos = new Vector2();
+			index = null;
+			facingRight = false;
+		}
+		
+		public EntitySpawn(EntityIndex index, Vector2 pos, boolean facingRight){
 			this.index = index;
 			this.pos = pos;
+			this.facingRight = facingRight;
 		}
 		
 		public EntityIndex getIndex(){
@@ -763,6 +783,27 @@ public class Level {
 		
 		public Vector2 getPos(){
 			return pos;
+		}
+		
+		public void setIndex(EntityIndex index) {
+			this.index = index;
+		}
+		
+		public void setPos(Vector2 pos) {
+			this.pos = pos;
+		}
+		
+		public void setFacingRight(boolean facingRight) {
+			this.facingRight = facingRight;
+		}
+		
+		public boolean isFacingRight() {
+			return facingRight;
+		}
+		
+		@Override
+		public String toString() {
+			return index + ", " + pos + ", " + facingRight;
 		}
 	}
 
@@ -818,9 +859,9 @@ public class Level {
 	public static class LevelSerializer extends Serializer<Level> {
 
 		// Things to serialize:
-		// 1. Tileset
-		// 2. Tilemap
-		// 3. Spawn points
+		// 1. Tileset (done)
+		// 2. Tilemap (done)
+		// 3. Spawn points (done)
 		// 4. Level triggers
 		
 		@Override
@@ -837,6 +878,14 @@ public class Level {
 				for(int col = tileMap.getMinCol(); col <= tileMap.getMaxCol(); col++) {
 					kryo.writeObjectOrNull(output, tileMap.get(row, col), MapTile.class);
 				}
+			}
+			
+			output.writeInt(object.entitySpawns.size);
+			for(EntitySpawn spawn : object.entitySpawns) {
+				output.writeFloat(spawn.getPos().x);
+				output.writeFloat(spawn.getPos().y);
+				output.writeInt(spawn.getIndex().ordinal()); // CLEANUP Writing index is dangerous, it will break if enum gets reordered
+				output.writeBoolean(spawn.facingRight);
 			}
 		}
 
@@ -858,6 +907,18 @@ public class Level {
 				}
 			}
 			level.tileMap = grid;
+			
+			int size = input.readInt();
+			Array<EntitySpawn> spawns = new Array<EntitySpawn>();
+			for(int i = 0; i < size; i++) {
+				EntitySpawn spawn = new EntitySpawn();
+				spawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
+				spawn.index = EntityIndex.values()[input.readInt()];
+				spawn.facingRight = input.readBoolean();
+				spawns.add(spawn);
+			}
+			level.entitySpawns = spawns;
+			
 			return level;
 		}
 		
