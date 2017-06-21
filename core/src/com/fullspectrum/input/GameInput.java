@@ -29,6 +29,7 @@ public class GameInput implements InputProcessor, ControllerListener, Input {
 		if(Controllers.getControllers().size > 0){
 			this.controller = Controllers.getControllers().first();
 			profile.setContext("xbox_one");
+			System.out.println("CONTROLLER CONNECTED!!!");
 		}
 	}
 	

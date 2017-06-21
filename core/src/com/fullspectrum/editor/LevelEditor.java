@@ -12,24 +12,18 @@ import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
-import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
-import com.badlogic.gdx.utils.Array;
+import com.fullspectrum.editor.action.ActionManager;
+import com.fullspectrum.editor.action.EditorActions;
+import com.fullspectrum.editor.action.SelectAction;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
-import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
-import com.fullspectrum.level.tiles.MapTile.Side;
-import com.fullspectrum.level.tiles.MapTile.TileType;
-import com.fullspectrum.utils.Maths;
-import com.fullspectrum.level.tiles.TileSlot;
-import com.fullspectrum.level.tiles.Tileset;
-import com.fullspectrum.level.tiles.TilesetTile;
 
 public class LevelEditor implements InputProcessor{
 
@@ -37,9 +31,9 @@ public class LevelEditor implements InputProcessor{
 	private ExpandableGrid<MapTile> tileMap;
 	private TilePanel tilePanel;
 	private MapRenderer mapRenderer;
-	private Texture selectTexture;
 	private Texture eraseTexture;
-	private Array<EntitySpawn> selectedSpawnPoints;
+	private Texture selectTexture;
+	private ActionManager actionManager;
 	
 	// Camera
 	private OrthographicCamera worldCamera;
@@ -47,20 +41,11 @@ public class LevelEditor implements InputProcessor{
 	private float moveVel = 20.0f;
 	
 	private boolean mouseOnMap = false;
-	private boolean mouseClicked = false;
-	private float mouseX;
-	private float mouseY;
+	private Vector2 mousePos;
 	private boolean mouseDown = false;
 	private int ctrlCount = 0;
 	private int shiftCount = 0;
 	private float animTime;
-	
-	// Enemy Panel
-	private EnemyPanel enemyPanel;
-	private EntityIndex entityIndex;
-	private boolean facingRight = true;
-	
-	private EditorActions currentAction = EditorActions.SELECT;
 	
 	public LevelEditor() {
 		tilePanel = new TilePanel();
@@ -71,21 +56,9 @@ public class LevelEditor implements InputProcessor{
 		mapRenderer.setGridLinesOn(true);
 		mapRenderer.setTileset(tilePanel.getTileset());
 
-		selectedSpawnPoints = new Array<EntitySpawn>();
-		
 		setupTextures();
 
-		enemyPanel = new EnemyPanel();
-		enemyPanel.setPosition(GameVars.SCREEN_WIDTH * 0.5f - enemyPanel.getWidth() * 0.5f, GameVars.SCREEN_HEIGHT * 0.5f - enemyPanel.getHeight() * 0.5f);
-	
-		enemyPanel.addListener(new SelectListener() {
-			@Override
-			public void onSelect(EntityIndex index) {
-				entityIndex = index;
-				currentAction = EditorActions.PLACE_SPAWNPOINT;
-				enemyPanel.hide();
-			}
-		});
+		actionManager = new ActionManager(this);
 	}
 	
 	private void setupTextures() {
@@ -103,7 +76,6 @@ public class LevelEditor implements InputProcessor{
 		pixmap.dispose();
 	}
 	
-	
 	public Level getCurrentLevel() {
 		return currentLevel;
 	}
@@ -116,53 +88,23 @@ public class LevelEditor implements InputProcessor{
 	
 	public void setWorldCamera(OrthographicCamera camera) {
 		this.worldCamera = camera;
+		actionManager.setWorldCamera(camera);
 	}
 	
 	public void setHudCamera(OrthographicCamera hudCamera) {
 		this.hudCamera = hudCamera;
-		enemyPanel.setHudCamera(hudCamera);
+		actionManager.setHudCamera(hudCamera);
 	}
 
 	public void update(float delta) {
 		animTime += delta;
 		
-		if(enemyPanel.isOpen()) {
-			ctrlCount = 0;
-			shiftCount = 0;
-			mouseDown = false;
-			enemyPanel.update(delta);
-			return;
-		}
+		actionManager.update(delta);
 		moveCamera(delta);
-		updateMap();
-		
-		if(currentAction == EditorActions.SELECT && mouseClicked) {
-			float x = mouseX * GameVars.PPM_INV * worldCamera.zoom;
-			float y = mouseY * GameVars.PPM_INV * worldCamera.zoom;
-
-			x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
-			y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
-			
-			for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
-				Vector2 spawnPoint = spawn.getPos();
-				EntityIndex index = spawn.getIndex();
-				Rectangle hitbox = Maths.scl(index.getHitBox(), GameVars.PPM_INV);
-				
-				float lowerX = spawnPoint.x - hitbox.width * 0.5f;
-				float lowerY = spawnPoint.y - hitbox.height * 0.5f;
-				
-				if(x >= lowerX && x <= lowerX + hitbox.width && y >= lowerY && y <= lowerY + hitbox.height) {
-					if(selectedSpawnPoints.contains(spawn, false)) selectedSpawnPoints.removeValue(spawn, false);
-					else selectedSpawnPoints.add(spawn);
-				}
-			}
-		}
-		
-		mouseClicked = false;
 	}
 	
 	private void moveCamera(float delta) {
-		if(ctrlDown() || shiftDown()){
+		if(ctrlDown() || shiftDown() || actionManager.isBlocking()){
 			return;
 		}
 		if(Gdx.input.isKeyPressed(Keys.W)) {
@@ -180,15 +122,9 @@ public class LevelEditor implements InputProcessor{
 	}
 	
 	private void handleInput() {
-		if(Gdx.input.isKeyJustPressed(Keys.ESCAPE)) {
-			if(enemyPanel.isOpen()) enemyPanel.hide();
-			currentAction = EditorActions.SELECT;
-			tilePanel.setActiveTile(null);
-			entityIndex = null;
-		}
-		
-		if(enemyPanel.isOpen()) return;
 		// Adding rows/cols
+		if(actionManager.isBlocking()) return;
+		
 		if (ctrlDown()) {
 			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 				tileMap.addRow(true);
@@ -201,30 +137,6 @@ public class LevelEditor implements InputProcessor{
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
 				tileMap.addCol(true);
-			}
-			if (Gdx.input.isKeyJustPressed(Keys.E)) {
-				tilePanel.setActiveTile(null);
-				if (currentAction == EditorActions.AUTO_PLACE) {
-					currentAction = EditorActions.AUTO_ERASE;
-				}
-				else {
-					currentAction = EditorActions.ERASE;
-				}
-			}
-			if (Gdx.input.isKeyJustPressed(Keys.A)) {
-				if (currentAction == EditorActions.PLACE) {
-					currentAction = EditorActions.AUTO_PLACE;
-				}
-				else if (currentAction == EditorActions.ERASE) {
-					currentAction = EditorActions.AUTO_ERASE;
-				}
-			}
-			if (Gdx.input.isKeyJustPressed(Keys.S)) {
-				System.out.println("Saving level " + currentLevel.getInfo());
-				LevelUtils.saveLevel(currentLevel);
-			}
-			if(Gdx.input.isKeyJustPressed(Keys.Q)) {
-				enemyPanel.show();
 			}
 		}
 
@@ -243,98 +155,8 @@ public class LevelEditor implements InputProcessor{
 				tileMap.removeCol(true, true);
 			}
 		}
-		
-		if(currentAction == EditorActions.PLACE_SPAWNPOINT && Gdx.input.isKeyJustPressed(Keys.R)) {
-			facingRight = !facingRight;
-		}  else if (currentAction == EditorActions.SELECT && Gdx.input.isKeyJustPressed(Keys.DEL)) {
-			for(EntitySpawn spawn : selectedSpawnPoints) {
-				currentLevel.getEntitySpawns().removeValue(spawn, false);
-			}
-			selectedSpawnPoints.clear();
-		}
 	}
 	
-	private void updateMap() {
-		if(mouseOnMap) {
-			float x = mouseX * GameVars.PPM_INV * worldCamera.zoom;
-			float y = mouseY * GameVars.PPM_INV * worldCamera.zoom;
-
-			x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
-			y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
-			
-			int row = (int) (y < 0 ? y - 1 : y);
-			int col = (int) (x < 0 ? x - 1 : x);
-			
-			if(mouseDown) {
-				switch (currentAction) {
-				case AUTO_PLACE:
-					// Local variable 'mapTile' has naming conflict with another switch statement...
-					if(true) {
-						MapTile mapTile = new MapTile();
-						mapTile.setRow(row);
-						mapTile.setCol(col);
-						
-						
-						TilesetTile tilesetTile = calculateTilesetTileAt(row, col, tilePanel.getActiveTile().getClusterID());
-						mapTile.setId(tilesetTile.getID());
-						mapTile.setType(TileType.GROUND);
-						
-						tileMap.add(row, col, mapTile);
-						
-						updateSurroundingTiles(row, col);
-					}
-					break;
-				case AUTO_ERASE:
-					if(tileMap.contains(row, col) && tileMap.get(row, col) != null) {
-						tileMap.set(row, col, null);
-						updateSurroundingTiles(row, col);
-					}
-					break;
-				case ERASE:
-					if(tileMap.contains(row, col)) {
-						tileMap.set(row, col, null);
-					}
-					break;
-				case PLACE:
-					if(!tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getID() != tilePanel.getActiveTile().getID()) {
-						MapTile mapTile = new MapTile();
-						mapTile.setRow(row);
-						mapTile.setCol(col);
-						mapTile.setId(tilePanel.getActiveTile().getID());
-						mapTile.setType(TileType.GROUND);
-						
-						tileMap.add(row, col, mapTile);
-					}
-					break;
-				case SELECT:
-					break;
-				default:
-					break;
-				}
-			}
-			
-			if(mouseClicked) {
-				if(currentAction == EditorActions.PLACE_SPAWNPOINT) {
-					Rectangle rect = entityIndex.getHitBox();
-					
-					float hitX = x;
-					float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
-					
-					currentLevel.addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
-				}
-			}
-			
-		} else {
-			if(mouseDown) {
-				TilesetTile tile = tilePanel.getTileAt(mouseX, mouseY);
-				if(tile != null) {
-					tilePanel.setActiveTile(tile);
-					currentAction = EditorActions.PLACE;
-				}
-			}
-		}
-	}
-
 	public void render(SpriteBatch batch) {
 		handleInput();
 		worldCamera.update();
@@ -345,8 +167,14 @@ public class LevelEditor implements InputProcessor{
 		
 		// Render entity spawns
 		batch.begin();
+		
+		SelectAction selectAction = null;
+		if(actionManager.getCurrentAction() == EditorActions.SELECT) {
+			selectAction = (SelectAction) actionManager.getCurrentActionInstance();
+		}
+		
 		for(EntitySpawn entitySpawn : currentLevel.getEntitySpawns()) {
-			boolean selected = selectedSpawnPoints.contains(entitySpawn, false);
+			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
 			EntityIndex index = entitySpawn.getIndex();
 			Vector2 pos = entitySpawn.getPos();
 			Animation animation = index.getIdleAnimation();
@@ -373,138 +201,15 @@ public class LevelEditor implements InputProcessor{
 		batch.setColor(Color.WHITE);
 		batch.end();
 		
-		tilePanel.render(hudCamera, batch);
-		
-		
-		if(mouseOnMap && !enemyPanel.isOpen()) {
-			batch.setProjectionMatrix(worldCamera.combined);
-			batch.begin();
-			
-			float x = mouseX * GameVars.PPM_INV * worldCamera.zoom;
-			float y = mouseY * GameVars.PPM_INV * worldCamera.zoom;
-
-			x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
-			y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
-			
-			int row = (int) (y < 0 ? y - 1 : y);
-			int col = (int) (x < 0 ? x - 1 : x);
-			
-			switch(currentAction) {
-			case PLACE_SPAWNPOINT:
-				Animation idle = entityIndex.getIdleAnimation();
-				Rectangle rect = entityIndex.getHitBox();
-				TextureRegion region = idle.getKeyFrame(animTime);
-				float w = region.getRegionWidth();
-				float h = region.getRegionHeight();
-				
-				float adjustedY = row + GameVars.PPM_INV * (rect.height * 0.5f);
-				float yy =  adjustedY - h * 0.5f;
-				
-				float hitX = x - GameVars.PPM_INV * (rect.width * 0.5f);
-				float hitY = yy + h * 0.5f - GameVars.PPM_INV * (rect.height * 0.5f);
-				
-				if(collidingWithMap(hitX, hitY, GameVars.PPM_INV * rect.width, GameVars.PPM_INV * rect.height)){
-					batch.setColor(Color.RED);
-				} 
-				
-				if(!facingRight) {
-					region.flip(true, false);
-				}
-				batch.draw(region, x - w * 0.5f, yy, w * 0.5f, h * 0.5f, w, h, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f);
-				region.flip(region.isFlipX(), false);
-				
-				batch.setColor(Color.WHITE);
-				break;
-			case AUTO_PLACE:
-				batch.setColor(Color.DARK_GRAY);
-				drawTile(batch, tilePanel.getActiveTile(), col, row);
-				batch.setColor(Color.WHITE);
-				break;
-			case AUTO_ERASE:
-				batch.setColor(Color.DARK_GRAY);
-				batch.draw(eraseTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
-				batch.setColor(Color.WHITE);
-				break;
-			case ERASE:
-				batch.draw(eraseTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
-				break;
-			case PLACE:
-				drawTile(batch, tilePanel.getActiveTile(), col, row);
-				break;
-			case SELECT:
-//				batch.draw(selectTexture, col, row, 0.0f, 0.0f, selectTexture.getWidth(), selectTexture.getHeight(), GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, selectTexture.getWidth(), selectTexture.getHeight(), false, false);
-				break;
-			default:
-				break;
-			}
-			
-			batch.end();
-		}
-		
-		if(enemyPanel.isOpen()) {
-			enemyPanel.render(batch);
+		if(actionManager.renderInFront()) {
+			tilePanel.render(hudCamera, batch);
+			actionManager.render(batch);
+		} else {
+			actionManager.render(batch);
+			tilePanel.render(hudCamera, batch);
 		}
 	}
-	
-	private void updateSurroundingTiles(int row, int col) {
-		boolean erasing = tileMap.get(row, col) == null;
-		MapTile centerTile = tileMap.get(row, col);
-		for(int r = row - 1; r <= row + 1; r++) {
-			for(int c = col - 1; c <= col + 1; c++) {
-				if(!tileMap.contains(r, c) || tileMap.get(r, c) == null || (r == row && c == col)) continue;
-				MapTile mapTile = tileMap.get(r, c);
-				Tileset tileset = tilePanel.getTileset();
-				
-				int clusterID = tileset.getClusterID(mapTile.getID());
-				
-				// Don't update surrounding tiles if they are apart of another clusters unless you're erasing
-				if(!erasing && tileset.getClusterID(centerTile.getID()) != clusterID) continue; 
-				
-				TilesetTile tile = calculateTilesetTileAt(r, c, clusterID);
-				mapTile.setId(tile.getID());
-				tileMap.set(r, c, mapTile);
-			}
-		}
 		
-	}
-	
-	private TilesetTile calculateTilesetTileAt(int row, int col, int clusterID){
-		Array<Side> sidesOpen = new Array<Side>(Side.class);
-		
-		if(isOpen(row + 1, col, clusterID)) sidesOpen.add(Side.NORTH);
-		if(isOpen(row - 1, col, clusterID)) sidesOpen.add(Side.SOUTH);
-		if(isOpen(row, col + 1, clusterID)) sidesOpen.add(Side.EAST);
-		if(isOpen(row, col - 1, clusterID)) sidesOpen.add(Side.WEST);
-		
-		TileSlot slot = TileSlot.getSlot(sidesOpen.toArray());
-		
-		Tileset tileset = tilePanel.getTileset();
-		TilesetTile tilesetTile = tileset.getTile(clusterID, slot);
-		return tilesetTile;
-	}
-
-	private boolean isOpen(int row, int col, int clusterID) {
-		return !tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getType() != TileType.GROUND || tilePanel.getTileset().getClusterID(tileMap.get(row, col).getID()) != clusterID;
-	}
-	
-	private void drawTile(SpriteBatch batch, TilesetTile tile, float x, float y) {
-		Tileset tileset = tilePanel.getTileset();
-		batch.draw(tileset.getTilesheet().getTexture(), x, y, 0.0f, 0.0f, 16.0f, 16.0f, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, tile.getSheetX(), tile.getSheetY(), 16, 16, false, false);
-	}
-	
-	private boolean collidingWithMap(float x, float y, float width, float height) {
-		int minRow = Math.abs(y - (int) y) < 0.0005f ? (int)y : Maths.toGridCoord(y);
-		int minCol = Maths.toGridCoord(x);
-		int maxRow = Maths.toGridCoord(y + height);
-		int maxCol = Maths.toGridCoord(x + width);
-		
-		for(int row = minRow; row <= maxRow; row++) {
-			for(int col = minCol; col <= maxCol; col++) {
-				if(tileMap.contains(row, col) && tileMap.get(row, col) != null && tileMap.get(row, col).isSolid()) return true;
-			}
-		}
-		return false;
-	}
 
 	////////////////////////
 	// 		  INPUT		  //
@@ -512,6 +217,7 @@ public class LevelEditor implements InputProcessor{
 	
 	@Override
 	public boolean keyDown(int keycode) {
+		actionManager.keyDown(keycode);
 		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
 			shiftCount++;
 		}
@@ -523,6 +229,7 @@ public class LevelEditor implements InputProcessor{
 
 	@Override
 	public boolean keyUp(int keycode) {
+		actionManager.keyUp(keycode);
 		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
 			shiftCount--;
 		}
@@ -534,67 +241,110 @@ public class LevelEditor implements InputProcessor{
 
 	@Override
 	public boolean keyTyped(char character) {
+		actionManager.keyTyped(character);
 		return false;
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
+		actionManager.touchDown(screenX, screenY, pointer, button);
 		mouseDown = true;
 		return false;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		actionManager.touchUp(screenX, screenY, pointer, button);
 		mouseDown = false;
-		if(enemyPanel.isOpen()) {
-			Vector2 coords = toHudCoords(screenX, screenY);
-			enemyPanel.touchUp((int) coords.x, (int) coords.y, pointer, button);
-		} else {
-			mouseClicked = true;
-		}
 		return false;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		Vector2 screenPos = toHudCoords(screenX, screenY);
-		mouseX = screenPos.x;
-		mouseY = screenPos.y;
-		mouseOnMap = !onTilePanel(screenPos.x, screenPos.y);
+		actionManager.touchDragged(screenX, screenY, pointer);
+		mousePos = toHudCoords(screenX, screenY);
+		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
 		return false;
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		Vector2 screenPos = toHudCoords(screenX, screenY);
-		mouseX = screenPos.x;
-		mouseY = screenPos.y;
-		mouseOnMap = !onTilePanel(screenPos.x, screenPos.y);
+		actionManager.mouseMoved(screenX, screenY);
+		mousePos = toHudCoords(screenX, screenY);
+		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
 		return false;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
+		actionManager.scrolled(amount);
 		worldCamera.zoom += amount * 0.02f;
 		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
 		return false;
 	}
 	
-	private boolean onTilePanel(float screenX, float screenY) {
+	public boolean onTilePanel(float screenX, float screenY) {
 		return screenX >= tilePanel.getX() && screenX <= tilePanel.getX() + tilePanel.getWidth() &&
 				screenY >= tilePanel.getY() && screenY <= tilePanel.getY() + tilePanel.getHeight();
 	}
 	
-	private Vector2 toHudCoords(int screenX, int screenY) {
+	public TilePanel getTilePanel() {
+		return tilePanel;
+	}
+	
+	public ExpandableGrid<MapTile> getTileMap() {
+		return tileMap;
+	}
+	
+	public Vector2 toHudCoords(int screenX, int screenY) {
 		Vector3 result = hudCamera.unproject(new Vector3(screenX, screenY, 0));
 		return new Vector2(result.x, result.y);
 	}
 	
-	private boolean shiftDown() {
+	public Vector2 toHudCoords(Vector2 coords) {
+		return toHudCoords((int)coords.x, (int)coords.y);
+	}
+	
+	public Vector2 toWorldCoords(float mouseX, float mouseY) {
+		float x = mouseX * GameVars.PPM_INV * worldCamera.zoom;
+		float y = mouseY * GameVars.PPM_INV * worldCamera.zoom;
+
+		x += worldCamera.position.x - worldCamera.viewportWidth * 0.5f * worldCamera.zoom;
+		y += worldCamera.position.y - worldCamera.viewportHeight * 0.5f * worldCamera.zoom;
+		
+		return new Vector2(x, y);
+	}
+	
+	public Vector2 toWorldCoords(Vector2 coords) {
+		return toWorldCoords(coords.x, coords.y);
+	}
+	
+	public boolean shiftDown() {
 		return shiftCount > 0;
 	}
 	
-	private boolean ctrlDown() {
+	public boolean ctrlDown() {
 		return ctrlCount > 0;
 	}
+	
+	public boolean isMouseOnMap() {
+		return mouseOnMap;
+	}
+	
+	public boolean isMouseDown() {
+		return mouseDown;
+	}
+	
+	public Vector2 getMousePos() {
+		return mousePos;
+	}
+	
+	public Texture getEraseTexture() {
+		return eraseTexture;
+	}
+	
+	public Texture getSelectTexture() {
+		return selectTexture;
+	}
+	
 }

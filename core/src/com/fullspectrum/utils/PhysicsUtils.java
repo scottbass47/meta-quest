@@ -187,7 +187,7 @@ public class PhysicsUtils {
 				}
 				break;
 			default:
-				Gdx.app.error("ERROR", "Invalid shape type for calculating AABB.");
+//				Gdx.app.error("ERROR", "Invalid shape type for calculating AABB.");
 				break;
 			}
 		}
