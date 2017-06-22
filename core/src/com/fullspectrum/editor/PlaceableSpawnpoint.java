@@ -1,5 +1,6 @@
-package com.fullspectrum.editor.action;
+package com.fullspectrum.editor;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
@@ -13,29 +14,43 @@ import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
 
-public class PlaceSpawnpointAction extends Action {
+public class PlaceableSpawnpoint implements Placeable{
 
 	private EntityIndex entityIndex;
-	private boolean facingRight = true;
 	private float animTime = 0.0f;
+	private boolean facingRight = true;
 	
-	@Override
-	public void init() {
-		SelectEnemyAction selectEnemyAction  = (SelectEnemyAction) actionManager.getPreviousActionInstance();
-		entityIndex = selectEnemyAction.getSelectedEntity();
+	public PlaceableSpawnpoint(EntityIndex index) {
+		this.entityIndex = index;
 	}
 	
+	@Override
+	public void onClick(Vector2 mousePos, LevelEditor editor) {
+		Rectangle rect = entityIndex.getHitBox();
+
+		int row = Maths.toGridCoord(mousePos.y);
+		
+		float hitX = mousePos.x;
+		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
+
+		editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
+	}
+
 	@Override
 	public void update(float delta) {
 		animTime += delta;
 	}
-
+	
 	@Override
-	public void render(SpriteBatch batch) {
-		Vector2 worldCoords = editor.toWorldCoords(editor.getMousePos());
-		
-		float x = worldCoords.x;
-		float y = worldCoords.y;
+	public void render(Vector2 mousePos, SpriteBatch batch, LevelEditor editor) {
+		// We handle input in the render method because update doesn't get called frequently enough to
+		/// catch just pressed keyboard events
+		if(Gdx.input.isKeyJustPressed(Keys.R)) {
+			facingRight = !facingRight;
+		}
+
+		float x = mousePos.x;
+		float y = mousePos.y;
 		
 		int row = Maths.toGridCoord(y);
 		
@@ -51,7 +66,7 @@ public class PlaceSpawnpointAction extends Action {
 		float hitX = x - GameVars.PPM_INV * (rect.width * 0.5f);
 		float hitY = yy + h * 0.5f - GameVars.PPM_INV * (rect.height * 0.5f);
 		
-		if(collidingWithMap(hitX, hitY, GameVars.PPM_INV * rect.width, GameVars.PPM_INV * rect.height)){
+		if(collidingWithMap(hitX, hitY, GameVars.PPM_INV * rect.width, GameVars.PPM_INV * rect.height, editor)){
 			batch.setColor(Color.RED);
 		} 
 		
@@ -59,16 +74,13 @@ public class PlaceSpawnpointAction extends Action {
 			region.flip(true, false);
 		}
 		
-		batch.setProjectionMatrix(worldCamera.combined);
-		batch.begin();
 		batch.draw(region, x - w * 0.5f, yy, w * 0.5f, h * 0.5f, w, h, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f);
-		batch.end();
 
 		region.flip(region.isFlipX(), false);
 		batch.setColor(Color.WHITE);
 	}
 
-	private boolean collidingWithMap(float x, float y, float width, float height) {
+	private boolean collidingWithMap(float x, float y, float width, float height, LevelEditor editor) {
 		int minRow = Math.abs(y - (int) y) < 0.0005f ? (int)y : Maths.toGridCoord(y);
 		int minCol = Maths.toGridCoord(x);
 		int maxRow = Maths.toGridCoord(y + height);
@@ -85,27 +97,8 @@ public class PlaceSpawnpointAction extends Action {
 	}
 	
 	@Override
-	public boolean keyUp(int keycode) {
-		if(keycode == Keys.R) {
-			facingRight = !facingRight;
-		}
-		return false;
-	}
-	
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Rectangle rect = entityIndex.getHitBox();
-
-		Vector2 worldCoords = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
-		
-		int row = Maths.toGridCoord(worldCoords.y);
-		
-		float hitX = worldCoords.x;
-		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
-
-		editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
-		
-		return false;
+	public boolean placeOnClick() {
+		return true;
 	}
 
 }

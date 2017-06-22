@@ -25,10 +25,10 @@ public enum EditorActions {
 			return new SelectEnemyAction();
 		}
 	},
-	PLACE_SPAWNPOINT {
+	LEVEL_TRIGGER {
 		@Override
 		public Action getActionInstance() {
-			return new PlaceSpawnpointAction();
+			return null;
 		}
 	},
 	AUTO_PLACE {

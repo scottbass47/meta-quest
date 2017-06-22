@@ -1,36 +1,46 @@
 package com.fullspectrum.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.editor.EnemyPanel;
+import com.fullspectrum.editor.PlaceableSpawnpoint;
 import com.fullspectrum.editor.SelectListener;
+import com.fullspectrum.editor.gui.Window;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
 
 public class SelectEnemyAction extends Action {
 
+	private Window enemyWindow;
 	private EnemyPanel enemyPanel;
 	private EntityIndex selectedEntity;
-
+	
 	public SelectEnemyAction() {
 		enemyPanel = new EnemyPanel();
-		enemyPanel.setPosition(GameVars.SCREEN_WIDTH * 0.5f - enemyPanel.getWidth() * 0.5f, GameVars.SCREEN_HEIGHT * 0.5f - enemyPanel.getHeight() * 0.5f);
+		enemyPanel.setPosition(0, 0);
 	
 		enemyPanel.addListener(new SelectListener() {
 			@Override
 			public void onSelect(EntityIndex index) {
+				editor.removeProcessor(enemyWindow);
 				selectedEntity = index;
-				enemyPanel.hide();
-				actionManager.switchAction(EditorActions.PLACE_SPAWNPOINT);
+//				enemyPanel.hide();
+				actionManager.switchAction(EditorActions.PLACE);
+				PlaceAction placeAction = (PlaceAction) actionManager.getCurrentActionInstance();
+				placeAction.setPlaceable(new PlaceableSpawnpoint(index));
 			}
 		});
 		
-		enemyPanel.show();
+//		enemyPanel.show();
+		
+		enemyWindow = new Window();
+		enemyWindow.add(enemyPanel);
+		enemyWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - enemyPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - enemyPanel.getHeight() / 2);
 	}
 	
 	@Override
 	public void init() {
-		enemyPanel.setHudCamera(hudCamera);
+		enemyWindow.setHudCamera(hudCamera);
+		editor.addProcessor(enemyWindow);
 	}
 	
 	public EntityIndex getSelectedEntity() {
@@ -39,12 +49,12 @@ public class SelectEnemyAction extends Action {
 	
 	@Override
 	public void update(float delta) {
-		enemyPanel.update(delta);
+		enemyWindow.update(delta);
 	}
 
 	@Override
 	public void render(SpriteBatch batch) {
-		enemyPanel.render(batch);
+		enemyWindow.render(batch);
 	}
 	
 	@Override
@@ -57,10 +67,4 @@ public class SelectEnemyAction extends Action {
 		return true;
 	}
 
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Vector2 hudCoords = editor.toHudCoords(screenX, screenY);
-		enemyPanel.touchUp((int)hudCoords.x, (int)hudCoords.y, pointer, button);
-		return false;
-	}
 }

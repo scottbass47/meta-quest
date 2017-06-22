@@ -16,7 +16,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.IntMap;
-import com.fullspectrum.editor.action.ActionManager;
 import com.fullspectrum.level.tiles.TileSlot;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetLoader;
@@ -31,7 +30,7 @@ public class TilePanel {
 	private float tileScale = 2.0f;
 	private float tileSpacing = 2.0f;
 	
-	private Color backgroundColor = Color.BLACK.mul(1.0f, 1.0f, 1.0f, 0.9f);
+	private Color backgroundColor = new Color(Color.BLACK).mul(1.0f, 1.0f, 1.0f, 0.9f);
 	private ShapeRenderer shapeRenderer;
 	private Tileset tileset;
 	private TilesetTile activeTile;
@@ -113,7 +112,7 @@ public class TilePanel {
 		renderTileset(batch);
 		batch.setProjectionMatrix(old);
 		
-		Gdx.gl.glEnable(GL11.GL_BLEND);
+		Gdx.gl.glDisable(GL11.GL_BLEND);
 	}
 
 	private void renderTileset(SpriteBatch batch) {

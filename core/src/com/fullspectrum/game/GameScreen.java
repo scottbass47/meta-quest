@@ -264,6 +264,9 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
+
+		levelManager.switchToEditorMode();
+		editorOpen = true;
 	}
 	
 	private void spawnEnemy(Node node) {

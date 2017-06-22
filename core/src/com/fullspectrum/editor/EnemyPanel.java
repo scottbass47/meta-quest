@@ -1,39 +1,31 @@
 package com.fullspectrum.editor;
 
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.editor.gui.Container;
 import com.fullspectrum.entity.EntityIndex;
 
-public class EnemyPanel implements InputProcessor{
+public class EnemyPanel extends Container {
 	
-	private OrthographicCamera hudCamera;
 	private boolean panelOpen;
 	private float animTime = 0.0f;
 	private Texture background;
 	private ArrayMap<EntityIndex, Rectangle> icons;
 	private Array<SelectListener> listeners;
 	
-	private float x;
-	private float y;
-	private int width;
-	private int height;
 	private float scale = 3.0f;
 	private float padding = 8.0f;
 	
 	public EnemyPanel() {
-		width = 500;
-		height = 500;
+		setSize(500, 500);
 		icons = new ArrayMap<EntityIndex, Rectangle>();
 		listeners = new Array<SelectListener>();
 		
@@ -42,17 +34,14 @@ public class EnemyPanel implements InputProcessor{
 	
 	private void drawBackground() {
 		Pixmap pix = new Pixmap(width, height, Format.RGBA8888);
-		pix.setColor(Color.BLACK/*.mul(1.0f, 1.0f, 1.0f, 0.85f)*/);
+		pix.setColor(new Color(Color.BLACK).mul(1.0f, 1.0f, 1.0f, 0.9f));
 		pix.fill();
 		
 		background = new Texture(pix);
 		pix.dispose();
 	}
 
-	public void setHudCamera(OrthographicCamera hudCamera) {
-		this.hudCamera = hudCamera;
-	}
-	
+	@Override
 	public void update(float delta) {
 		animTime += delta;
 		updatePanel("");
@@ -109,12 +98,9 @@ public class EnemyPanel implements InputProcessor{
 		}
 	}
 	
+	@Override
 	public void render(SpriteBatch batch) {
-		Matrix4 old = batch.getProjectionMatrix();
-		batch.setProjectionMatrix(hudCamera.combined);
-		
 		batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		batch.begin();
 		batch.draw(background, x, y);
 		
 		for(EntityIndex index : icons.keys()) {
@@ -129,11 +115,6 @@ public class EnemyPanel implements InputProcessor{
 			
 			batch.draw(region, rect.x + rect.width * 0.5f - hw, rect.y + rect.height * 0.5f - hh, hw, hh, w, h, scale, scale, 0.0f);
 		}
-		
-		batch.end();
-		
-		batch.setProjectionMatrix(old);
-
 	}
 	
 	public void show() {
@@ -146,27 +127,6 @@ public class EnemyPanel implements InputProcessor{
 	
 	public boolean isOpen() {
 		return panelOpen;
-	}
-	
-	public void setPosition(float x, float y) {
-		this.x = x;
-		this.y = y;
-	}
-	
-	public float getX() {
-		return x;
-	}
-	
-	public float getY() {
-		return y;
-	}
-	
-	public int getWidth() {
-		return width;
-	}
-	
-	public int getHeight() {
-		return height;
 	}
 	
 	public EntityIndex getIndex(float x, float y) {
@@ -191,49 +151,13 @@ public class EnemyPanel implements InputProcessor{
 	// NOTE: All coords are HUD coords (already converted by level editor)
 	
 	@Override
-	public boolean keyDown(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		EntityIndex index = getIndex(screenX, screenY);
+	public void onMouseUp(int x, int y, int button) {
+		EntityIndex index = getIndex(x, y);
 		if(index != null) {
 			for(SelectListener listener : listeners) {
 				listener.onSelect(index);
 			}
 		}
-		return false;
 	}
 
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		return false;
-	}
-	
 }

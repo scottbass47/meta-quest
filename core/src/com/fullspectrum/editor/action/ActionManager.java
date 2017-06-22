@@ -6,6 +6,7 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.editor.LevelEditor;
+import com.fullspectrum.editor.PlaceableTile;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -141,6 +142,9 @@ public class ActionManager implements InputProcessor {
 			else if(keycode == Keys.Q) {
 				switchAction(EditorActions.SELECT_ENEMY);
 			}
+			// Level Trigger Panel
+			else if(keycode == Keys.W) {
+			}
 		}
 
 		return false;
@@ -168,6 +172,8 @@ public class ActionManager implements InputProcessor {
 			if(tile != null) {
 				editor.getTilePanel().setActiveTile(tile);
 				switchAction(EditorActions.PLACE);
+				PlaceAction placeAction = (PlaceAction) getCurrentActionInstance();
+				placeAction.setPlaceable(new PlaceableTile());
 			}
 		}
 		

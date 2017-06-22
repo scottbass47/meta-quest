@@ -2,7 +2,7 @@ package com.fullspectrum.editor;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
+import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -25,7 +25,7 @@ import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 
-public class LevelEditor implements InputProcessor{
+public class LevelEditor extends InputMultiplexer{
 
 	private Level currentLevel;
 	private ExpandableGrid<MapTile> tileMap;
@@ -59,6 +59,7 @@ public class LevelEditor implements InputProcessor{
 		setupTextures();
 
 		actionManager = new ActionManager(this);
+		addProcessor(actionManager);
 	}
 	
 	private void setupTextures() {
@@ -217,70 +218,70 @@ public class LevelEditor implements InputProcessor{
 	
 	@Override
 	public boolean keyDown(int keycode) {
-		actionManager.keyDown(keycode);
+//		actionManager.keyDown(keycode);
 		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
 			shiftCount++;
 		}
 		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
 			ctrlCount++;
 		}
-		return false;
+		return super.keyDown(keycode);
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
-		actionManager.keyUp(keycode);
+//		actionManager.keyUp(keycode);
 		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
 			shiftCount--;
 		}
 		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
 			ctrlCount--;
 		}
-		return false;
+		return super.keyUp(keycode);
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
-		actionManager.keyTyped(character);
-		return false;
+//		actionManager.keyTyped(character);
+		return super.keyTyped(character);
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		actionManager.touchDown(screenX, screenY, pointer, button);
+//		actionManager.touchDown(screenX, screenY, pointer, button);
 		mouseDown = true;
-		return false;
+		return super.touchDown(screenX, screenY, pointer, button);
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		actionManager.touchUp(screenX, screenY, pointer, button);
+//		actionManager.touchUp(screenX, screenY, pointer, button);
 		mouseDown = false;
-		return false;
+		return super.touchUp(screenX, screenY, pointer, button);
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		actionManager.touchDragged(screenX, screenY, pointer);
+//		actionManager.touchDragged(screenX, screenY, pointer);
 		mousePos = toHudCoords(screenX, screenY);
 		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
-		return false;
+		return super.touchDragged(screenX, screenY, pointer);
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
-		actionManager.mouseMoved(screenX, screenY);
+//		actionManager.mouseMoved(screenX, screenY);
 		mousePos = toHudCoords(screenX, screenY);
 		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
-		return false;
+		return super.mouseMoved(screenX, screenY);
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		actionManager.scrolled(amount);
+//		actionManager.scrolled(amount);
 		worldCamera.zoom += amount * 0.02f;
 		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
-		return false;
+		return super.scrolled(amount);
 	}
 	
 	public boolean onTilePanel(float screenX, float screenY) {
