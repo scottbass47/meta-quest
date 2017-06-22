@@ -1,5 +1,7 @@
 package com.fullspectrum.level;
 
+import java.awt.event.ActionEvent;
+
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -16,6 +18,8 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.debug.ConsoleCommands;
+import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.editor.LevelEditor;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityLoader;
@@ -169,12 +173,15 @@ public class LevelManager{
 		input.getRawInput().addInput(editor);
 		
 		editorActive = true;
+		DebugInput.disable();
+		DebugVars.resetAll();
 	}
 	
 	public void switchToPlayMode() {
 		editorActive = false;
 		input.getRawInput().removeInput(editor);
 		switchLevel(currentLevel.getInfo());
+		DebugInput.enable();
 	}
 	
 	@SuppressWarnings("unchecked")

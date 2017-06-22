@@ -9,6 +9,7 @@ public class DebugInput {
 	private static ArrayMap<DebugCycle, Integer> cycles;
 	private static ArrayMap<DebugKeys, Boolean> currentInput;
 	private static ArrayMap<DebugKeys, Boolean> previousInput;
+	private static boolean enabled = true;
 	
 	static {
 		toggles = new ArrayMap<DebugToggle, Boolean>();
@@ -63,6 +64,7 @@ public class DebugInput {
 	}
 
 	public static void keyTyped(char character) {
+		if(!enabled) return;
 		DebugToggle toggle = DebugToggle.getToggle(character);
 		if(toggle != null){
 			toggles.put(toggle, !toggles.get(toggle));
@@ -78,6 +80,7 @@ public class DebugInput {
 	}
 	
 	public static void keyDown(int keycode){
+		if(!enabled) return;
 		DebugKeys key = DebugKeys.getTrigger(keycode);
 		if(key != null){
 			currentInput.put(key, true);
@@ -85,9 +88,18 @@ public class DebugInput {
 	}
 	
 	public static void keyUp(int keycode){
+		if(!enabled) return;
 		DebugKeys key = DebugKeys.getTrigger(keycode);
 		if(key != null){
 			currentInput.put(key, false);
 		}
+	}
+	
+	public static void disable() {
+		enabled = false;
+	}
+	
+	public static void enable() {
+		enabled = true;
 	}
 }

@@ -315,18 +315,6 @@ public class GameScreen extends AbstractScreen {
 			return;
 		}
 		
-		if(DebugInput.isJustPressed(DebugKeys.EDITOR)) {
-			editorOpen = !editorOpen;
-			pauseMenuOpen = false;
-			console.setDisabled(editorOpen);
-			
-			if(editorOpen) {
-				levelManager.switchToEditorMode();
-			} else {
-				levelManager.switchToPlayMode();
-			}
-		}
-		
 		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW) && !editorOpen){
 			pauseMenuOpen = !pauseMenuOpen;
 		}
@@ -471,6 +459,19 @@ public class GameScreen extends AbstractScreen {
 	@SuppressWarnings("unchecked")
 	@Override
 	public void render() {
+		// Temporary input checking here because update doesn't get called often enough
+		if(Gdx.input.isKeyJustPressed(Keys.F1)) {
+			editorOpen = !editorOpen;
+			pauseMenuOpen = false;
+			console.setDisabled(editorOpen);
+			
+			if(editorOpen) {
+				levelManager.switchToEditorMode();
+			} else {
+				levelManager.switchToPlayMode();
+			}
+		}
+		
 		DebugRender.setMode(RenderMode.RENDER);
 //		Gdx.gl20.glEnable(GL20.GL_SCISSOR_TEST);
 //		HdpiUtils.glScissor(0, 0, SCREEN_WIDTH, SCREEN_HEIGHT);

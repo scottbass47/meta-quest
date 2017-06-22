@@ -82,8 +82,6 @@ public class Window extends Container implements InputProcessor {
 	public boolean scrolled(int amount) {
 		return false;
 	}
-	
-	
 
 
 }

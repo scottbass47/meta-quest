@@ -2,11 +2,7 @@ package com.fullspectrum.editor.gui;
 
 import java.awt.Rectangle;
 
-import com.badlogic.gdx.graphics.OrthographicCamera;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture.TextureFilter;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 
@@ -14,13 +10,12 @@ public abstract class Container extends Component implements KeyListener, MouseL
 
 	protected Array<Component> components;
 	private Component focusedComponent;
-	private FrameBuffer fbo;
-	private OrthographicCamera cam;
+	private Component mouseOnComponent;
 	private Matrix4 matrix;
+	
 	
 	public Container() {
 		components = new Array<Component>();
-		cam = new OrthographicCamera();
 		matrix = new Matrix4();
 	}
 	
@@ -29,13 +24,26 @@ public abstract class Container extends Component implements KeyListener, MouseL
 		components.add(component);
 	}
 	
+	public void remove(Component component) {
+		components.removeValue(component, false);
+		if(focusedComponent == component) focusedComponent = null;
+		if(mouseOnComponent == component) mouseOnComponent = null;
+	}
+	
+	public Array<Component> getComponents() {
+		return components;
+	}
+	
+	public void removeAll() {
+		components.clear();
+		focusedComponent = null;
+		mouseOnComponent = null;
+	}
+	
 	@Override
 	public void setSize(int width, int height) {
 		if(width == this.width && height == this.height) return;
 		super.setSize(width, height);
-		fbo = new FrameBuffer(Format.RGBA8888, width, height, false);
-		fbo.getColorBufferTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
-		cam.setToOrtho(false, width, height);
 	}
 	
 	@Override
@@ -51,24 +59,6 @@ public abstract class Container extends Component implements KeyListener, MouseL
 		batch.end();
 		Matrix4 old = batch.getProjectionMatrix();
 		
-//		fbo.begin();
-//		Gdx.gl.glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
-//		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-//		
-//		batch.setProjectionMatrix(cam.combined);
-//		batch.begin();
-//		
-//		for(Component component : components) {
-//			if(!component.isVisible()) return;
-//			component.render(batch);
-//		}
-//		
-//		batch.end();
-//		fbo.end();
-//		
-//		batch.setProjectionMatrix(old);
-//		batch.begin();
-//		batch.draw(fbo.getColorBufferTexture(), x, y, width, height);
 		matrix.set(old);
 		matrix.translate(x, y, 0);
 		batch.setProjectionMatrix(matrix);
@@ -83,6 +73,15 @@ public abstract class Container extends Component implements KeyListener, MouseL
 		batch.begin();
 	}
 	
+	public void giveFocus(Component comp) {
+		if(!components.contains(comp, false)) throw new IllegalArgumentException("This container does not contain the specified component.");
+		if(focusedComponent != null && focusedComponent.isEnabled()) {
+			focusedComponent.setFocus(false);
+		}
+		comp.setFocus(true);
+		focusedComponent = comp;
+	}
+	
 	@Override
 	public void onMouseUp(int x, int y, int button) {
 		boolean hitComponent = false;
@@ -91,11 +90,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 			Component comp = components.get(i);
 			Rectangle bounds = comp.getBounds();
 			if(bounds.contains(x, y)) {
-				if(focusedComponent != null && focusedComponent.isEnabled()) {
-					focusedComponent.setFocus(false);
-				}
-				comp.setFocus(true);
-				focusedComponent = comp;
+				giveFocus(comp);
 				hitComponent = true;
 				break;
 			}
@@ -116,7 +111,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onMouseDown(int x, int y, int button) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof MouseListener){
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
 			MouseListener listener = (MouseListener) focusedComponent;
 			listener.onMouseDown(x - focusedComponent.getX(), y - focusedComponent.getY(), button);
 		}
@@ -124,7 +119,24 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onMouseDrag(int x, int y) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof MouseListener){
+		Component comp = getFirstComponentAt(x, y);
+		
+		// New component
+		if(comp != mouseOnComponent) {
+			if(comp != null && comp instanceof MouseListener) {
+				MouseListener listener = (MouseListener) comp;
+				listener.onMouseEnter(x - comp.getX(), y - comp.getY());
+			}
+			
+			if(mouseOnComponent != null && mouseOnComponent instanceof MouseListener) {
+				MouseListener listener = (MouseListener) mouseOnComponent;
+				listener.onMouseExit(x - mouseOnComponent.getX(), y - mouseOnComponent.getY());
+			}
+			
+			mouseOnComponent = comp;
+		}
+		
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
 			MouseListener listener = (MouseListener) focusedComponent;
 			listener.onMouseDrag(x - focusedComponent.getX(), y - focusedComponent.getY());
 		}
@@ -132,7 +144,24 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onMouseMove(int x, int y) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof MouseListener){
+		Component comp = getFirstComponentAt(x, y);
+		
+		// New component
+		if(comp != mouseOnComponent) {
+			if(comp != null && comp instanceof MouseListener) {
+				MouseListener listener = (MouseListener) comp;
+				listener.onMouseEnter(x - comp.getX(), y - comp.getY());
+			}
+			
+			if(mouseOnComponent != null && mouseOnComponent instanceof MouseListener) {
+				MouseListener listener = (MouseListener) mouseOnComponent;
+				listener.onMouseExit(x - mouseOnComponent.getX(), y - mouseOnComponent.getY());
+			}
+			
+			mouseOnComponent = comp;
+		}
+		
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) &&  focusedComponent instanceof MouseListener){
 			MouseListener listener = (MouseListener) focusedComponent;
 			listener.onMouseMove(x - focusedComponent.getX(), y - focusedComponent.getY());
 		}
@@ -160,6 +189,27 @@ public abstract class Container extends Component implements KeyListener, MouseL
 			KeyListener listener = (KeyListener) focusedComponent;
 			listener.onKeyType(character);
 		}
+	}
+	
+	public Component getFirstComponentAt(int x, int y) {
+		for(int i = components.size - 1; i >= 0; i--) {
+			Component comp = components.get(i);
+			Rectangle bounds = comp.getBounds();
+			if(bounds.contains(x, y)) {
+				return comp;
+			}
+		}
+		return null;
+	}
+	
+	@Override
+	public void onMouseEnter(int x, int y) {
+		// idk what to do here....
+	}
+	
+	@Override
+	public void onMouseExit(int x, int y) {
+		// idk what to do here....
 	}
 	
 }

@@ -1,6 +1,7 @@
 package com.fullspectrum.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.fullspectrum.editor.EnemyPanel;
 import com.fullspectrum.editor.PlaceableSpawnpoint;
 import com.fullspectrum.editor.SelectListener;
@@ -34,6 +35,7 @@ public class SelectEnemyAction extends Action {
 		
 		enemyWindow = new Window();
 		enemyWindow.add(enemyPanel);
+		enemyWindow.giveFocus(enemyPanel);
 		enemyWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - enemyPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - enemyPanel.getHeight() / 2);
 	}
 	
