@@ -1,5 +1,6 @@
 package com.fullspectrum.editor.gui;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
@@ -34,8 +35,10 @@ public class EnemyIcon extends Button {
 		float hw = w * 0.5f;
 		float hh = h * 0.5f;
 		
+		if(index == EntityIndex.AI_PLAYER) batch.setColor(Color.RED);
 		batch.draw(region, rect.x + rect.width * 0.5f - hw, rect.y + rect.height * 0.5f - hh, hw, hh, w, h, scale, scale, 0.0f);
-}
+		batch.setColor(Color.WHITE);
+	}
 	
 	public EntityIndex getIndex() {
 		return index;

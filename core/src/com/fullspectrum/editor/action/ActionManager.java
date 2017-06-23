@@ -131,11 +131,14 @@ public class ActionManager implements InputProcessor {
 			}
 			// Auto Tile
 			else if(keycode == Keys.A) {
-				if(currentAction == EditorActions.PLACE) {
-					boolean erasing = currentAction == EditorActions.ERASE;
+				if(currentAction == EditorActions.PLACE || currentAction == EditorActions.ERASE) {
 					switchAction(EditorActions.AUTO_PLACE);
 					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
-					autoPlaceAction.setErasing(erasing);
+					if(previousAction == EditorActions.PLACE) {
+						autoPlaceAction.setErasing(false);
+					} else if(previousAction == EditorActions.ERASE) {
+						autoPlaceAction.setErasing(true);
+					}
 				}
 			}
 			// Enemy Panel
@@ -144,6 +147,7 @@ public class ActionManager implements InputProcessor {
 			}
 			// Level Trigger Panel
 			else if(keycode == Keys.W) {
+				
 			}
 		}
 

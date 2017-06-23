@@ -120,9 +120,9 @@ public class ConsoleCommands extends CommandExecutor {
 	}
 	
 	public void respawn(){
-		if(!EntityUtils.isValid(player)){
+//		if(!EntityUtils.isValid(player)){
 			level.getManager().spawnPlayer(level);
-		}
+//		}
 	}
 	
 	public void kill(){

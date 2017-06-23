@@ -19,7 +19,8 @@
 	ground_speed: 6.0,
 	air_speed: 6.0,
 	climb_speed: 5.0,
-	jump_force: 12.0,
+	jump_force: 30.0,
+	jump_float_amount: 0.0,
 	
 	// Anti Magnetic Armor
 	anti_magnetic_cooldown: 2.0,

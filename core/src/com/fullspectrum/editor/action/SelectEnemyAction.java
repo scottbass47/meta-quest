@@ -1,7 +1,6 @@
 package com.fullspectrum.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.scenes.scene2d.ui.Button;
 import com.fullspectrum.editor.EnemyPanel;
 import com.fullspectrum.editor.PlaceableSpawnpoint;
 import com.fullspectrum.editor.SelectListener;

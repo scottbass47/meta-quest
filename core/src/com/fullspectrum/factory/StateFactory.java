@@ -107,12 +107,12 @@ public class StateFactory {
 		 * @param withStateChangeListener 
 		 * @return
 		 */
-		public EntityStateBuilder jump(float jumpForce, float airSpeed, boolean withStateChangeListener, final boolean jumpParticle){
+		public EntityStateBuilder jump(float jumpForce, float floatAmount, float airSpeed, boolean withStateChangeListener, final boolean jumpParticle){
 			EntityState state = esm.createState(EntityStates.JUMPING)
 				.add(engine.createComponent(SpeedComponent.class).set(airSpeed))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(jumpForce))
+				.add(engine.createComponent(JumpComponent.class).set(jumpForce, floatAmount))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)

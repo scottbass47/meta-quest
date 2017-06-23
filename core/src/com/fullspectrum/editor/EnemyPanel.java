@@ -7,6 +7,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.editor.gui.ActionEvent;
 import com.fullspectrum.editor.gui.ActionListener;
 import com.fullspectrum.editor.gui.Component;
 import com.fullspectrum.editor.gui.Container;
@@ -61,7 +62,7 @@ public class EnemyPanel extends Container {
 			
 			icon.addListener(new ActionListener() {
 				@Override
-				public void onAction() {
+				public void onAction(ActionEvent event) {
 					for(SelectListener listener : listeners) {
 						listener.onSelect(index);
 					}

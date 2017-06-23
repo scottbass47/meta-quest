@@ -13,7 +13,6 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	private Component mouseOnComponent;
 	private Matrix4 matrix;
 	
-	
 	public Container() {
 		components = new Array<Component>();
 		matrix = new Matrix4();
@@ -56,6 +55,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void render(SpriteBatch batch) {
+		if(!isVisible()) return;
 		batch.end();
 		Matrix4 old = batch.getProjectionMatrix();
 		
@@ -88,6 +88,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 		// Determine component that is pressed
 		for(int i = components.size - 1; i >= 0; i--) {
 			Component comp = components.get(i);
+			if(!comp.isEnabled() || !comp.isVisible()) continue;
 			Rectangle bounds = comp.getBounds();
 			if(bounds.contains(x, y)) {
 				giveFocus(comp);
@@ -111,10 +112,16 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onMouseDown(int x, int y, int button) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
-			MouseListener listener = (MouseListener) focusedComponent;
-			listener.onMouseDown(x - focusedComponent.getX(), y - focusedComponent.getY(), button);
+		Component comp = getFirstComponentAt(x, y);
+		if(comp instanceof MouseListener) {
+			MouseListener listener = (MouseListener) comp;
+			listener.onMouseDown(x - comp.getX(), y - comp.getY(), button);
 		}
+		
+//		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
+//			MouseListener listener = (MouseListener) focusedComponent;
+//			listener.onMouseDown(x - focusedComponent.getX(), y - focusedComponent.getY(), button);
+//		}
 	}
 	
 	@Override
@@ -136,10 +143,15 @@ public abstract class Container extends Component implements KeyListener, MouseL
 			mouseOnComponent = comp;
 		}
 		
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
-			MouseListener listener = (MouseListener) focusedComponent;
-			listener.onMouseDrag(x - focusedComponent.getX(), y - focusedComponent.getY());
+		if(comp instanceof MouseListener) {
+			MouseListener listener = (MouseListener) comp;
+			listener.onMouseDrag(x - comp.getX(), y - comp.getY());
 		}
+		
+//		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent.getBounds().contains(x, y) && focusedComponent instanceof MouseListener){
+//			MouseListener listener = (MouseListener) focusedComponent;
+//			listener.onMouseDrag(x - focusedComponent.getX(), y - focusedComponent.getY());
+//		}
 	}
 	
 	@Override
@@ -161,15 +173,20 @@ public abstract class Container extends Component implements KeyListener, MouseL
 			mouseOnComponent = comp;
 		}
 		
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.getBounds().contains(x, y) &&  focusedComponent instanceof MouseListener){
-			MouseListener listener = (MouseListener) focusedComponent;
-			listener.onMouseMove(x - focusedComponent.getX(), y - focusedComponent.getY());
+		if(comp instanceof MouseListener) {
+			MouseListener listener = (MouseListener) comp;
+			listener.onMouseMove(x - comp.getX(), y - comp.getY());
 		}
+		
+//		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent.getBounds().contains(x, y) &&  focusedComponent instanceof MouseListener){
+//			MouseListener listener = (MouseListener) focusedComponent;
+//			listener.onMouseMove(x - focusedComponent.getX(), y - focusedComponent.getY());
+//		}
 	}
 	
 	@Override
 	public void onKeyPress(int keycode) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof KeyListener){
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
 			KeyListener listener = (KeyListener) focusedComponent;
 			listener.onKeyPress(keycode);
 		}
@@ -177,7 +194,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onKeyRelease(int keycode) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof KeyListener){
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
 			KeyListener listener = (KeyListener) focusedComponent;
 			listener.onKeyRelease(keycode);
 		}
@@ -185,7 +202,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onKeyType(char character) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent instanceof KeyListener){
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
 			KeyListener listener = (KeyListener) focusedComponent;
 			listener.onKeyType(character);
 		}
@@ -194,6 +211,7 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	public Component getFirstComponentAt(int x, int y) {
 		for(int i = components.size - 1; i >= 0; i--) {
 			Component comp = components.get(i);
+			if(!comp.isEnabled() || !comp.isVisible()) continue;
 			Rectangle bounds = comp.getBounds();
 			if(bounds.contains(x, y)) {
 				return comp;

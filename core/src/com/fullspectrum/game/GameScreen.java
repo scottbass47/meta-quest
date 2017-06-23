@@ -62,7 +62,6 @@ import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
-import com.fullspectrum.level.Node;
 import com.fullspectrum.level.Theme;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.physics.collision.WorldCollision;
@@ -265,38 +264,38 @@ public class GameScreen extends AbstractScreen {
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
 
-		levelManager.switchToEditorMode();
-		editorOpen = true;
+//		levelManager.switchToEditorMode();
+//		editorOpen = true;
 	}
 	
-	private void spawnEnemy(Node node) {
-		Entity enemy = EntityIndex.AI_PLAYER.create(node.getCol() + 0.5f, node.getRow() + 1.0f);
-		engine.addEntity(enemy);
-	}
-	
-	private void spawnFlyingEnemey(){
-		int row = 0;
-		int col = 0;
-		do{
-			row = MathUtils.random(0, levelManager.getCurrentLevel().getHeight());
-		    col = MathUtils.random(0, levelManager.getCurrentLevel().getWidth());
-		}while(levelManager.getCurrentLevel().isSolid(row, col) || row > 25);
-		spawnSpitter(row, col);
-	}
-	
-	private void spawnSpitter(int row, int col){
-		Entity enemy = EntityIndex.SPITTER.create(col + 0.5f, row + 0.5f);
-		engine.addEntity(enemy);
-	}
-	
-	private void spawnSlime(Node node){
-		spawnSlime(node.getRow(), node.getCol());
-	}
-	
-	private void spawnSlime(int row, int col){
-		Entity enemy = EntityIndex.SLIME.create(col + 0.5f, row + 0.5f);
-		engine.addEntity(enemy);
-	}
+//	private void spawnEnemy(Node node) {
+//		Entity enemy = EntityIndex.AI_PLAYER.create(node.getCol() + 0.5f, node.getRow() + 1.0f);
+//		engine.addEntity(enemy);
+//	}
+//	
+//	private void spawnFlyingEnemey(){
+//		int row = 0;
+//		int col = 0;
+//		do{
+//			row = MathUtils.random(0, levelManager.getCurrentLevel().getHeight());
+//		    col = MathUtils.random(0, levelManager.getCurrentLevel().getWidth());
+//		}while(levelManager.getCurrentLevel().isSolid(row, col) || row > 25);
+//		spawnSpitter(row, col);
+//	}
+//	
+//	private void spawnSpitter(int row, int col){
+//		Entity enemy = EntityIndex.SPITTER.create(col + 0.5f, row + 0.5f);
+//		engine.addEntity(enemy);
+//	}
+//	
+//	private void spawnSlime(Node node){
+//		spawnSlime(node.getRow(), node.getCol());
+//	}
+//	
+//	private void spawnSlime(int row, int col){
+//		Entity enemy = EntityIndex.SLIME.create(col + 0.5f, row + 0.5f);
+//		engine.addEntity(enemy);
+//	}
 	
 	public void resetFrameBuffer(int width, int height) {
 		frameBuffer.dispose();

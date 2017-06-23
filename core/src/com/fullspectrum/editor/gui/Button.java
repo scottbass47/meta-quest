@@ -82,7 +82,7 @@ public class Button extends Component implements MouseListener{
 	@Override
 	public void onMouseUp(int x, int y, int button) {
 		for(ActionListener listener : listeners) {
-			listener.onAction();
+			listener.onAction(new ActionEvent(this));
 		}
 		activeColor = hoverColor;
 	}

@@ -512,7 +512,7 @@ public class EntityFactory {
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Knight ESM", engine, knight)
 			.idle()
 			.run(knightStats.get("ground_speed"))
-			.jump(knightStats.get("jump_force"), knightStats.get("air_speed"), true, true)
+			.jump(knightStats.get("jump_force"), knightStats.get("jump_float_amount"), knightStats.get("air_speed"), true, true)
 			.fall(knightStats.get("air_speed"), true)
 			.climb(5.0f)
 			.build();
@@ -985,6 +985,21 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.TORNADO_SWING)
 			.addAnimTransition(EntityAnim.TORNADO_INIT, Transitions.ANIMATION_FINISHED, EntityAnim.TORNADO_SWING);
 				
+		// Movement tweaks
+		esm.getState(EntityStates.IDLING).addChangeListener(new StateChangeListener() {
+			@Override
+			public void onEnter(State prevState, Entity entity) {
+				if(prevState == EntityStates.JUMPING) {
+					Mappers.body.get(entity).body.setLinearVelocity(Mappers.body.get(entity).body.getLinearVelocity().x, 0);
+				}
+			}
+
+			@Override
+			public void onExit(State nextState, Entity entity) {
+			}
+		});
+		
+		
 		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
 		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
@@ -1021,7 +1036,7 @@ public class EntityFactory {
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE)/*.exclude(EntityStates.JUMPING)*/, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.1f)), EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
 		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
@@ -1269,7 +1284,7 @@ public class EntityFactory {
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, rogue)
 			.idle()
 			.run(rogueStats.get("ground_speed"))
-			.jump(rogueStats.get("jump_force"), rogueStats.get("air_speed"), true, true)
+			.jump(rogueStats.get("jump_force"), rogueStats.get("jump_float_amount"), rogueStats.get("air_speed"), true, true)
 			.fall(rogueStats.get("air_speed"), true)
 			.climb(rogueStats.get("climb_speed"))
 			.build();
@@ -1633,7 +1648,7 @@ public class EntityFactory {
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
 			.idle()
 			.run(alchemistStats.get("ground_speed"))
-			.jump(alchemistStats.get("jump_force"), alchemistStats.get("air_speed"), true, true)
+			.jump(alchemistStats.get("jump_force"), alchemistStats.get("jump_float_amount"), alchemistStats.get("air_speed"), true, true)
 			.fall(alchemistStats.get("air_speed"), true)
 			.climb(alchemistStats.get("climb_speed"))
 //			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
@@ -1763,7 +1778,7 @@ public class EntityFactory {
 			.idle()
 			.run(stats.get("ground_speed"))
 			.fall(stats.get("air_speed"), true)
-			.jump(stats.get("jump_force"), stats.get("air_speed"), true, true)
+			.jump(stats.get("jump_force"), 0.0f, stats.get("air_speed"), true, true)
 			.climb(stats.get("climb_speed"))
 			.swingAttack(2.5f, 1.0f, 150f, -90f, 0.4f, stats.get("sword_damage"), stats.get("sword_knockback"))
 			.build();
@@ -2083,7 +2098,7 @@ public class EntityFactory {
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Slime ESM", engine, slime)
 				.idle()
 				.fall(SPEED, true)
-				.jump(JUMP_FORCE, SPEED, false, false)
+				.jump(JUMP_FORCE, 0.0f, SPEED,  false, false)
 				.build();
 		
 		esm.getState(EntityStates.JUMPING)
@@ -2105,7 +2120,7 @@ public class EntityFactory {
 							public void onTime(Entity entity) {
 								AIController controller = Mappers.aiController.get(entity).controller;
 								controller.press(facingRight ? Actions.MOVE_RIGHT : Actions.MOVE_LEFT, rMultiplier);
-								entity.add(Mappers.engine.get(entity).engine.createComponent(JumpComponent.class).set(jForce));
+								entity.add(Mappers.engine.get(entity).engine.createComponent(JumpComponent.class).set(jForce, 0.0f));
 								Mappers.jump.get(entity).multiplier = jMultiplier;
 							}
 						});
