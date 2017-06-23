@@ -16,7 +16,6 @@ import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.level.EntityGrabber;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelHelper;
-import com.fullspectrum.utils.EntityUtils;
 import com.strongjoshua.console.CommandExecutor;
 import com.strongjoshua.console.HiddenCommand;
 import com.strongjoshua.console.LogLevel;
@@ -120,9 +119,7 @@ public class ConsoleCommands extends CommandExecutor {
 	}
 	
 	public void respawn(){
-//		if(!EntityUtils.isValid(player)){
-			level.getManager().spawnPlayer(level);
-//		}
+		level.getManager().spawnPlayer(level);
 	}
 	
 	public void kill(){

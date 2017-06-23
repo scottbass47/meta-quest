@@ -131,7 +131,10 @@ public class ActionManager implements InputProcessor {
 			}
 			// Auto Tile
 			else if(keycode == Keys.A) {
-				if(currentAction == EditorActions.PLACE || currentAction == EditorActions.ERASE) {
+				if(currentAction == EditorActions.AUTO_PLACE) {
+					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
+					autoPlaceAction.setErasing(false);
+				} else if(currentAction == EditorActions.PLACE || currentAction == EditorActions.ERASE) {
 					switchAction(EditorActions.AUTO_PLACE);
 					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
 					if(previousAction == EditorActions.PLACE) {

@@ -1,7 +1,5 @@
 package com.fullspectrum.level;
 
-import java.awt.event.ActionEvent;
-
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
@@ -125,7 +123,7 @@ public class LevelManager{
 			engine.addEntity(enemy);
 		}
 		
-		// 6. Spawn in player
+		// 6. Spawn in player (if that fails, switch to editor mode)
 		spawnPlayer(newLevel);
 		Body body = Mappers.body.get(player).body;
 		
@@ -186,9 +184,14 @@ public class LevelManager{
 	
 	@SuppressWarnings("unchecked")
 	public void spawnPlayer(Level newLevel){
+		EntitySpawn spawn = newLevel.getPlayerSpawn();
+		if(spawn == null) {
+			System.out.println("No spawn point set for player... Spawning player at (0,0)");
+			spawn = new EntitySpawn(EntityIndex.KNIGHT, new Vector2(), true);
+		}
 		Entity player = null;
 		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
-			player = EntityIndex.KNIGHT.create(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y);
+			player = spawn.getIndex().create(spawn.getPos().x, spawn.getPos().y);
 			player.getComponent(InputComponent.class).set(input);
 			engine.addEntity(player);
 			this.player = player;
@@ -196,7 +199,7 @@ public class LevelManager{
 			player = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
 		}
 		Body body = Mappers.body.get(player).body;
-		body.setTransform(newLevel.getPlayerSpawnPoint().x, newLevel.getPlayerSpawnPoint().y, 0.0f);
+		body.setTransform(spawn.getPos().x, spawn.getPos().y, 0.0f);
 		Mappers.level.get(player).level = newLevel;
 		
 		ConsoleCommands.setPlayer(player);

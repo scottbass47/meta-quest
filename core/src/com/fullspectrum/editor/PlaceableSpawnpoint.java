@@ -11,6 +11,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.ExpandableGrid;
+import com.fullspectrum.level.Level;
+import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
 
@@ -33,7 +35,12 @@ public class PlaceableSpawnpoint implements Placeable{
 		float hitX = mousePos.x;
 		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
 
-		editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
+		Level level = editor.getCurrentLevel();
+		if(entityIndex == EntityIndex.KNIGHT || entityIndex == EntityIndex.ALCHEMIST || entityIndex == EntityIndex.ROGUE) {
+			level.setPlayerSpawn(new EntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight));
+		} else {
+			editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
+		}
 	}
 
 	@Override

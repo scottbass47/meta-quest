@@ -47,7 +47,7 @@ public class Level {
 //	private Array<Tile> ladders;
 
 	// Spawns
-	private Vector2 playerSpawn;
+	private EntitySpawn playerSpawn;
 	private Array<EntitySpawn> entitySpawns;
 	
 	// Level Info
@@ -81,7 +81,7 @@ public class Level {
 	 * Called once when level is loaded from disk. Do stuff in here that won't change when using editor mode.
 	 */
 	private void loadMap() {
-		playerSpawn = new Vector2(10, 10);
+//		playerSpawn = new Vector2(10, 10);
 		cameraZoom = 3.0f;
 		
 		TilesetLoader loader = new TilesetLoader();
@@ -713,10 +713,6 @@ public class Level {
 		return isSolid((int) y, (int) x);
 	}
 
-	public Vector2 getPlayerSpawnPoint() {
-		return playerSpawn;
-	}
-	
 	public boolean performRayTrace(float x1, float y1, float x2, float y2) {
 		int startCol = (int) x1;
 		int startRow = (int) y1;
@@ -843,11 +839,11 @@ public class Level {
 		this.tileMap = tileMap;
 	}
 
-	public Vector2 getPlayerSpawn() {
+	public EntitySpawn getPlayerSpawn() {
 		return playerSpawn;
 	}
 
-	public void setPlayerSpawn(Vector2 playerSpawn) {
+	public void setPlayerSpawn(EntitySpawn playerSpawn) {
 		this.playerSpawn = playerSpawn;
 	}
 
@@ -915,6 +911,12 @@ public class Level {
 				output.writeInt(spawn.getIndex().ordinal()); // CLEANUP Writing index is dangerous, it will break if enum gets reordered
 				output.writeBoolean(spawn.facingRight);
 			}
+			
+			EntitySpawn spawn = object.getPlayerSpawn();
+			output.writeFloat(spawn.getPos().x);
+			output.writeFloat(spawn.getPos().y);
+			output.writeInt(spawn.getIndex().ordinal()); // CLEANUP Writing index is dangerous, it will break if enum gets reordered
+			output.writeBoolean(spawn.facingRight);
 		}
 
 		@Override
@@ -946,6 +948,16 @@ public class Level {
 				spawns.add(spawn);
 			}
 			level.entitySpawns = spawns;
+			
+			try {
+				EntitySpawn playerSpawn = new EntitySpawn();
+				playerSpawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
+				playerSpawn.index = EntityIndex.values()[input.readInt()];
+				playerSpawn.facingRight = input.readBoolean();
+				level.setPlayerSpawn(playerSpawn);
+			} catch (Exception e) {
+				System.out.println("No player spawn");
+			}
 			
 			return level;
 		}

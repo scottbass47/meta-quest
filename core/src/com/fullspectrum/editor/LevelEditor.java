@@ -174,7 +174,16 @@ public class LevelEditor extends InputMultiplexer{
 			selectAction = (SelectAction) actionManager.getCurrentActionInstance();
 		}
 		
-		for(EntitySpawn entitySpawn : currentLevel.getEntitySpawns()) {
+		for(int i = 0; i < currentLevel.getEntitySpawns().size + 1; i++ ) { 
+			EntitySpawn entitySpawn = null;
+			if(i == 0 && currentLevel.getPlayerSpawn() != null) {
+				entitySpawn = currentLevel.getPlayerSpawn();
+			} else if(i == 0 && currentLevel.getPlayerSpawn() == null) {
+				continue;
+			} else {
+				entitySpawn = currentLevel.getEntitySpawns().get(i - 1);
+			}
+			
 			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
 			EntityIndex index = entitySpawn.getIndex();
 			Vector2 pos = entitySpawn.getPos();
