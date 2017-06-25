@@ -90,12 +90,14 @@ public enum Asset {
 	
 		
 	// Alchemist
-	ALCHEMIST_IDLE(Atlas.ENTITY, "idle/alchemist_idle"),
-	ALCHEMIST_RUN(Atlas.ENTITY, "run/alchemist_run"),
-	ALCHEMIST_JUMP(Atlas.ENTITY, "jump/alchemist_jump"),
-	ALCHEMIST_RISE(Atlas.ENTITY, "rise/alchemist_rise"),
-	ALCHEMIST_APEX(Atlas.ENTITY, "apex/alchemist_apex"),
-	ALCHEMIST_FALL(Atlas.ENTITY, "fall/alchemist_fall"),
+	MONK_IDLE(Atlas.ENTITY, "idle/monk_idle"),
+	MONK_RUN(Atlas.ENTITY, "run/monk_run"),
+	MONK_JUMP(Atlas.ENTITY, "jump/monk_jump"),
+	MONK_RISE(Atlas.ENTITY, "rise/monk_rise"),
+	MONK_APEX(Atlas.ENTITY, "apex/monk_apex"),
+	MONK_FALL(Atlas.ENTITY, "fall/monk_fall"),
+	MONK_SWING_ATTACK_FRONT(Atlas.ENTITY, "swing_attack_front/monk_swing_attack_front"),
+	MONK_SWING_ATTACK_UP(Atlas.ENTITY, "swing_attack_up/monk_swing_attack_up"),
 		
 	// Coins
 	COIN_SILVER(Atlas.ENTITY, "coin_silver"),

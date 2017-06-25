@@ -7,7 +7,7 @@ public enum EntityType {
 	// Players
 	KNIGHT,
 	ROGUE,
-	MAGE,
+	MONK,
 	
 	// Enemies
 	AI_PLAYER,

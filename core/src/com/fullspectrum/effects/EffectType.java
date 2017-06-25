@@ -4,6 +4,7 @@ public enum EffectType {
 
 	KNOCKBACK,
 	EASE,
-	STUN
+	STUN,
+	POISON
 	
 }

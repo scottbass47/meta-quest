@@ -45,6 +45,14 @@ public class Effects {
 		}
 	}
 	
+	public static void givePoison(Entity fromEntity, Entity toEntity, float duration, float dps) {
+		EffectComponent effectComp = Mappers.effect.get(toEntity);
+		Effect effect = new PoisonEffect(fromEntity, toEntity, duration, dps);
+		if(effect.apply()) {
+			effectComp.add(effect);
+		} 
+	}
+	
 	public static void clearAll(Entity entity){
 		if(Mappers.effect.get(entity) == null) return;
 		TimerComponent timerComp = Mappers.timer.get(entity);

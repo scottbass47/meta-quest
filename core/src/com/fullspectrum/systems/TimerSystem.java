@@ -20,7 +20,8 @@ public class TimerSystem extends IteratingSystem{
 		TimerComponent timerComp = Mappers.timer.get(entity);
 		if(timerComp.timers.size == 0) return;
 		for(Iterator<String> iter = timerComp.timers.keys().iterator(); iter.hasNext();){
-			Timer timer = timerComp.get(iter.next());
+			String name = iter.next();
+			Timer timer = timerComp.get(name);
 			if(timer.isPaused()) continue;
 			timer.addTime(deltaTime);
 			if(timer.isDone()){

@@ -15,10 +15,8 @@
 	// Health
 	health: 100,
 	
-	// Ability Cooldowns
-	mana_bomb_cooldown: 0.0,
+	// Base Attack
+	swing_damage: 10.0,
+	swing_knockback: 5.0
 	
-	// Ability Stats
-	mana_bomb_damage: 50.0,
-	mana_bomb_speed: 10.0
 }

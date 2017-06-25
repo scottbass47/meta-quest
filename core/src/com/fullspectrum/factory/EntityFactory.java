@@ -19,8 +19,8 @@ import static com.fullspectrum.entity.EntityType.EXPLOSIVE_PARTICLE;
 import static com.fullspectrum.entity.EntityType.HOMING_KNIFE;
 import static com.fullspectrum.entity.EntityType.KNIGHT;
 import static com.fullspectrum.entity.EntityType.LEVEL_TRIGGER;
-import static com.fullspectrum.entity.EntityType.MAGE;
 import static com.fullspectrum.entity.EntityType.MANA_BOMB;
+import static com.fullspectrum.entity.EntityType.MONK;
 import static com.fullspectrum.entity.EntityType.PARTICLE;
 import static com.fullspectrum.entity.EntityType.ROGUE;
 import static com.fullspectrum.entity.EntityType.SLIME;
@@ -53,7 +53,6 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.Sort;
-import com.fullspectrum.ability.ManaBombAbility;
 import com.fullspectrum.ability.knight.AntiMagneticAbility;
 import com.fullspectrum.ability.knight.BlacksmithAbility;
 import com.fullspectrum.ability.knight.DashSlashAbility;
@@ -153,7 +152,9 @@ import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectType;
+import com.fullspectrum.effects.PoisonDef;
 import com.fullspectrum.entity.CoinType;
+import com.fullspectrum.entity.DelayedAction;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityIndex;
@@ -163,7 +164,6 @@ import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.entity.EntityType;
-import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
 import com.fullspectrum.fsm.AIState;
 import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.AnimationStateMachine;
@@ -496,10 +496,11 @@ public class EntityFactory {
 		float knockback = knightStats.get("sword_knockback");
 		
 		// Setup swings
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, swordDamage, knockback);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, swordDamage, knockback);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, swordDamage, knockback);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, swordDamage, knockback);
+		PoisonDef def = new PoisonDef(knight, 1.0f, 100000);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, swordDamage, knockback).addEffect(def);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, swordDamage, knockback).addEffect(def);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, swordDamage, knockback).addEffect(def);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, swordDamage, knockback).addEffect(def);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -1615,26 +1616,25 @@ public class EntityFactory {
 		return rogue;
 	}
 	
-	public static Entity createAlchemist(float x, float y){
-//		Entity sword = createSword(engine, world, level, player, x, y, 100);
-		
-		final EntityStats alchemistStats = EntityLoader.get(EntityIndex.ALCHEMIST);
+	public static Entity createMonk(float x, float y){
+		final EntityStats monkStats = EntityLoader.get(EntityIndex.MONK);
 		
 		// Animations
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ALCHEMIST_IDLE));
-		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.ALCHEMIST_RUN));
-		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.ALCHEMIST_JUMP));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.ALCHEMIST_FALL));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ALCHEMIST_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.ALCHEMIST_APEX));
-		animMap.put(EntityAnim.SWING_1, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.MONK_IDLE));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.MONK_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.MONK_JUMP));
+		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.MONK_FALL));
+		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.MONK_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.MONK_APEX));
+		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_SWING_ATTACK_FRONT));
+		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_SWING_ATTACK_UP));
 		
-		Entity mage = new EntityBuilder(MAGE, FRIENDLY)
+		Entity mage = new EntityBuilder(MONK, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, alchemistStats.get("health"))
+			.mob(null, monkStats.get("health"))
 			.build();
 		
 		// Player Related Components4
@@ -1642,102 +1642,92 @@ public class EntityFactory {
 		mage.add(engine.createComponent(MoneyComponent.class));
 		mage.add(engine.createComponent(PlayerComponent.class));
 		mage.add(engine.createComponent(BarrierComponent.class)
-				.set(alchemistStats.get("shield"), 
-					 alchemistStats.get("shield"), 
-					 alchemistStats.get("shield_rate"), 
-					 alchemistStats.get("shield_delay")));
-		mage.add(engine.createComponent(AbilityComponent.class)
-			.add(new ManaBombAbility(alchemistStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
+				.set(monkStats.get("shield"), 
+					 monkStats.get("shield"), 
+					 monkStats.get("shield_rate"), 
+					 monkStats.get("shield_delay")));
+		mage.add(engine.createComponent(AbilityComponent.class));
+//			.add(new ManaBombAbility(alchemistStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
 		
-//		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Mage ESM", engine, mage)
-//			.idle()
-//			.run(alchemistStats.get("ground_speed"))
-//			.jump(alchemistStats.get("jump_force"), alchemistStats.get("jump_float_amount"), alchemistStats.get("air_speed"), true, true)
-//			.fall(alchemistStats.get("air_speed"), true)
-//			.climb(alchemistStats.get("climb_speed"))
-////			.swingAttack(sword, 150f, 210f, 0.6f, 25f)
-//			.build();
+		EntityStateMachine esm = StateFactory.createBaseBipedal(mage, monkStats);
 		
-		EntityStateMachine esm = StateFactory.createBaseBipedal(mage, alchemistStats);
-		
-		esm.createState(EntityStates.PROJECTILE_ATTACK)
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-			.add(engine.createComponent(DirectionComponent.class))
-			.add(engine.createComponent(GroundMovementComponent.class))
-			.addAnimation(EntityAnim.SWING_1)
-			.addTag(TransitionTag.STATIC_STATE)
-			.addChangeListener(new StateChangeListener(){
+		esm.createState(EntityStates.SWING_ATTACK)
+			.addAnimation(EntityAnim.SWING)
+			.addAnimation(EntityAnim.SWING_UP)
+			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, 0.0f);
-					Entity bomb = EntityFactory.createManaBomb(data.x, data.y, data.angle, alchemistStats.get("mana_bomb_damage"), 5.0f, EntityStatus.FRIENDLY);
-					EntityManager.addEntity(bomb);
+					Input input = Mappers.input.get(entity).input;
+					final boolean swingUp = input.isPressed(Actions.MOVE_UP);
+					
+					// Animation Handling
+					EntityManager.addDelayedAction(new DelayedAction(entity) {
+						@Override
+						public void onAction() {
+							Entity entity = getEntity();
+							
+							AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.SWING);
+							if(swingUp) {
+								asm.changeState(EntityAnim.SWING_UP);
+							} else {
+								asm.changeState(EntityAnim.SWING);
+							}
+						}
+					});
+					
+					// Create the right swing
+					SwingComponent swingComp = engine.createComponent(SwingComponent.class);
+					float damage = monkStats.get("swing_damage");
+					float knockback = monkStats.get("swing_knockback");
+					
+					if(swingUp) {
+						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback);
+					} else {
+						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback);
+					}
+					
+					swingComp.shouldSwing = true;
+					entity.add(swingComp);
+					
+					// Setup the right type of movement
+					if(swingUp) {
+						entity.add(engine.createComponent(GroundMovementComponent.class));
+						entity.add(engine.createComponent(SpeedComponent.class).set(0.0f));
+						entity.add(engine.createComponent(DirectionComponent.class));
+					} else {
+						entity.add(engine.createComponent(FrameMovementComponent.class).set("monk/frames_swing_attack_front"));
+					}
+					
+					// Lock facing
+					Mappers.facing.get(entity).locked = true;
+					
+					// Set gravity scale to 0
+					Body body = Mappers.body.get(entity).body;
+					body.setGravityScale(0.0f);
+					body.setLinearVelocity(0.0f, 0.0f);
 				}
 
 				@Override
 				public void onExit(State nextState, Entity entity) {
-					
+					entity.remove(SwingComponent.class);
+					entity.remove(GroundMovementComponent.class);
+					entity.remove(SpeedComponent.class);
+					entity.remove(DirectionComponent.class);
+					entity.remove(FrameMovementComponent.class);
+
+					Mappers.facing.get(entity).locked = false;
+					Mappers.body.get(entity).body.setGravityScale(1.0f);
 				}
 			});
-				
-//		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
-//		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-//		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-//
-//		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
-//		jumpData.triggers.add(new InputTrigger(Actions.JUMP, true));
-//
-//		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
-//		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-//		idleData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-//
-//		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
-//		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-//		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-
-//		InputTransitionData diveData = new InputTransitionData(Type.ALL, true);
-//		diveData.triggers.add(new InputTrigger(Actions.MOVE_DOWN));
 		
-		// Attack
-//		InputTransitionData attackData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-//		AbilityTransitionData manaBombAbility = new AbilityTransitionData(AbilityType.MANA_BOMB);
-//		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
-//				.and(Transitions.ABILITY, manaBombAbility);
+		// Input Data
+		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		
-//		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
-//		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
-//		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_DOWN, false));
-//		
-//		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
-//		
-//		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
-//			.and(Transitions.COLLISION, ladderCollisionData);
-//		
-//		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
-		
-//		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
-//		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.FALLING, EntityStates.FALLING);
-//		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
-//		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
-////		fsm.addTransition(fsm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING, EntityStates.DIVING), Transitions.INPUT, diveData, EntityStates.DIVING);
-////		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
-////		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-//		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-//		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
-//		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.PROJECTILE_ATTACK), attackTransition, EntityStates.PROJECTILE_ATTACK);
-		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-//		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, new TimeTransitionData(0.2f), EntityStates.IDLING);
-		
-//		System.out.print(esm.printTransitions(true));
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.INPUT, attackInput, EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 
 		esm.changeState(EntityStates.IDLING);
 		
-//		fsm.disableState(EntityStates.DIVING);
-//		esm.changeState(EntityStates.IDLING);
 		return mage;
 	}
 	
@@ -1842,8 +1832,6 @@ public class EntityFactory {
 //		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
 //		System.out.print(esm.printTransitions());
-		
-		System.out.println(esm.printTransitions());
 		
 		esm.changeState(EntityStates.IDLING);
 		

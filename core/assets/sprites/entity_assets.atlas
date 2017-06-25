@@ -1,137 +1,130 @@
 entity_assets.png
-size: 508, 1752
+size: 508, 1831
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
-apex/alchemist_apex
-  rotate: false
-  xy: 76, 168
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 1
-apex/alchemist_apex
-  rotate: false
-  xy: 240, 130
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 2
-apex/alchemist_apex
-  rotate: false
-  xy: 271, 130
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 3
-apex/alchemist_apex
-  rotate: false
-  xy: 209, 130
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 4
-apex/alchemist_apex
-  rotate: false
-  xy: 106, 130
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 5
 apex/knight_apex
   rotate: false
-  xy: 221, 244
+  xy: 91, 125
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 1
 apex/knight_apex
   rotate: false
-  xy: 159, 244
+  xy: 409, 277
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 2
 apex/knight_apex
   rotate: false
-  xy: 56, 244
+  xy: 316, 277
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 3
 apex/knight_apex
   rotate: false
-  xy: 439, 244
+  xy: 347, 277
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 4
 apex/knight_apex
   rotate: false
-  xy: 356, 244
+  xy: 378, 277
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 5
+apex/monk_apex
+  rotate: false
+  xy: 160, 239
+  size: 52, 34
+  orig: 52, 34
+  offset: 0, 0
+  index: 1
+apex/monk_apex
+  rotate: false
+  xy: 268, 239
+  size: 52, 34
+  orig: 52, 34
+  offset: 0, 0
+  index: 2
+apex/monk_apex
+  rotate: false
+  xy: 380, 239
+  size: 52, 34
+  orig: 52, 34
+  offset: 0, 0
+  index: 3
+apex/monk_apex
+  rotate: false
+  xy: 324, 239
+  size: 52, 34
+  orig: 52, 34
+  offset: 0, 0
+  index: 4
 apex/slime_apex
   rotate: false
-  xy: 220, 324
+  xy: 424, 317
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 1
 apex/slime_apex
   rotate: false
-  xy: 256, 324
+  xy: 352, 317
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 2
 apex/slime_apex
   rotate: false
-  xy: 184, 324
+  xy: 388, 317
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 3
 apex_arms/rogue_apex_arms
   rotate: false
-  xy: 420, 376
+  xy: 56, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 apex_arms/rogue_apex_arms
   rotate: false
-  xy: 264, 376
+  xy: 420, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 apex_arms/rogue_apex_arms
   rotate: false
-  xy: 4, 376
+  xy: 4, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 apex_legs/rogue_apex_legs
   rotate: false
-  xy: 416, 324
+  xy: 160, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 apex_legs/rogue_apex_legs
   rotate: false
-  xy: 56, 376
+  xy: 4, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 apex_legs/rogue_apex_legs
   rotate: false
-  xy: 108, 844
+  xy: 56, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -145,189 +138,189 @@ arrow_projectile/rogue_arrow_projectile
   index: 1
 attack/spitter_attack
   rotate: false
-  xy: 264, 282
+  xy: 108, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 1
 attack/spitter_attack
   rotate: false
-  xy: 212, 282
+  xy: 440, 277
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 2
 attack/spitter_attack
   rotate: false
-  xy: 56, 282
+  xy: 4, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 3
 attack/spitter_attack
   rotate: false
-  xy: 4, 282
+  xy: 212, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 4
 attack/spitter_attack
   rotate: false
-  xy: 108, 282
+  xy: 264, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 5
 attack/spitter_attack
   rotate: false
-  xy: 160, 282
+  xy: 56, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 6
 attack/spitter_attack
   rotate: false
-  xy: 316, 282
+  xy: 160, 317
   size: 48, 36
   orig: 48, 36
   offset: 0, 0
   index: 7
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 368, 792
+  xy: 4, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 212, 792
+  xy: 368, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 316, 792
+  xy: 108, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 264, 792
+  xy: 420, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 160, 792
+  xy: 108, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 back_pedal_arms/rogue_back_pedal_arms
   rotate: false
-  xy: 420, 844
+  xy: 368, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 160, 636
+  xy: 264, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 264, 636
+  xy: 316, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 316, 636
+  xy: 264, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 212, 636
+  xy: 160, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 108, 636
+  xy: 4, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 back_pedal_legs/rogue_back_pedal_legs
   rotate: false
-  xy: 316, 584
+  xy: 368, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 balloon_idle/rogue_balloon_idle
   rotate: false
-  xy: 264, 584
+  xy: 264, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 balloon_inflate/rogue_balloon_inflate
   rotate: false
-  xy: 212, 740
+  xy: 212, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 balloon_inflate/rogue_balloon_inflate
   rotate: false
-  xy: 56, 792
+  xy: 392, 403
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 balloon_inflate/rogue_balloon_inflate
   rotate: false
-  xy: 420, 740
+  xy: 444, 403
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 balloon_inflate/rogue_balloon_inflate
   rotate: false
-  xy: 316, 740
+  xy: 56, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 balloon_pop/rogue_balloon_pop
   rotate: false
-  xy: 212, 688
+  xy: 108, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 balloon_pop/rogue_balloon_pop
   rotate: false
-  xy: 212, 532
+  xy: 108, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 balloon_pop/rogue_balloon_pop
   rotate: false
-  xy: 4, 844
+  xy: 420, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -341,280 +334,280 @@ balloon_projectile/rogue_balloon_projectile
   index: 1
 boomerang/rogue_boomerang
   rotate: false
-  xy: 124, 35
+  xy: 52, 35
   size: 20, 16
   orig: 20, 16
   offset: 0, 0
   index: 1
-boomerang/rogue_boomerang
-  rotate: false
-  xy: 100, 35
-  size: 20, 16
-  orig: 20, 16
-  offset: 0, 0
-  index: 2
-boomerang/rogue_boomerang
-  rotate: false
-  xy: 148, 35
-  size: 20, 16
-  orig: 20, 16
-  offset: 0, 0
-  index: 3
-boomerang/rogue_boomerang
-  rotate: false
-  xy: 76, 35
-  size: 20, 16
-  orig: 20, 16
-  offset: 0, 0
-  index: 4
-boomerang/rogue_boomerang
-  rotate: false
-  xy: 228, 35
-  size: 20, 16
-  orig: 20, 16
-  offset: 0, 0
-  index: 5
 boomerang/rogue_boomerang
   rotate: false
   xy: 28, 35
   size: 20, 16
   orig: 20, 16
   offset: 0, 0
+  index: 2
+boomerang/rogue_boomerang
+  rotate: false
+  xy: 76, 35
+  size: 20, 16
+  orig: 20, 16
+  offset: 0, 0
+  index: 3
+boomerang/rogue_boomerang
+  rotate: false
+  xy: 172, 35
+  size: 20, 16
+  orig: 20, 16
+  offset: 0, 0
+  index: 4
+boomerang/rogue_boomerang
+  rotate: false
+  xy: 148, 35
+  size: 20, 16
+  orig: 20, 16
+  offset: 0, 0
+  index: 5
+boomerang/rogue_boomerang
+  rotate: false
+  xy: 100, 35
+  size: 20, 16
+  orig: 20, 16
+  offset: 0, 0
   index: 6
 boomerang/rogue_boomerang
   rotate: false
-  xy: 4, 35
+  xy: 124, 35
   size: 20, 16
   orig: 20, 16
   offset: 0, 0
   index: 7
 boomerang/rogue_boomerang
   rotate: false
-  xy: 52, 35
+  xy: 4, 35
   size: 20, 16
   orig: 20, 16
   offset: 0, 0
   index: 8
 boomerang_arms/rogue_boomerang_arms
   rotate: false
-  xy: 316, 688
+  xy: 316, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 boomerang_arms/rogue_boomerang_arms
   rotate: false
-  xy: 420, 688
+  xy: 4, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 boomerang_arms/rogue_boomerang_arms
   rotate: false
-  xy: 368, 688
+  xy: 108, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 boomerang_arms/rogue_boomerang_arms
   rotate: false
-  xy: 264, 688
+  xy: 264, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 bow/rogue_bow
   rotate: false
-  xy: 160, 688
+  xy: 212, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 bow/rogue_bow
   rotate: false
-  xy: 4, 688
+  xy: 212, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 bow/rogue_bow
   rotate: false
-  xy: 108, 688
+  xy: 56, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 bow/rogue_bow
   rotate: false
-  xy: 56, 688
+  xy: 264, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 bow/rogue_bow
   rotate: false
-  xy: 4, 740
+  xy: 4, 975
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 bow/rogue_bow
   rotate: false
-  xy: 56, 740
+  xy: 420, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 chain_1/knight_chain1_anticipation
   rotate: false
-  xy: 387, 244
+  xy: 436, 239
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_1/knight_chain1_idle_anticipation
   rotate: false
-  xy: 304, 244
+  xy: 56, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_1/knight_chain1_idle_anticipation
   rotate: false
-  xy: 252, 244
+  xy: 160, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_1/knight_chain1_swing
   rotate: false
-  xy: 4, 244
+  xy: 212, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_1/knight_chain1_swing
   rotate: false
-  xy: 382, 92
+  xy: 108, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_2/knight_chain2_anticipation
   rotate: false
-  xy: 56, 206
+  xy: 4, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_2/knight_chain2_idle_anticipation
   rotate: false
-  xy: 108, 206
+  xy: 216, 239
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_2/knight_chain2_idle_anticipation
   rotate: false
-  xy: 212, 206
+  xy: 108, 239
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_2/knight_chain2_swing
   rotate: false
-  xy: 264, 206
+  xy: 160, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_2/knight_chain2_swing
   rotate: false
-  xy: 368, 206
+  xy: 264, 277
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_3/knight_chain3_anticipation
   rotate: false
-  xy: 420, 206
+  xy: 212, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_3/knight_chain3_idle_anticipation
   rotate: false
-  xy: 316, 206
+  xy: 108, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_3/knight_chain3_idle_anticipation
   rotate: false
-  xy: 160, 206
+  xy: 4, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_3/knight_chain3_swing
   rotate: false
-  xy: 4, 206
+  xy: 264, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_3/knight_chain3_swing
   rotate: false
-  xy: 138, 168
+  xy: 368, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_4/knight_chain4_anticipation
   rotate: false
-  xy: 190, 168
+  xy: 4, 239
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_4/knight_chain4_idle_anticipation
   rotate: false
-  xy: 273, 168
+  xy: 56, 239
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_4/knight_chain4_idle_anticipation
   rotate: false
-  xy: 429, 168
+  xy: 420, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 chain_4/knight_chain4_swing
   rotate: false
-  xy: 325, 168
+  xy: 316, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 1
 chain_4/knight_chain4_swing
   rotate: false
-  xy: 377, 168
+  xy: 56, 201
   size: 48, 34
   orig: 48, 34
   offset: 0, 0
   index: 2
 coin_blue
   rotate: false
-  xy: 26, 4
+  xy: 18, 4
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: 1
 coin_explosion
   rotate: false
-  xy: 386, 35
+  xy: 458, 35
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
@@ -628,252 +621,252 @@ coin_explosion
   index: 2
 coin_explosion
   rotate: false
-  xy: 482, 35
+  xy: 410, 35
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: 3
 coin_explosion
   rotate: false
-  xy: 458, 35
+  xy: 482, 35
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: 4
 coin_explosion
   rotate: false
-  xy: 410, 35
+  xy: 386, 35
   size: 20, 20
   orig: 20, 20
   offset: 0, 0
   index: 5
 coin_gold
   rotate: false
-  xy: 10, 4
+  xy: 26, 4
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: 1
 coin_silver
   rotate: false
-  xy: 18, 4
+  xy: 10, 4
   size: 4, 4
   orig: 4, 4
   offset: 0, 0
   index: 1
 death/spitter_death
   rotate: false
-  xy: 449, 1008
+  xy: 102, 1151
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 1
 death/spitter_death
   rotate: false
-  xy: 102, 1072
+  xy: 449, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 2
 death/spitter_death
   rotate: false
-  xy: 200, 1072
+  xy: 302, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 3
 death/spitter_death
   rotate: false
-  xy: 400, 1008
+  xy: 253, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 4
 death/spitter_death
   rotate: false
-  xy: 351, 1008
+  xy: 4, 1151
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 5
 death/spitter_death
   rotate: false
-  xy: 204, 1008
+  xy: 200, 1151
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 6
 death/spitter_death
   rotate: false
-  xy: 253, 1008
+  xy: 204, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 7
 death/spitter_death
   rotate: false
-  xy: 302, 1008
+  xy: 53, 1151
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 8
 death/spitter_death
   rotate: false
-  xy: 4, 1072
+  xy: 151, 1151
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 9
 death/spitter_death
   rotate: false
-  xy: 53, 1072
+  xy: 351, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 10
 death/spitter_death
   rotate: false
-  xy: 151, 1072
+  xy: 400, 1087
   size: 45, 60
   orig: 45, 60
   offset: 0, 0
   index: 11
 dynamite_arms/rogue_dynamite_arms
   rotate: false
-  xy: 4, 792
+  xy: 420, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 dynamite_arms/rogue_dynamite_arms
   rotate: false
-  xy: 368, 740
+  xy: 368, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 dynamite_arms/rogue_dynamite_arms
   rotate: false
-  xy: 264, 740
+  xy: 4, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 dynamite_arms/rogue_dynamite_arms
   rotate: false
-  xy: 108, 740
+  xy: 316, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 dynamite_projectile/rogue_dynamite_projectile
   rotate: false
-  xy: 102, 4
+  xy: 140, 4
   size: 2, 8
   orig: 2, 8
   offset: 0, 0
   index: 1
 execute/rogue_execute
   rotate: false
-  xy: 160, 740
+  xy: 212, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 execute/rogue_execute
   rotate: false
-  xy: 420, 636
+  xy: 56, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 execute/rogue_execute
   rotate: false
-  xy: 368, 636
+  xy: 160, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 execute/rogue_execute
   rotate: false
-  xy: 108, 584
+  xy: 316, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 execute/rogue_execute
   rotate: false
-  xy: 212, 584
+  xy: 264, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 execute/rogue_execute
   rotate: false
-  xy: 160, 584
+  xy: 368, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
-fall/alchemist_fall
+fall/knight_fall
   rotate: false
-  xy: 291, 92
+  xy: 4, 125
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 1
-fall/knight_fall
+fall/monk_fall
   rotate: false
-  xy: 188, 92
-  size: 27, 34
-  orig: 27, 34
+  xy: 35, 125
+  size: 52, 34
+  orig: 52, 34
   offset: 0, 0
   index: 1
 fall/slime_fall
   rotate: false
-  xy: 148, 324
+  xy: 460, 317
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 1
 fall_arms/rogue_fall_arms
   rotate: false
-  xy: 56, 584
+  xy: 212, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 fall_legs/rogue_fall_legs
   rotate: false
-  xy: 108, 792
+  xy: 108, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 flash_powder_arms/rogue_flash_powder_arms
   rotate: false
-  xy: 4, 584
+  xy: 264, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 flash_powder_arms/rogue_flash_powder_arms
   rotate: false
-  xy: 316, 532
+  xy: 160, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 flash_powder_arms/rogue_flash_powder_arms
   rotate: false
-  xy: 420, 532
+  xy: 160, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 flash_powder_arms/rogue_flash_powder_arms
   rotate: false
-  xy: 368, 532
+  xy: 212, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
@@ -887,7 +880,7 @@ flash_powder_explosion
   index: 1
 flash_powder_explosion
   rotate: false
-  xy: 117, 18
+  xy: 425, 18
   size: 73, 13
   orig: 73, 13
   offset: 0, 0
@@ -901,259 +894,259 @@ flash_powder_explosion
   index: 3
 flash_powder_explosion
   rotate: false
-  xy: 271, 18
+  xy: 194, 18
   size: 73, 13
   orig: 73, 13
   offset: 0, 0
   index: 4
 flash_powder_explosion
   rotate: false
-  xy: 194, 18
+  xy: 271, 18
   size: 73, 13
   orig: 73, 13
   offset: 0, 0
   index: 5
 flash_powder_explosion
   rotate: false
-  xy: 425, 18
+  xy: 117, 18
   size: 73, 13
   orig: 73, 13
   offset: 0, 0
   index: 6
 flying_projectile/spitter_flying_projectile
   rotate: false
-  xy: 85, 4
+  xy: 51, 4
   size: 13, 6
   orig: 13, 6
   offset: 0, 0
   index: 1
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 56, 636
+  xy: 108, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 368, 844
+  xy: 420, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 264, 844
+  xy: 316, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 212, 844
+  xy: 56, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 108, 896
+  xy: 160, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 212, 896
+  xy: 56, 975
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 160, 896
+  xy: 160, 975
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 7
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 56, 896
+  xy: 212, 975
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 8
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 4, 896
+  xy: 316, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 9
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 368, 584
+  xy: 4, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 10
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 4, 636
+  xy: 264, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 11
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 420, 584
+  xy: 368, 715
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 12
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 264, 532
+  xy: 56, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 13
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 160, 844
+  xy: 4, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 14
 homing_knives_throw/rogue_homing_knives_throw
   rotate: false
-  xy: 316, 844
+  xy: 420, 819
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 15
-idle/alchemist_idle
-  rotate: false
-  xy: 356, 59
-  size: 22, 28
-  orig: 22, 28
-  offset: 0, 0
-  index: 1
 idle/knight_idle
   rotate: false
-  xy: 330, 59
+  xy: 193, 59
   size: 22, 28
   orig: 22, 28
   offset: 0, 0
   index: 1
-idle/slime_idle
+idle/monk_idle
   rotate: false
-  xy: 108, 4
-  size: 15, 8
-  orig: 15, 8
+  xy: 154, 59
+  size: 35, 28
+  orig: 35, 28
   offset: 0, 0
   index: 1
 idle/slime_idle
   rotate: false
-  xy: 165, 4
+  xy: 102, 4
   size: 15, 8
   orig: 15, 8
   offset: 0, 0
-  index: 2
-idle/slime_idle
-  rotate: false
-  xy: 203, 4
-  size: 15, 8
-  orig: 15, 8
-  offset: 0, 0
-  index: 3
+  index: 1
 idle/slime_idle
   rotate: false
   xy: 241, 4
   size: 15, 8
   orig: 15, 8
   offset: 0, 0
+  index: 2
+idle/slime_idle
+  rotate: false
+  xy: 165, 4
+  size: 15, 8
+  orig: 15, 8
+  offset: 0, 0
+  index: 3
+idle/slime_idle
+  rotate: false
+  xy: 203, 4
+  size: 15, 8
+  orig: 15, 8
+  offset: 0, 0
   index: 4
-idle/slime_idle
-  rotate: false
-  xy: 184, 4
-  size: 15, 8
-  orig: 15, 8
-  offset: 0, 0
-  index: 5
-idle/slime_idle
-  rotate: false
-  xy: 146, 4
-  size: 15, 8
-  orig: 15, 8
-  offset: 0, 0
-  index: 6
-idle/slime_idle
-  rotate: false
-  xy: 127, 4
-  size: 15, 8
-  orig: 15, 8
-  offset: 0, 0
-  index: 7
 idle/slime_idle
   rotate: false
   xy: 222, 4
   size: 15, 8
   orig: 15, 8
   offset: 0, 0
+  index: 5
+idle/slime_idle
+  rotate: false
+  xy: 184, 4
+  size: 15, 8
+  orig: 15, 8
+  offset: 0, 0
+  index: 6
+idle/slime_idle
+  rotate: false
+  xy: 146, 4
+  size: 15, 8
+  orig: 15, 8
+  offset: 0, 0
+  index: 7
+idle/slime_idle
+  rotate: false
+  xy: 121, 4
+  size: 15, 8
+  orig: 15, 8
+  offset: 0, 0
   index: 8
 idle/spitter_idle
   rotate: false
-  xy: 322, 92
+  xy: 473, 163
   size: 26, 34
   orig: 26, 34
   offset: 0, 0
   index: 1
 idle/spitter_idle
   rotate: false
-  xy: 464, 92
+  xy: 179, 163
   size: 26, 34
   orig: 26, 34
   offset: 0, 0
   index: 2
 idle/spitter_idle
   rotate: false
-  xy: 4, 130
+  xy: 209, 163
   size: 26, 34
   orig: 26, 34
   offset: 0, 0
   index: 3
 idle/spitter_idle
   rotate: false
-  xy: 434, 92
+  xy: 295, 163
   size: 26, 34
   orig: 26, 34
   offset: 0, 0
   index: 4
 idle/spitter_idle
   rotate: false
-  xy: 352, 92
+  xy: 325, 163
   size: 26, 34
   orig: 26, 34
   offset: 0, 0
   index: 5
 idle_arms/rogue_idle_arms
   rotate: false
-  xy: 420, 792
+  xy: 108, 975
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 idle_legs/rogue_idle_legs
   rotate: false
-  xy: 56, 844
+  xy: 368, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 init_projectile/spitter_init_projectile
   rotate: false
-  xy: 51, 4
+  xy: 85, 4
   size: 13, 6
   orig: 13, 6
   offset: 0, 0
@@ -1172,947 +1165,1017 @@ init_projectile/spitter_init_projectile
   orig: 13, 6
   offset: 0, 0
   index: 3
-jump/alchemist_jump
-  rotate: false
-  xy: 107, 168
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 1
-jump/alchemist_jump
-  rotate: false
-  xy: 436, 130
-  size: 27, 34
-  orig: 27, 34
-  offset: 0, 0
-  index: 2
 jump/knight_jump
   rotate: false
-  xy: 242, 168
+  xy: 411, 163
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 1
 jump/knight_jump
   rotate: false
-  xy: 190, 244
+  xy: 442, 163
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 2
+jump/monk_jump
+  rotate: false
+  xy: 355, 163
+  size: 52, 34
+  orig: 52, 34
+  offset: 0, 0
+  index: 1
 jump/slime_jump
   rotate: false
-  xy: 440, 282
+  xy: 112, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 1
 jump/slime_jump
   rotate: false
-  xy: 40, 324
+  xy: 148, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 2
 jump/slime_jump
   rotate: false
-  xy: 368, 282
+  xy: 220, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 3
 jump_particle
   rotate: false
-  xy: 406, 4
+  xy: 274, 4
   size: 30, 10
   orig: 30, 10
   offset: 0, 0
   index: 1
 jump_particle
   rotate: false
-  xy: 440, 4
+  xy: 356, 4
   size: 30, 10
   orig: 30, 10
   offset: 0, 0
   index: 2
 jump_particle
   rotate: false
-  xy: 474, 4
+  xy: 322, 4
   size: 30, 10
   orig: 30, 10
   offset: 0, 0
   index: 3
 jump_particle
   rotate: false
-  xy: 372, 4
+  xy: 418, 4
   size: 30, 10
   orig: 30, 10
   offset: 0, 0
   index: 4
 kick/knight_kick
   rotate: false
-  xy: 180, 59
+  xy: 64, 59
   size: 26, 27
   orig: 26, 27
   offset: 0, 0
   index: 1
 kick/knight_kick
   rotate: false
-  xy: 270, 59
+  xy: 94, 59
   size: 26, 27
   orig: 26, 27
   offset: 0, 0
   index: 2
 kick/knight_kick
   rotate: false
-  xy: 240, 59
+  xy: 34, 59
   size: 26, 27
   orig: 26, 27
   offset: 0, 0
   index: 3
 kick/knight_kick
   rotate: false
-  xy: 210, 59
+  xy: 124, 59
   size: 26, 27
   orig: 26, 27
   offset: 0, 0
   index: 4
 kick/knight_kick
   rotate: false
-  xy: 300, 59
+  xy: 4, 59
   size: 26, 27
   orig: 26, 27
   offset: 0, 0
   index: 5
 land/slime_land
   rotate: false
-  xy: 404, 282
+  xy: 40, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 1
 land/slime_land
   rotate: false
-  xy: 112, 324
+  xy: 4, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 2
 land/slime_land
   rotate: false
-  xy: 4, 324
+  xy: 184, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 3
 mana_bomb_explosion
   rotate: false
-  xy: 325, 1072
+  xy: 308, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 1
 mana_bomb_explosion
   rotate: false
-  xy: 308, 1148
+  xy: 232, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 2
 mana_bomb_explosion
   rotate: false
-  xy: 4, 1224
+  xy: 4, 1303
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 3
 mana_bomb_explosion
   rotate: false
-  xy: 249, 1072
+  xy: 384, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 4
 mana_bomb_explosion
   rotate: false
-  xy: 401, 1072
+  xy: 156, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 5
 mana_bomb_explosion
   rotate: false
-  xy: 80, 1148
+  xy: 4, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 6
 mana_bomb_explosion
   rotate: false
-  xy: 232, 1148
+  xy: 249, 1151
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 7
 mana_bomb_explosion
   rotate: false
-  xy: 4, 1148
+  xy: 325, 1151
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 8
 mana_bomb_explosion
   rotate: false
-  xy: 156, 1148
+  xy: 401, 1151
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 9
 mana_bomb_explosion
   rotate: false
-  xy: 384, 1148
+  xy: 80, 1227
   size: 72, 72
   orig: 72, 72
   offset: 0, 0
   index: 10
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 352, 1392
+  xy: 80, 1303
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 1
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 120, 1392
+  xy: 196, 1303
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 2
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 236, 1392
+  xy: 120, 1555
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 3
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 4, 1392
+  xy: 236, 1471
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 4
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 352, 1308
+  xy: 4, 1471
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 5
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 80, 1224
+  xy: 312, 1303
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 6
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 4, 1308
+  xy: 120, 1387
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 7
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 312, 1224
+  xy: 352, 1387
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 8
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 120, 1308
+  xy: 236, 1387
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 9
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 236, 1476
+  xy: 4, 1555
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 10
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 4, 1476
+  xy: 4, 1387
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 11
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 120, 1476
+  xy: 120, 1471
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 12
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 196, 1224
+  xy: 352, 1471
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 13
 overhead_swing/knight_overhead_swing
   rotate: false
-  xy: 236, 1308
+  xy: 236, 1555
   size: 112, 80
   orig: 112, 80
   offset: 0, 0
   index: 14
 parry_block/knight_parry_block
   rotate: false
-  xy: 87, 244
+  xy: 266, 125
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 1
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 219, 92
+  xy: 4, 163
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 1
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 116, 92
+  xy: 410, 125
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 2
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 137, 130
+  xy: 76, 163
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 3
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 333, 130
+  xy: 338, 125
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 4
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 34, 130
+  xy: 194, 125
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 5
 parry_swing/knight_parry_swing
   rotate: false
-  xy: 4, 168
+  xy: 122, 125
   size: 68, 34
   orig: 68, 34
   offset: 0, 0
   index: 6
-rise/alchemist_rise
+rise/knight_rise
   rotate: false
-  xy: 405, 130
+  xy: 148, 163
   size: 27, 34
   orig: 27, 34
   offset: 0, 0
   index: 1
-rise/knight_rise
+rise/monk_rise
   rotate: false
-  xy: 302, 130
-  size: 27, 34
-  orig: 27, 34
+  xy: 239, 163
+  size: 52, 34
+  orig: 52, 34
   offset: 0, 0
   index: 1
 rise/slime_rise
   rotate: false
-  xy: 76, 324
+  xy: 76, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 1
 rise/slime_rise
   rotate: false
-  xy: 292, 324
+  xy: 256, 359
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 2
 rise/slime_rise
   rotate: false
-  xy: 328, 324
+  xy: 316, 317
   size: 32, 38
   orig: 32, 38
   offset: 0, 0
   index: 3
 rise_arms/rogue_rise_arms
   rotate: false
-  xy: 316, 376
+  xy: 4, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 rise_legs/rogue_rise_legs
   rotate: false
-  xy: 368, 376
+  xy: 420, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 4, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 360, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 1
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 26, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 416, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 2
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 136, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 208, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 3
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 70, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 332, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 4
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 48, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 388, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 5
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 92, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 444, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 6
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 158, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 472, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 7
-run/alchemist_run
+run/knight_run
   rotate: false
-  xy: 114, 59
-  size: 18, 24
-  orig: 18, 24
+  xy: 236, 92
+  size: 24, 29
+  orig: 24, 29
   offset: 0, 0
   index: 8
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 32, 92
-  size: 24, 29
-  orig: 24, 29
+  xy: 72, 92
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 1
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 88, 92
-  size: 24, 29
-  orig: 24, 29
+  xy: 287, 59
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 2
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 60, 92
-  size: 24, 29
-  orig: 24, 29
+  xy: 219, 59
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 3
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 438, 59
-  size: 24, 29
-  orig: 24, 29
+  xy: 423, 59
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 4
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 382, 59
-  size: 24, 29
-  orig: 24, 29
+  xy: 355, 59
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 5
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 466, 59
-  size: 24, 29
-  orig: 24, 29
+  xy: 140, 92
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 6
-run/knight_run
+run/monk_run
   rotate: false
   xy: 4, 92
-  size: 24, 29
-  orig: 24, 29
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 7
-run/knight_run
+run/monk_run
   rotate: false
-  xy: 410, 59
-  size: 24, 29
-  orig: 24, 29
+  xy: 264, 92
+  size: 64, 29
+  orig: 64, 29
   offset: 0, 0
   index: 8
 run_arms/rogue_run_arms
   rotate: false
-  xy: 316, 428
+  xy: 316, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 run_arms/rogue_run_arms
   rotate: false
-  xy: 364, 324
+  xy: 212, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 run_arms/rogue_run_arms
   rotate: false
-  xy: 56, 480
+  xy: 160, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 run_arms/rogue_run_arms
   rotate: false
-  xy: 160, 480
+  xy: 56, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 run_arms/rogue_run_arms
   rotate: false
-  xy: 108, 480
+  xy: 212, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 run_arms/rogue_run_arms
   rotate: false
-  xy: 4, 480
+  xy: 368, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 run_legs/rogue_run_legs
   rotate: false
-  xy: 420, 428
+  xy: 264, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 run_legs/rogue_run_legs
   rotate: false
-  xy: 264, 428
+  xy: 160, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 run_legs/rogue_run_legs
   rotate: false
-  xy: 212, 480
+  xy: 108, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 run_legs/rogue_run_legs
   rotate: false
-  xy: 368, 480
+  xy: 212, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 run_legs/rogue_run_legs
   rotate: false
-  xy: 56, 532
+  xy: 420, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 run_legs/rogue_run_legs
   rotate: false
-  xy: 160, 532
+  xy: 316, 559
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 slam/knight_slam
   rotate: false
-  xy: 280, 1660
+  xy: 4, 1739
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 1
 slam/knight_slam
   rotate: false
-  xy: 96, 1660
+  xy: 280, 1739
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 2
 slam/knight_slam
   rotate: false
-  xy: 372, 1568
+  xy: 96, 1739
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 3
 slam/knight_slam
   rotate: false
-  xy: 280, 1568
+  xy: 372, 1647
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 4
 slam/knight_slam
   rotate: false
-  xy: 4, 1568
+  xy: 96, 1647
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 5
 slam/knight_slam
   rotate: false
-  xy: 96, 1568
+  xy: 280, 1647
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 6
 slam/knight_slam
   rotate: false
-  xy: 4, 1660
+  xy: 188, 1647
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 7
 slam/knight_slam
   rotate: false
-  xy: 188, 1568
+  xy: 352, 1555
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 8
 slam/knight_slam
   rotate: false
-  xy: 352, 1476
+  xy: 4, 1647
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 9
 slam/knight_slam
   rotate: false
-  xy: 188, 1660
+  xy: 188, 1739
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 10
 slam/knight_slam
   rotate: false
-  xy: 372, 1660
+  xy: 372, 1739
   size: 88, 88
   orig: 88, 88
   offset: 0, 0
   index: 11
 smoke_bomb
   rotate: false
-  xy: 108, 532
+  xy: 264, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 smoke_bomb
   rotate: false
-  xy: 4, 532
+  xy: 56, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 smoke_bomb
   rotate: false
-  xy: 420, 480
+  xy: 108, 611
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 smoke_bomb
   rotate: false
-  xy: 316, 480
+  xy: 316, 455
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 smoke_bomb
   rotate: false
-  xy: 264, 480
+  xy: 56, 507
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 5
 smoke_bomb
   rotate: false
-  xy: 368, 428
+  xy: 420, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 6
 smoke_bomb_arms/rogue_smoke_bomb_arms
   rotate: false
-  xy: 212, 428
+  xy: 368, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 smoke_bomb_arms/rogue_smoke_bomb_arms
   rotate: false
-  xy: 160, 376
+  xy: 316, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 smoke_bomb_arms/rogue_smoke_bomb_arms
   rotate: false
-  xy: 108, 376
+  xy: 212, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 smoke_bomb_arms/rogue_smoke_bomb_arms
   rotate: false
-  xy: 212, 376
+  xy: 160, 663
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
+splashing_projectile/spitter_splashing_projectile
+  rotate: false
+  xy: 238, 35
+  size: 10, 16
+  orig: 10, 16
+  offset: 0, 0
+  index: 1
+splashing_projectile/spitter_splashing_projectile
+  rotate: false
+  xy: 210, 35
+  size: 10, 16
+  orig: 10, 16
+  offset: 0, 0
+  index: 2
 splashing_projectile/spitter_splashing_projectile
   rotate: false
   xy: 252, 35
   size: 10, 16
   orig: 10, 16
   offset: 0, 0
-  index: 1
-splashing_projectile/spitter_splashing_projectile
-  rotate: false
-  xy: 172, 35
-  size: 10, 16
-  orig: 10, 16
-  offset: 0, 0
-  index: 2
-splashing_projectile/spitter_splashing_projectile
-  rotate: false
-  xy: 186, 35
-  size: 10, 16
-  orig: 10, 16
-  offset: 0, 0
   index: 3
 splashing_projectile/spitter_splashing_projectile
   rotate: false
-  xy: 214, 35
+  xy: 224, 35
   size: 10, 16
   orig: 10, 16
   offset: 0, 0
   index: 4
 splashing_projectile/spitter_splashing_projectile
   rotate: false
-  xy: 200, 35
+  xy: 196, 35
   size: 10, 16
   orig: 10, 16
   offset: 0, 0
   index: 5
+swing_attack_front/monk_swing_attack_front
+  rotate: false
+  xy: 152, 403
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: 1
+swing_attack_front/monk_swing_attack_front
+  rotate: false
+  xy: 332, 403
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: 2
+swing_attack_front/monk_swing_attack_front
+  rotate: false
+  xy: 272, 403
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: 3
+swing_attack_front/monk_swing_attack_front
+  rotate: false
+  xy: 212, 403
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: 4
+swing_attack_front/monk_swing_attack_front
+  rotate: false
+  xy: 92, 403
+  size: 56, 44
+  orig: 56, 44
+  offset: 0, 0
+  index: 5
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 292, 359
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 1
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 380, 359
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 2
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 336, 359
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 3
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 424, 359
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 4
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 48, 403
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 5
+swing_attack_up/monk_swing_attack_up
+  rotate: false
+  xy: 4, 403
+  size: 40, 40
+  orig: 40, 40
+  offset: 0, 0
+  index: 6
 throw_arms/rogue_throw_arms
   rotate: false
-  xy: 108, 428
+  xy: 108, 767
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 1
 throw_arms/rogue_throw_arms
   rotate: false
-  xy: 56, 428
+  xy: 368, 871
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 2
 throw_arms/rogue_throw_arms
   rotate: false
-  xy: 160, 428
+  xy: 4, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 3
 throw_arms/rogue_throw_arms
   rotate: false
-  xy: 4, 428
+  xy: 160, 923
   size: 48, 48
   orig: 48, 48
   offset: 0, 0
   index: 4
 throwing_knife/rogue_throwing_knife
   rotate: false
-  xy: 358, 4
+  xy: 452, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 1
 throwing_knife/rogue_throwing_knife
   rotate: false
-  xy: 288, 4
+  xy: 480, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 2
 throwing_knife/rogue_throwing_knife
   rotate: false
-  xy: 274, 4
+  xy: 494, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 3
+throwing_knife/rogue_throwing_knife
+  rotate: false
+  xy: 466, 4
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: 4
+throwing_knife/rogue_throwing_knife
+  rotate: false
+  xy: 404, 4
+  size: 10, 10
+  orig: 10, 10
+  offset: 0, 0
+  index: 5
 throwing_knife/rogue_throwing_knife
   rotate: false
   xy: 260, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
-  index: 4
-throwing_knife/rogue_throwing_knife
-  rotate: false
-  xy: 302, 4
-  size: 10, 10
-  orig: 10, 10
-  offset: 0, 0
-  index: 5
-throwing_knife/rogue_throwing_knife
-  rotate: false
-  xy: 344, 4
-  size: 10, 10
-  orig: 10, 10
-  offset: 0, 0
   index: 6
 throwing_knife/rogue_throwing_knife
   rotate: false
-  xy: 316, 4
+  xy: 308, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 7
 throwing_knife/rogue_throwing_knife
   rotate: false
-  xy: 330, 4
+  xy: 390, 4
   size: 10, 10
   orig: 10, 10
   offset: 0, 0
   index: 8
 tornado_init/knight_tornado_init
   rotate: false
-  xy: 204, 952
+  xy: 264, 975
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 1
 tornado_init/knight_tornado_init
   rotate: false
-  xy: 4, 952
+  xy: 364, 975
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 2
 tornado_init/knight_tornado_init
   rotate: false
-  xy: 364, 896
+  xy: 204, 1031
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 3
 tornado_init/knight_tornado_init
   rotate: false
-  xy: 264, 896
+  xy: 104, 1087
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 4
 tornado_init/knight_tornado_init
   rotate: false
-  xy: 104, 952
+  xy: 304, 1031
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 5
 tornado_swing/knight_tornado_swing
   rotate: false
-  xy: 404, 952
+  xy: 104, 1031
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 1
 tornado_swing/knight_tornado_swing
   rotate: false
-  xy: 104, 1008
+  xy: 4, 1031
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 2
 tornado_swing/knight_tornado_swing
   rotate: false
-  xy: 4, 1008
+  xy: 4, 1087
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 3
 tornado_swing/knight_tornado_swing
   rotate: false
-  xy: 304, 952
+  xy: 404, 1031
   size: 96, 52
   orig: 96, 52
   offset: 0, 0
   index: 4
 wings/spitter_wings
   rotate: false
-  xy: 290, 35
+  xy: 266, 35
   size: 20, 17
   orig: 20, 17
   offset: 0, 0
   index: 1
 wings/spitter_wings
   rotate: false
-  xy: 314, 35
+  xy: 290, 35
   size: 20, 17
   orig: 20, 17
   offset: 0, 0
   index: 2
 wings/spitter_wings
   rotate: false
-  xy: 266, 35
+  xy: 314, 35
   size: 20, 17
   orig: 20, 17
   offset: 0, 0

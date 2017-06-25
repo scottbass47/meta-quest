@@ -20,8 +20,8 @@ import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
-import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.StatusComponent;
+import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.debug.DebugRender;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.EffectDef;
@@ -59,6 +59,14 @@ public class SwingingSystem extends IteratingSystem{
 				swingComp.startAngle - swingComp.endAngle, 
 				Arc2D.PIE);
 		
+		// Arc2D needs to be reflected across the x-axis because Java's Geometry
+		// package uses a top down coordinate system
+		double extent = swingArc.getAngleExtent();
+		double arcEnd = swingArc.getAngleStart() + extent;
+		double newStart = 360 - arcEnd;
+		
+		swingArc.setAngleStart(newStart);
+		
 		Array<Entity> hitEntities = levelComp.levelHelper.getEntities(new EntityGrabber(){
 			@SuppressWarnings("unchecked")
 			@Override
@@ -82,6 +90,7 @@ public class SwingingSystem extends IteratingSystem{
 				float y2 = otherBody.getPosition().y - aabb.height * 0.5f;
 
 				Shape shape = new Rectangle2D.Float(x2, y2, aabb.width, aabb.height);
+				
 				return swingArc.intersects((Rectangle2D)shape);
 			}
 		});

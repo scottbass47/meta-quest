@@ -36,7 +36,7 @@ public class PlaceableSpawnpoint implements Placeable{
 		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
 
 		Level level = editor.getCurrentLevel();
-		if(entityIndex == EntityIndex.KNIGHT || entityIndex == EntityIndex.ALCHEMIST || entityIndex == EntityIndex.ROGUE) {
+		if(entityIndex == EntityIndex.KNIGHT || entityIndex == EntityIndex.MONK || entityIndex == EntityIndex.ROGUE) {
 			level.setPlayerSpawn(new EntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight));
 		} else {
 			editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);

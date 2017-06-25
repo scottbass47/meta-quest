@@ -92,15 +92,15 @@ public enum EntityIndex {
 			return new Rectangle(0, 0, 15, 26);
 		}
 	},
-	ALCHEMIST {
+	MONK {
 		@Override
 		public Entity create(float x, float y) {
-			return EntityFactory.createAlchemist(x, y);
+			return EntityFactory.createMonk(x, y);
 		}
 
 		@Override
 		public Animation getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.ALCHEMIST_IDLE);
+			return AssetLoader.getInstance().getAnimation(Asset.MONK_IDLE);
 		}
 
 		@Override
