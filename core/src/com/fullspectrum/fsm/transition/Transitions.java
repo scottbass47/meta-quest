@@ -129,7 +129,7 @@ public enum Transitions implements Transition{
 					triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.getValue(trigger.action) > GameInput.ANALOG_THRESHOLD;
 				}
 				else{
-					triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.isPressed(trigger.action);
+					triggered = trigger.justPressed ? input.isJustPressed(trigger.action) : input.isPressed(trigger.action) || input.isJustPressed(trigger.action);
 				}
 				triggered = (triggered && itd.pressed) || (!triggered && !itd.pressed);
 				if (triggered && itd.type == InputTransitionData.Type.ANY_ONE) return true;

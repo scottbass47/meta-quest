@@ -4,6 +4,7 @@
 	ground_speed: 5.0,
 	climb_speed: 5.0,
 	jump_force: 17.5,
+	jump_float_amount: 2.0,
 	
 	// Base Stats
 	money: 40.0,

@@ -17,7 +17,7 @@
 	air_speed: 8.0,
 	climb_speed: 6.0,
 	jump_force: 38.0,
-	jump_float_amount: 4.0,
+	jump_float_amount: 2.0,
 	
 	// Dynamite
 	dynamite_cooldown: 1.0,

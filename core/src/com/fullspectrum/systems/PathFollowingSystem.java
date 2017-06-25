@@ -52,7 +52,11 @@ public class PathFollowingSystem extends IteratingSystem{
 		else{
 			if(!pathFinder.onPath(currentNode)){
 				pathFinder.setStart(currentNode);
+				
 				pathFinder.calculatePath();
+				if(pathFinder.getPath().size == 0) {
+					Mappers.wandering.get(entity).wandering = false;
+				}
 			}
 			link = pathFinder.getNextLink(currentNode);
 		}

@@ -13,15 +13,89 @@ import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.WallComponent;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityStates;
+import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
+import com.fullspectrum.fsm.MultiTransition;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
+import com.fullspectrum.fsm.transition.InputTransitionData;
+import com.fullspectrum.fsm.transition.InputTransitionData.Type;
+import com.fullspectrum.fsm.transition.InputTrigger;
+import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
 
 public class StateFactory {
+	
+	public static EntityStateMachine createBaseBipedal(Entity entity, EntityStats stats) {
+		EntityStateBuilder builder = new EntityStateBuilder(Mappers.entity.get(entity).type.toString(), Mappers.engine.get(entity).engine, entity);
+		
+		// Build the states
+		builder.idle();
+		builder.run(stats.get("ground_speed"));
+		builder.jump(stats.get("jump_force"), stats.get("jump_float_amount"), stats.get("air_speed"), true, true);
+		builder.fall(stats.get("air_speed"), true);
+
+		EntityStateMachine esm = builder.build();
+		
+		esm.getState(EntityStates.IDLING).addChangeListener(new StateChangeListener() {
+			@Override
+			public void onEnter(State prevState, Entity entity) {
+				if(prevState == EntityStates.JUMPING) {
+					Mappers.body.get(entity).body.setLinearVelocity(Mappers.body.get(entity).body.getLinearVelocity().x, 0);
+				}
+			}
+
+			@Override
+			public void onExit(State nextState, Entity entity) {
+			}
+		});
+		
+		// Setup transitions
+		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
+		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+
+		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
+		jumpData.triggers.add(new InputTrigger(Actions.JUMP, false));
+
+		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
+		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		idleData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+
+		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
+		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
+		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+
+		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
+		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
+		
+//		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
+//		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
+//		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_DOWN, false));
+		
+//		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
+//		
+//		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
+//					.and(Transitions.COLLISION, ladderCollisionData);
+//		
+//		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
+		
+		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE)/*.exclude(EntityStates.JUMPING)*/, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.1f)), EntityStates.IDLING);
+		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
+//		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
+//		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
+//		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
+		
+		return builder.build();
+	}
 	
 	public static class EntityStateBuilder{
 		
@@ -32,6 +106,11 @@ public class StateFactory {
 			this.engine = engine;
 			esm = new EntityStateMachine(entity);
 			esm.setDebugName(debugName);
+		}
+		
+		public EntityStateBuilder(EntityStateMachine esm) {
+			this.esm = esm;
+			engine = Mappers.engine.get(esm.getEntity()).engine;
 		}
 		
 		/**
