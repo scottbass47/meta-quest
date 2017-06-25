@@ -35,6 +35,7 @@ public class TextField extends Component implements KeyListener {
 		pix.dispose();
 		
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);
+		font = new BitmapFont();
 		
 		layout = new GlyphLayout();
 	}
@@ -60,6 +61,8 @@ public class TextField extends Component implements KeyListener {
 			batch.draw(cursor, cursorX, y + padding);
 		}
 		
+		font.setColor(Color.WHITE);
+		font.getData().setScale(1.0f);
 		font.draw(batch, text, x + padding, y + height - height * 0.5f + layout.height * 0.5f);
 	}
 
