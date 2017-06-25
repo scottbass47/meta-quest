@@ -119,7 +119,7 @@ public class GameScreen extends AbstractScreen {
 
 	// Tile Map
 	private LevelManager levelManager;
-	private final Color bc = new Color(0x6885e3ff);
+	private final Color bc = new Color(0x474b5eff);
 	
 	// Box2D
 	private World world;
