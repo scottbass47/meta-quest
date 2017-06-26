@@ -407,21 +407,19 @@ public class EntityFactory {
 				animMap.get(EntityAnim.PARRY_SWING),
 				engine.createComponent(SwingComponent.class)
 					.set(3.0f, 2.0f, 90, -135, 4 * GameVars.ANIM_FRAME, 0.0f, knightStats.get("parry_knockback")));
-		parryAbility.deactivate();
 		
 		KickAbility kickAbility = new KickAbility(
 				knightStats.get("kick_cooldown"), 
-				Actions.ABILITY_1,
+				Actions.ABILITY_2,
 				3 * GameVars.ANIM_FRAME, 
 				knightStats.get("kick_range"), 
 				knightStats.get("kick_knockback"), 
 				knightStats.get("kick_damage"),
 				animMap.get(EntityAnim.KICK));
-		kickAbility.deactivate();
 		
 		OverheadSwingAbility overheadSwingAbility = new OverheadSwingAbility(
 				knightStats.get("overhead_swing_cooldown"),
-				Actions.ABILITY_2, 
+				Actions.ABILITY_3, 
 				animMap.get(EntityAnim.OVERHEAD_SWING),
 				engine.createComponent(SwingComponent.class).set(
 						knightStats.get("overhead_swing_rx"), 
@@ -431,7 +429,6 @@ public class EntityFactory {
 						9 * GameVars.ANIM_FRAME,
 						knightStats.get("overhead_swing_damage"),
 						knightStats.get("overhead_swing_knockback")));
-		overheadSwingAbility.deactivate();
 		
 		SlamAbility slamAbility = new SlamAbility(
 				knightStats.get("slam_cooldown"), 
@@ -461,7 +458,8 @@ public class EntityFactory {
 				knightStats.get("dash_slash_distance"),
 				knightStats.get("dash_slash_damage"),
 				knightStats.get("dash_slash_knock_up"));
-
+		dashSlashAbility.deactivate();
+		
 		SpinSliceAbility spinSliceAbility = new SpinSliceAbility(
 				knightStats.get("spin_slice_cooldown"),
 				Actions.ABILITY_2,
@@ -474,6 +472,7 @@ public class EntityFactory {
 						5 * GameVars.ANIM_FRAME, 
 						knightStats.get("spin_slice_damage"), 
 						knightStats.get("spin_slice_knockback")));
+		spinSliceAbility.deactivate();
 		
 		TornadoAbility tornadoAbility = new TornadoAbility(
 				knightStats.get("tornado_cooldown"),
@@ -483,6 +482,7 @@ public class EntityFactory {
 				knightStats.get("tornado_knockback"), 
 				knightStats.get("tornado_range"),
 				5);
+		tornadoAbility.deactivate();
 		
 		// Player Related Components
 		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
@@ -1234,6 +1234,7 @@ public class EntityFactory {
 				rogueStats.get("homing_knives_damage"),
 				rogueStats.get("homing_knives_range"),
 				rogueStats.get("homing_knives_speed"));
+		homingKnivesAbility.deactivate();
 		
 		VanishAbility vanishAbility = new VanishAbility(
 				rogueStats.get("vanish_cooldown"),
@@ -1243,10 +1244,9 @@ public class EntityFactory {
 		
 		DashAbility dashAbility = new DashAbility(
 				rogueStats.get("dash_cooldown"),
-				Actions.ABILITY_3,
+				Actions.ABILITY_1,
 				rogueStats.get("dash_distance"),
 				rogueStats.get("dash_speed"));
-		dashAbility.deactivate();
 		
 		BoomerangAbility boomerangAbility = new BoomerangAbility(
 				rogueStats.get("boomerang_cooldown"), 
@@ -1263,11 +1263,10 @@ public class EntityFactory {
 		
 		BowAbility bowAbility = new BowAbility(
 				rogueStats.get("bow_cooldown"), 
-				Actions.ABILITY_1, 
+				Actions.ABILITY_3, 
 				animMap.get(EntityAnim.BOW_ATTACK), 
 				rogueStats.get("bow_damage"),
 				rogueStats.get("bow_speed"));
-		bowAbility.deactivate();
 		
 		FlashPowderAbility flashPowderAbility = new FlashPowderAbility(
 				rogueStats.get("flash_powder_cooldown"), 
@@ -1283,6 +1282,7 @@ public class EntityFactory {
 				(int) rogueStats.get("balloon_num_pellets"), 
 				rogueStats.get("balloon_pellet_speed"),
 				(int) rogueStats.get("balloon_max_balloons"));
+		balloonAbility.deactivate();
 		
 		rogue.add(engine.createComponent(AbilityComponent.class)
 				.add(dynamiteAbility)

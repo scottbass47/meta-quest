@@ -669,7 +669,7 @@ public class GameScreen extends AbstractScreen {
 				String num = "" + timeLeft;
 				layout.setText(font, num);
 				font.setColor(Color.WHITE);
-				font.draw(batch, num, x + iconWidth * 0.5f - layout.width * 0.5f, abilityY + iconHeight * 0.5f + layout.height * 0.5f);
+				font.draw(batch, num, x + iconWidth * scale * 0.5f - layout.width * 0.5f, abilityY + iconHeight * scale * 0.5f + layout.height * 0.5f);
 			} 
 			counter++;
 		}
