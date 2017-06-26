@@ -30,6 +30,7 @@ public enum EntityType {
 	MANA_BOMB,
 	DYNAMITE,
 	EXPLOSIVE_PARTICLE,
+	WIND_PARTICLE,
 	
 	// Explosives
 	EXPLOSION,
@@ -37,6 +38,7 @@ public enum EntityType {
 	
 	// Particles
 	PARTICLE,
+	WIND,
 	
 	// Level
 	CAMERA,
@@ -45,7 +47,8 @@ public enum EntityType {
 	// Misc
 	BALLOON_TRAP,
 	LEVEL_TRIGGER,
-	DAMAGE_TEXT;
+	DAMAGE_TEXT,
+	GROUP;
 	
 	@Override
 	public String toString() {

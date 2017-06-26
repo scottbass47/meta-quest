@@ -37,6 +37,8 @@ public enum EntityStates implements State{
 	HOMING_KNIVES,
 	EXECUTE,
 	BOW_ATTACK,
+	WIND_BURST,
+	INSTA_WALL,
 	INIT;
 	
 	@Override

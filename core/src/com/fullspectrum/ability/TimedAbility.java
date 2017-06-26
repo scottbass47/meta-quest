@@ -9,7 +9,6 @@ public abstract class TimedAbility extends Ability{
 	protected float duration;
 	protected float elapsed;
 	
-	
 	public TimedAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, float duration) {
 		this(type, icon, cooldown, input, duration, false);
 	}

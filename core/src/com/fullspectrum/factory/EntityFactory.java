@@ -62,6 +62,8 @@ import com.fullspectrum.ability.knight.ParryAbility;
 import com.fullspectrum.ability.knight.SlamAbility;
 import com.fullspectrum.ability.knight.SpinSliceAbility;
 import com.fullspectrum.ability.knight.TornadoAbility;
+import com.fullspectrum.ability.monk.PoisonDebuffAbility;
+import com.fullspectrum.ability.monk.WindBurstAbility;
 import com.fullspectrum.ability.rogue.BalloonTrapAbility;
 import com.fullspectrum.ability.rogue.BoomerangAbility;
 import com.fullspectrum.ability.rogue.BowAbility;
@@ -123,12 +125,14 @@ import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
+import com.fullspectrum.component.MonkComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
+import com.fullspectrum.component.PropertyComponent;
 import com.fullspectrum.component.RemoveComponent;
 import com.fullspectrum.component.RenderComponent;
 import com.fullspectrum.component.RenderLevelComponent;
@@ -1628,6 +1632,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.MONK_APEX));
 		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_SWING_ATTACK_FRONT));
 		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_SWING_ATTACK_UP));
+		animMap.put(EntityAnim.WIND_BURST, assets.getAnimation(Asset.MONK_WIND_BURST));
 		
 		Entity monk = new EntityBuilder(MONK, FRIENDLY)
 			.animation(animMap)
@@ -1635,6 +1640,22 @@ public class EntityFactory {
 			.physics("player.json", x, y, true)
 			.mob(null, monkStats.get("health"))
 			.build();
+		
+		// Abilities
+		PoisonDebuffAbility poisonAbility = new PoisonDebuffAbility(
+				monkStats.get("poison_cooldown"), 
+				Actions.ABILITY_1, 
+				monkStats.get("poison_ability_duration"),
+				monkStats.get("poison_dps"),
+				monkStats.get("poison_decay_rate"),
+				monkStats.get("poison_duration"));
+
+		WindBurstAbility windBurstAbility = new WindBurstAbility(
+				monkStats.get("wind_burst_cooldown"),
+				Actions.ABILITY_2,
+				assets.getAnimation(Asset.MONK_WIND_BURST),
+				monkStats.get("wind_burst_damage"),
+				monkStats.get("wind_burst_knockback"));
 		
 		// Player Related Components4
 		monk.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
@@ -1645,9 +1666,11 @@ public class EntityFactory {
 					 monkStats.get("shield"), 
 					 monkStats.get("shield_rate"), 
 					 monkStats.get("shield_delay")));
-		monk.add(engine.createComponent(AbilityComponent.class));
-//			.add(new ManaBombAbility(alchemistStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
-		
+		monk.add(engine.createComponent(MonkComponent.class));
+		monk.add(engine.createComponent(AbilityComponent.class)
+				.add(poisonAbility)
+				.add(windBurstAbility));
+				
 		EntityStateMachine esm = StateFactory.createBaseBipedal(monk, monkStats);
 		
 		esm.createState(EntityStates.SWING_ATTACK)
@@ -1721,6 +1744,11 @@ public class EntityFactory {
 					Mappers.body.get(entity).body.setGravityScale(1.0f);
 				}
 			});
+		
+		esm.createState(EntityStates.WIND_BURST)
+			.add(engine.createComponent(FrameMovementComponent.class).set("monk/frames_monk_wind_burst"))
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.WIND_BURST);
 		
 		// Input Data
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
@@ -2567,6 +2595,21 @@ public class EntityFactory {
 		return particle;
 	}
 	
+	public static Entity createWindParticle(Entity group, EntityStatus status, float x, float y, float distance, float speed, float angle, float damage, float knockback) {
+		Entity particle = new ProjectileBuilder(EntityType.WIND_PARTICLE, status, "wind_particle.json", x, y, speed, angle)
+				.addTimedDeath(distance / speed)
+				.build();
+		particle.add(engine.createComponent(ParentComponent.class).set(group));
+		particle.add(engine.createComponent(PropertyComponent.class));
+		
+		PropertyComponent properties = Mappers.property.get(particle);
+		properties.setProperty("damage", damage);
+		properties.setProperty("knockback", knockback);
+		
+		Mappers.children.get(group).add(particle);
+		return particle;
+	}
+	
 	private static class ProjectileBuilder {
 		
 		private Entity projectile;
@@ -2812,6 +2855,17 @@ public class EntityFactory {
 		return balloon;
 	}
 	
+	/**
+	 * Represents a parent entity that ties together a group of entities and allows them to communicate through a global property map.
+	 * @return
+	 */
+	public static Entity createGroup() {
+		Entity group = new EntityBuilder(EntityType.GROUP, EntityStatus.NEUTRAL).build();
+		group.add(engine.createComponent(ChildrenComponent.class));
+		group.add(engine.createComponent(PropertyComponent.class));
+		return group;
+	}
+	
 	// ---------------------------------------------
 	// -                EXPLOSIVES                 -
 	// ---------------------------------------------
@@ -2852,6 +2906,28 @@ public class EntityFactory {
 			}
 		});
 		return smoke;	
+	}
+	
+	public static Entity createWind(float x, float y, Animation windAnimation, boolean facing, String frameData) {
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, windAnimation);
+		
+		Entity wind = new EntityBuilder(EntityType.WIND, NEUTRAL)
+				.render(facing)
+				.animation(animMap)
+				.build();
+		wind.add(engine.createComponent(StateComponent.class).set(EntityAnim.IDLE));
+		wind.add(engine.createComponent(PositionComponent.class).set(x, y));
+		wind.add(engine.createComponent(VelocityComponent.class));
+		wind.add(engine.createComponent(FrameMovementComponent.class).set(frameData));
+		
+		Mappers.timer.get(wind).add("death", windAnimation.getAnimationDuration(), false, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Mappers.death.get(entity).triggerDeath();
+			}
+		});
+		return wind;	
 	}
 	
 	public static Entity createFlashPowder(float x, float y, boolean facingRight) {
@@ -2897,6 +2973,20 @@ public class EntityFactory {
 				Mappers.death.get(entity).triggerDeath();
 			}
 		});
+		
+		return entity;
+	}
+	
+	public static Entity createPoisonParticles(float x, float y) {
+		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.POISON_PARTICLES));
+		
+		Entity entity = new EntityBuilder(PARTICLE, NEUTRAL)
+				.render(null, false, null, -1)
+				.animation(animMap)
+				.build();
+		entity.add(engine.createComponent(StateComponent.class).set(EntityAnim.IDLE));
+		entity.add(engine.createComponent(PositionComponent.class).set(x, y));
 		
 		return entity;
 	}

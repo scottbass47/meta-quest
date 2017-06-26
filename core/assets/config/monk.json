@@ -20,8 +20,14 @@
 	swing_knockback: 5.0,
 	
 	// Poison Debuff
+	poison_cooldown: 1.0,
 	poison_decay_rate: 0.5,
-	poison_duration: 2.0,
-	poison_dps: 10.0
+	poison_ability_duration: 3.0, // how long the debuff is active for (i.e. how long is the ability active)
+	poison_duration: 2.0, // how long the poison stays on hit enemies
+	poison_dps: 10.0,
 	
+	// Wind Burst
+	wind_burst_cooldown: 1.0,
+	wind_burst_damage: 10.0,
+	wind_burst_knockback: 8.0
 }

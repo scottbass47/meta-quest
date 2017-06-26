@@ -7,27 +7,32 @@ import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.ControlledMovementComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.VelocityComponent;
 
 public class ControlledMovementSystem extends IteratingSystem{
 
 	public ControlledMovementSystem() {
-		super(Family.all(BodyComponent.class, ControlledMovementComponent.class).get());
+		super(Family.all(ControlledMovementComponent.class).one(BodyComponent.class, VelocityComponent.class).get());
 	}
 
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
-		BodyComponent bodyComp = Mappers.body.get(entity);
 		ControlledMovementComponent controlledMovementComp = Mappers.controlledMovement.get(entity);
 		controlledMovementComp.elapsed += deltaTime;
-		
+
 		Vector2 expectedSpeed = new Vector2();
 		if(controlledMovementComp.getCurrentMovement() != null){
 			expectedSpeed.set(controlledMovementComp.getCurrentMovement().getVelocity(entity, controlledMovementComp.elapsed, deltaTime));
 		}
 		
-		Vector2 actualSpeed = bodyComp.body.getLinearVelocity();
-		bodyComp.body.applyLinearImpulse(expectedSpeed.sub(actualSpeed), bodyComp.body.getWorldCenter(), true);
-		
+		BodyComponent bodyComp = Mappers.body.get(entity);
+		if(bodyComp != null) {
+			Vector2 actualSpeed = bodyComp.body.getLinearVelocity();
+			bodyComp.body.applyLinearImpulse(expectedSpeed.sub(actualSpeed), bodyComp.body.getWorldCenter(), true);
+		} else {
+			VelocityComponent velComp = Mappers.velocity.get(entity);
+			velComp.set(expectedSpeed);
+		}
 	}
 	
 }

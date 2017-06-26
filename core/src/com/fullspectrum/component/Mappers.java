@@ -69,6 +69,7 @@ public class Mappers {
 	// Player
 	public static final ComponentMapper<KnightComponent> knight = ComponentMapper.getFor(KnightComponent.class);
 	public static final ComponentMapper<RogueComponent> rogue = ComponentMapper.getFor(RogueComponent.class);
+	public static final ComponentMapper<MonkComponent> monk = ComponentMapper.getFor(MonkComponent.class);
 	
 	// Other
 	public static final ComponentMapper<StateComponent> state =  ComponentMapper.getFor(StateComponent.class);
@@ -101,6 +102,8 @@ public class Mappers {
 	public static final ComponentMapper<LevelSwitchComponent> levelSwitch = ComponentMapper.getFor(LevelSwitchComponent.class);
 	public static final ComponentMapper<ImmuneComponent> immune = ComponentMapper.getFor(ImmuneComponent.class);
 	public static final ComponentMapper<EffectComponent> effect = ComponentMapper.getFor(EffectComponent.class);
+	public static final ComponentMapper<PropertyComponent> property = ComponentMapper.getFor(PropertyComponent.class);
+	
 
 }
 

@@ -1,6 +1,7 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class VelocityComponent implements Component, Poolable{
@@ -13,6 +14,12 @@ public class VelocityComponent implements Component, Poolable{
 		this.dy = dy;
 		return this;
 	}
+	
+	public VelocityComponent set(Vector2 vec){
+		this.dx = vec.x;
+		this.dy = vec.y;
+		return this;
+	}	
 	
 	@Override
 	public void reset() {

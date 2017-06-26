@@ -1,0 +1,16 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody",
+    "collisionType": "projectile",
+    "gravityScale": 0,
+    "bullet": "true"
+  },
+  "Fixtures": [
+     {
+       "FixtureType": "wind_particle",
+       "shape": "Circle",
+       "radius": 2,
+       "Category": "item"
+     }
+  ]
+}

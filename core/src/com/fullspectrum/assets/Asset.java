@@ -27,6 +27,9 @@ public enum Asset {
 	FLASH_POWDER_ICON(Atlas.HUD, "flash_powder_icon"),
 	VANISH_ICON(Atlas.HUD, "smoke_bomb_icon"),
 	HOMING_KNIVES_ICON(Atlas.HUD, "homing_knives_icon"),
+	POISON_DEBUFF_ICON(Atlas.HUD, "poison_debuff_icon"),
+	INSTA_WALL_ICON(Atlas.HUD, "insta_wall_icon"),
+	WIND_BURST_ICON(Atlas.HUD, "wind_burst_icon"),
 
 	//Knight
 	KNIGHT_CHAIN1_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_1/knight_chain1_idle_anticipation"),
@@ -89,7 +92,7 @@ public enum Asset {
 	ROGUE_BALLOON_PROJECTILE(Atlas.ENTITY, "balloon_projectile/rogue_balloon_projectile"),
 	
 		
-	// Alchemist
+	// Monk
 	MONK_IDLE(Atlas.ENTITY, "idle/monk_idle"),
 	MONK_RUN(Atlas.ENTITY, "run/monk_run"),
 	MONK_JUMP(Atlas.ENTITY, "jump/monk_jump"),
@@ -98,6 +101,10 @@ public enum Asset {
 	MONK_FALL(Atlas.ENTITY, "fall/monk_fall"),
 	MONK_SWING_ATTACK_FRONT(Atlas.ENTITY, "swing_attack_front/monk_swing_attack_front"),
 	MONK_SWING_ATTACK_UP(Atlas.ENTITY, "swing_attack_up/monk_swing_attack_up"),
+	MONK_INSTA_WALL_TILE(Atlas.ENTITY, "insta_wall/monk_wall_tile"),
+	MONK_STAFF_SLAM(Atlas.ENTITY, "insta_wall/monk_staff_slam"),
+	MONK_WIND(Atlas.ENTITY, "wind/monk_wind"),
+	MONK_WIND_BURST(Atlas.ENTITY, "wind_burst/monk_wind_burst"),
 	
 	// Coins
 	COIN_SILVER(Atlas.ENTITY, "coin_silver"),
@@ -126,7 +133,8 @@ public enum Asset {
 	MANA_BOMB_EXPLOSION(Atlas.ENTITY, "mana_bomb_explosion"),
 	FLASH_POWDER_EXPLOSION(Atlas.ENTITY, "flash_powder_explosion"),
 	SMOKE_BOMB(Atlas.ENTITY, "smoke_bomb"),
-	JUMP_PARTICLE(Atlas.ENTITY, "jump_particle");
+	JUMP_PARTICLE(Atlas.ENTITY, "jump_particle"),
+	POISON_PARTICLES(Atlas.ENTITY, "poison_particles");
 	
 	private Atlas atlas;
 	private String filename;

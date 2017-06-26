@@ -11,12 +11,13 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FrameMovementComponent;
 import com.fullspectrum.component.FrameMovementComponent.Frame;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.game.GameVars;
 
 public class FrameMovementSystem extends IteratingSystem{
 
 	@SuppressWarnings("unchecked")
-	private final static Family frameFamily = Family.all(BodyComponent.class, FrameMovementComponent.class, FacingComponent.class).get();
+	private final static Family frameFamily = Family.all(FrameMovementComponent.class, FacingComponent.class).one(BodyComponent.class, VelocityComponent.class).get();
 	
 	public FrameMovementSystem() {
 		super(frameFamily);
@@ -36,8 +37,10 @@ public class FrameMovementSystem extends IteratingSystem{
 			
 			@Override
 			public void entityAdded(Entity entity) {
-				Mappers.body.get(entity).body.setGravityScale(0.0f);
-				Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+				if(Mappers.body.get(entity) != null && Mappers.body.get(entity).body != null) {
+					Mappers.body.get(entity).body.setGravityScale(0.0f);
+					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+				}
 
 				FrameMovementComponent fmc = Mappers.frameMovement.get(entity);
 				fmc.elapsed = 0.0f;
@@ -51,7 +54,10 @@ public class FrameMovementSystem extends IteratingSystem{
 	protected void processEntity(Entity entity, float deltaTime) {
 		FrameMovementComponent fmc = Mappers.frameMovement.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
+		VelocityComponent velComp = Mappers.velocity.get(entity);
 		FacingComponent facingComp = Mappers.facing.get(entity);
+		
+		boolean hasBody = bodyComp != null && bodyComp.body != null;
 		
 		fmc.elapsed += deltaTime;
 		int frameNumber  = (int)(fmc.elapsed / GameVars.ANIM_FRAME);
@@ -60,7 +66,12 @@ public class FrameMovementSystem extends IteratingSystem{
 			fmc.frameTimer += deltaTime;
 			if(fmc.frameTimer >= GameVars.ANIM_FRAME){
 				fmc.frameTimer = 0.0f;
-				bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+				
+				if(hasBody) {
+					bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+				} else {
+					velComp.set(0.0f, 0.0f);
+				}
 			}
 			return;
 		}
@@ -75,17 +86,28 @@ public class FrameMovementSystem extends IteratingSystem{
 			x = facingComp.facingRight ? x : -x;
 			
 			Vector2 vel = new Vector2(x / GameVars.ANIM_FRAME, y / GameVars.ANIM_FRAME);
-			bodyComp.body.applyLinearImpulse(
-					vel.sub(bodyComp.body.getLinearVelocity()), 
-					new Vector2(bodyComp.body.getWorldCenter().x, bodyComp.body.getWorldCenter().y), 
-					true);
+			
+			if(hasBody) {
+				bodyComp.body.applyLinearImpulse(
+						vel.sub(bodyComp.body.getLinearVelocity()), 
+						new Vector2(bodyComp.body.getWorldCenter().x, bodyComp.body.getWorldCenter().y), 
+						true);
+			} else {
+				velComp.set(vel);
+			}
+			
 			fmc.index++;
 			fmc.frameTimer = 0.0f;
 		} else{
 			fmc.frameTimer += deltaTime;
 			if(fmc.frameTimer >= GameVars.ANIM_FRAME){
 				fmc.frameTimer = 0.0f;
-				bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+				
+				if(hasBody) {
+					bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+				} else {
+					velComp.set(0.0f, 0.0f);
+				}
 			}
 		}
 	}		

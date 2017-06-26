@@ -24,8 +24,10 @@ public enum AbilityType {
 	FLASH_POWDER,
 	BALLOON_TRAP,
 	
-	// Mage
-	MANA_BOMB,
+	// Monk
+	WIND_BURST,
+	POISON_DEBUFF,
+	INSTA_WALL
 	
 	
 }

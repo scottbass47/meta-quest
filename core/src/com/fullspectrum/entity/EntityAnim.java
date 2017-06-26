@@ -72,6 +72,10 @@ public enum EntityAnim implements State{
 	BOOMERANG_ARMS,
 	SMOKE_BOMB_ARMS,
 	
+	// Monk
+	WIND_BURST,
+	INSTA_WALL,
+	
 	// Special Init State for resolutions
 	INIT;
 	

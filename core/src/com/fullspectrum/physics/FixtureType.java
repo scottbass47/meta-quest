@@ -16,6 +16,7 @@ import com.fullspectrum.physics.collision.behavior.FeetBehavior;
 import com.fullspectrum.physics.collision.behavior.LevelTriggerBehavior;
 import com.fullspectrum.physics.collision.behavior.SensorBehavior;
 import com.fullspectrum.physics.collision.behavior.SolidBehavior;
+import com.fullspectrum.physics.collision.behavior.WindParticleBehavior;
 import com.fullspectrum.physics.collision.filter.CollisionFilter;
 import com.fullspectrum.physics.collision.filter.PlayerFilter;
 
@@ -108,6 +109,33 @@ public enum FixtureType {
 			
 			info.addBehaviors(filter, 
 					new ExplosiveParticleBehavior(),
+					new SensorBehavior());
+
+			// Tile Collision
+			filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new DeathOnCollideBehavior());
+			
+			return info;
+		}
+	},
+	WIND_PARTICLE {
+		@Override
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			// Mob Collision
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(MOB)
+					.allEntityTypes()
+					.removeEntityType(Mappers.status.get(entity).status)
+					.build();
+			
+			info.addBehaviors(filter, 
+					new WindParticleBehavior(),
 					new SensorBehavior());
 
 			// Tile Collision
