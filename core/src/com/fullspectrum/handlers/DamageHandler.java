@@ -39,6 +39,8 @@ public class DamageHandler {
 	
 	private final static Shader hurtShader = new HurtShader();
 	private static ArrayMap<Entity, Entity> damageMap = new ArrayMap<Entity, Entity>();
+	private static Color damageColor = new Color(0xff2245ff);
+	private static Color shieldColor = new Color(0x00b9ffff);
 	
 	private DamageHandler() {
 	}
@@ -168,11 +170,11 @@ public class DamageHandler {
 		int displayShield = (int) shieldDown;
 		int displayHealth = (int) healthDown;
 		if (displayShield > 0 && displayHealth > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, Color.BLUE, font, x - 0.5f, y, 2.0f));
-			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x + 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, shieldColor, font, x - 0.5f, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayHealth, damageColor, font, x + 0.5f, y, 2.0f));
 		}
 		else if (displayShield > 0) {
-			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, Color.BLUE, font, x, y, 2.0f));
+			EntityManager.addEntity(EntityFactory.createDamageText("-" + displayShield, shieldColor, font, x, y, 2.0f));
 		}
 		else {
 			// If there is damage text for this entity and it's a valid entity, then update it
@@ -184,7 +186,7 @@ public class DamageHandler {
 				textComp.text = "-" + damage;
 			}
 			else {
-				Entity damageText = EntityFactory.createDamageText("-" + displayHealth, Color.RED, font, x, y, 2.0f);
+				Entity damageText = EntityFactory.createDamageText("-" + displayHealth, damageColor, font, x, y, 2.0f);
 				damageMap.put(toEntity, damageText);
 				EntityUtils.setValid(damageText, true);
 				EntityManager.addEntity(damageText);

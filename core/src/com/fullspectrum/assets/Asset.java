@@ -98,7 +98,7 @@ public enum Asset {
 	MONK_FALL(Atlas.ENTITY, "fall/monk_fall"),
 	MONK_SWING_ATTACK_FRONT(Atlas.ENTITY, "swing_attack_front/monk_swing_attack_front"),
 	MONK_SWING_ATTACK_UP(Atlas.ENTITY, "swing_attack_up/monk_swing_attack_up"),
-		
+	
 	// Coins
 	COIN_SILVER(Atlas.ENTITY, "coin_silver"),
 	COIN_GOLD(Atlas.ENTITY, "coin_gold"),

@@ -45,12 +45,22 @@ public class Effects {
 		}
 	}
 	
-	public static void givePoison(Entity fromEntity, Entity toEntity, float duration, float dps) {
+	public static void givePoison(Entity fromEntity, Entity toEntity, float duration, float dps, float decayRate) {
 		EffectComponent effectComp = Mappers.effect.get(toEntity);
 		Effect effect = new PoisonEffect(fromEntity, toEntity, duration, dps);
-		if(effect.apply()) {
-			effectComp.add(effect);
-		} 
+
+		if(effect.canApply()) {
+			if(effectComp.hasEffect(EffectType.POISON)) {
+				PoisonEffect poison = (PoisonEffect) effectComp.getEffect(EffectType.POISON);
+				poison.addStack();
+				poison.setDps(poison.getDps() + dps * (float)Math.pow(decayRate, poison.getStacks() - 1));
+				poison.resetTime();
+			} else {
+				if(effect.apply()) {
+					effectComp.add(effect);
+				}
+			}
+		}
 	}
 	
 	public static void clearAll(Entity entity){

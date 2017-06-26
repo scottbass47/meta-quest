@@ -496,11 +496,10 @@ public class EntityFactory {
 		float knockback = knightStats.get("sword_knockback");
 		
 		// Setup swings
-		PoisonDef def = new PoisonDef(knight, 1.0f, 100000);
-		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, swordDamage, knockback).addEffect(def);
-		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, swordDamage, knockback).addEffect(def);
-		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, swordDamage, knockback).addEffect(def);
-		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, swordDamage, knockback).addEffect(def);
+		SwingComponent swing1 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 120.0f, -180.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing2 = engine.createComponent(SwingComponent.class).set(1.75f, 0.75f, 150.0f, -180.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing3 = engine.createComponent(SwingComponent.class).set(1.75f, 1.25f, 120.0f, -120.0f, 0.0f, swordDamage, knockback);
+		SwingComponent swing4 = engine.createComponent(SwingComponent.class).set(1.75f, 1.0f, 135.0f, -120.0f, 0.0f, swordDamage, knockback);
 		
 		// Setup attacks
 		knightComp.addAttack(EntityAnim.SWING_IDLE_ANTIPATION_1, EntityAnim.SWING_ANTICIPATION_1, EntityAnim.SWING_1, swing1);
@@ -1630,7 +1629,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_SWING_ATTACK_FRONT));
 		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_SWING_ATTACK_UP));
 		
-		Entity mage = new EntityBuilder(MONK, FRIENDLY)
+		Entity monk = new EntityBuilder(MONK, FRIENDLY)
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
@@ -1638,20 +1637,21 @@ public class EntityFactory {
 			.build();
 		
 		// Player Related Components4
-		mage.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
-		mage.add(engine.createComponent(MoneyComponent.class));
-		mage.add(engine.createComponent(PlayerComponent.class));
-		mage.add(engine.createComponent(BarrierComponent.class)
+		monk.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
+		monk.add(engine.createComponent(MoneyComponent.class));
+		monk.add(engine.createComponent(PlayerComponent.class));
+		monk.add(engine.createComponent(BarrierComponent.class)
 				.set(monkStats.get("shield"), 
 					 monkStats.get("shield"), 
 					 monkStats.get("shield_rate"), 
 					 monkStats.get("shield_delay")));
-		mage.add(engine.createComponent(AbilityComponent.class));
+		monk.add(engine.createComponent(AbilityComponent.class));
 //			.add(new ManaBombAbility(alchemistStats.get("mana_bomb_cooldown"), Actions.ATTACK)));
 		
-		EntityStateMachine esm = StateFactory.createBaseBipedal(mage, monkStats);
+		EntityStateMachine esm = StateFactory.createBaseBipedal(monk, monkStats);
 		
 		esm.createState(EntityStates.SWING_ATTACK)
+			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.SWING)
 			.addAnimation(EntityAnim.SWING_UP)
 			.addChangeListener(new StateChangeListener() {
@@ -1680,10 +1680,12 @@ public class EntityFactory {
 					float damage = monkStats.get("swing_damage");
 					float knockback = monkStats.get("swing_knockback");
 					
+					PoisonDef poisonDef = new PoisonDef(entity, monkStats.get("poison_duration"), monkStats.get("poison_dps"), monkStats.get("poison_decay_rate"));
+					
 					if(swingUp) {
-						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback);
+						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback).addEffect(poisonDef);
 					} else {
-						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback);
+						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback).addEffect(poisonDef);
 					}
 					
 					swingComp.shouldSwing = true;
@@ -1703,7 +1705,7 @@ public class EntityFactory {
 					
 					// Set gravity scale to 0
 					Body body = Mappers.body.get(entity).body;
-					body.setGravityScale(0.0f);
+					body.setGravityScale(0.2f);
 					body.setLinearVelocity(0.0f, 0.0f);
 				}
 
@@ -1728,7 +1730,7 @@ public class EntityFactory {
 
 		esm.changeState(EntityStates.IDLING);
 		
-		return mage;
+		return monk;
 	}
 	
 	// ---------------------------------------------

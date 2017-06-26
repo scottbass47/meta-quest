@@ -17,6 +17,11 @@
 	
 	// Base Attack
 	swing_damage: 10.0,
-	swing_knockback: 5.0
+	swing_knockback: 5.0,
+	
+	// Poison Debuff
+	poison_decay_rate: 0.5,
+	poison_duration: 2.0,
+	poison_dps: 10.0
 	
 }

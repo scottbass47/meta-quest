@@ -11,19 +11,26 @@ public abstract class Effect {
 	protected float duration;
 	protected Entity toEntity;
 	protected boolean delayed = false;
+	protected boolean stackable;
 
 	public Effect(Entity toEntity, float duration, boolean delayed) {
 		this.toEntity = toEntity;
 		this.duration = duration;
 		this.delayed = delayed;
 	}
-
-	public boolean apply() {
-		// Don't apply the effect if its already applied
+	
+	public boolean canApply() {
 		if (Mappers.death.get(toEntity).shouldDie()) return false;
 		if (Mappers.heatlh.get(toEntity) != null && Mappers.heatlh.get(toEntity).health <= 0.0f) return false;
-		if (Mappers.timer.get(toEntity).timers.containsKey(getName() + "_effect")) return false;
+		if (Mappers.timer.get(toEntity).timers.containsKey(getName() + "_effect") && !stackable) return false;
 		if (Mappers.immune.get(toEntity) != null && Mappers.immune.get(toEntity).isImmuneTo(getType())) return false;
+		return true;
+	}
+	
+	public boolean apply() {
+		// Don't apply the effect if its already applied
+		if(!canApply()) return false;
+		
 		final Effect effect = this;
 		if (delayed) {
 			EntityManager.addDelayedAction(new DelayedAction(toEntity) {

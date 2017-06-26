@@ -7,17 +7,19 @@ public class PoisonDef extends EffectDef {
 	private Entity fromEntity;
 	private float duration;
 	private float dps;
+	private float decayRate;
 	
-	public PoisonDef(Entity fromEntity, float duration, float dps) {
+	public PoisonDef(Entity fromEntity, float duration, float dps, float decayRate) {
 		super(EffectType.POISON);
 		this.fromEntity = fromEntity;
 		this.duration = duration;
 		this.dps = dps;
+		this.decayRate = decayRate;
 	}
 
 	@Override
 	public void give(Entity toEntity) {
-		Effects.givePoison(fromEntity, toEntity, duration, dps);
+		Effects.givePoison(fromEntity, toEntity, duration, dps, decayRate);
 	}
 
 	public Entity getFromEntity() {
@@ -44,6 +46,11 @@ public class PoisonDef extends EffectDef {
 		this.dps = dps;
 	}
 	
+	public void setDecayRate(float decayRate) {
+		this.decayRate = decayRate;
+	}
 	
-
+	public float getDecayRate() {
+		return decayRate;
+	}
 }

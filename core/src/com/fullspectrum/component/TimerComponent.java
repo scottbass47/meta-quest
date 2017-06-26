@@ -60,6 +60,7 @@ public class TimerComponent implements Component, Poolable{
 			return paused;
 		}
 		
+		/** DOES NOT SET ELAPSED TO 0. This method effectively does this: elapsed = elapsed - time */
 		public void resetElapsed(){
 			elapsed -= time;
 		}

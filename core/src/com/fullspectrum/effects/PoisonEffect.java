@@ -10,8 +10,9 @@ import com.fullspectrum.shader.PoisonShader;
 
 public class PoisonEffect extends Effect {
 
+	private int stacks = 1;
 	private float dps;
-	private float tick = 0.01f;
+	private float tick = 0.2f;
 	private Entity fromEntity;
 	private static PoisonShader shader = new PoisonShader();
 	
@@ -19,6 +20,7 @@ public class PoisonEffect extends Effect {
 		super(toEntity, duration, false);
 		this.dps = dps;
 		this.fromEntity = fromEntity;
+		stackable = true;
 	}
 
 	@Override
@@ -78,6 +80,26 @@ public class PoisonEffect extends Effect {
 	@Override
 	public String getName() {
 		return "poison";
+	}
+	
+	public float getDps() {
+		return dps;
+	}
+	
+	public void setDps(float dps) {
+		this.dps = dps;
+	}
+	
+	public void resetTime() {
+		Mappers.timer.get(toEntity).get(getName() + "_effect").setElapsed(0.0f);;
+	}
+	
+	public void addStack() {
+		stacks++;
+	}
+	
+	public int getStacks() {
+		return stacks;
 	}
 
 }
