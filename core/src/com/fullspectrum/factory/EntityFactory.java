@@ -42,13 +42,21 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.Pixmap.Format;
+import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
+import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.BodyDef;
+import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.FixtureDef;
+import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
@@ -62,6 +70,7 @@ import com.fullspectrum.ability.knight.ParryAbility;
 import com.fullspectrum.ability.knight.SlamAbility;
 import com.fullspectrum.ability.knight.SpinSliceAbility;
 import com.fullspectrum.ability.knight.TornadoAbility;
+import com.fullspectrum.ability.monk.InstaWallAbility;
 import com.fullspectrum.ability.monk.PoisonDebuffAbility;
 import com.fullspectrum.ability.monk.WindBurstAbility;
 import com.fullspectrum.ability.rogue.BalloonTrapAbility;
@@ -155,6 +164,7 @@ import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.PoisonDef;
 import com.fullspectrum.entity.CoinType;
@@ -1633,6 +1643,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_SWING_ATTACK_FRONT));
 		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_SWING_ATTACK_UP));
 		animMap.put(EntityAnim.WIND_BURST, assets.getAnimation(Asset.MONK_WIND_BURST));
+		animMap.put(EntityAnim.INSTA_WALL, assets.getAnimation(Asset.MONK_STAFF_SLAM));
 		
 		Entity monk = new EntityBuilder(MONK, FRIENDLY)
 			.animation(animMap)
@@ -1657,6 +1668,14 @@ public class EntityFactory {
 				monkStats.get("wind_burst_damage"),
 				monkStats.get("wind_burst_knockback"));
 		
+		InstaWallAbility instaWallAbility = new InstaWallAbility(
+				monkStats.get("insta_wall_cooldown"), 
+				Actions.ABILITY_3,
+				animMap.get(EntityAnim.INSTA_WALL),
+				monkStats.get("insta_wall_duration"), 
+				(int)monkStats.get("insta_wall_max_height"));
+		
+		
 		// Player Related Components4
 		monk.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
 		monk.add(engine.createComponent(MoneyComponent.class));
@@ -1669,7 +1688,8 @@ public class EntityFactory {
 		monk.add(engine.createComponent(MonkComponent.class));
 		monk.add(engine.createComponent(AbilityComponent.class)
 				.add(poisonAbility)
-				.add(windBurstAbility));
+				.add(windBurstAbility)
+				.add(instaWallAbility));
 				
 		EntityStateMachine esm = StateFactory.createBaseBipedal(monk, monkStats);
 		
@@ -1703,12 +1723,15 @@ public class EntityFactory {
 					float damage = monkStats.get("swing_damage");
 					float knockback = monkStats.get("swing_knockback");
 					
-					PoisonDef poisonDef = new PoisonDef(entity, monkStats.get("poison_duration"), monkStats.get("poison_dps"), monkStats.get("poison_decay_rate"));
-					
 					if(swingUp) {
-						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback).addEffect(poisonDef);
+						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback);
 					} else {
-						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback).addEffect(poisonDef);
+						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback);
+					}
+					
+					EffectDef activeEffect = Mappers.monk.get(entity).activeEffect;
+					if(activeEffect != null) {
+						swingComp.addEffect(activeEffect);
 					}
 					
 					swingComp.shouldSwing = true;
@@ -1749,6 +1772,13 @@ public class EntityFactory {
 			.add(engine.createComponent(FrameMovementComponent.class).set("monk/frames_monk_wind_burst"))
 			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.WIND_BURST);
+		
+		esm.createState(EntityStates.INSTA_WALL)
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(DirectionComponent.class))
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.INSTA_WALL);
 		
 		// Input Data
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
@@ -2864,6 +2894,64 @@ public class EntityFactory {
 		group.add(engine.createComponent(ChildrenComponent.class));
 		group.add(engine.createComponent(PropertyComponent.class));
 		return group;
+	}
+	
+	public static Entity createInstaWall(float x, int startRow, int endRow) {
+		// Width and height in meters
+		float width = 1;
+		float height = (endRow - startRow + 1);
+		
+		float y = startRow + height * 0.5f;
+		
+		Entity wall = new EntityBuilder(EntityType.INSTA_WALL, EntityStatus.NEUTRAL)
+				.render(false)
+				.build();
+		
+		BodyDef bdef = new BodyDef();
+		bdef.type = BodyType.StaticBody;
+		bdef.fixedRotation = true;
+		bdef.position.set(x, y);
+		
+		FixtureDef fdef = new FixtureDef();
+		PolygonShape shape = new PolygonShape();
+		shape.setAsBox(width * 0.5f, height * 0.5f);
+		fdef.shape = shape;
+		fdef.friction = 0.0f;
+		
+		Body body = PhysicsUtils.createPhysics(world, wall, bdef, fdef, CollisionBodyType.TILE, FixtureType.GROUND);
+		
+		wall.add(engine.createComponent(PositionComponent.class).set(x, y));
+		wall.add(engine.createComponent(VelocityComponent.class));
+		wall.add(engine.createComponent(BodyComponent.class).set(body));
+	
+		TextureRegion tile = assets.getRegion(Asset.MONK_INSTA_WALL_TILE);
+		
+		FrameBuffer fbo = new FrameBuffer(Format.RGBA8888, (int)(width * GameVars.PPM), (int)(height * GameVars.PPM), false);
+		SpriteBatch batch = new SpriteBatch();
+		OrthographicCamera cam = new OrthographicCamera();
+		cam.setToOrtho(false, fbo.getWidth(), fbo.getHeight());
+		
+		fbo.begin();
+		
+		batch.setProjectionMatrix(cam.combined);
+		batch.begin();
+		
+		for(int row = startRow; row <= endRow; row++) {
+			float yy = (row - startRow) * GameVars.PPM;
+			
+			batch.draw(tile, 0, yy);
+		}
+		batch.end();
+		
+		fbo.end();
+		
+		Texture texture = fbo.getColorBufferTexture();
+		TextureRegion region = new TextureRegion(texture);
+		region.flip(false, true);
+		
+		Mappers.texture.get(wall).set(region);
+		
+		return wall;
 	}
 	
 	// ---------------------------------------------

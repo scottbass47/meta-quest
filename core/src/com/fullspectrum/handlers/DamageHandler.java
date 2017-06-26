@@ -118,8 +118,8 @@ public class DamageHandler {
 			}
 		}
 
-		float half = 0.25f * amount * 0.5f;
-		amount += MathUtils.random(-half, half);
+		float percent = 0.05f * amount;
+		amount += MathUtils.random(-percent, percent);
 		float dealt = MathUtils.clamp(amount, 1.0f, healthComp.health + (barrierComp != null ? barrierComp.barrier : 0) + (blacksmithComp != null ? blacksmithComp.shield : 0));
 
 		float healthDown = 0;

@@ -194,6 +194,20 @@ public class PhysicsUtils {
 		return new Rectangle(minX, minY, maxX - minX, maxY - minY);
 	}
 	
+	public static Body createPhysics(World world, Entity entity, BodyDef bdef, FixtureDef fdef, CollisionBodyType bodyType, FixtureType fixtureType) {
+		Body body = world.createBody(bdef);
+		body.setUserData(entity);
+		body.createFixture(fdef).setUserData(fixtureType);
+		
+		CollisionListenerComponent listenerComp = EntityUtils.add(entity, CollisionListenerComponent.class);
+		CollisionData data = new CollisionData();
+		
+		listenerComp.collisionData = data;
+		listenerComp.type = bodyType;
+		data.registerDefault(fixtureType, entity);
+		return body;
+	}
+	
 	public static Body createTilePhysics(World world, Entity tile, Vector2[] vertices){
 		BodyDef bdef = new BodyDef();
 		bdef.fixedRotation = true;

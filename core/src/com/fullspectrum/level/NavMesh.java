@@ -484,7 +484,7 @@ public class NavMesh{
 		while (!finished) {
 			Point2f point = new Point2f(fromX + speed * time * (right ? 1.0f : -1.0f), fromY + jumpForce * time + 0.5f * GameVars.GRAVITY * time * time);
 			if (point.y < level.getMaxRow() && !level.inBounds(point.x, point.y)) return null;
-			if (!isValidPoint(point.x, point.y)) {
+			if (!level.isValidPoint(point.x, point.y, boundingBox)) {
 				return null;
 			}
 			time += interval;
@@ -527,33 +527,6 @@ public class NavMesh{
 	private float getFallingCost(float distance) {
 		float cost = 1.0f / maxRunSpeed;
 		return cost + (float) Math.sqrt(-2.0f * distance / GameVars.GRAVITY);
-	}
-
-	/**
-	 * Returns true if the bounding box centered at x, y is not colliding with any solid tiles
-	 * @param x
-	 * @param y
-	 * @return
-	 */
-	private boolean isValidPoint(float x, float y) {
-		float hw = boundingBox.width * 0.5f;
-		float hh = boundingBox.height * 0.5f;
-		float minX = x - hw;
-		float minY = y - hh;
-		float maxX = x + hw;
-		float maxY = y + hh;
-		
-		int minRow = Maths.toGridCoord(minY);
-		int minCol = Maths.toGridCoord(minX);
-		int maxRow = Maths.toGridCoord(maxY);
-		int maxCol = Maths.toGridCoord(maxX);
-
-		for (int row = minRow; row <= maxRow; row++) {
-			for (int col = minCol; col <= maxCol; col++) {
-				if (level.isSolid(row, col)) return false;
-			}
-		}
-		return true;
 	}
 
 	/**

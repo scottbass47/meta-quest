@@ -263,7 +263,7 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
-
+		
 //		levelManager.switchToEditorMode();
 //		editorOpen = true;
 	}
@@ -642,8 +642,8 @@ public class GameScreen extends AbstractScreen {
 		float scale = 3.0f;
 
 		batch.begin();
-		// Abilities
-		float abilityY = 150;
+		
+		float abilityY = 100;
 		float iconWidth = 18.0f;
 		float iconHeight = 18.0f;
 		GlyphLayout layout = new GlyphLayout();
@@ -657,13 +657,13 @@ public class GameScreen extends AbstractScreen {
 			if(!ability.isActivated()) continue;
 			TextureRegion icon = ability.getIcon();
 			if(icon == null) continue;
-			float x = startX + (iconWidth + spacing) * counter * spacing;
+			float x = startX + ((iconWidth + spacing) * counter) * scale;
 			if(ability.isReady()){
 				batch.setColor(Color.WHITE);
 			} else{
 				batch.setColor(Color.DARK_GRAY);
 			}
-			batch.draw(icon, x, abilityY, iconWidth * 0.5f, iconHeight * 0.5f, iconWidth, iconHeight, scale, scale, 0.0f);
+			batch.draw(icon, x, abilityY, 0.0f, 0.0f, iconWidth, iconHeight, scale, scale, 0.0f);
 			if(!ability.isReady() && !ability.inUse()){
 				int timeLeft = (int)(ability.getCooldown() - ability.getTimeElapsed() + 0.99f);
 				String num = "" + timeLeft;
@@ -677,7 +677,7 @@ public class GameScreen extends AbstractScreen {
 		// Health
 		float healthEmptyWidth = healthEmpty.getRegionWidth();
 		float healthEmptyHeight = healthEmpty.getRegionHeight();
-		float healthY = abilityY - iconHeight * scale + 4.0f;
+		float healthY = abilityY - healthEmptyHeight * scale + 4.0f;
 
 		int healthSrcX = healthFull.getRegionX();
 		int healthSrcY = healthFull.getRegionY();

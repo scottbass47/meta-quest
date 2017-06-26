@@ -29,5 +29,10 @@
 	// Wind Burst
 	wind_burst_cooldown: 1.0,
 	wind_burst_damage: 10.0,
-	wind_burst_knockback: 8.0
+	wind_burst_knockback: 8.0,
+	
+	// Insta Wall
+	insta_wall_cooldown: 1.0,
+	insta_wall_duration: 5,
+	insta_wall_max_height: -1,
 }

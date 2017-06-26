@@ -125,6 +125,11 @@ public class ActionManager implements InputProcessor {
 				if(currentAction == EditorActions.AUTO_PLACE) {
 					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
 					autoPlaceAction.setErasing(!autoPlaceAction.isErasing());
+					
+					// If you're done erasing and there is no active tile, go back to select
+					if(!autoPlaceAction.isErasing() && editor.getTilePanel().getActiveTile() == null) {
+						switchAction(EditorActions.SELECT);
+					}
 				} else {
 					switchAction(EditorActions.ERASE);
 				}

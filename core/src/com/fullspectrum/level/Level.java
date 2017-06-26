@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
@@ -29,6 +30,7 @@ import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
 import com.fullspectrum.level.tiles.MapTile.TileType;
 import com.fullspectrum.level.tiles.TilesetLoader;
+import com.fullspectrum.utils.Maths;
 import com.fullspectrum.utils.PhysicsUtils;
 
 public class Level {
@@ -713,6 +715,33 @@ public class Level {
 		return isSolid((int) y, (int) x);
 	}
 
+	/**
+	 * Returns true if the bounding box centered at x, y is not colliding with any solid tiles
+	 * @param x
+	 * @param y
+	 * @return
+	 */
+	public boolean isValidPoint(float x, float y, Rectangle boundingBox) {
+		float hw = boundingBox.width * 0.5f;
+		float hh = boundingBox.height * 0.5f;
+		float minX = x - hw;
+		float minY = y - hh;
+		float maxX = x + hw;
+		float maxY = y + hh;
+		
+		int minRow = Maths.toGridCoord(minY);
+		int minCol = Maths.toGridCoord(minX);
+		int maxRow = Maths.toGridCoord(maxY);
+		int maxCol = Maths.toGridCoord(maxX);
+
+		for (int row = minRow; row <= maxRow; row++) {
+			for (int col = minCol; col <= maxCol; col++) {
+				if (isSolid(row, col)) return false;
+			}
+		}
+		return true;
+	}
+	
 	public boolean performRayTrace(float x1, float y1, float x2, float y2) {
 		int startCol = (int) x1;
 		int startRow = (int) y1;

@@ -48,7 +48,8 @@ public enum EntityType {
 	BALLOON_TRAP,
 	LEVEL_TRIGGER,
 	DAMAGE_TEXT,
-	GROUP;
+	GROUP,
+	INSTA_WALL;
 	
 	@Override
 	public String toString() {
