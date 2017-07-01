@@ -1,0 +1,30 @@
+{
+  spawnpoints: [
+    {
+      id: 1,
+      x: 5,
+      y: 5
+    },
+    {
+      id: 2,
+      x: 3,
+      y: 10
+    }
+  ],
+  waves: [
+    {
+      1: {
+        spitter: 3,
+        ai_player: 2
+      },
+      2: {
+        slime: 5
+      }
+    },
+    {
+      2: {
+        spitter:10
+      }
+    }
+  ]
+}

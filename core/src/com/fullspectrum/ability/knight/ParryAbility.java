@@ -27,6 +27,7 @@ public class ParryAbility extends Ability{
 	private float swingDuration = 0.0f;
 	private SwingComponent swing;
 	
+	// BUG Sometimes you get permanent invincibility
 	public ParryAbility(float cooldown, Actions input, float maxTime, float stunDuration, Animation parrySwingAnimation, SwingComponent swing) {
 		super(AbilityType.PARRY, AssetLoader.getInstance().getRegion(Asset.PARRY_ICON), cooldown, input, true);
 		this.maxTime = maxTime;

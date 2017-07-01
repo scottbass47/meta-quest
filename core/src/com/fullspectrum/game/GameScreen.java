@@ -27,6 +27,7 @@ import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
+import com.fullspectrum.arena.Arena;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.audio.AudioLocator;
@@ -63,7 +64,6 @@ import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Theme;
-import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -104,6 +104,7 @@ import com.fullspectrum.systems.TimerSystem;
 import com.fullspectrum.systems.VelocitySystem;
 import com.fullspectrum.systems.WanderingSystem;
 import com.fullspectrum.utils.EntityUtils;
+import com.fullspectrum.utils.Maths;
 import com.strongjoshua.console.Console;
 import com.strongjoshua.console.GUIConsole;
 
@@ -133,11 +134,13 @@ public class GameScreen extends AbstractScreen {
 	private int previousZoom = 0;
 	private AssetLoader assets;
 	private BitmapFont font;
-//	private DebugConsole console;
 	private Console console;
 	private boolean pauseMenuOpen = false;
 	private PauseMenu pauseMenu;
 	private boolean editorOpen = false;
+	
+	// Arean
+	private Arena arena;
 	
 //	private int ups = 0;
 
@@ -263,6 +266,10 @@ public class GameScreen extends AbstractScreen {
 		
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
+		
+		arena = new Arena();
+		arena.load(Gdx.files.internal("config/arena.json"));
+		System.out.println(arena);
 		
 //		levelManager.switchToEditorMode();
 //		editorOpen = true;
@@ -549,12 +556,11 @@ public class GameScreen extends AbstractScreen {
 		batch.setProjectionMatrix(hudCamera.combined);
 		if(DebugVars.MAP_COORDS_ON){
 			Vector2 mousePos = Mouse.getWorldPosition(worldCamera);
-			MapTile mouseTile = levelManager.getCurrentLevel().tileAt((int)mousePos.y, (int)mousePos.x);
-			if(mouseTile != null){
-				batch.begin();
-				font.draw(batch, mouseTile.getRow() + ", " + mouseTile.getCol(), 10, 40);
-				batch.end();
-			}
+			int row = Maths.toGridCoord(mousePos.y);
+			int col = Maths.toGridCoord(mousePos.x);
+			batch.begin();
+			font.draw(batch, row + ", " + col, 10, 40);
+			batch.end();
 		}
 		renderHUD(batch, levelManager.getPlayer());
 		
