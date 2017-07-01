@@ -122,7 +122,7 @@ public class ExpandableGrid<T> {
 		}
 	} 
 	
-	private void shrink() {
+	public void shrink() {
 		// First loop throw rows, remove if all null
 		for(int row = minRow; getRows() != 1; row++) {
 			boolean allEmpty = true;

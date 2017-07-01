@@ -85,7 +85,7 @@ public class AutoPlaceAction extends Action {
 		batch.end();
 	}
 
-	private void updateSurroundingTiles(int row, int col) {
+	public void updateSurroundingTiles(int row, int col) {
 		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
 		TilePanel tilePanel = editor.getTilePanel();
 

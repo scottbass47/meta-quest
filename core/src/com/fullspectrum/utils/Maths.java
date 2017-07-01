@@ -60,6 +60,9 @@ public class Maths {
 	 * returns (int)(x < 0 ? x - 1 : x) 
 	 */
 	public static int toGridCoord(float x) {
+		if(x < 0 && MathUtils.isEqual(x, (int)x)) {
+			return (int)x;
+		}
 		return (int)(x < 0 ? x - 1 : x);
 	}
 }

@@ -166,7 +166,6 @@ import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
-import com.fullspectrum.effects.PoisonDef;
 import com.fullspectrum.entity.CoinType;
 import com.fullspectrum.entity.DelayedAction;
 import com.fullspectrum.entity.DropType;

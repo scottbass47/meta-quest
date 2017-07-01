@@ -16,6 +16,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.fullspectrum.editor.action.ActionManager;
 import com.fullspectrum.editor.action.EditorActions;
+import com.fullspectrum.editor.action.MoveAction;
 import com.fullspectrum.editor.action.SelectAction;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
@@ -327,6 +328,13 @@ public class LevelEditor extends InputMultiplexer{
 	
 	public Vector2 toWorldCoords(Vector2 coords) {
 		return toWorldCoords(coords.x, coords.y);
+	}
+	
+	public void onExit() {
+		if(actionManager.getCurrentAction() == EditorActions.MOVE) {
+			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
+			moveAction.move();
+		}
 	}
 	
 	public boolean shiftDown() {

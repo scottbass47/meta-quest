@@ -36,6 +36,12 @@ public enum EditorActions {
 		public Action getActionInstance() {
 			return new AutoPlaceAction();
 		}
+	},
+	MOVE {
+		@Override
+		public Action getActionInstance() {
+			return new MoveAction();
+		}
 	};
 	
 	public abstract Action getActionInstance();

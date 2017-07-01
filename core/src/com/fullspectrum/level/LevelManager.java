@@ -176,6 +176,7 @@ public class LevelManager{
 	}
 	
 	public void switchToPlayMode() {
+		editor.onExit();
 		editorActive = false;
 		input.getRawInput().removeInput(editor);
 		switchLevel(currentLevel.getInfo());
