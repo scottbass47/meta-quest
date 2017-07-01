@@ -89,8 +89,7 @@ public enum FixtureType {
 			
 			info.addBehaviors(filter, 
 					new SensorBehavior(),
-					new DropBehavior(),
-					new DeathOnCollideBehavior());
+					new DropBehavior());
 					
 			return info;
 		}

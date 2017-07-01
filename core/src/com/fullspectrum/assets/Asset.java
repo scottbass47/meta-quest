@@ -32,18 +32,18 @@ public enum Asset {
 	WIND_BURST_ICON(Atlas.HUD, "wind_burst_icon"),
 
 	//Knight
-	KNIGHT_CHAIN1_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_1/knight_chain1_idle_anticipation"),
+//	KNIGHT_CHAIN1_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_1/knight_chain1_idle_anticipation"),
 	KNIGHT_CHAIN1_SWING(Atlas.ENTITY, "chain_1/knight_chain1_swing"),
 	KNIGHT_CHAIN1_ANTICIPATION(Atlas.ENTITY, "chain_1/knight_chain1_anticipation"),
-	KNIGHT_CHAIN2_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_2/knight_chain2_idle_anticipation"),
-	KNIGHT_CHAIN2_SWING(Atlas.ENTITY, "chain_2/knight_chain2_swing"),
-	KNIGHT_CHAIN2_ANTICIPATION(Atlas.ENTITY, "chain_2/knight_chain2_anticipation"),
-	KNIGHT_CHAIN3_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_3/knight_chain3_idle_anticipation"),
-	KNIGHT_CHAIN3_SWING(Atlas.ENTITY, "chain_3/knight_chain3_swing"),
-	KNIGHT_CHAIN3_ANTICIPATION(Atlas.ENTITY, "chain_3/knight_chain3_anticipation"),
-	KNIGHT_CHAIN4_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_4/knight_chain4_idle_anticipation"),
-	KNIGHT_CHAIN4_SWING(Atlas.ENTITY, "chain_4/knight_chain4_swing"),
-	KNIGHT_CHAIN4_ANTICIPATION(Atlas.ENTITY, "chain_4/knight_chain4_anticipation"),
+//	KNIGHT_CHAIN2_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_2/knight_chain2_idle_anticipation"),
+//	KNIGHT_CHAIN2_SWING(Atlas.ENTITY, "chain_2/knight_chain2_swing"),
+//	KNIGHT_CHAIN2_ANTICIPATION(Atlas.ENTITY, "chain_2/knight_chain2_anticipation"),
+//	KNIGHT_CHAIN3_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_3/knight_chain3_idle_anticipation"),
+//	KNIGHT_CHAIN3_SWING(Atlas.ENTITY, "chain_3/knight_chain3_swing"),
+//	KNIGHT_CHAIN3_ANTICIPATION(Atlas.ENTITY, "chain_3/knight_chain3_anticipation"),
+//	KNIGHT_CHAIN4_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_4/knight_chain4_idle_anticipation"),
+//	KNIGHT_CHAIN4_SWING(Atlas.ENTITY, "chain_4/knight_chain4_swing"),
+//	KNIGHT_CHAIN4_ANTICIPATION(Atlas.ENTITY, "chain_4/knight_chain4_anticipation"),
 		
 	//Knight Player
 	KNIGHT_RUN(Atlas.ENTITY, "run/knight_run"),

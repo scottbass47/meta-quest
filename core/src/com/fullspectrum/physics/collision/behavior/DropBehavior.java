@@ -29,6 +29,7 @@ public class DropBehavior extends CollisionBehavior{
 		moneyComp.money += coinAmount.money;
 		coinAmount.money = 0;
 		
+		Mappers.death.get(coin).triggerDeath();
 		AudioLocator.getAudio().playSound(Sounds.COIN_PICKUP, PhysicsUtils.getPos(coin));
 	}
 }

@@ -5,6 +5,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.ability.AbilityType;
@@ -56,14 +57,16 @@ public class KickAbility extends AnimationAbility{
 					Body myBody = Mappers.body.get(me).body;
 					Body otherBody = Mappers.body.get(other).body;
 					
-					float myX = myBody.getPosition().x;
+					float xOff = facingComp.facingRight ? 0.5f : -0.5f;
+					
+					float myX = myBody.getPosition().x + xOff;
 					float myY = myBody.getPosition().y;
 					float otherX = otherBody.getPosition().x;
 					float otherY = otherBody.getPosition().y;
 					
 					float minX = 0.0f;
 					float maxX = minX + range;
-					float yRange = 0.75f;
+					float yRange = 0.9f;
 					
 					// Construct box in front of you
 					float closeX = facingComp.facingRight ? myX + minX : myX - minX;
@@ -75,7 +78,13 @@ public class KickAbility extends AnimationAbility{
 					DebugRender.setColor(Color.CYAN);
 					DebugRender.rect(facingComp.facingRight ? closeX : farX, bottom, Math.abs(farX - closeX), top - bottom, 1.0f);
 					
-					return (((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX)) && otherY <= top && otherY >= bottom);
+					Rectangle kick = new Rectangle(Math.min(closeX, farX), bottom, Math.abs(closeX - farX), top - bottom);
+					Rectangle enemy = new Rectangle(Mappers.body.get(other).getAABB());
+					enemy.x = otherX - enemy.width * 0.5f;
+					enemy.y = otherY - enemy.height * 0.5f;
+					
+					return kick.overlaps(enemy);
+//					return (((facingComp.facingRight && otherX >= closeX && otherX <= farX) || (!facingComp.facingRight && otherX >= farX && otherX <= closeX)) && otherY <= top && otherY >= bottom);
 				}
 				
 				@SuppressWarnings("unchecked")

@@ -29,7 +29,7 @@
 	
 	// Parry
 	parry_cooldown: 1.0,
-	parry_max_time: 1.0,
+	parry_max_time: 1.5,
 	parry_stun_duration: 4.0,
 	parry_knockback: 4.0,
 	
@@ -43,8 +43,8 @@
 	overhead_swing_cooldown: 1.0,
 	overhead_swing_damage: 50,
 	overhead_swing_knockback: 5,
-	overhead_swing_rx: 8.0, // radius in x direction of elliptical swing arc
-	overhead_swing_ry: 3.5, 
+	overhead_swing_rx: 4.0, // radius in x direction of elliptical swing arc
+	overhead_swing_ry: 2.5, 
 	
 	// Slam
 	slam_cooldown: 1.0,
