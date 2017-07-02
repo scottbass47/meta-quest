@@ -1103,12 +1103,12 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					Mappers.rogue.get(entity).doThrowingAnim = true;
-					Mappers.timer.get(entity).add("delayed_throw", 0.2f, false, new TimeListener() {
+					Mappers.timer.get(entity).add("delayed_knife_throw", GameVars.PPM_INV * 2, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
 							AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
 							if(upperBodyASM != null && upperBodyASM.getCurrentState() == EntityAnim.THROW_ARMS) {
-								ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 0.0f, projectileSpeed, projectileDamage, 0.0f);
+								ProjectileFactory.spawnThrowingKnife(entity, 5.0f, 5.0f, projectileSpeed, projectileDamage, 0.0f);
 							}
 						}
 					});

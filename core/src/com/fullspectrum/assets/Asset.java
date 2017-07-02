@@ -90,7 +90,6 @@ public enum Asset {
 	ROGUE_BALLOON_POP(Atlas.ENTITY, "balloon_pop/rogue_balloon_pop"),
 	ROGUE_BALLOON_IDLE(Atlas.ENTITY, "balloon_idle/rogue_balloon_idle"),
 	ROGUE_BALLOON_PROJECTILE(Atlas.ENTITY, "balloon_projectile/rogue_balloon_projectile"),
-	
 		
 	// Monk
 	MONK_IDLE(Atlas.ENTITY, "idle/monk_idle"),

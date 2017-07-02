@@ -14,7 +14,7 @@ public class TimerComponent implements Component, Poolable{
 	}
 	
 	public TimerComponent add(String name, float time, boolean looping, TimeListener listener){
-		timers.put(name.toLowerCase(), new Timer(time, looping, listener));
+		timers.put(name.toLowerCase(), new Timer(name, time, looping, listener));
 		return this;
 	}
 	
@@ -32,13 +32,15 @@ public class TimerComponent implements Component, Poolable{
 	}
 	
 	public static class Timer{
+		private String name;
 		private float time;
 		private boolean looping;
 		private float elapsed = 0.0f;
 		private TimeListener listener;
 		private boolean paused = false;
 		
-		public Timer(float time, boolean looping, TimeListener listener){
+		public Timer(String name, float time, boolean looping, TimeListener listener){
+			this.name = name;
 			this.time = time;
 			this.looping = looping;
 			this.listener = listener;
@@ -87,6 +89,11 @@ public class TimerComponent implements Component, Poolable{
 		
 		public float getTotalTime(){
 			return time;
+		}
+		
+		@Override
+		public String toString() {
+			return name;
 		}
 	}
 	
