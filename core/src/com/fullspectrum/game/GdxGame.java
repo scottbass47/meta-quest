@@ -116,4 +116,6 @@ public class GdxGame extends Game {
 		worldViewport.update(width, height);
 		hudViewport.update(width, height);
 	}
+	
+	
 }

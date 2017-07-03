@@ -12,6 +12,7 @@ public class DesktopLauncher {
 		config.setWindowedMode(DebugVars.FULLSCREEN_MODE ? 1920 : 1280, DebugVars.FULLSCREEN_MODE ? 1080 : 720);
 		config.setResizable(false);
 		config.setDecorated(!DebugVars.FULLSCREEN_MODE);
+		
 		new Lwjgl3Application(new GdxGame(), config);
 	}
 }

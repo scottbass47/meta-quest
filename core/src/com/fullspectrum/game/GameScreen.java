@@ -269,7 +269,7 @@ public class GameScreen extends AbstractScreen {
 		
 		arena = new Arena();
 		arena.load(Gdx.files.internal("config/arena.json"));
-		System.out.println(arena);
+		arena.start();
 		
 //		levelManager.switchToEditorMode();
 //		editorOpen = true;
@@ -338,6 +338,8 @@ public class GameScreen extends AbstractScreen {
 		
 		levelManager.update(delta);
 
+		arena.update(delta);
+		
 		// Update the Engine
 		EntityUtils.engineUpdating = true;
 		engine.update(delta);
@@ -473,8 +475,10 @@ public class GameScreen extends AbstractScreen {
 			
 			if(editorOpen) {
 				levelManager.switchToEditorMode();
+				arena.reset();
 			} else {
 				levelManager.switchToPlayMode();
+				arena.start();
 			}
 		}
 		
@@ -563,6 +567,8 @@ public class GameScreen extends AbstractScreen {
 			batch.end();
 		}
 		renderHUD(batch, levelManager.getPlayer());
+		
+		arena.renderHUD(batch);
 		
 		if(DebugVars.COMMANDS_ON){
 			batch.begin();

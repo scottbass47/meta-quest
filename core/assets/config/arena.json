@@ -1,29 +1,69 @@
 {
+  spawn_interval: 0.1f, // how often a new enemy is spawned in per spawnpoint
   spawnpoints: [
     {
       id: 1,
-      x: 5,
-      y: 5
+      x: 24,
+      y: 3
     },
     {
       id: 2,
-      x: 3,
-      y: 10
+      x: -16,
+      y: 9
+    },
+    {
+      id: 3,
+      x: 24,
+      y: 12
+    },
+    {
+	  id: 4,
+	  x: -4,
+	  y: 18    
     }
   ],
   waves: [
+  	// Wave 1
     {
       1: {
-        spitter: 3,
-        ai_player: 2
+        slime: 3,
+        ai_player: 1
       },
       2: {
         slime: 5
+      },
+      3: {
+        slime: 5,
+      },
+      4: {
+        slime: 3,
+        ai_player: 1
       }
     },
+    
+    // Wave 2
     {
       2: {
-        spitter:10
+        ai_player: 3
+      },
+      3: {
+        ai_player: 3
+      },
+    },
+    
+    // Wave 3
+    {
+   	  1: {
+        spitter: 5,
+      },
+      2: {
+        spitter: 5,
+      },
+      3: {
+        spitter: 5,
+      },
+      4: {
+        spitter: 5,
       }
     }
   ]

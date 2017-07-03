@@ -22,6 +22,10 @@ public class ArenaWave {
 		return groupMap.size;
 	}
 	
+	public ArrayMap<Integer, ArenaGroup> getGroupMap() {
+		return groupMap;
+	}
+	
 	@Override
 	public String toString() {
 		StringBuilder builder = new StringBuilder();
