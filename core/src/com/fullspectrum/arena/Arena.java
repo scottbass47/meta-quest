@@ -9,9 +9,6 @@ import com.fullspectrum.utils.EntityUtils;
 
 public class Arena {
 	
-	// Pick character screen
-	// Arena renderer
-	// Death screen
 	private LevelManager levelManager;
 	private ArenaState state;
 	private PickPlayerScreen playerScreen;

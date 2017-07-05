@@ -21,14 +21,14 @@ public class AssetLoader {
 	private TextureParameter texParam;
 	
 	// Font
-	public static final String font12 = "font/calibriLight12.fnt";
-	public static final String font18 = "font/calibriLight18.fnt";
-	public static final String font24 = "font/calibriLight24.fnt";
-	public static final String font28 = "font/calibriLight28.fnt";
-	public static final String font32 = "font/calibriLight32.fnt";
-	public static final String font36 = "font/calibriLight36.fnt";
-	public static final String font48 = "font/calibriLight48.fnt";
-	public static final String font72 = "font/calibriLight72.fnt";
+	public static final String font12 = "font/millenium/millenium12.fnt";
+	public static final String font18 = "font/millenium/millenium18.fnt";
+	public static final String font24 = "font/millenium/millenium24.fnt";
+	public static final String font28 = "font/millenium/millenium28.fnt";
+	public static final String font32 = "font/millenium/millenium32.fnt";
+	public static final String font36 = "font/millenium/millenium36.fnt";
+	public static final String font48 = "font/millenium/millenium48.fnt";
+	public static final String font72 = "font/millenium/millenium72.fnt";
 
 	public static final String consoleMain = "font/consoleMain.fnt";
 	
