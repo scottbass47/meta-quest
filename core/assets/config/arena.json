@@ -1,5 +1,5 @@
 {
-  spawn_interval: 0.1f, // how often a new enemy is spawned in per spawnpoint
+  spawn_interval: 2.0f, // how often a new enemy is spawned in per spawnpoint
   spawnpoints: [
     {
       id: 1,

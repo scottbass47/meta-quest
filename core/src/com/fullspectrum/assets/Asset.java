@@ -8,6 +8,9 @@ public enum Asset {
 	STAMINA_BAR_EMPTY(Atlas.HUD, "staminabar_empty"),
 	STAMINA_BAR_FULL(Atlas.HUD, "staminabar_full"),
 
+	// UI
+	VERTICAL_ARROW(Atlas.HUD, "vertical_arrow"),
+	
 	// Ability Icons
 	ANTI_MAGNETIC_ARMOR_ICON(Atlas.HUD, "anti_magnetic_armor_icon"),
 	PARRY_ICON(Atlas.HUD, "parry_icon"),

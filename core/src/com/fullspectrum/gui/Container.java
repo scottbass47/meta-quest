@@ -1,4 +1,4 @@
-package com.fullspectrum.editor.gui;
+package com.fullspectrum.gui;
 
 import java.awt.Rectangle;
 
@@ -65,6 +65,9 @@ public abstract class Container extends Component implements KeyListener, MouseL
 		batch.begin();
 		for(Component component : components) {
 			if(!component.isVisible()) return;
+			if(component.isDebugRender()) {
+				component.debugRender(batch);
+			}
 			component.render(batch);
 		}
 		batch.end();

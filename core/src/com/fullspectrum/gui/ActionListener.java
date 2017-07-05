@@ -1,4 +1,4 @@
-package com.fullspectrum.editor.gui;
+package com.fullspectrum.gui;
 
 public interface ActionListener {
 

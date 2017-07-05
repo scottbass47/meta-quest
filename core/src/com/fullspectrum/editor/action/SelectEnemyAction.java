@@ -4,9 +4,9 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.fullspectrum.editor.EnemyPanel;
 import com.fullspectrum.editor.PlaceableSpawnpoint;
 import com.fullspectrum.editor.SelectListener;
-import com.fullspectrum.editor.gui.Window;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
+import com.fullspectrum.gui.Window;
 
 public class SelectEnemyAction extends Action {
 

@@ -1,4 +1,4 @@
-package com.fullspectrum.editor.gui;
+package com.fullspectrum.gui;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
@@ -26,7 +26,6 @@ public class Button extends Component implements MouseListener{
 	public Button() {
 		this("");
 	}
-	
 	public Button(String text) {
 		this.text = text;
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);

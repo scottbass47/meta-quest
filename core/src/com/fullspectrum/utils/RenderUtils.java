@@ -1,5 +1,9 @@
 package com.fullspectrum.utils;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.Pixmap;
+import com.badlogic.gdx.graphics.Texture;
+import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.fullspectrum.game.GameVars;
 
@@ -14,6 +18,17 @@ public class RenderUtils {
 			float y2 = y + jumpForce * (t + step) + 0.5f * GameVars.GRAVITY * (t + step) * (t + step);
 			sRender.line(x1, y1, x2, y2);
 		}
+	}
+	
+	public static Texture createBackground(int width, int height, Color color) {
+		Pixmap pix = new Pixmap(width, height, Format.RGBA8888);
+		pix.setColor(color);
+		pix.fill();
+		
+		Texture background = new Texture(pix);
+		pix.dispose();
+		
+		return background;
 	}
 	
 }

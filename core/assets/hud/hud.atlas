@@ -1,193 +1,200 @@
 hud.png
-size: 510, 38
+size: 114, 162
 format: RGBA8888
 filter: Nearest,Nearest
 repeat: none
 anti_magnetic_armor_icon
   rotate: false
-  xy: 268, 4
+  xy: 4, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 balloon_icon
   rotate: false
-  xy: 334, 4
+  xy: 70, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 blacksmith_icon
   rotate: false
-  xy: 356, 4
+  xy: 26, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 boomerang_icon
   rotate: false
-  xy: 312, 4
+  xy: 48, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 bow_icon
   rotate: false
-  xy: 400, 4
+  xy: 26, 92
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 c4_detonator_icon
   rotate: false
-  xy: 378, 4
+  xy: 70, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 c4_icon
   rotate: false
-  xy: 290, 4
+  xy: 92, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 dash_icon
   rotate: false
-  xy: 488, 4
+  xy: 92, 70
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 dash_slash_icon
   rotate: false
-  xy: 466, 4
+  xy: 70, 92
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 execute_icon
   rotate: false
-  xy: 422, 4
+  xy: 48, 92
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 flash_powder_icon
   rotate: false
-  xy: 444, 4
+  xy: 4, 92
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 healthbar_empty
   rotate: false
-  xy: 254, 26
+  xy: 4, 138
   size: 100, 8
   orig: 100, 8
   offset: 0, 0
   index: -1
 healthbar_full
   rotate: false
-  xy: 150, 26
+  xy: 4, 150
   size: 100, 8
   orig: 100, 8
   offset: 0, 0
   index: -1
 homing_knives_icon
   rotate: false
-  xy: 246, 4
+  xy: 46, 4
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 insta_wall_icon
   rotate: false
-  xy: 70, 4
+  xy: 48, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 kick_icon
   rotate: false
-  xy: 92, 4
+  xy: 4, 26
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 overhead_swing_icon
   rotate: false
-  xy: 48, 4
+  xy: 68, 4
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 parry_icon
   rotate: false
-  xy: 4, 4
+  xy: 24, 4
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 poison_debuff_icon
   rotate: false
-  xy: 114, 4
+  xy: 26, 26
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 slam_icon
   rotate: false
-  xy: 158, 4
+  xy: 70, 26
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 slingshot_icon
   rotate: false
-  xy: 202, 4
+  xy: 4, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 smoke_bomb_icon
   rotate: false
-  xy: 224, 4
+  xy: 26, 48
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 spin_slice_icon
   rotate: false
-  xy: 180, 4
+  xy: 92, 26
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
 staminabar_empty
   rotate: false
-  xy: 4, 26
+  xy: 4, 126
   size: 69, 8
   orig: 69, 8
   offset: 0, 0
   index: -1
 staminabar_full
   rotate: false
-  xy: 77, 26
+  xy: 4, 114
   size: 69, 8
   orig: 69, 8
   offset: 0, 0
   index: -1
 tornado_icon
   rotate: false
-  xy: 136, 4
+  xy: 48, 26
   size: 18, 18
   orig: 18, 18
   offset: 0, 0
   index: -1
+vertical_arrow
+  rotate: false
+  xy: 4, 4
+  size: 16, 8
+  orig: 16, 8
+  offset: 0, 0
+  index: -1
 wind_burst_icon
   rotate: false
-  xy: 26, 4
+  xy: 90, 4
   size: 18, 18
   orig: 18, 18
   offset: 0, 0

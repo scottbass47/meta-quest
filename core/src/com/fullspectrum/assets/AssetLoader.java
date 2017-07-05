@@ -21,10 +21,15 @@ public class AssetLoader {
 	private TextureParameter texParam;
 	
 	// Font
-	public static final String font12 = "font/test12.fnt";
-	public static final String font18 = "font/test18.fnt";
-	public static final String font24 = "font/test24.fnt";
-	public static final String font28 = "font/test28.fnt";
+	public static final String font12 = "font/calibriLight12.fnt";
+	public static final String font18 = "font/calibriLight18.fnt";
+	public static final String font24 = "font/calibriLight24.fnt";
+	public static final String font28 = "font/calibriLight28.fnt";
+	public static final String font32 = "font/calibriLight32.fnt";
+	public static final String font36 = "font/calibriLight36.fnt";
+	public static final String font48 = "font/calibriLight48.fnt";
+	public static final String font72 = "font/calibriLight72.fnt";
+
 	public static final String consoleMain = "font/consoleMain.fnt";
 	
 	// Particles
@@ -73,6 +78,10 @@ public class AssetLoader {
 		manager.load(font18, BitmapFont.class);
 		manager.load(font24, BitmapFont.class);
 		manager.load(font28, BitmapFont.class);
+		manager.load(font32, BitmapFont.class);
+		manager.load(font36, BitmapFont.class);
+		manager.load(font48, BitmapFont.class);
+		manager.load(font72, BitmapFont.class);
 		manager.load(consoleMain, BitmapFont.class);
 		manager.finishLoading();
 	}

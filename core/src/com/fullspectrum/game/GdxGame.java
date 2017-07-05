@@ -42,8 +42,8 @@ public class GdxGame extends Game {
 	private BitmapFont font;
 	
 	// Input
-	private RawInput rawInput;
-	private GameInput input;
+	public static RawInput input;
+	private GameInput gameInput;
 	private InputProfile profile;
 
 	// Screens
@@ -66,18 +66,18 @@ public class GdxGame extends Game {
 		// Setup Game Input
 		profile = new InputProfile();
 		profile.load("input/input.xml");
-		input = new GameInput(profile);
+		gameInput = new GameInput(profile);
 		
 		// Setup Raw Input	`	
-		rawInput = new RawInput();
-		Gdx.input.setInputProcessor(rawInput);
-		Controllers.addListener(rawInput);
-		rawInput.registerGameInput(input);
+		input = new RawInput();
+		Gdx.input.setInputProcessor(input);
+		Controllers.addListener(input);
+		input.registerGameInput(gameInput);
 		
 		// Initialize Screens
 		screens = new ArrayMap<ScreenState, Screen>();
-		screens.put(ScreenState.MENU, new MenuScreen(worldCamera, hudCamera, this, screens, input));
-		screens.put(ScreenState.GAME, new GameScreen(worldCamera, hudCamera, this, screens, input));
+		screens.put(ScreenState.MENU, new MenuScreen(worldCamera, hudCamera, this, screens, gameInput));
+		screens.put(ScreenState.GAME, new GameScreen(worldCamera, hudCamera, this, screens, gameInput));
 		setScreen(screens.get(ScreenState.MENU));
 
 		// Center HUD Camera

@@ -21,9 +21,7 @@ import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fullspectrum.component.Mappers;
-import com.fullspectrum.debug.DebugInput;
 import com.fullspectrum.debug.DebugRender;
-import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.level.tiles.MapTile;
@@ -185,11 +183,8 @@ public class Level {
 	}
 	
 	public void render(SpriteBatch batch, OrthographicCamera worldCamera) {
-		if(!DebugInput.isToggled(DebugToggle.SHOW_HITBOXES)) {
-			
-			mapRenderer.setView(worldCamera);
-			mapRenderer.render(batch);
-		}
+		mapRenderer.setView(worldCamera);
+		mapRenderer.render(batch);
 		
 		boolean debug = false;
 		if(debug) {

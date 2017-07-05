@@ -267,7 +267,7 @@ public class GameScreen extends AbstractScreen {
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
 		
-		arena = new Arena();
+		arena = new Arena(levelManager, hudCamera);
 		arena.load(Gdx.files.internal("config/arena.json"));
 		arena.start();
 		
@@ -475,7 +475,7 @@ public class GameScreen extends AbstractScreen {
 			
 			if(editorOpen) {
 				levelManager.switchToEditorMode();
-				arena.reset();
+				arena.cleanUp();
 			} else {
 				levelManager.switchToPlayMode();
 				arena.start();

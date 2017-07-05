@@ -1,4 +1,4 @@
-package com.fullspectrum.editor.gui;
+package com.fullspectrum.gui;
 
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -35,53 +35,51 @@ public class Window extends Container implements InputProcessor {
 	@Override
 	public boolean keyDown(int keycode) {
 		super.onKeyPress(keycode);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean keyUp(int keycode) {
 		super.onKeyRelease(keycode);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean keyTyped(char character) {
 		super.onKeyType(character);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		Vector3 coords = hudCamera.unproject(new Vector3(screenX, screenY, 0.0f));
 		super.onMouseDown((int)coords.x - getX(), (int)coords.y - getY(), button);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		Vector3 coords = hudCamera.unproject(new Vector3(screenX, screenY, 0.0f));
 		super.onMouseUp((int)coords.x - getX(), (int)coords.y - getY(), button);
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
 		Vector3 coords = hudCamera.unproject(new Vector3(screenX, screenY, 0.0f));
 		super.onMouseDrag((int)coords.x - getX(), (int)coords.y - getY());
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean mouseMoved(int screenX, int screenY) {
 		Vector3 coords = hudCamera.unproject(new Vector3(screenX, screenY, 0.0f));
 		super.onMouseMove((int)coords.x - getX(), (int)coords.y - getY());
-		return false;
+		return true;
 	}
 
 	@Override
 	public boolean scrolled(int amount) {
-		return false;
+		return true;
 	}
-
-
 }

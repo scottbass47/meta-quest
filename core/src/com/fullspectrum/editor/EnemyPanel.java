@@ -7,13 +7,13 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.editor.gui.ActionEvent;
-import com.fullspectrum.editor.gui.ActionListener;
-import com.fullspectrum.editor.gui.Component;
-import com.fullspectrum.editor.gui.Container;
-import com.fullspectrum.editor.gui.EnemyIcon;
-import com.fullspectrum.editor.gui.TextField;
 import com.fullspectrum.entity.EntityIndex;
+import com.fullspectrum.gui.ActionEvent;
+import com.fullspectrum.gui.ActionListener;
+import com.fullspectrum.gui.Component;
+import com.fullspectrum.gui.Container;
+import com.fullspectrum.gui.EnemyIcon;
+import com.fullspectrum.gui.TextField;
 
 public class EnemyPanel extends Container {
 	

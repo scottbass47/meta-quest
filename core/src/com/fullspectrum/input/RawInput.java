@@ -28,8 +28,12 @@ public class RawInput implements InputProcessor, ControllerListener{
 		inputProcessors.add(processor);
 	}
 	
+	public void addFirst(InputProcessor processor) {
+		inputProcessors.insert(0, processor);
+	}
+	
 	public void removeInput(InputProcessor processor) {
-		inputProcessors.removeIndex(inputProcessors.indexOf(processor, false));
+		inputProcessors.removeValue(processor, false);
 	}
 	
 	@Override

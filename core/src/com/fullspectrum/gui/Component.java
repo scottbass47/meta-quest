@@ -1,8 +1,11 @@
-package com.fullspectrum.editor.gui;
+package com.fullspectrum.gui;
 
 import java.awt.Rectangle;
 
+import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 
 public abstract class Component {
 
@@ -16,11 +19,25 @@ public abstract class Component {
 	private boolean visible = true;
 	private boolean enabled = true;
 	private boolean focus = false;
+	private boolean debugRender = false;
 	
 	public abstract void update(float delta);
 	
 	/** Begin/end don't need to be called. Also, the correct projection matrix will be loaded into the batch */
 	public abstract void render(SpriteBatch batch);
+	
+	public final void debugRender(SpriteBatch batch) {
+		batch.end();
+		
+		ShapeRenderer shape = new ShapeRenderer();
+		shape.setProjectionMatrix(batch.getProjectionMatrix());
+		shape.begin(ShapeType.Line);
+		shape.setColor(Color.RED);
+		shape.rect(x, y, width, height);
+		shape.end();
+		
+		batch.begin();
+	}
 	
 	public Rectangle getBounds() {
 		return new Rectangle(x, y, width, height);
@@ -92,5 +109,12 @@ public abstract class Component {
 		return focus;
 	}
 	
+	public void setDebugRender(boolean debugRender) {
+		this.debugRender = debugRender;
+	}
+	
+	public boolean isDebugRender() {
+		return debugRender;
+	}
 	
 }

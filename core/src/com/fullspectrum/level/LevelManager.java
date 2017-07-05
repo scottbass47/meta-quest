@@ -207,6 +207,7 @@ public class LevelManager{
 		PauseMenu.setPlayer(player);
 		
 		Mappers.camera.get(camera).toFollow = player;
+		input.reset();
 	}
 	
 	public void switchHub(Theme theme){
@@ -305,6 +306,7 @@ public class LevelManager{
 		PauseMenu.setPlayer(player);
 
 		Mappers.camera.get(camera).toFollow = player;
+		input.reset();
 	}
 	
 }

@@ -46,6 +46,10 @@ public class GameInput implements InputProcessor, ControllerListener, Input {
 		}
 	}
 	
+	public void reset() {
+		initInputMaps();
+	}
+	
 //	public void update() {
 //		if (Controllers.getControllers().size > 0 && !usingController) {
 ////			System.out.println("Controller inbound!");
