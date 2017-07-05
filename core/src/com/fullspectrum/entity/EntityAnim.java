@@ -73,6 +73,8 @@ public enum EntityAnim implements State{
 	SMOKE_BOMB_ARMS,
 	
 	// Monk
+	SWING_ANTICIPATION,
+	SWING_UP_ANTICIPATION,
 	WIND_BURST,
 	INSTA_WALL,
 	

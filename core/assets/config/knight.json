@@ -1,11 +1,11 @@
 {
 	// Shield
-	shield: 0,
+	shield: 100,
 	shield_rate: 25.0,
 	shield_delay: 2.0,
 	
 	// Base Stats
-	health: 1,
+	health: 100,
 	sword_damage: 50,
 	sword_delay: 0.25,
 	sword_knockback: 3.5,

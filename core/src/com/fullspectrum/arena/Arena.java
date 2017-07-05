@@ -27,7 +27,7 @@ public class Arena {
 	}
 	
 	public void start() {
-		switchState(ArenaState.DEATH_SCREEN);
+		switchState(ArenaState.PICKING_PLAYER);
 	}
 	
 	public void cleanUp() {
@@ -42,12 +42,10 @@ public class Arena {
 			switch(previousState) {
 			case PICKING_PLAYER:
 				GdxGame.input.removeInput(playerScreen);
-				
 				if(!EntityUtils.isValid(EntityUtils.getPlayer())) {
 					levelManager.spawnPlayer(levelManager.getCurrentLevel());
-				} else {
-					levelManager.switchPlayer(playerScreen.getSelectedPlayer());
 				}
+				levelManager.switchPlayer(playerScreen.getSelectedPlayer());
 				break;
 			case PLAYING:
 				break;

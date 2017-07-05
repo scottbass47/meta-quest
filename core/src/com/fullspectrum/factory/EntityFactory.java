@@ -1668,8 +1668,10 @@ public class EntityFactory {
 		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.MONK_FALL));
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.MONK_RISE));
 		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.MONK_APEX));
-		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_SWING_ATTACK_FRONT));
-		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_SWING_ATTACK_UP));
+		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.MONK_ATTACK_FRONT));
+		animMap.put(EntityAnim.SWING_UP, assets.getAnimation(Asset.MONK_ATTACK_UP));
+		animMap.put(EntityAnim.SWING_ANTICIPATION, assets.getAnimation(Asset.MONK_ATTACK_FRONT_ANTICIPATION));
+		animMap.put(EntityAnim.SWING_UP_ANTICIPATION, assets.getAnimation(Asset.MONK_ATTACK_UP_ANTICIPATION));
 		animMap.put(EntityAnim.WIND_BURST, assets.getAnimation(Asset.MONK_WIND_BURST));
 		animMap.put(EntityAnim.INSTA_WALL, assets.getAnimation(Asset.MONK_STAFF_SLAM));
 		
@@ -1731,20 +1733,7 @@ public class EntityFactory {
 					Input input = Mappers.input.get(entity).input;
 					final boolean swingUp = input.isPressed(Actions.MOVE_UP);
 					
-					// Animation Handling
-					EntityManager.addDelayedAction(new DelayedAction(entity) {
-						@Override
-						public void onAction() {
-							Entity entity = getEntity();
-							
-							AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.SWING);
-							if(swingUp) {
-								asm.changeState(EntityAnim.SWING_UP);
-							} else {
-								asm.changeState(EntityAnim.SWING);
-							}
-						}
-					});
+					Mappers.monk.get(entity).swingUp = swingUp;
 					
 					// Create the right swing
 					SwingComponent swingComp = engine.createComponent(SwingComponent.class);
@@ -1754,7 +1743,7 @@ public class EntityFactory {
 					if(swingUp) {
 						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback);
 					} else {
-						swingComp.set(2f, 1.25f, 75f, -120f, GameVars.ANIM_FRAME * 2, damage, knockback);
+						swingComp.set(2.5f, 1.25f, 60f, -100f, GameVars.ANIM_FRAME * 1 + GameVars.UPS_INV, damage, knockback);
 					}
 					
 					EffectDef activeEffect = Mappers.monk.get(entity).activeEffect;
@@ -1782,7 +1771,7 @@ public class EntityFactory {
 					body.setGravityScale(0.2f);
 					body.setLinearVelocity(0.0f, 0.0f);
 				}
-
+				
 				@Override
 				public void onExit(State nextState, Entity entity) {
 					entity.remove(SwingComponent.class);
@@ -1790,9 +1779,29 @@ public class EntityFactory {
 					entity.remove(SpeedComponent.class);
 					entity.remove(DirectionComponent.class);
 					entity.remove(FrameMovementComponent.class);
-
+					
 					Mappers.facing.get(entity).locked = false;
 					Mappers.body.get(entity).body.setGravityScale(1.0f);
+				}
+			})
+			.getASM().getState(EntityAnim.SWING).setChangeResolver(new StateChangeResolver() {
+				@Override
+				public State resolve(Entity entity, State oldState) {
+					return Mappers.input.get(entity).input.isPressed(Actions.MOVE_UP) ? EntityAnim.SWING_UP : EntityAnim.SWING;
+				}
+			});
+		
+		esm.createState(EntityStates.SWING_ANTICIPATION)
+			.addTag(TransitionTag.GROUND_STATE)
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(DirectionComponent.class))
+			.addAnimation(EntityAnim.SWING_ANTICIPATION)
+			.addAnimation(EntityAnim.SWING_UP_ANTICIPATION)
+			.getASM().getState(EntityAnim.SWING_ANTICIPATION).setChangeResolver(new StateChangeResolver() {
+				@Override
+				public State resolve(Entity entity, State oldState) {
+					return Mappers.monk.get(entity).swingUp ? EntityAnim.SWING_UP_ANTICIPATION : EntityAnim.SWING_ANTICIPATION;
 				}
 			});
 		
@@ -1812,7 +1821,8 @@ public class EntityFactory {
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		
 		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.INPUT, attackInput, EntityStates.SWING_ATTACK);
-		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
+		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 
 		esm.changeState(EntityStates.IDLING);
 		
