@@ -53,7 +53,6 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
-import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -350,30 +349,30 @@ public class GameScreen extends AbstractScreen {
 		EntityManager.update(delta);
 		AudioLocator.getAudio().update();
 		
-		if(!editorOpen) {
-			if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
-				Entity player = levelManager.getPlayer();
-				
-				// If you're not the knight currently, then switch
-				if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
-					levelManager.switchPlayer(EntityIndex.KNIGHT);
-				}
-			} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
-				Entity player = levelManager.getPlayer();
-				
-				// If you're not the rogue currently, then switch
-				if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
-					levelManager.switchPlayer(EntityIndex.ROGUE);
-				}
-			} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
-				Entity player = levelManager.getPlayer();
-				
-				// If you're not the mage currently, then switch
-				if(!Mappers.entity.get(player).type.equals(EntityType.MONK)){
-					levelManager.switchPlayer(EntityIndex.MONK);
-				}
-			}
-		}
+//		if(!editorOpen) {
+//			if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
+//				Entity player = levelManager.getPlayer();
+//				
+//				// If you're not the knight currently, then switch
+//				if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
+//					levelManager.switchPlayer(EntityIndex.KNIGHT);
+//				}
+//			} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
+//				Entity player = levelManager.getPlayer();
+//				
+//				// If you're not the rogue currently, then switch
+//				if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
+//					levelManager.switchPlayer(EntityIndex.ROGUE);
+//				}
+//			} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
+//				Entity player = levelManager.getPlayer();
+//				
+//				// If you're not the mage currently, then switch
+//				if(!Mappers.entity.get(player).type.equals(EntityType.MONK)){
+//					levelManager.switchPlayer(EntityIndex.MONK);
+//				}
+//			}
+//		}
 		
 		// Spawning
 		if(DebugVars.SPAWN_ON_CLICK_ENABLED && DebugVars.SPAWN_TYPE != null && DebugVars.SPAWN_AMOUNT > 0 && Mouse.isJustPressed()){

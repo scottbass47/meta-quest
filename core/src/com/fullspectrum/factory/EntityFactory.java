@@ -1867,7 +1867,7 @@ public class EntityFactory {
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class));
 		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
-		player.add(engine.createComponent(TintComponent.class).set(Color.RED));
+		player.add(engine.createComponent(TintComponent.class).set(new Color(0xff2245ff)));
 
 //		EntityStateMachine esm = new StateFactory.EntityStateBuilder("AI Player ESM", engine, player)
 //			.idle()
