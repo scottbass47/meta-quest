@@ -27,7 +27,7 @@ public class BoomerangAbility extends Ability {
 	private Entity boomerang;
 	private boolean unlockedOtherAbilities = false;
 	
-	private int throwFrame = 2;
+	private int throwFrame = 1;
 	private boolean hasThrown = false;
 	private float elapsed;
 	
@@ -61,7 +61,7 @@ public class BoomerangAbility extends Ability {
 		int frame = (int)(elapsed / GameVars.ANIM_FRAME);
 		if(frame == throwFrame && !hasThrown){
 			hasThrown = true;
-			ProjectileData data = ProjectileFactory.initProjectile(entity, 10f, -5f, throwAngle);
+			ProjectileData data = ProjectileFactory.initProjectile(entity, 10f, -2, throwAngle);
 			boomerang = EntityFactory.createBoomerang(entity, data.x, data.y, speed, turnSpeed, data.angle, damage, Mappers.status.get(entity).status);
 			EntityManager.addEntity(boomerang);
 			Mappers.facing.get(entity).locked = false;

@@ -1267,15 +1267,15 @@ public class EntityFactory {
 		
 		VanishAbility vanishAbility = new VanishAbility(
 				rogueStats.get("vanish_cooldown"),
-				Actions.ABILITY_2,
+				Actions.ABILITY_1,
 				rogueStats.get("vanish_duration"));
-		vanishAbility.deactivate();
 		
 		DashAbility dashAbility = new DashAbility(
 				rogueStats.get("dash_cooldown"),
 				Actions.ABILITY_1,
 				rogueStats.get("dash_distance"),
 				rogueStats.get("dash_speed"));
+		dashAbility.deactivate();
 		
 		BoomerangAbility boomerangAbility = new BoomerangAbility(
 				rogueStats.get("boomerang_cooldown"), 
@@ -1562,11 +1562,11 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.HOMING_KNIVES_THROW);
 		
 		esm.createState(EntityStates.EXECUTE)
-			.add(engine.createComponent(FrameMovementComponent.class).set("frames_execute"))
+			.add(engine.createComponent(FrameMovementComponent.class).set("rogue/frames_execute"))
 			.addAnimation(EntityAnim.EXECUTE);
 		
 		esm.createState(EntityStates.BOW_ATTACK)
-			.add(engine.createComponent(FrameMovementComponent.class).set("frames_bow"))
+			.add(engine.createComponent(FrameMovementComponent.class).set("rogue/frames_bow"))
 			.addAnimation(EntityAnim.BOW_ATTACK);
 		
 		esm.createState(EntityStates.DASH)

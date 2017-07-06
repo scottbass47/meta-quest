@@ -22,7 +22,7 @@ public class BowAbility extends AnimationAbility{
 
 	private float damage;
 	private float speed;
-	private int shootFrame = 1;
+	private int shootFrame = 4;
 	
 	public BowAbility(float cooldown, Actions input, Animation animation, float damage, float speed){
 		super(AbilityType.BOW, AssetLoader.getInstance().getRegion(Asset.BOW_ICON), cooldown, input, animation);
@@ -38,7 +38,7 @@ public class BowAbility extends AnimationAbility{
 		Mappers.timer.get(entity).add("bow_shoot", shootFrame * GameVars.ANIM_FRAME, false, new TimeListener() {
 			@Override
 			public void onTime(Entity entity) {
-				ProjectileData data = ProjectileFactory.initProjectile(entity, 8, -4, 0.0f);
+				ProjectileData data = ProjectileFactory.initProjectile(entity, 8, 4, 0.0f);
 				EntityManager.addEntity(EntityFactory.createArrow(data.x, data.y, speed, data.angle, damage, Mappers.status.get(entity).status));
 			}
 		});

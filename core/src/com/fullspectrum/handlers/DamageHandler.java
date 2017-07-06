@@ -45,7 +45,7 @@ public class DamageHandler {
 	private DamageHandler() {
 	}
 
-	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackAngle) {
+	public static void dealDamage(Entity fromEntity, Entity toEntity, float amount, float knockBackDistance, float knockBackAngle) { 
 		EngineComponent engineComp = Mappers.engine.get(toEntity);
 		HealthComponent healthComp = Mappers.heatlh.get(toEntity);
 		BarrierComponent barrierComp = Mappers.barrier.get(toEntity);

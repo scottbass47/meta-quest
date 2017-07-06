@@ -23,7 +23,7 @@ import com.fullspectrum.utils.PhysicsUtils;
 public class VanishAbility extends Ability {
 
 	private final VanishShader vanishShader = new VanishShader();
-	private int smokeBombFrame = 3;
+	private int smokeBombFrame = 1;
 	private boolean hasThrown = false;
 	private float elapsed;
 	private float duration;
