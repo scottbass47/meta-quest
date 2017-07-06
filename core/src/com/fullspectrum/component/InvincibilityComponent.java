@@ -2,50 +2,66 @@ package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class InvincibilityComponent implements Component, Poolable {
 
-	public ObjectSet<InvincibilityType> types;
+	private ArrayMap<InvincibilityType, Integer> iMap;
 	
 	public InvincibilityComponent() {
-		types = new ObjectSet<InvincibilityType>();
+		iMap = new ArrayMap<InvincibilityType, Integer>();
 	}
 	
 	public InvincibilityComponent add(InvincibilityType type){
-		types.add(type);
+		if(!iMap.containsKey(type)) iMap.put(type, 0);
+		iMap.put(type, iMap.get(type) + 1);
 		return this;
 	}
 	
 	public InvincibilityComponent remove(InvincibilityType type){
-		types.remove(type);
+		if(!iMap.containsKey(type) || iMap.get(type) <= 0) return this;
+		iMap.put(type, iMap.get(type) - 1);
+		return this;
+	}
+	
+	public InvincibilityComponent addAll(InvincibilityType... types){
+		for(InvincibilityType type : types) add(type);
 		return this;
 	}
 	
 	public InvincibilityComponent addAll(ObjectSet<InvincibilityType> types){
-		this.types.addAll(types);
+		for(InvincibilityType type : types) add(type);
 		return this;
 	}
 	
-	public ObjectSet<InvincibilityType> getInvincibilities(){
-		return types;
+	public InvincibilityComponent removeAll(InvincibilityType... types){
+		for(InvincibilityType type : types) remove(type);
+		return this;
 	}
 	
-	public void setInvincibilities(ObjectSet<InvincibilityType> types){
-		this.types = types;
+	public InvincibilityComponent removeAll(ObjectSet<InvincibilityType> types){
+		for(InvincibilityType type : types) remove(type);
+		return this;
+	}
+	
+	public void clear() {
+		for(InvincibilityType type : iMap.keys()) {
+			iMap.put(type, 0);
+		}
 	}
 	
 	public boolean isInvincible(Entity me, Entity other){
-		for(InvincibilityType type : types){
-			if(type.isInvincible(me, other)) return true;
+		for(InvincibilityType type : iMap.keys()){
+			if(iMap.get(type) > 0 && type.isInvincible(me, other)) return true;
 		}
 		return false;
 	}
 	
 	@Override
 	public void reset() {
-		types = null;
+		iMap = null;
 	}
 	
 	public enum InvincibilityType{

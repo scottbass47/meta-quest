@@ -1,50 +1,63 @@
 package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
 import com.fullspectrum.effects.EffectType;
 
-public class ImmuneComponent implements Component, Poolable{
+public class ImmuneComponent implements Component, Poolable {
 
-	private ObjectSet<EffectType> immuneTo;
+	private ArrayMap<EffectType, Integer> iMap;
 	
 	public ImmuneComponent() {
-		immuneTo = new ObjectSet<EffectType>();
+		iMap = new ArrayMap<EffectType, Integer>();
 	}
 	
 	public ImmuneComponent add(EffectType type){
-		immuneTo.add(type);
-		return this;
-	}
-	
-	public ImmuneComponent addAll(ObjectSet<EffectType> types){
-		immuneTo.addAll(types);
+		if(!iMap.containsKey(type)) iMap.put(type, 0);
+		iMap.put(type, iMap.get(type) + 1);
 		return this;
 	}
 	
 	public ImmuneComponent remove(EffectType type){
-		if(immuneTo.contains(type)){
-			immuneTo.remove(type);
-		}
+		if(!iMap.containsKey(type) || iMap.get(type) <= 0) return this;
+		iMap.put(type, iMap.get(type) - 1);
 		return this;
 	}
 	
+	public ImmuneComponent addAll(EffectType... types){
+		for(EffectType type : types) add(type);
+		return this;
+	}
+	
+	public ImmuneComponent addAll(ObjectSet<EffectType> types){
+		for(EffectType type : types) add(type);
+		return this;
+	}
+	
+	public ImmuneComponent removeAll(EffectType... types){
+		for(EffectType type : types) remove(type);
+		return this;
+	}
+	
+	public ImmuneComponent removeAll(ObjectSet<EffectType> types){
+		for(EffectType type : types) remove(type);
+		return this;
+	}
+	
+	public void clear() {
+		for(EffectType type : iMap.keys()) {
+			iMap.put(type, 0);
+		}
+	}
+	
 	public boolean isImmuneTo(EffectType type){
-		return immuneTo.contains(type);
-	}
-	
-	public ObjectSet<EffectType> getImmunities(){
-		return immuneTo;
-	}
-	
-	public void setImmunities(ObjectSet<EffectType> immunities){
-		this.immuneTo = immunities;
+		return iMap.get(type) != null && iMap.get(type) > 0;
 	}
 	
 	@Override
 	public void reset() {
-		immuneTo = null;
+		iMap = null;
 	}
-
 }

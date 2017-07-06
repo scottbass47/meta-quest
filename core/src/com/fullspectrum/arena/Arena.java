@@ -14,6 +14,7 @@ public class Arena {
 	private PickPlayerScreen playerScreen;
 	private ArenaGame game;
 	private ArenaDeathScreen deathScreen;
+	private boolean stopped = false;
 	
 	public Arena(LevelManager levelManager, OrthographicCamera hudCamera) {
 		this.levelManager = levelManager;
@@ -24,18 +25,26 @@ public class Arena {
 	}
 	
 	public void start() {
-		switchState(ArenaState.PICKING_PLAYER);
+		stopped = false;
+		switchState(ArenaState.PICKING_PLAYER, true);
 	}
 	
-	public void cleanUp() {
+	public void stop() {
+		stopped = true;
+		GdxGame.input.removeInput(playerScreen);
+		GdxGame.input.removeInput(deathScreen);
 		game.reset();
 	}
 	
 	protected void switchState(ArenaState state) {
+		switchState(state, false);
+	}
+	
+	protected void switchState(ArenaState state, boolean onStart) {
 		ArenaState previousState = this.state;
 		
 		// Cleanup old state
-		if(previousState != null) {
+		if(previousState != null && !onStart) {
 			switch(previousState) {
 			case PICKING_PLAYER:
 				GdxGame.input.removeInput(playerScreen);
@@ -74,6 +83,8 @@ public class Arena {
 	}
 	
 	public void update(float delta) {
+		if(stopped) return;
+		
 		switch(state) {
 		case PICKING_PLAYER:
 			playerScreen.update(delta);
@@ -90,6 +101,8 @@ public class Arena {
 	}
 	
 	public void renderHUD(SpriteBatch batch) {
+		if(stopped) return;
+		
 		switch(state) {
 		case PICKING_PLAYER:
 			playerScreen.render(batch);

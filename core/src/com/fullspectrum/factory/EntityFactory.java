@@ -159,7 +159,6 @@ import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.entity.CoinType;
-import com.fullspectrum.entity.DelayedAction;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityIndex;
@@ -950,6 +949,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
+					Mappers.ability.get(entity).lockAllBlocking();
 					Mappers.timer.get(entity).add("swing_delay", GameVars.ANIM_FRAME * 1, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
@@ -974,6 +974,7 @@ public class EntityFactory {
 	
 					Mappers.facing.get(entity).locked = false;
 					Mappers.body.get(entity).body.setGravityScale(1.0f);
+					Mappers.ability.get(entity).unlockAllBlocking();
 				}
 			});
 		

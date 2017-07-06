@@ -20,9 +20,7 @@ public abstract class Ability {
 	private Actions input;
 	private AbilityConstraints constraints;
 	private ObjectSet<EffectType> tempImmunities;
-	private ObjectSet<EffectType> savedImmunities;
 	private ObjectSet<InvincibilityType> tempInvincibilities;
-	private ObjectSet<InvincibilityType> savedInvincibilities;
 	
 	// Flags
 	private boolean done = false;
@@ -49,20 +47,16 @@ public abstract class Ability {
 		this.isBlocking = isBlocking;
 		this.constraints = constraints;
 		tempImmunities = new ObjectSet<EffectType>();
-		savedImmunities = new ObjectSet<EffectType>();
 		tempInvincibilities = new ObjectSet<InvincibilityType>();
-		savedInvincibilities = new ObjectSet<InvincibilityType>();
 	}
 	
 	public final void initAbility(Entity entity){
 		// Init Immunities
 		ImmuneComponent immuneComp = Mappers.immune.get(entity);
-		savedImmunities.addAll(immuneComp.getImmunities());
 		immuneComp.addAll(tempImmunities);
 		
 		// Init Invincibilities
 		InvincibilityComponent invincibilityComp = Mappers.inviciblity.get(entity);
-		savedInvincibilities.addAll(invincibilityComp.getInvincibilities());
 		invincibilityComp.addAll(tempInvincibilities);
 		
 		// Lock Facing
@@ -77,8 +71,8 @@ public abstract class Ability {
 	
 	public final void destroyAbility(Entity entity){
 		// Restore Immunities
-		Mappers.immune.get(entity).setImmunities(savedImmunities);
-		Mappers.inviciblity.get(entity).setInvincibilities(savedInvincibilities);
+		Mappers.immune.get(entity).removeAll(tempImmunities);
+		Mappers.inviciblity.get(entity).removeAll(tempInvincibilities);
 		
 		// Unlock Facing
 		Mappers.facing.get(entity).locked = false;

@@ -475,7 +475,7 @@ public class GameScreen extends AbstractScreen {
 			
 			if(editorOpen) {
 				levelManager.switchToEditorMode();
-				arena.cleanUp();
+				arena.stop();
 			} else {
 				levelManager.switchToPlayMode();
 				arena.start();
