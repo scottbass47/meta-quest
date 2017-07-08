@@ -1181,21 +1181,20 @@ public class EntityFactory {
 		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ROGUE_IDLE_LEGS));
 		animMap.put(EntityAnim.IDLE_ARMS, assets.getAnimation(Asset.ROGUE_IDLE_ARMS));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
+		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.ROGUE_FALL_LEGS));
+		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.ROGUE_JUMP_LEGS));
+		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ROGUE_RISE_LEGS));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.ROGUE_APEX_LEGS));
 		animMap.put(EntityAnim.CLIMBING, assets.getAnimation(Asset.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.ROGUE_RUN_LEGS));
 		animMap.put(EntityAnim.RUN_ARMS, assets.getAnimation(Asset.ROGUE_RUN_ARMS));
 		animMap.put(EntityAnim.THROW_ARMS, assets.getAnimation(Asset.ROGUE_THROW_ARMS));
 		animMap.put(EntityAnim.BACK_PEDAL, assets.getAnimation(Asset.ROGUE_BACK_PEDAL_LEGS));
 		animMap.put(EntityAnim.BACK_PEDAL_ARMS, assets.getAnimation(Asset.ROGUE_BACK_PEDAL_ARMS));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.ROGUE_APEX_LEGS));
 		animMap.put(EntityAnim.APEX_ARMS, assets.getAnimation(Asset.ROGUE_APEX_ARMS));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.ROGUE_FALL_LEGS));
 		animMap.put(EntityAnim.FALL_ARMS, assets.getAnimation(Asset.ROGUE_FALL_ARMS));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.ROGUE_RISE_LEGS));
 		animMap.put(EntityAnim.RISE_ARMS, assets.getAnimation(Asset.ROGUE_RISE_ARMS));
+		animMap.put(EntityAnim.JUMP_ARMS, assets.getAnimation(Asset.ROGUE_JUMP_ARMS));
 		animMap.put(EntityAnim.DYNAMITE_ARMS, assets.getAnimation(Asset.ROGUE_DYNAMITE_ARMS));
 		animMap.put(EntityAnim.SMOKE_BOMB_ARMS, assets.getAnimation(Asset.ROGUE_SMOKE_BOMB_ARMS));
 		animMap.put(EntityAnim.BOOMERANG_ARMS, assets.getAnimation(Asset.ROGUE_BOOMERANG_ARMS));
@@ -1394,7 +1393,7 @@ public class EntityFactory {
 						case RUNNING:
 							return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL_ARMS : EntityAnim.RUN_ARMS;
 						case JUMPING:
-							return EntityAnim.RISE_ARMS;
+							return EntityAnim.JUMP_ARMS;
 						case FALLING:
 							return isActiveRogueState(oldAnim) ? EntityAnim.FALL_ARMS : EntityAnim.APEX_ARMS;
 						default:
@@ -1418,6 +1417,7 @@ public class EntityFactory {
 		upperBodyASM.createState(EntityAnim.IDLE_ARMS);
 		upperBodyASM.createState(EntityAnim.RUN_ARMS);
 		upperBodyASM.createState(EntityAnim.BACK_PEDAL_ARMS);
+		upperBodyASM.createState(EntityAnim.JUMP_ARMS);
 		upperBodyASM.createState(EntityAnim.RISE_ARMS);
 		upperBodyASM.createState(EntityAnim.APEX_ARMS);
 		upperBodyASM.createState(EntityAnim.FALL_ARMS);
@@ -1473,6 +1473,7 @@ public class EntityFactory {
 		});
 		
 		// Upper Body Transitions
+		upperBodyASM.addTransition(EntityAnim.JUMP_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.RISE_ARMS);
 		upperBodyASM.addTransition(EntityAnim.APEX_ARMS, Transitions.ANIMATION_FINISHED, EntityAnim.FALL_ARMS);
 		upperBodyASM.addTransition(EntityAnim.RUN_ARMS, backpedalingTransition, EntityAnim.BACK_PEDAL_ARMS);
 		upperBodyASM.addTransition(EntityAnim.BACK_PEDAL_ARMS, notBackpedalingTransition, EntityAnim.RUN_ARMS);
@@ -1517,9 +1518,9 @@ public class EntityFactory {
 				case RUNNING:
 					return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL : EntityAnim.RUN;
 				case JUMPING:
-					return EntityAnim.RISE;
+					return EntityAnim.JUMP;
 				case FALLING:
-					return EntityAnim.FALLING;
+					return EntityAnim.JUMP_APEX;
 				default: 
 					throw new RuntimeException("State: " + entityState + " is not a split body state.");
 				}
@@ -1536,6 +1537,8 @@ public class EntityFactory {
 		
 		lowerBodyASM.addTransition(EntityAnim.RUN, backpedalingTransition, EntityAnim.BACK_PEDAL);
 		lowerBodyASM.addTransition(EntityAnim.BACK_PEDAL, notBackpedalingTransition, EntityAnim.RUN);
+		lowerBodyASM.addTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE);
+		lowerBodyASM.addTransition(EntityAnim.JUMP_APEX, Transitions.ANIMATION_FINISHED, EntityAnim.FALLING);
 		
 		// Add machines to split body states
 		EntityState idleState = esm.getState(EntityStates.IDLING);
@@ -1574,6 +1577,12 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.DASH);
+		
+		System.out.println(lowerBodyASM.printTransitions());
+		System.out.println(upperBodyASM.printTransitions());
+		
+		lowerBodyASM.setDebugOutput(true);
+		upperBodyASM.setDebugOutput(true);
 		
 //		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 //		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

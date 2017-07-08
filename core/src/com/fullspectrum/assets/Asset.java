@@ -73,6 +73,8 @@ public enum Asset {
 	ROGUE_THROW_ARMS(Atlas.ENTITY, "throw_arms/rogue_throw_arms"),
 	ROGUE_BACK_PEDAL_LEGS(Atlas.ENTITY, "back_pedal_legs/rogue_back_pedal_legs"),
 	ROGUE_BACK_PEDAL_ARMS(Atlas.ENTITY, "back_pedal_arms/rogue_back_pedal_arms"),
+	ROGUE_JUMP_LEGS(Atlas.ENTITY, "jump_legs/rogue_jump_legs"),
+	ROGUE_JUMP_ARMS(Atlas.ENTITY, "jump_arms/rogue_jump_arms"),
 	ROGUE_APEX_LEGS(Atlas.ENTITY, "apex_legs/rogue_apex_legs"),
 	ROGUE_APEX_ARMS(Atlas.ENTITY, "apex_arms/rogue_apex_arms"),
 	ROGUE_FALL_LEGS(Atlas.ENTITY, "fall_legs/rogue_fall_legs"),
