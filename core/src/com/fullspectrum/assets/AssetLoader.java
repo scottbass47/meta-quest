@@ -10,6 +10,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.TextureAtlas;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.audio.Sounds;
+import com.fullspectrum.game.GameVars;
 
 public class AssetLoader {
 
@@ -35,8 +36,6 @@ public class AssetLoader {
 	// Particles
 	public static final String JUMP_PARTICLE = "jump_particle";
 	public static final String RUN_PARTICLE = "run_particle";
-	
-	public static final float ANIM_SPEED = 0.1f;
 	
 	private AssetLoader() {
 		manager = new AssetManager();
@@ -112,7 +111,7 @@ public class AssetLoader {
 	}
 	
 	public Animation getAnimation(Atlas atlas, Asset asset){
-		Animation animation = new Animation(ANIM_SPEED, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
+		Animation animation = new Animation(GameVars.ANIM_FRAME, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
 		if(animation.getAnimationDuration() < 0.001f){
 //			throw new RuntimeException(asset + " was not loaded properly.");
 		}

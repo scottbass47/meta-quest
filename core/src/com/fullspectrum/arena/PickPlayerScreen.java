@@ -58,7 +58,6 @@ public class PickPlayerScreen extends Window{
 		int x = GameVars.SCREEN_WIDTH / 2 - totalWidth / 2;
 		int y = 300;
 		
-		
 		knightLabel.setPosition(x + knightOff.x, y + knightOff.y);
 		x += knightLabel.getWidth() + spacing;
 		

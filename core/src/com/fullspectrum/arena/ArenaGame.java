@@ -84,7 +84,6 @@ public class ArenaGame {
 	}
 
 	private void createWave(int num) {
-		System.out.println("Creating wave " + (num + 1));
 		spawnQueue.clear();
 		ArenaWave wave = waves.get(num);
 
@@ -161,10 +160,8 @@ public class ArenaGame {
 
 		if (queueEmpty && currentWave.size == 0 && !finished) {
 			waveNum++;
-			System.out.println("Wave " + waveNum + " completed. Moving on to the next wave.");
 			elapsed = 0.0f;
 			if (waveNum == waves.size) {
-				System.out.println("All waves were completed. Arena mode is completed.");
 				finished = true;
 				drawingWave = true;
 				return;

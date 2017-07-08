@@ -13,6 +13,7 @@
 	projectile_speed: 25.0,
 	
 	// Movement
+	switch_delay: 0.0,
 	ground_speed: 8.0,
 	air_speed: 8.0,
 	climb_speed: 6.0,

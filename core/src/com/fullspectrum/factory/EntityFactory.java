@@ -227,7 +227,10 @@ public class EntityFactory {
 	public static World world;
 	public static Level level;
 	public static int ID;
-	
+
+	// BUG Rogue can throw knives while doing all other abilities
+	// BUG Idle state needs to be "fall through" (i.e. transitions need to occur immediately)
+	// TODO Get rid of floating on melee attacks (normal grav scale)
 	private EntityFactory(){}
 	
 	// ---------------------------------------------
@@ -1218,7 +1221,7 @@ public class EntityFactory {
 					 rogueStats.get("shield"), 
 					 rogueStats.get("shield_rate"), 
 					 rogueStats.get("shield_delay")));
-		rogue.add(engine.createComponent(RogueComponent.class));
+		rogue.add(engine.createComponent(RogueComponent.class).set(rogueStats.get("switch_delay")));
 		
 		Mappers.timer.get(rogue).add("backpedal_timer", GameVars.UPS_INV, true, new TimeListener() {
 			@Override

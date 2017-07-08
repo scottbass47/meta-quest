@@ -12,13 +12,19 @@ public class RogueComponent implements Component, Poolable{
 	public float facingDelay = 1.0f;
 	public float facingElapsed = 1.0f;
 	
+	public RogueComponent set(float facingDelay) {
+		this.facingDelay = facingDelay;
+		facingElapsed = facingDelay;
+		return this;
+	}
+
 	@Override
 	public void reset() {
 		doThrowingAnim = false;
 		animTime = 0.0f;
 		animState = null;
-		facingDelay = 0.2f;
-		facingElapsed = 1.0f;
+		facingDelay = 0.0f;
+		facingElapsed = 0.0f;
 	}
 
 }
