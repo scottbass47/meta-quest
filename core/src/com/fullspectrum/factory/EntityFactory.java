@@ -1754,7 +1754,7 @@ public class EntityFactory {
 					float knockback = monkStats.get("swing_knockback");
 					
 					if(swingUp) {
-						swingComp.set(2.0f, 1.5f, 150f, 30f, GameVars.ANIM_FRAME * 2, damage, knockback);
+						swingComp.set(2.0f, 2.0f, 150f, 30f, GameVars.ANIM_FRAME * 1, damage, knockback);
 					} else {
 						swingComp.set(2.5f, 1.25f, 60f, -100f, GameVars.ANIM_FRAME * 1 + GameVars.UPS_INV, damage, knockback);
 					}
