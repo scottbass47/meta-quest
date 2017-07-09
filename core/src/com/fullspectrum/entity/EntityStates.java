@@ -39,6 +39,8 @@ public enum EntityStates implements State{
 	BOW_ATTACK,
 	WIND_BURST,
 	INSTA_WALL,
+	ROLL,
+	DOUBLE_JUMP,
 	INIT;
 	
 	@Override

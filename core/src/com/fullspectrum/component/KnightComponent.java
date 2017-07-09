@@ -2,6 +2,7 @@ package com.fullspectrum.component;
 
 import com.badlogic.ashley.core.Component;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.badlogic.gdx.utils.Pool.Poolable;
@@ -22,6 +23,9 @@ public class KnightComponent implements Component, Poolable{
 	public float lungeX;
 	public float lungeY;
 	
+	// Rolling
+	public Body rollBody;
+	public Body body;
 	
 	public KnightComponent(){
 		attacks = new Array<KnightAttack>();
@@ -67,6 +71,8 @@ public class KnightComponent implements Component, Poolable{
 		chains = 0;
 		hitAnEnemy = false;
 		hitEnemies = null;
+		body = null;
+		rollBody = null;
 	}
 	
 	public class KnightAttack{

@@ -7,7 +7,8 @@
 	        <action name="MOVE_RIGHT"><key code="Right"/></action>
 	        <action name="MOVE_LEFT"><key code="Left"/></action>
 	        <action name="JUMP"><key code="Space"/></action>
-	            
+	        <action name="MOVEMENT"><key code="D"/></action>    
+	        
 	        <!-- Action Controls -->
 	        <action name="ATTACK"><key code="Z"/></action>
 	        <action name="ABILITY_1"><key code="X"/></action>
@@ -28,6 +29,7 @@
 	        <action name="MOVE_RIGHT"><axis num="0" dir="pos"/></action>
 	        <action name="MOVE_LEFT"><axis num="0" dir="neg"/></action>
 	        <action name="JUMP"><button name="A"/></action>
+	       	<action name="MOVEMENT"><key code="LEFT_BUMPER"/></action>    
 	            
 	        <!-- Action Controls -->
 	        <action name="ATTACK"><button name="X"/></action>

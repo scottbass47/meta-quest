@@ -2,6 +2,8 @@ package com.fullspectrum.factory;
 
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.physics.box2d.Body;
+import com.fullspectrum.component.CollisionComponent;
 import com.fullspectrum.component.DirectionComponent;
 import com.fullspectrum.component.GroundMovementComponent;
 import com.fullspectrum.component.InputComponent;
@@ -19,6 +21,7 @@ import com.fullspectrum.fsm.EntityStateMachine;
 import com.fullspectrum.fsm.MultiTransition;
 import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeListener;
+import com.fullspectrum.fsm.StateChangeResolver;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
@@ -50,6 +53,21 @@ public class StateFactory {
 
 			@Override
 			public void onExit(State nextState, Entity entity) {
+			}
+		});
+		
+		esm.getState(EntityStates.IDLING).setChangeResolver(new StateChangeResolver() {
+			@Override
+			public State resolve(Entity entity, State oldState) {
+				CollisionComponent collisionComp = Mappers.collision.get(entity);
+				
+				if(!collisionComp.onGround()) {
+					Body body = Mappers.body.get(entity).body;
+					
+					boolean falling = body.getLinearVelocity().y <= 0;
+					return falling ? EntityStates.FALLING : EntityStates.JUMPING;
+				}
+				return EntityStates.IDLING;
 			}
 		});
 		

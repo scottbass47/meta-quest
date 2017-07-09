@@ -59,6 +59,10 @@ public class StateObject {
 	public StateObject addTag(TransitionTag tag) {
 		tags.add(tag);
 		bits.set(tag.getIndex() + bitOffset);
+		
+//		if(machine.getState(this) != null) { 
+//			machine.table.addState(machine.getState(this));
+//		}
 		return this;
 	}
 

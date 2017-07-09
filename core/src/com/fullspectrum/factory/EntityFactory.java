@@ -47,6 +47,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -120,6 +121,7 @@ import com.fullspectrum.component.HealthComponent;
 import com.fullspectrum.component.ImmuneComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.InvincibilityComponent;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.JumpComponent;
 import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.LevelComponent;
@@ -228,7 +230,6 @@ public class EntityFactory {
 	public static Level level;
 	public static int ID;
 
-	// BUG Rogue can throw knives while doing all other abilities
 	// BUG Idle state needs to be "fall through" (i.e. transitions need to occur immediately)
 	// TODO Get rid of floating on melee attacks (normal grav scale)
 	private EntityFactory(){}
@@ -964,9 +965,9 @@ public class EntityFactory {
 					Mappers.facing.get(entity).locked = true;
 					
 					// Set gravity scale to 0
-					Body body = Mappers.body.get(entity).body;
-					body.setGravityScale(0.2f);
-					body.setLinearVelocity(0.0f, 0.0f);
+//					Body body = Mappers.body.get(entity).body;
+//					body.setGravityScale(0.2f);
+//					body.setLinearVelocity(0.0f, 0.0f);
 				}
 	
 				@Override
@@ -976,7 +977,7 @@ public class EntityFactory {
 					entity.remove(DirectionComponent.class);
 	
 					Mappers.facing.get(entity).locked = false;
-					Mappers.body.get(entity).body.setGravityScale(1.0f);
+//					Mappers.body.get(entity).body.setGravityScale(1.0f);
 					Mappers.ability.get(entity).unlockAllBlocking();
 				}
 			});
@@ -1033,6 +1034,75 @@ public class EntityFactory {
 			.addAnimation(EntityAnim.TORNADO_SWING)
 			.addAnimTransition(EntityAnim.TORNADO_INIT, Transitions.ANIMATION_FINISHED, EntityAnim.TORNADO_SWING);
 				
+		// Build the roll body
+		Rectangle hitbox = Mappers.body.get(knight).getAABB();
+		BodyDef bdef = new BodyDef();
+		bdef.type = BodyType.DynamicBody;
+		bdef.fixedRotation = true;
+	
+		PolygonShape polyShape = new PolygonShape();
+		polyShape.setAsBox(hitbox.width * 0.5f, 0.05f, new Vector2(0, -hitbox.height * 0.5f + 0.05f), 0.0f);
+		
+		FixtureDef fdef = new FixtureDef();
+		fdef.friction = 0.0f;
+		fdef.shape = polyShape;
+		
+		Body rollBody = PhysicsUtils.createPhysics(world, knight, bdef, fdef, CollisionBodyType.MOB, FixtureType.ROLL);
+		polyShape.dispose();
+
+		Mappers.knight.get(knight).rollBody = rollBody;
+		rollBody.setActive(false);
+		
+		esm.createState(EntityStates.ROLL)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.IDLE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					// Physics
+					Body oldBody = Mappers.body.get(entity).body;
+					Body rollBody = Mappers.knight.get(entity).rollBody;
+					
+					oldBody.setActive(false);
+					rollBody.setActive(true);
+				
+					rollBody.setTransform(oldBody.getPosition().add(0.0f, 0.005f), 0.0f);
+					rollBody.setLinearVelocity(0.0f, 0.0f);
+					
+					Mappers.body.get(entity).set(rollBody);
+					Mappers.knight.get(entity).body = oldBody;
+					
+					// **************************
+					
+					Mappers.ability.get(entity).lockAllBlocking();
+					Mappers.facing.get(entity).locked = true;
+					Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
+					
+					EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? 16.0f : -16.0f, 0.0f);
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Body oldBody = Mappers.knight.get(entity).body;
+					Body currBody = Mappers.body.get(entity).body;
+					
+					currBody.setActive(false);
+					
+					oldBody.setActive(true);
+					oldBody.setLinearVelocity(0.0f, 0.0f);
+					oldBody.setTransform(currBody.getPosition().x, currBody.getPosition().y, 0.0f);
+					Mappers.body.get(entity).set(oldBody);
+					
+					Mappers.ability.get(entity).unlockAllBlocking();
+					Mappers.facing.get(entity).locked = false;
+					Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+				}
+			});
+		
+		InputTransitionData rollData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.INPUT, rollData, EntityStates.ROLL);
+		esm.addTransition(EntityStates.ROLL, Transitions.TIME, new TimeTransitionData(0.4f), EntityStates.IDLING);
+		
 		// Movement tweaks
 //		esm.getState(EntityStates.IDLING).addChangeListener(new StateChangeListener() {
 //			@Override
@@ -1107,7 +1177,7 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					Mappers.rogue.get(entity).doThrowingAnim = true;
-					Mappers.timer.get(entity).add("delayed_knife_throw", GameVars.PPM_INV * 2, false, new TimeListener() {
+					Mappers.timer.get(entity).add("delayed_knife_throw", GameVars.ANIM_FRAME * 1, false, new TimeListener() {
 						@Override
 						public void onTime(Entity entity) {
 							AnimationStateMachine upperBodyASM = Mappers.asm.get(entity).get(EntityAnim.IDLE_ARMS);
@@ -1328,6 +1398,8 @@ public class EntityFactory {
 		
 		createRogueAttackMachine(rogue, rogueStats);
 		
+		
+		
 //		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rogue ESM", engine, rogue)
 //			.idle()
 //			.run(rogueStats.get("ground_speed"))
@@ -1337,6 +1409,60 @@ public class EntityFactory {
 //			.build();
 		
 		EntityStateMachine esm = StateFactory.createBaseBipedal(rogue, rogueStats);
+		
+		esm.createState(EntityStates.DOUBLE_JUMP)
+			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
+			.add(engine.createComponent(DirectionComponent.class))
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.add(engine.createComponent(JumpComponent.class).set(rogueStats.get("jump_force"), rogueStats.get("jump_float_amount")))
+			.addTag(TransitionTag.AIR_STATE)
+			.addChangeListener(new StateChangeListener(){
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					JumpComponent jumpComp = Mappers.jump.get(entity);
+					InputComponent inputComp = Mappers.input.get(entity);						
+					jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
+					Mappers.rogue.get(entity).canDoubleJump = false;
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					if(nextState == EntityStates.IDLING) {
+						Mappers.body.get(entity).body.setLinearVelocity(Mappers.body.get(entity).body.getLinearVelocity().x, 0);
+					}
+				}
+			});
+		
+		Mappers.timer.get(rogue).add("double_jump", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				if(Mappers.collision.get(entity).onGround()) {
+					Mappers.rogue.get(entity).canDoubleJump = true;
+				}
+			}
+		});
+		
+		Transition doubleJumpTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.rogue.get(entity).canDoubleJump;
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Can Double Jump";
+			}
+		};
+		
+		// TODO Fix transition table so that when you add transition tags things update
+		InputTransitionData jumpData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build();
+		esm.addTransition(TransitionTag.AIR_STATE, new MultiTransition(doubleJumpTransition).and(Transitions.INPUT, jumpData), EntityStates.DOUBLE_JUMP);
+		esm.addTransition(esm.all(EntityStates.DOUBLE_JUMP).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(EntityStates.DOUBLE_JUMP, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.1f)), EntityStates.IDLING);
 		
 		Transition backpedalingTransition = new Transition() {
 			@Override
@@ -1393,6 +1519,7 @@ public class EntityFactory {
 						case RUNNING:
 							return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL_ARMS : EntityAnim.RUN_ARMS;
 						case JUMPING:
+						case DOUBLE_JUMP:
 							return EntityAnim.JUMP_ARMS;
 						case FALLING:
 							return isActiveRogueState(oldAnim) ? EntityAnim.FALL_ARMS : EntityAnim.APEX_ARMS;
@@ -1518,6 +1645,7 @@ public class EntityFactory {
 				case RUNNING:
 					return isBackpedaling(entity) ? EntityAnim.BACK_PEDAL : EntityAnim.RUN;
 				case JUMPING:
+				case DOUBLE_JUMP:
 					return EntityAnim.JUMP;
 				case FALLING:
 					return EntityAnim.JUMP_APEX;
@@ -1561,6 +1689,11 @@ public class EntityFactory {
 		fallState.addSubstateMachine(lowerBodyASM);
 		fallState.addSubstateMachine(upperBodyASM);
 		
+		EntityState doubleJumpState = esm.getState(EntityStates.DOUBLE_JUMP);
+		doubleJumpState.removeAnimations();
+		doubleJumpState.addSubstateMachine(lowerBodyASM);
+		doubleJumpState.addSubstateMachine(upperBodyASM);
+		
 		esm.createState(EntityStates.HOMING_KNIVES)
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(DirectionComponent.class))
@@ -1577,12 +1710,6 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.DASH)
 			.addAnimation(EntityAnim.DASH);
-		
-		System.out.println(lowerBodyASM.printTransitions());
-		System.out.println(upperBodyASM.printTransitions());
-		
-		lowerBodyASM.setDebugOutput(true);
-		upperBodyASM.setDebugOutput(true);
 		
 //		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
 //		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));

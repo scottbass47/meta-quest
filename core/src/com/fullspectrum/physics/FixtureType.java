@@ -191,6 +191,21 @@ public enum FixtureType {
 			
 			return info;
 		}
+	},
+	ROLL {
+		@Override
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new SolidBehavior());
+			
+			return info;
+		}
 	};
 	
 	public abstract FixtureInfo getDefaultInfo(Entity entity);

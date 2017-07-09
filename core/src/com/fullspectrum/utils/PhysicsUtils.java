@@ -199,12 +199,12 @@ public class PhysicsUtils {
 		body.setUserData(entity);
 		body.createFixture(fdef).setUserData(fixtureType);
 		
-		CollisionListenerComponent listenerComp = EntityUtils.add(entity, CollisionListenerComponent.class);
-		CollisionData data = new CollisionData();
-		
-		listenerComp.collisionData = data;
+		CollisionListenerComponent listenerComp = EntityUtils.lazyAdd(entity, CollisionListenerComponent.class);
+		if(listenerComp.collisionData == null) {
+			listenerComp.collisionData = new CollisionData();
+		}
 		listenerComp.type = bodyType;
-		data.registerDefault(fixtureType, entity);
+		listenerComp.collisionData.registerDefault(fixtureType, entity);
 		return body;
 	}
 	

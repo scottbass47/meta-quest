@@ -41,7 +41,7 @@ public class StateMachine<S extends State, E extends StateObject> {
 	private boolean debugOutput = false;
 	
 	// Transition Table
-	private TransitionTable table;
+	protected TransitionTable table;
 	
 	public StateMachine(Entity entity, StateCreator<E> creator, Class<S> stateClazz, Class<E> stateObjectClazz) {
 		this.entity = entity;
@@ -118,6 +118,11 @@ public class StateMachine<S extends State, E extends StateObject> {
 	public E getState(State state) {
 		if (!stateClazz.isInstance(state)) throw new IllegalArgumentException("Incorrect state type.");
 		return states.get((S) state);
+	}
+	
+	@SuppressWarnings("unchecked")
+	public S getState(StateObject stateObject) {
+		return states.getKey((E)stateObject, false);
 	}
 
 	public Entity getEntity() {

@@ -11,6 +11,7 @@ public class RogueComponent implements Component, Poolable{
 	public EntityAnim animState = null;
 	public float facingDelay = 1.0f;
 	public float facingElapsed = 1.0f;
+	public boolean canDoubleJump = true;
 	
 	public RogueComponent set(float facingDelay) {
 		this.facingDelay = facingDelay;
@@ -25,6 +26,7 @@ public class RogueComponent implements Component, Poolable{
 		animState = null;
 		facingDelay = 0.0f;
 		facingElapsed = 0.0f;
+		canDoubleJump = true;
 	}
 
 }

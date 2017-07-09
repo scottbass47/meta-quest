@@ -8,6 +8,7 @@ public enum Actions {
 	CYCLE_RIGHT,
 	CYCLE_LEFT,
 	JUMP,
+	MOVEMENT,
 	ATTACK,
 	ABILITY_1,
 	ABILITY_2,
