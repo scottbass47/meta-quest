@@ -10,7 +10,8 @@
 	air_speed: 6.0,
 	climb_speed: 4.0,
 	jump_force: 33.0,
-	jump_float_amount: 5.0,
+	jump_float_amount: 2.0,
+	dash_speed: 20.0,
 	
 	// Health
 	health: 100,

@@ -1079,7 +1079,8 @@ public class EntityFactory {
 					Mappers.facing.get(entity).locked = true;
 					Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
 					
-					EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? 16.0f : -16.0f, 0.0f);
+					float rollSpeed = knightStats.get("roll_speed");
+					EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? rollSpeed : -rollSpeed, 0.0f);
 				}
 
 				@Override
@@ -1965,7 +1966,9 @@ public class EntityFactory {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
 					boolean facingRight = Mappers.facing.get(entity).facingRight;
-					EntityUtils.add(entity, ForceComponent.class).set(facingRight ? 30 : -30, 0.0f);
+					
+					float dashSpeed = monkStats.get("dash_speed");
+					EntityUtils.add(entity, ForceComponent.class).set(facingRight ? dashSpeed : -dashSpeed, 0.0f);
 					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
 					
 					Mappers.ability.get(entity).lockAllBlocking();
