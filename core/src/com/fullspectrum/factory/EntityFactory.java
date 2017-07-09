@@ -232,6 +232,7 @@ public class EntityFactory {
 
 	// BUG Idle state needs to be "fall through" (i.e. transitions need to occur immediately)
 	// TODO Get rid of floating on melee attacks (normal grav scale)
+	// TODO Add new movements into config files
 	private EntityFactory(){}
 	
 	// ---------------------------------------------
@@ -1957,13 +1958,71 @@ public class EntityFactory {
 			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.INSTA_WALL);
 		
-		// Input Data
+		esm.createState(EntityStates.DASH)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.IDLE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					boolean facingRight = Mappers.facing.get(entity).facingRight;
+					EntityUtils.add(entity, ForceComponent.class).set(facingRight ? 30 : -30, 0.0f);
+					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+					
+					Mappers.ability.get(entity).lockAllBlocking();
+					Mappers.facing.get(entity).locked = true;
+					Mappers.body.get(entity).body.setGravityScale(0.0f);
+					
+					Mappers.monk.get(entity).canDash = false;
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.ability.get(entity).unlockAllBlocking();
+					Mappers.facing.get(entity).locked = false;
+					Mappers.body.get(entity).body.setGravityScale(1.0f);
+				}
+				
+			});
+		
+		Mappers.timer.get(monk).add("dash", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				if(Mappers.collision.get(entity).onGround()) {
+					Mappers.monk.get(entity).canDash = true;
+				}
+			}
+		});
+		
+		// Attacking
 		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		
 		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.INPUT, attackInput, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.SWING_ANTICIPATION);
 		esm.addTransition(EntityStates.SWING_ANTICIPATION, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 
+		// Dashing
+		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
+		
+		Transition dashTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.monk.get(entity).canDash;
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Can Dash";
+			}
+		};
+		
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), new MultiTransition(dashTransition).and(Transitions.INPUT, dashData), EntityStates.DASH);
+		esm.addTransition(EntityStates.DASH, Transitions.TIME, new TimeTransitionData(0.1f), EntityStates.IDLING);
+		
 		esm.changeState(EntityStates.IDLING);
 		
 		return monk;

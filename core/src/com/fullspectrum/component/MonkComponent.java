@@ -8,11 +8,13 @@ public class MonkComponent implements Component, Poolable {
 
 	public EffectDef activeEffect = null;
 	public boolean swingUp = false;
+	public boolean canDash = true;
 	
 	@Override
 	public void reset() {
 		activeEffect = null;
 		swingUp = false;
+		canDash = true;
 	}
 
 }
