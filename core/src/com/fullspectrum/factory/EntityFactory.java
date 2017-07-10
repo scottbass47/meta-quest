@@ -347,7 +347,7 @@ public class EntityFactory {
 		final EntityStats knightStats = EntityLoader.get(EntityIndex.KNIGHT);
 		
 		// Animations
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
@@ -1249,7 +1249,7 @@ public class EntityFactory {
 		final EntityStats rogueStats = EntityLoader.get(EntityIndex.ROGUE);
 		
 		// Animations
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ROGUE_IDLE_LEGS));
 		animMap.put(EntityAnim.IDLE_ARMS, assets.getAnimation(Asset.ROGUE_IDLE_ARMS));
 		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.ROGUE_FALL_LEGS));
@@ -1802,7 +1802,7 @@ public class EntityFactory {
 		final EntityStats monkStats = EntityLoader.get(EntityIndex.MONK);
 		
 		// Animations
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.MONK_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.MONK_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.MONK_JUMP));
@@ -2038,7 +2038,7 @@ public class EntityFactory {
 		PathFinder pathFinder = new PathFinder(mesh);
 		
 		// Setup Animations
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
 		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.KNIGHT_RUN));
 		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
@@ -2195,7 +2195,7 @@ public class EntityFactory {
 		// Stats
 		final EntityStats stats = EntityLoader.get(EntityIndex.SPITTER);
 		
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.SPITTER_IDLE));
 		animMap.put(EntityAnim.DYING, assets.getAnimation(Asset.SPITTER_DEATH));
 		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.SPITTER_ATTACK));
@@ -2369,7 +2369,7 @@ public class EntityFactory {
 		// Stats
 		final EntityStats stats = EntityLoader.get(EntityIndex.SLIME);
 		
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.SLIME_IDLE));
 		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.SLIME_JUMP));
 		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.SLIME_RISE));
@@ -2527,8 +2527,8 @@ public class EntityFactory {
 		return spawner;
 	}
 	
-	public static Entity createWings(Entity owner, float x, float y, float xOff, float yOff, Animation flapping){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+	public static Entity createWings(Entity owner, float x, float y, float xOff, float yOff, Animation<TextureRegion> flapping){
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, flapping);
 		Entity wings = new EntityBuilder(WINGS, Mappers.status.get(owner).status)
 				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
@@ -2546,7 +2546,7 @@ public class EntityFactory {
 	// -                   DROPS                   -
 	// ---------------------------------------------
 	public static Entity createCoin(float x, float y, float fx, float fy, int amount){
-		Animation animation = null;
+		Animation<TextureRegion> animation = null;
 		CoinType coinType = CoinType.getCoin(amount);
 		switch(coinType){
 		case BLUE:
@@ -2564,8 +2564,8 @@ public class EntityFactory {
 		return coin;
 	}
 	
-	private static Entity createDrop(float x, float y, float fx, float fy, String physicsBody, Animation dropIdle, Animation dropDisappear, DropType type, EntityType entityType){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+	private static Entity createDrop(float x, float y, float fx, float fy, String physicsBody, Animation<TextureRegion> dropIdle, Animation<TextureRegion> dropDisappear, DropType type, EntityType entityType){
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.DROP_IDLE, dropIdle);
 		animMap.put(EntityAnim.DROP_DISAPPEAR, dropDisappear);
 		
@@ -2760,7 +2760,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityStatus status){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.PROJECTILE_INIT, assets.getAnimation(Asset.SPIT_INIT));
 		animMap.put(EntityAnim.PROJECTILE_FLY, assets.getAnimation(Asset.SPIT_FLY));
 		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getAnimation(Asset.SPIT_DEATH));
@@ -2779,9 +2779,9 @@ public class EntityFactory {
 		return spit;
 	}
 	
-	private static Entity createExplosiveProjectile(float speed, float angle, float x, float y, float damage, boolean isArc, EntityStatus status, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation init, Animation fly, Animation death){
+	private static Entity createExplosiveProjectile(float speed, float angle, float x, float y, float damage, boolean isArc, EntityStatus status, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation<TextureRegion> init, Animation<TextureRegion> fly, Animation<TextureRegion> death){
 		// CLEANUP Generic explosive projectile uses all mana bomb stuff
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.PROJECTILE_INIT, init);
 		animMap.put(EntityAnim.PROJECTILE_FLY, fly);
 		animMap.put(EntityAnim.PROJECTILE_DEATH, death);
@@ -2800,7 +2800,7 @@ public class EntityFactory {
 	public static Entity createManaBomb(float x, float y, float angle, float damage, float knockback, EntityStatus status){
 		return createExplosiveProjectile(10.0f, angle, x, y, damage, true, status, MANA_BOMB, "mana_bomb.json", 5.0f, 0.0f, knockback,
 				null, 
-				new Animation(0.1f, assets.getAnimation(Asset.MANA_BOMB_EXPLOSION).getKeyFrames()[0]), 
+				new Animation<TextureRegion>(0.1f, assets.getAnimation(Asset.MANA_BOMB_EXPLOSION).getKeyFrames()[0]), 
 				assets.getAnimation(Asset.MANA_BOMB_EXPLOSION));
 	}
 	
@@ -2938,8 +2938,8 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public ProjectileBuilder animate(Animation fly){
-			ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		public ProjectileBuilder animate(Animation<TextureRegion> fly){
+			ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 			animMap.put(EntityAnim.PROJECTILE_FLY, fly);
 			
 			fly.setFrameDuration(GameVars.ANIM_FRAME * 0.5f);
@@ -2949,9 +2949,9 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public ProjectileBuilder animate(Animation init, Animation fly, Animation death){
+		public ProjectileBuilder animate(Animation<TextureRegion> init, Animation<TextureRegion> fly, Animation<TextureRegion> death){
 			if(fly == null) throw new IllegalArgumentException("Flying animation can't be null.");
-			ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+			ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 			if(init != null) animMap.put(EntityAnim.PROJECTILE_INIT, init);
 			if(death != null) animMap.put(EntityAnim.PROJECTILE_DEATH, death);
 			
@@ -2966,7 +2966,7 @@ public class EntityFactory {
 			if(Mappers.animation.get(projectile) == null) throw new RuntimeException("Make sure you give the projectile animation capabilities before adding a state machine.");
 			EntityStateMachine esm = new StateFactory.EntityStateBuilder(Mappers.entity.get(projectile) + " ESM", engine, projectile).build();
 			
-			ArrayMap<State, Animation> animMap = Mappers.animation.get(projectile).animations;
+			ArrayMap<State, Animation<TextureRegion>> animMap = Mappers.animation.get(projectile).animations;
 			if(animMap.containsKey(EntityAnim.PROJECTILE_INIT)){
 				esm.createState(EntityStates.PROJECTILE_INIT)
 					.addAnimation(EntityAnim.PROJECTILE_INIT);
@@ -3053,7 +3053,7 @@ public class EntityFactory {
 	// -                   MISC                    -
 	// ---------------------------------------------
 	public static Entity createBalloonTrap(float x, float y, int numPellets, float damagePerPellet, float speed, EntityStatus status){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.INFLATE, assets.getAnimation(Asset.ROGUE_BALLOON_INFLATE));
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.ROGUE_BALLOON_IDLE));
 		animMap.put(EntityAnim.POP, assets.getAnimation(Asset.ROGUE_BALLOON_POP));
@@ -3213,8 +3213,8 @@ public class EntityFactory {
 		return explosion;
 	}
 	
-	public static Entity createSmoke(float x, float y, Animation smokeAnimation, boolean facing){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+	public static Entity createSmoke(float x, float y, Animation<TextureRegion> smokeAnimation, boolean facing){
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, smokeAnimation);
 		
 		Entity smoke = new EntityBuilder(SMOKE, NEUTRAL)
@@ -3233,8 +3233,8 @@ public class EntityFactory {
 		return smoke;	
 	}
 	
-	public static Entity createWind(float x, float y, Animation windAnimation, boolean facing, String frameData) {
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+	public static Entity createWind(float x, float y, Animation<TextureRegion> windAnimation, boolean facing, String frameData) {
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, windAnimation);
 		
 		Entity wind = new EntityBuilder(EntityType.WIND, NEUTRAL)
@@ -3281,8 +3281,8 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                PARTICLES                  -
 	// ---------------------------------------------
-	public static Entity createParticle(Animation animation, float x, float y){
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+	public static Entity createParticle(Animation<TextureRegion> animation, float x, float y){
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.JUMP, animation);
 		
 		Entity entity = new EntityBuilder(PARTICLE, NEUTRAL)
@@ -3303,7 +3303,7 @@ public class EntityFactory {
 	}
 	
 	public static Entity createPoisonParticles(float x, float y) {
-		ArrayMap<State, Animation> animMap = new ArrayMap<State, Animation>();
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.POISON_PARTICLES));
 		
 		Entity entity = new EntityBuilder(PARTICLE, NEUTRAL)
@@ -3430,7 +3430,7 @@ public class EntityFactory {
 		 * @param animMap
 		 * @return
 		 */
-		public EntityBuilder animation(ArrayMap<State, Animation> animMap){
+		public EntityBuilder animation(ArrayMap<State, Animation<TextureRegion>> animMap){
 			entity.add(engine.createComponent(AnimationComponent.class));
 			entity.getComponent(AnimationComponent.class).animations.putAll(animMap);
 			return this;

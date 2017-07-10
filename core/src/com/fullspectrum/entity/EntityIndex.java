@@ -31,7 +31,7 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.KNIGHT_IDLE);
 		}
 
@@ -41,7 +41,7 @@ public enum EntityIndex {
 		}
 	},
 	ROGUE {
-		private Animation animation;
+		private Animation<TextureRegion> animation;
 		
 		@Override
 		public Entity create(float x, float y) {
@@ -49,19 +49,19 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			// Rogue is a pain in the ass because of the split upper and lower body
 			// So we build the animation once with upper and lower body parts
 			if(animation == null) {
-				Animation upper = AssetLoader.getInstance().getAnimation(Asset.ROGUE_IDLE_ARMS);
-				Animation lower = AssetLoader.getInstance().getAnimation(Asset.ROGUE_IDLE_LEGS);
+				Animation<TextureRegion> upper = AssetLoader.getInstance().getAnimation(Asset.ROGUE_IDLE_ARMS);
+				Animation<TextureRegion> lower = AssetLoader.getInstance().getAnimation(Asset.ROGUE_IDLE_LEGS);
 				SpriteBatch batch = new SpriteBatch();
 				OrthographicCamera cam = new OrthographicCamera();
 				
-				TextureRegion[] regions = new TextureRegion[upper.getKeyFrames().length];
-				for(int i = 0; i < upper.getKeyFrames().length; i++) {
-					TextureRegion upperRegion = upper.getKeyFrames()[i];
-					TextureRegion lowerRegion = lower.getKeyFrames()[i];
+				TextureRegion[] regions = new TextureRegion[(int)(upper.getAnimationDuration() / upper.getFrameDuration())];
+				for(int i = 0; i < regions.length; i++) {
+					TextureRegion upperRegion = upper.getKeyFrame(i * GameVars.ANIM_FRAME);
+					TextureRegion lowerRegion = lower.getKeyFrame(i * GameVars.ANIM_FRAME);
 
 					FrameBuffer buffer = new FrameBuffer(Format.RGBA8888, upperRegion.getRegionWidth(), upperRegion.getRegionHeight(), false);
 					cam.setToOrtho(false, buffer.getWidth(), buffer.getHeight());
@@ -82,7 +82,7 @@ public enum EntityIndex {
 					regions[i].flip(false, true);
 					regions[i].getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
 				}
-				animation = new Animation(GameVars.ANIM_FRAME, regions);
+				animation = new Animation<TextureRegion>(GameVars.ANIM_FRAME, regions);
 			}
 			return animation;
 		}
@@ -99,7 +99,7 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.MONK_IDLE);
 		}
 
@@ -117,7 +117,7 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.SPITTER_IDLE);
 		}
 
@@ -133,7 +133,7 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.SLIME_IDLE);
 		}
 
@@ -149,7 +149,7 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.KNIGHT_IDLE);
 		}
 
@@ -159,7 +159,7 @@ public enum EntityIndex {
 		}
 	},
 	SPAWNER{
-		private Animation animation;
+		private Animation<TextureRegion> animation;
 		
 		@Override
 		public Entity create(float x, float y) {
@@ -167,14 +167,14 @@ public enum EntityIndex {
 		}
 
 		@Override
-		public Animation getIdleAnimation() {
+		public Animation<TextureRegion> getIdleAnimation() {
 			if(animation == null) {
 				Pixmap pixmap = new Pixmap(24, 24, Format.RGBA8888);
 				pixmap.setColor(Color.MAGENTA);
 				pixmap.fill();
 				
 				TextureRegion region = new TextureRegion(new Texture(pixmap));
-				animation = new Animation(GameVars.ANIM_FRAME, region);
+				animation = new Animation<TextureRegion>(GameVars.ANIM_FRAME, region);
 			}
 			
 			return animation;
@@ -188,7 +188,7 @@ public enum EntityIndex {
 	
 	// TODO Consider including Input as a needed argument
 	public abstract Entity create(float x, float y);
-	public abstract Animation getIdleAnimation();
+	public abstract Animation<TextureRegion> getIdleAnimation();
 	
 	/** Hit boxes are in pixels and are manually entered. */
 	public abstract Rectangle getHitBox();

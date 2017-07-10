@@ -26,7 +26,7 @@ public class EnemyIcon extends Button {
 	
 	@Override
 	public void render(SpriteBatch batch) {
-		Animation animation = index.getIdleAnimation();
+		Animation<TextureRegion> animation = index.getIdleAnimation();
 		TextureRegion region = animation.getKeyFrame(elapsed);
 		java.awt.Rectangle rect = getBounds();
 		

@@ -2,6 +2,7 @@ package com.fullspectrum.ability.monk;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -22,10 +23,10 @@ public class WindBurstAbility extends AnimationAbility{
 	private float damage;
 	private float knockback;
 	private Entity windBurst;
-	private Animation windAnim;
+	private Animation<TextureRegion> windAnim;
 	private boolean createdWind = false;
 	
-	public WindBurstAbility(float cooldown, Actions input, Animation animation, float damage, float knockback) {
+	public WindBurstAbility(float cooldown, Actions input, Animation<TextureRegion> animation, float damage, float knockback) {
 		super(AbilityType.WIND_BURST, AssetLoader.getInstance().getRegion(Asset.WIND_BURST_ICON), cooldown, input, animation);
 		this.damage = damage;
 		this.knockback = knockback;

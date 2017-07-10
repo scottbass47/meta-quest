@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.utils.Array;
@@ -37,7 +38,7 @@ public class SlamAbility extends AnimationAbility{
 	private float knockback;
 	private float stunDuration;	
 	
-	public SlamAbility(float cooldown, Actions input, Animation slamAnimation, int frameNum, float range, float damage, float knockback, float stunDuration) {
+	public SlamAbility(float cooldown, Actions input, Animation<TextureRegion> slamAnimation, int frameNum, float range, float damage, float knockback, float stunDuration) {
 		super(AbilityType.SLAM, AssetLoader.getInstance().getRegion(Asset.SLAM_ICON), cooldown, input, slamAnimation);
 		this.frameNum = frameNum;
 		this.range = range;

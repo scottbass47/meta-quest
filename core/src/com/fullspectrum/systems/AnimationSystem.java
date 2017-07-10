@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.Mappers;
@@ -32,7 +33,7 @@ public class AnimationSystem extends IteratingSystem {
 			for(int i = 0; i < asmComp.size(); i++){
 				AnimationStateMachine machine = asmComp.get(i);
 				machine.addTime(deltaTime);
-				Animation animation = animComp.animations.get(machine.getCurrentAnimation());
+				Animation<TextureRegion> animation = animComp.animations.get(machine.getCurrentAnimation());
 				texComp.getRegions().set(i, animation == null ? null : animation.getKeyFrame(machine.getAnimationTime()));
 			}
 		}

@@ -3,6 +3,7 @@ package com.fullspectrum.ability.monk;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -31,9 +32,9 @@ public class InstaWallAbility extends TimedAbility{
 	private boolean animFinished = false;
 	private int maxHeight;
 	private Entity wall;
-	private Animation animation;
+	private Animation<TextureRegion> animation;
 	
-	public InstaWallAbility(float cooldown, Actions input, Animation animation, float duration, int maxHeight) {
+	public InstaWallAbility(float cooldown, Actions input, Animation<TextureRegion> animation, float duration, int maxHeight) {
 		super(AbilityType.INSTA_WALL, AssetLoader.getInstance().getRegion(Asset.INSTA_WALL_ICON), cooldown, input, duration, true);
 		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryImmunties(EffectType.KNOCKBACK);

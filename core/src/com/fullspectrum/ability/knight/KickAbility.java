@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -33,7 +34,7 @@ public class KickAbility extends AnimationAbility{
 	private float damage;
 	private boolean hasKicked = false;
 	
-	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation kickAnimation) {
+	public KickAbility(float cooldown, Actions input, float animDelay, float range, float knockback, float damage, Animation<TextureRegion> kickAnimation) {
 		super(AbilityType.KICK, AssetLoader.getInstance().getRegion(Asset.KICK_ICON), cooldown, input, kickAnimation);
 		this.animDelay = animDelay;
 		this.range = range;

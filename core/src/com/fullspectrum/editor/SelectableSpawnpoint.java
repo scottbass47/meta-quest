@@ -36,7 +36,7 @@ public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 		
 		int row = Maths.toGridCoord(y);
 		
-		Animation idle = spawn.getIndex().getIdleAnimation();
+		Animation<TextureRegion> idle = spawn.getIndex().getIdleAnimation();
 		Rectangle rect = spawn.getIndex().getHitBox();
 		TextureRegion region = idle.getKeyFrame(animTime);
 		float w = region.getRegionWidth();

@@ -61,7 +61,7 @@ public class PlaceableSpawnpoint implements Placeable{
 		
 		int row = Maths.toGridCoord(y);
 		
-		Animation idle = entityIndex.getIdleAnimation();
+		Animation<TextureRegion> idle = entityIndex.getIdleAnimation();
 		Rectangle rect = entityIndex.getHitBox();
 		TextureRegion region = idle.getKeyFrame(animTime);
 		float w = region.getRegionWidth();

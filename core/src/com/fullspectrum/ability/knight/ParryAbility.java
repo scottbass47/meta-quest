@@ -2,6 +2,7 @@ package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.ability.Ability;
 import com.fullspectrum.ability.AbilityType;
@@ -28,7 +29,7 @@ public class ParryAbility extends Ability{
 	private SwingComponent swing;
 	
 	// BUG Sometimes you get permanent invincibility
-	public ParryAbility(float cooldown, Actions input, float maxTime, float stunDuration, Animation parrySwingAnimation, SwingComponent swing) {
+	public ParryAbility(float cooldown, Actions input, float maxTime, float stunDuration, Animation<TextureRegion> parrySwingAnimation, SwingComponent swing) {
 		super(AbilityType.PARRY, AssetLoader.getInstance().getRegion(Asset.PARRY_ICON), cooldown, input, true);
 		this.maxTime = maxTime;
 		this.stunDuration = stunDuration;

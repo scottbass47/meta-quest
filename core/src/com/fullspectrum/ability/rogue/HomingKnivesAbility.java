@@ -3,6 +3,7 @@ package com.fullspectrum.ability.rogue;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -48,7 +49,7 @@ public class HomingKnivesAbility extends AnimationAbility{
 	
 	private float bobTime = 1.0f;
 	
-	public HomingKnivesAbility(float cooldown, Actions input, Animation animation, int knivesPerCluster, float damage, float range, float speed){
+	public HomingKnivesAbility(float cooldown, Actions input, Animation<TextureRegion> animation, int knivesPerCluster, float damage, float range, float speed){
 		super(AbilityType.HOMING_KNIVES, AssetLoader.getInstance().getRegion(Asset.HOMING_KNIVES_ICON), cooldown, input, animation);
 		this.knivesPerCluster = knivesPerCluster;
 		this.damage = damage;

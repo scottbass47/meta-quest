@@ -2,6 +2,7 @@ package com.fullspectrum.ability.rogue;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
 import com.fullspectrum.assets.Asset;
@@ -24,7 +25,7 @@ public class DynamiteAbility extends AnimationAbility{
 	private float speed = 8.0f;
 	private float explosionRadius;
 	
-	public DynamiteAbility(float cooldown, Actions input, Animation animation, float knockback, float damage, float explosionRadius) {	
+	public DynamiteAbility(float cooldown, Actions input, Animation<TextureRegion> animation, float knockback, float damage, float explosionRadius) {	
 		super(AbilityType.DYNAMITE, AssetLoader.getInstance().getRegion(Asset.DYNAMITE), cooldown, input, animation);
 		this.knockback = knockback;
 		this.damage = damage;

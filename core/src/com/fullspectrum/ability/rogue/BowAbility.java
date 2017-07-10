@@ -2,6 +2,7 @@ package com.fullspectrum.ability.rogue;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
 import com.fullspectrum.ability.OnGroundConstraint;
@@ -24,7 +25,7 @@ public class BowAbility extends AnimationAbility{
 	private float speed;
 	private int shootFrame = 4;
 	
-	public BowAbility(float cooldown, Actions input, Animation animation, float damage, float speed){
+	public BowAbility(float cooldown, Actions input, Animation<TextureRegion> animation, float damage, float speed){
 		super(AbilityType.BOW, AssetLoader.getInstance().getRegion(Asset.BOW_ICON), cooldown, input, animation);
 		this.damage = damage;
 		this.speed = speed;

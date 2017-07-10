@@ -1,17 +1,18 @@
 package com.fullspectrum.gui;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 
 public class AnimatedLabel extends ImageLabel{
 
-	private Animation animation;
+	private Animation<TextureRegion> animation;
 	private float elapsed;
 	
-	public AnimatedLabel(Animation animation) {
+	public AnimatedLabel(Animation<TextureRegion> animation) {
 		super(animation.getKeyFrame(0.0f));
 	}
 	
-	public AnimatedLabel(Animation animation, float scale) {
+	public AnimatedLabel(Animation<TextureRegion> animation, float scale) {
 		super(animation.getKeyFrame(0.0f), scale);
 		this.animation = animation;
 	}
@@ -23,11 +24,11 @@ public class AnimatedLabel extends ImageLabel{
 		setRegion(animation.getKeyFrame(elapsed));
 	}
 	
-	public void setAnimation(Animation animation) {
+	public void setAnimation(Animation<TextureRegion> animation) {
 		this.animation = animation;
 	}
 	
-	public Animation getAnimation() {
+	public Animation<TextureRegion> getAnimation() {
 		return animation;
 	}
 

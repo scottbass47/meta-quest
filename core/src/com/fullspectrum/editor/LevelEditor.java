@@ -188,7 +188,7 @@ public class LevelEditor extends InputMultiplexer{
 			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
 			EntityIndex index = entitySpawn.getIndex();
 			Vector2 pos = entitySpawn.getPos();
-			Animation animation = index.getIdleAnimation();
+			Animation<TextureRegion> animation = index.getIdleAnimation();
 			TextureRegion frame = animation.getKeyFrame(animTime);
 			
 			float w = frame.getRegionWidth();

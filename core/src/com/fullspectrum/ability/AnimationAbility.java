@@ -6,9 +6,9 @@ import com.fullspectrum.input.Actions;
 
 public abstract class AnimationAbility extends TimedAbility{
 	
-	protected Animation animation;
+	protected Animation<TextureRegion> animation;
 	
-	public AnimationAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, Animation animation) {
+	public AnimationAbility(AbilityType type, TextureRegion icon, float cooldown, Actions input, Animation<TextureRegion> animation) {
 		super(type, icon, cooldown, input, animation.getAnimationDuration(), true);
 		this.animation = animation;
 		lockFacing();

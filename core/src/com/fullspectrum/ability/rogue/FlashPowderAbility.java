@@ -3,6 +3,7 @@ package com.fullspectrum.ability.rogue;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
@@ -28,7 +29,7 @@ public class FlashPowderAbility extends AnimationAbility{
 	private int throwFrame = 1;
 	private float stunDuration;
 	
-	public FlashPowderAbility(float cooldown, Actions input, Animation animation, float stunDuration){
+	public FlashPowderAbility(float cooldown, Actions input, Animation<TextureRegion> animation, float stunDuration){
 		super(AbilityType.FLASH_POWDER, AssetLoader.getInstance().getRegion(Asset.FLASH_POWDER_ICON), cooldown, input, animation);
 		this.stunDuration = stunDuration;
 	}

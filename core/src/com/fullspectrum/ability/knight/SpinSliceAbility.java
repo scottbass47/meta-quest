@@ -2,6 +2,7 @@ package com.fullspectrum.ability.knight;
 
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.AnimationAbility;
 import com.fullspectrum.ability.OnGroundConstraint;
@@ -18,7 +19,7 @@ public class SpinSliceAbility extends AnimationAbility{
 	
 	private SwingComponent swing;
 
-	public SpinSliceAbility(float cooldown, Actions input, Animation swingAnimation, SwingComponent swing) {
+	public SpinSliceAbility(float cooldown, Actions input, Animation<TextureRegion> swingAnimation, SwingComponent swing) {
 		super(AbilityType.SPIN_SLICE, AssetLoader.getInstance().getRegion(Asset.SPIN_SLICE_ICON), cooldown, input, swingAnimation);
 		this.swing = swing;
 		setAbilityConstraints(new OnGroundConstraint());

@@ -106,12 +106,12 @@ public class AssetLoader {
 		return region;
 	}
 	
-	public Animation getAnimation(Asset asset){
+	public Animation<TextureRegion> getAnimation(Asset asset){
 		return getAnimation(asset.getAtlas(), asset);
 	}
 	
-	public Animation getAnimation(Atlas atlas, Asset asset){
-		Animation animation = new Animation(GameVars.ANIM_FRAME, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
+	public Animation<TextureRegion> getAnimation(Atlas atlas, Asset asset){
+		Animation<TextureRegion> animation = new Animation<TextureRegion>(GameVars.ANIM_FRAME, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
 		if(animation.getAnimationDuration() < 0.001f){
 //			throw new RuntimeException(asset + " was not loaded properly.");
 		}
