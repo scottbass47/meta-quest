@@ -11,10 +11,13 @@ import com.fullspectrum.component.Mappers;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.GameInput;
 
+// BUG If a jump is cancelled by a state change, the jump needs to be cleaned up properly
 public class JumpSystem extends IteratingSystem{
 
+	private static final Family jumpFamily = Family.all(JumpComponent.class, BodyComponent.class).get();
+	
 	public JumpSystem(){
-		super(Family.all(JumpComponent.class, BodyComponent.class).get());
+		super(jumpFamily);
 	}
 
 	@Override
@@ -30,6 +33,7 @@ public class JumpSystem extends IteratingSystem{
 		// For ai, jump height is calculated using multiplier
 		if(inputComp != null && inputComp.input instanceof GameInput) {
 			if(jumpComp.jumpReady) {
+				System.out.println("Jumping now");
 				jumpComp.jumpReady = false;
 				jumpComp.timeDown = 0.5f;
 			}

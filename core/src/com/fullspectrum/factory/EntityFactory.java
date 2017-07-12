@@ -85,13 +85,13 @@ import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.ai.tasks.AttackTask;
+import com.fullspectrum.ai.tasks.InLoSTask;
+import com.fullspectrum.ai.tasks.InRangeTask;
 import com.fullspectrum.ai.tasks.ReachedPlatformEndTask;
 import com.fullspectrum.ai.tasks.ReleaseControlsTask;
 import com.fullspectrum.ai.tasks.TargetBehindMeTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
-import com.fullspectrum.ai.tasks.AttackTask;
-import com.fullspectrum.ai.tasks.InLoSTask;
-import com.fullspectrum.ai.tasks.InRangeTask;
 import com.fullspectrum.ai.tasks.TurnAroundTask;
 import com.fullspectrum.ai.tasks.WalkForwardTask;
 import com.fullspectrum.assets.Asset;
@@ -534,7 +534,7 @@ public class EntityFactory {
 //			.build();
 		
 		EntityStateMachine esm = StateFactory.createBaseBipedal(knight, knightStats);
-		
+
 		// Notes
 		//	- If transitioning from running, jumping, or falling state skip initial swing animation
 		//	- Move forwards slight amount (more if you're coming from running state)
@@ -955,14 +955,23 @@ public class EntityFactory {
 //		esm.addTransition(EntityStates.SWING_ANTICIPATION, chainAttack, EntityStates.SWING_ATTACK);
 //		esm.addTransition(EntityStates.SWING_ANTICIPATION, exitChaining, EntityStates.IDLING);
 		
+		final FrameMovementComponent swingFrames = engine.createComponent(FrameMovementComponent.class).set("knight/frames_swing_attack");
+		
 		esm.createState(EntityStates.SWING_ATTACK)
 			.add(engine.createComponent(SwingComponent.class).set(swing1.rx, swing1.ry, swing1.startAngle, swing1.endAngle, swing1.delay, swing1.damage, swing1.knockback))
-			.add(engine.createComponent(FrameMovementComponent.class).set("knight/frames_swing_attack"))
 			.addTag(TransitionTag.STATIC_STATE)
 			.addAnimation(EntityAnim.SWING)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
+					if(prevState == EntityStates.JUMPING || prevState == EntityStates.FALLING) {
+						entity.add(engine.createComponent(SpeedComponent.class).set(knightStats.get("air_speed")));
+						entity.add(engine.createComponent(DirectionComponent.class));
+						entity.add(engine.createComponent(GroundMovementComponent.class));
+					} else {
+						entity.add(swingFrames);
+					}
+					
 					Mappers.ability.get(entity).lockAllBlocking();
 					Mappers.timer.get(entity).add("swing_delay", GameVars.ANIM_FRAME * 1, false, new TimeListener() {
 						@Override
@@ -972,7 +981,7 @@ public class EntityFactory {
 					});
 					
 					// Lock facing
-					Mappers.facing.get(entity).locked = true;
+					Mappers.facing.get(entity).locked = entity.getComponent(FrameMovementComponent.class) != null;
 					
 					// Set gravity scale to 0
 //					Body body = Mappers.body.get(entity).body;
@@ -985,6 +994,7 @@ public class EntityFactory {
 					entity.remove(GroundMovementComponent.class);
 					entity.remove(SpeedComponent.class);
 					entity.remove(DirectionComponent.class);
+					entity.remove(FrameMovementComponent.class);
 	
 					Mappers.facing.get(entity).locked = false;
 //					Mappers.body.get(entity).body.setGravityScale(1.0f);
@@ -1906,21 +1916,16 @@ public class EntityFactory {
 					entity.add(swingComp);
 					
 					// Setup the right type of movement
-					if(swingUp) {
-						entity.add(engine.createComponent(GroundMovementComponent.class));
-						entity.add(engine.createComponent(SpeedComponent.class).set(0.0f));
+					if(swingUp || !Mappers.collision.get(entity).onGround()) {
+						entity.add(engine.createComponent(SpeedComponent.class).set(monkStats.get("air_speed")));
 						entity.add(engine.createComponent(DirectionComponent.class));
+						entity.add(engine.createComponent(GroundMovementComponent.class));
 					} else {
 						entity.add(engine.createComponent(FrameMovementComponent.class).set("monk/frames_swing_attack_front"));
 					}
 					
 					// Lock facing
-					Mappers.facing.get(entity).locked = true;
-					
-					// Set gravity scale to 0
-					Body body = Mappers.body.get(entity).body;
-					body.setGravityScale(0.2f);
-					body.setLinearVelocity(0.0f, 0.0f);
+					Mappers.facing.get(entity).locked = entity.getComponent(FrameMovementComponent.class) != null;
 				}
 				
 				@Override
@@ -1932,7 +1937,6 @@ public class EntityFactory {
 					entity.remove(FrameMovementComponent.class);
 					
 					Mappers.facing.get(entity).locked = false;
-					Mappers.body.get(entity).body.setGravityScale(1.0f);
 				}
 			})
 			.getASM().getState(EntityAnim.SWING).setChangeResolver(new StateChangeResolver() {
@@ -1944,7 +1948,7 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.SWING_ANTICIPATION)
 			.addTag(TransitionTag.GROUND_STATE)
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(SpeedComponent.class).set(monkStats.get("air_speed")))
 			.add(engine.createComponent(GroundMovementComponent.class))
 			.add(engine.createComponent(DirectionComponent.class))
 			.addAnimation(EntityAnim.SWING_ANTICIPATION)

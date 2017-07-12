@@ -159,18 +159,18 @@ public class StateMachine<S extends State, E extends StateObject> {
 
 		if (currentState != null) {
 			currentState.onExit(newState);
-			for (TransitionObject obj : currentState.getTranstionObjects()) {
-				if (obj.data != null) {
-					obj.data.reset();
-				}
-			}
-			for (MultiTransition multi : currentState.getMultiTransitions()) {
-				for (TransitionObject obj : multi.transitionObjects) {
-					if (obj.data != null) {
-						obj.data.reset();
-					}
-				}
-			}
+//			for (TransitionObject obj : currentState.getTranstionObjects()) {
+//				if (obj.data != null) {
+//					obj.data.reset();
+//				}
+//			}
+//			for (MultiTransition multi : currentState.getMultiTransitions()) {
+//				for (TransitionObject obj : multi.transitionObjects) {
+//					if (obj.data != null) {
+//						obj.data.reset();
+//					}
+//				}
+//			}
 			for (Component c : currentState.getComponents()) {
 				entity.remove(c.getClass());
 			}
@@ -222,6 +222,19 @@ public class StateMachine<S extends State, E extends StateObject> {
 		currentState = currState;
 		for (Component c : newState.getComponents()) {
 			entity.add(c);
+		}
+		
+		for (TransitionObject obj : newState.getTranstionObjects()) {
+			if (obj.data != null) {
+				obj.data.reset();
+			}
+		}
+		for (MultiTransition multi : newState.getMultiTransitions()) {
+			for (TransitionObject obj : multi.transitionObjects) {
+				if (obj.data != null) {
+					obj.data.reset();
+				}
+			}
 		}
 		
 		newState.onEnter(oldState);

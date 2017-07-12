@@ -65,7 +65,7 @@ public class StateFactory {
 					Body body = Mappers.body.get(entity).body;
 					
 					boolean falling = body.getLinearVelocity().y <= 0;
-					return falling ? EntityStates.FALLING : EntityStates.JUMPING;
+					return falling ? EntityStates.FALLING : EntityStates.FALLING; // INCOMPLETE Can't go to jumping because jump state adds a jump component
 				}
 				return EntityStates.IDLING;
 			}
@@ -105,9 +105,10 @@ public class StateFactory {
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
-		esm.addTransition(esm.all(TransitionTag.AIR_STATE)/*.exclude(EntityStates.JUMPING)*/, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.1f)), EntityStates.IDLING);
 		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING)/*.exclude(EntityStates.JUMPING)*/, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.25f)), EntityStates.IDLING);
+		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.IDLING);	
 //		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
 //		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
 //		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
@@ -225,6 +226,10 @@ public class StateFactory {
 					}
 					@Override
 					public void onExit(State nextState, Entity entity) {
+						if(Mappers.jump.get(entity) != null) {
+							Mappers.jump.get(entity).jumpReady = true;
+							Mappers.jump.get(entity).timeDown = 0.5f;
+						}
 					}
 				});
 			}
