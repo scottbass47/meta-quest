@@ -37,6 +37,11 @@ import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.ai.btree.branch.Selector;
+import com.badlogic.gdx.ai.btree.branch.Sequence;
+import com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed;
+import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -80,6 +85,14 @@ import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.ai.tasks.ReachedPlatformEndTask;
+import com.fullspectrum.ai.tasks.ReleaseControlsTask;
+import com.fullspectrum.ai.tasks.TargetBehindMeTask;
+import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
+import com.fullspectrum.ai.tasks.AttackTask;
+import com.fullspectrum.ai.tasks.InRangeTask;
+import com.fullspectrum.ai.tasks.TurnAroundTask;
+import com.fullspectrum.ai.tasks.WalkForwardTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.AIControllerComponent;
@@ -113,7 +126,6 @@ import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FlowFieldComponent;
 import com.fullspectrum.component.FlowFollowComponent;
 import com.fullspectrum.component.FlyingComponent;
-import com.fullspectrum.component.FollowComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.FrameMovementComponent;
 import com.fullspectrum.component.GroundMovementComponent;
@@ -131,7 +143,6 @@ import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.MonkComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
-import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
@@ -155,7 +166,6 @@ import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.VelocityComponent;
-import com.fullspectrum.component.WanderingComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
@@ -188,7 +198,6 @@ import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.InputTrigger;
-import com.fullspectrum.fsm.transition.LOSTransitionData;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
@@ -232,7 +241,6 @@ public class EntityFactory {
 
 	// BUG Idle state needs to be "fall through" (i.e. transitions need to occur immediately)
 	// TODO Get rid of floating on melee attacks (normal grav scale)
-	// TODO Add new movements into config files
 	private EntityFactory(){}
 	
 	// ---------------------------------------------
@@ -2067,18 +2075,9 @@ public class EntityFactory {
 		player.add(engine.createComponent(MoneyComponent.class).set(money));
 		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
 		player.add(engine.createComponent(TargetComponent.class));
-		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
+//		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
 		player.add(engine.createComponent(TintComponent.class).set(new Color(0xff2245ff)));
 
-//		EntityStateMachine esm = new StateFactory.EntityStateBuilder("AI Player ESM", engine, player)
-//			.idle()
-//			.run(stats.get("ground_speed"))
-//			.fall(stats.get("air_speed"), true)
-//			.jump(stats.get("jump_force"), 0.0f, stats.get("air_speed"), true, true)
-//			.climb(stats.get("climb_speed"))
-//			.swingAttack(2.5f, 1.0f, 150f, -90f, 0.4f, stats.get("sword_damage"), stats.get("sword_knockback"))
-//			.build();
-		
 		EntityStateMachine esm = StateFactory.createBaseBipedal(player, stats);
 		
 		esm = new StateFactory.EntityStateBuilder(esm)
@@ -2135,61 +2134,111 @@ public class EntityFactory {
 		
 		esm.changeState(EntityStates.IDLING);
 		
-		AIStateMachine aism = new AIStateMachine(player);
-		aism.setDebugName("AI Player AISM");
-		aism.createState(AIState.WANDERING)
-			.add(engine.createComponent(WanderingComponent.class).set(20, 1.5f));
-		
-		aism.createState(AIState.FOLLOWING)
-			.add(engine.createComponent(FollowComponent.class));
-		
-		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(AttackComponent.class));
-		
-		LOSTransitionData inSightData = new LOSTransitionData(true);
-		LOSTransitionData outOfSightData = new LOSTransitionData(false);
-		
-		RangeTransitionData wanderInRange = new RangeTransitionData();
-		wanderInRange.distance = 15.0f;
-		wanderInRange.fov = 180.0f;
-		wanderInRange.inRange = true;
-		
-		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange)
-			.and(Transitions.LINE_OF_SIGHT, inSightData);
-		
-		RangeTransitionData followOutOfRange = new RangeTransitionData();
-		followOutOfRange.distance = 15.0f;
-		followOutOfRange.fov = 180.0f;
-		followOutOfRange.inRange = false;
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(player);
 
-		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange)
-			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
+		Selector<Entity> rootSelector = new Selector<Entity>();
 		
-		RangeTransitionData inAttackRange = new RangeTransitionData();
-		inAttackRange.distance = 1.5f;
-		inAttackRange.fov = 180.0f;
-		inAttackRange.inRange = true;
+		Sequence<Entity> turnAroundSequence = new Sequence<Entity>();
+		turnAroundSequence.addChild(new ReachedPlatformEndTask());
+		turnAroundSequence.addChild(new ReleaseControlsTask());
+		turnAroundSequence.addChild(new Wait<Entity>(1.25f));
+		turnAroundSequence.addChild(new TurnAroundTask());
 		
-		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange)
-			.and(Transitions.LINE_OF_SIGHT, inSightData);
+		Sequence<Entity> walkSequence = new Sequence<Entity>();
+		walkSequence.addChild(new ReleaseControlsTask());
+		walkSequence.addChild(new WalkForwardTask());
 		
-		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-		outOfAttackRange.distance = 2.5f;
-		outOfAttackRange.fov = 180.0f;
-		outOfAttackRange.inRange = false;
+		Sequence<Entity> turnWhenTargetBehindSequence = new Sequence<Entity>();
+		turnWhenTargetBehindSequence.addChild(new TargetBehindMeTask());
+		turnWhenTargetBehindSequence.addChild(new ReleaseControlsTask());
+		turnWhenTargetBehindSequence.addChild(new TurnAroundTask());
 		
-		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange)
-			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
+		Selector<Entity> moveTowardsTarget = new Selector<Entity>();
+		moveTowardsTarget.addChild(turnWhenTargetBehindSequence);
+		moveTowardsTarget.addChild(walkSequence);
 		
-//		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+		Sequence<Entity> pursueTarget = new Sequence<Entity>();
+		pursueTarget.addChild(new TargetOnPlatformTask());
+		pursueTarget.addChild(moveTowardsTarget);
 		
-		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
-		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
-		aism.addTransition(AIState.FOLLOWING, toAttackTransition, AIState.ATTACKING);
-		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(new InRangeTask(2.0f));
+		attackSequence.addChild(new AlwaysSucceed<Entity>(turnWhenTargetBehindSequence));
+		attackSequence.addChild(new ReleaseControlsTask());
+		attackSequence.addChild(new AttackTask());
 		
-		aism.changeState(AIState.WANDERING);
+		rootSelector.addChild(attackSequence);
+		rootSelector.addChild(pursueTarget);
+		rootSelector.addChild(turnAroundSequence);
+		rootSelector.addChild(walkSequence);
+		
+		tree.addChild(rootSelector);
+		
+		final BehaviorTree<Entity> copy = tree;
+		
+		player.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
+			@Override
+			public void update(Entity entity, float deltaTime) {
+				copy.step();
+			}
+		}));
+		
+//		AIStateMachine aism = new AIStateMachine(player);
+//		aism.setDebugName("AI Player AISM");
+//		aism.createState(AIState.WANDERING)
+//			.add(engine.createComponent(WanderingComponent.class).set(20, 1.5f));
+//		
+//		aism.createState(AIState.FOLLOWING)
+//			.add(engine.createComponent(FollowComponent.class));
+//		
+//		aism.createState(AIState.ATTACKING)
+//			.add(engine.createComponent(AttackComponent.class));
+//		
+//		LOSTransitionData inSightData = new LOSTransitionData(true);
+//		LOSTransitionData outOfSightData = new LOSTransitionData(false);
+//		
+//		RangeTransitionData wanderInRange = new RangeTransitionData();
+//		wanderInRange.distance = 15.0f;
+//		wanderInRange.fov = 180.0f;
+//		wanderInRange.inRange = true;
+//		
+//		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange)
+//			.and(Transitions.LINE_OF_SIGHT, inSightData);
+//		
+//		RangeTransitionData followOutOfRange = new RangeTransitionData();
+//		followOutOfRange.distance = 15.0f;
+//		followOutOfRange.fov = 180.0f;
+//		followOutOfRange.inRange = false;
+//
+//		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange)
+//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
+//		
+//		RangeTransitionData inAttackRange = new RangeTransitionData();
+//		inAttackRange.distance = 1.5f;
+//		inAttackRange.fov = 180.0f;
+//		inAttackRange.inRange = true;
+//		
+//		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange)
+//			.and(Transitions.LINE_OF_SIGHT, inSightData);
+//		
+//		RangeTransitionData outOfAttackRange = new RangeTransitionData();
+//		outOfAttackRange.distance = 2.5f;
+//		outOfAttackRange.fov = 180.0f;
+//		outOfAttackRange.inRange = false;
+//		
+//		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange)
+//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
+//		
+////		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
+//		
+//		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
+//		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
+//		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
+//		aism.addTransition(AIState.FOLLOWING, toAttackTransition, AIState.ATTACKING);
+//		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
+//		
+//		aism.changeState(AIState.WANDERING);
 //		System.out.println(aism.printTransitions());
 		return player;
 	}

@@ -7,6 +7,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
@@ -270,6 +271,8 @@ public class GameScreen extends AbstractScreen {
 		arena.load(Gdx.files.internal("config/arena.json"));
 		arena.start();
 		
+		arena.stop();
+		
 //		levelManager.switchToEditorMode();
 //		editorOpen = true;
 	}
@@ -328,6 +331,8 @@ public class GameScreen extends AbstractScreen {
 			pauseMenu.update(delta);
 			return;
 		}
+		
+		GdxAI.getTimepiece().update(delta);
 		
 		DebugRender.update(delta);
 		DebugRender.setMode(RenderMode.UPDATE);

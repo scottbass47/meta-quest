@@ -560,6 +560,42 @@ public class Level {
 			   (!tileMap.contains(tile.getRow(), tile.getCol() + 1) || !isSolid(tile.getRow(), tile.getCol() + 1));
 	}
 	
+	public Platform getPlatform(float x, float y) {
+		int row = Maths.toGridCoord(y);
+		int col = Maths.toGridCoord(x);
+		
+		if(isSolid(row, col) || !isSolid(row - 1, col)) return null;
+
+		int startCol = col;
+		for(int c = col - 1; c >= tileMap.getMinCol(); c--) {
+			if(c == tileMap.getMinCol()) {
+				startCol = c;
+			}
+			if(isSolid(row, c) || !isSolid(row - 1, c)) {
+				startCol = c + 1;
+				break;
+			}
+		}
+		
+		int endCol = col;
+		for(int c = col + 1; c <= tileMap.getMaxCol(); c++) {
+			if(c == tileMap.getMaxCol()) {
+				endCol = c;
+			}
+			if(isSolid(row, c) || !isSolid(row - 1, c)) {
+				endCol = c - 1;
+				break;
+			}
+		}
+		
+		Platform platform = new Platform();
+		platform.setStartCol(startCol);
+		platform.setEndCol(endCol);
+		platform.setRow(row);
+		
+		return platform;
+	}
+	
 //	private void setupGround() {
 //		final TiledMapTileLayer layer = (TiledMapTileLayer) map.getLayers().get("ground");
 //		width = layer.getWidth();
