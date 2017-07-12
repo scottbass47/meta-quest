@@ -90,6 +90,7 @@ import com.fullspectrum.ai.tasks.ReleaseControlsTask;
 import com.fullspectrum.ai.tasks.TargetBehindMeTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
 import com.fullspectrum.ai.tasks.AttackTask;
+import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
 import com.fullspectrum.ai.tasks.TurnAroundTask;
 import com.fullspectrum.ai.tasks.WalkForwardTask;
@@ -2163,7 +2164,8 @@ public class EntityFactory {
 		pursueTarget.addChild(moveTowardsTarget);
 		
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
-		attackSequence.addChild(new InRangeTask(2.0f));
+		attackSequence.addChild(new InRangeTask(3.0f));
+		attackSequence.addChild(new InLoSTask());
 		attackSequence.addChild(new AlwaysSucceed<Entity>(turnWhenTargetBehindSequence));
 		attackSequence.addChild(new ReleaseControlsTask());
 		attackSequence.addChild(new AttackTask());
