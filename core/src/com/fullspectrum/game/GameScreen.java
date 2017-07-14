@@ -7,8 +7,8 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.ai.GdxAI;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -54,6 +54,7 @@ import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
@@ -68,6 +69,7 @@ import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
 import com.fullspectrum.systems.AttackingSystem;
+import com.fullspectrum.systems.BTSystem;
 import com.fullspectrum.systems.BarrierSystem;
 import com.fullspectrum.systems.BehaviorSystem;
 import com.fullspectrum.systems.BlinkSystem;
@@ -208,6 +210,7 @@ public class GameScreen extends AbstractScreen {
 		// AI Systems
 		engine.addSystem(new TargetingSystem());
 		engine.addSystem(new BehaviorSystem());
+		engine.addSystem(new BTSystem());
 		engine.addSystem(new FollowingSystem());
 		engine.addSystem(new WanderingSystem());
 		engine.addSystem(new PathFollowingSystem());
@@ -269,42 +272,13 @@ public class GameScreen extends AbstractScreen {
 		
 		arena = new Arena(levelManager, hudCamera);
 		arena.load(Gdx.files.internal("config/arena.json"));
-		arena.start();
-		
-		arena.stop();
+//		arena.start();
+//		
+//		arena.stop();
 		
 //		levelManager.switchToEditorMode();
 //		editorOpen = true;
 	}
-	
-//	private void spawnEnemy(Node node) {
-//		Entity enemy = EntityIndex.AI_PLAYER.create(node.getCol() + 0.5f, node.getRow() + 1.0f);
-//		engine.addEntity(enemy);
-//	}
-//	
-//	private void spawnFlyingEnemey(){
-//		int row = 0;
-//		int col = 0;
-//		do{
-//			row = MathUtils.random(0, levelManager.getCurrentLevel().getHeight());
-//		    col = MathUtils.random(0, levelManager.getCurrentLevel().getWidth());
-//		}while(levelManager.getCurrentLevel().isSolid(row, col) || row > 25);
-//		spawnSpitter(row, col);
-//	}
-//	
-//	private void spawnSpitter(int row, int col){
-//		Entity enemy = EntityIndex.SPITTER.create(col + 0.5f, row + 0.5f);
-//		engine.addEntity(enemy);
-//	}
-//	
-//	private void spawnSlime(Node node){
-//		spawnSlime(node.getRow(), node.getCol());
-//	}
-//	
-//	private void spawnSlime(int row, int col){
-//		Entity enemy = EntityIndex.SLIME.create(col + 0.5f, row + 0.5f);
-//		engine.addEntity(enemy);
-//	}
 	
 	public void resetFrameBuffer(int width, int height) {
 		frameBuffer.dispose();
@@ -354,30 +328,30 @@ public class GameScreen extends AbstractScreen {
 		EntityManager.update(delta);
 		AudioLocator.getAudio().update();
 		
-//		if(!editorOpen) {
-//			if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
-//				Entity player = levelManager.getPlayer();
-//				
-//				// If you're not the knight currently, then switch
-//				if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
-//					levelManager.switchPlayer(EntityIndex.KNIGHT);
-//				}
-//			} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
-//				Entity player = levelManager.getPlayer();
-//				
-//				// If you're not the rogue currently, then switch
-//				if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
-//					levelManager.switchPlayer(EntityIndex.ROGUE);
-//				}
-//			} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
-//				Entity player = levelManager.getPlayer();
-//				
-//				// If you're not the mage currently, then switch
-//				if(!Mappers.entity.get(player).type.equals(EntityType.MONK)){
-//					levelManager.switchPlayer(EntityIndex.MONK);
-//				}
-//			}
-//		}
+		if(!editorOpen && !arena.isActive()) {
+			if(DebugInput.isJustPressed(DebugKeys.KNIGHT)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the knight currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.KNIGHT)){
+					levelManager.switchPlayer(EntityIndex.KNIGHT);
+				}
+			} else if(DebugInput.isJustPressed(DebugKeys.ROGUE)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the rogue currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.ROGUE)){
+					levelManager.switchPlayer(EntityIndex.ROGUE);
+				}
+			} else if(DebugInput.isJustPressed(DebugKeys.MAGE)){
+				Entity player = levelManager.getPlayer();
+				
+				// If you're not the mage currently, then switch
+				if(!Mappers.entity.get(player).type.equals(EntityType.MONK)){
+					levelManager.switchPlayer(EntityIndex.MONK);
+				}
+			}
+		}
 		
 		// Spawning
 		if(DebugVars.SPAWN_ON_CLICK_ENABLED && DebugVars.SPAWN_TYPE != null && DebugVars.SPAWN_AMOUNT > 0 && Mouse.isJustPressed()){
@@ -479,10 +453,10 @@ public class GameScreen extends AbstractScreen {
 			
 			if(editorOpen) {
 				levelManager.switchToEditorMode();
-				arena.stop();
+//				arena.stop();
 			} else {
 				levelManager.switchToPlayMode();
-				arena.start();
+//				arena.start();
 			}
 		}
 		
@@ -502,7 +476,7 @@ public class GameScreen extends AbstractScreen {
 		levelManager.render();
 		if (DebugVars.NAVMESH_ON) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
-				NavMesh.get(EntityIndex.AI_PLAYER).render(batch);
+				NavMesh.get(EntityIndex.GOAT).render(batch);
 			}
 		}
 		if(DebugVars.FLOW_FIELD_ON){

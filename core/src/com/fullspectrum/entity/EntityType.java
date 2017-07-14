@@ -10,11 +10,12 @@ public enum EntityType {
 	MONK,
 	
 	// Enemies
-	AI_PLAYER,
+	GOAT,
 	SLIME,
 	SPITTER,
 	WINGS,
 	SPAWNER,
+	BOAR,
 	
 	// Drops
 	COIN,

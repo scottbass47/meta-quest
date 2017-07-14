@@ -29,11 +29,12 @@ public class ReachedPlatformEndTask extends LeafTask<Entity>{
 		
 		boolean facingRight = Mappers.facing.get(entity).facingRight;
 		
-		x += facingRight ? 1.0f : -1.0f;
+		float percentOn = 0.8f;
+		x += facingRight ? hitbox.width * 0.5f - percentOn: -hitbox.width * 0.5f + percentOn;
 		
 		// Row of the tile the player is standing on
 		int row = Maths.toGridCoord(y - 1.0f);
-		int col = Maths.toGridCoord(x);
+		int col = Maths.toGridCoord(x + (facingRight ? 1.0f : -1.0f));
 		
 		// Check diagonals
 		if(level.isSolid(row + 1, col) || !level.isSolid(row, col)) return Status.SUCCEEDED;

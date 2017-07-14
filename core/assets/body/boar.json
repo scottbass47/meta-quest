@@ -1,0 +1,39 @@
+{
+  "BodyDef": {
+    "type": "DynamicBody",
+    "collisionType": "mob",
+  },
+  	"Fixtures": [
+      {
+        "FixtureType": "body",
+        "shape": "Box",
+        "width": 30,
+        "height": 20,
+        "Category": "entity"
+      },
+      {
+		  "FixtureType": "feet",       
+          "shape": "Box",
+          "width": 28,
+          "height": 4,
+          "yOff": -11,
+          "Category": "sensor"
+      },
+      {
+		  "FixtureType": "right_wall",       
+          "shape": "Box",
+          "width": 2,
+          "height": 18,
+          "xOff": 15,
+          "Category": "sensor"
+      },
+      {
+		  "FixtureType": "left_wall",       
+          "shape": "Box",
+          "width": 2,
+          "height": 18,
+          "xOff": -15,
+          "Category": "sensor"
+      }
+  	]
+}

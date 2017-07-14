@@ -41,6 +41,7 @@ public enum EntityStates implements State{
 	INSTA_WALL,
 	ROLL,
 	DOUBLE_JUMP,
+	CHARGE,
 	INIT;
 	
 	@Override

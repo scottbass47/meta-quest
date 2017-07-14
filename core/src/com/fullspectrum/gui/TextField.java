@@ -35,7 +35,6 @@ public class TextField extends Component implements KeyListener {
 		pix.dispose();
 		
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);
-		font = new BitmapFont();
 		
 		layout = new GlyphLayout();
 	}

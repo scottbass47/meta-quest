@@ -10,6 +10,16 @@ import com.fullspectrum.input.Actions;
 
 public class AttackTask extends LeafTask<Entity>{
 
+	private Actions attackAction;
+	
+	public AttackTask() {
+		attackAction = Actions.ATTACK;
+	}
+	
+	public AttackTask(Actions attackAction) {
+		this.attackAction = attackAction;
+	}
+	
 	@Override
 	public Status execute() {
 		Entity entity = getObject();
@@ -17,13 +27,21 @@ public class AttackTask extends LeafTask<Entity>{
 		if(!inputComp.enabled) return Status.FAILED;
 		
 		AIController controller = (AIController) inputComp.input;
-		controller.justPress(Actions.ATTACK);
+		controller.justPress(attackAction);
 		return Status.SUCCEEDED;
 	}
 
 	@Override
 	protected Task<Entity> copyTo(Task<Entity> task) {
 		return task;
+	}
+	
+	public void setAttackAction(Actions attackAction) {
+		this.attackAction = attackAction;
+	}
+	
+	public Actions getAttackAction() {
+		return attackAction;
 	}
 
 }

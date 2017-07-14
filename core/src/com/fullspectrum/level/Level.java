@@ -113,10 +113,8 @@ public class Level {
 			
 			if(index == EntityIndex.SPAWNER) {
 				requiresFlowField = true;
-				meshes.add(EntityIndex.AI_PLAYER);
 			}
 		}
-		meshes.add(EntityIndex.AI_PLAYER);
 		requiresFlowField = true; // TEMPORARY For ease of use
 //		setupGround();
 		mooreNeighborhood();

@@ -3,7 +3,6 @@ package com.fullspectrum.factory;
 import static com.fullspectrum.entity.EntityStatus.ENEMY;
 import static com.fullspectrum.entity.EntityStatus.FRIENDLY;
 import static com.fullspectrum.entity.EntityStatus.NEUTRAL;
-import static com.fullspectrum.entity.EntityType.AI_PLAYER;
 import static com.fullspectrum.entity.EntityType.ARROW;
 import static com.fullspectrum.entity.EntityType.BALLOON_PELLET;
 import static com.fullspectrum.entity.EntityType.BALLOON_TRAP;
@@ -16,6 +15,7 @@ import static com.fullspectrum.entity.EntityType.DAMAGE_TEXT;
 import static com.fullspectrum.entity.EntityType.DYNAMITE;
 import static com.fullspectrum.entity.EntityType.EXPLOSION;
 import static com.fullspectrum.entity.EntityType.EXPLOSIVE_PARTICLE;
+import static com.fullspectrum.entity.EntityType.GOAT;
 import static com.fullspectrum.entity.EntityType.HOMING_KNIFE;
 import static com.fullspectrum.entity.EntityType.KNIGHT;
 import static com.fullspectrum.entity.EntityType.LEVEL_TRIGGER;
@@ -40,8 +40,8 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
-import com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed;
-import com.badlogic.gdx.ai.btree.leaf.Wait;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
+import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -84,16 +84,9 @@ import com.fullspectrum.ability.rogue.HomingKnivesAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
-import com.fullspectrum.ai.PathFinder;
-import com.fullspectrum.ai.tasks.AttackTask;
 import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
-import com.fullspectrum.ai.tasks.ReachedPlatformEndTask;
-import com.fullspectrum.ai.tasks.ReleaseControlsTask;
-import com.fullspectrum.ai.tasks.TargetBehindMeTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
-import com.fullspectrum.ai.tasks.TurnAroundTask;
-import com.fullspectrum.ai.tasks.WalkForwardTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.AIControllerComponent;
@@ -101,6 +94,7 @@ import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
 import com.fullspectrum.component.AttackComponent;
+import com.fullspectrum.component.BTComponent;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BehaviorComponent;
 import com.fullspectrum.component.BlinkComponent;
@@ -161,11 +155,11 @@ import com.fullspectrum.component.StateComponent;
 import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.component.TargetComponent.TargetBehavior;
 import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
@@ -198,7 +192,6 @@ import com.fullspectrum.fsm.transition.CollisionTransitionData;
 import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
-import com.fullspectrum.fsm.transition.InputTrigger;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
@@ -210,7 +203,6 @@ import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.level.Level;
-import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.movement.BoomerangCurveMovement;
 import com.fullspectrum.movement.BoomerangLineMovement;
 import com.fullspectrum.movement.Movement;
@@ -239,10 +231,14 @@ public class EntityFactory {
 	public static World world;
 	public static Level level;
 	public static int ID;
+	
+	private static BehaviorTreeLibrary btLib;
 
-	// BUG Idle state needs to be "fall through" (i.e. transitions need to occur immediately)
-	// TODO Get rid of floating on melee attacks (normal grav scale)
-	private EntityFactory(){}
+	private EntityFactory(){
+		btLib = new BehaviorTreeLibrary();
+		BehaviorTreeLibraryManager.getInstance().setLibrary(btLib);
+		
+	}
 	
 	// ---------------------------------------------
 	// -                   PLAYER                  -
@@ -385,6 +381,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SPIN_SLICE, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		animMap.put(EntityAnim.TORNADO_INIT, assets.getAnimation(Asset.KNIGHT_TORNADO_INIT));
 		animMap.put(EntityAnim.TORNADO_SWING, assets.getAnimation(Asset.KNIGHT_TORNADO_SWING));
+		animMap.put(EntityAnim.ROLL, assets.getAnimation(Asset.KNIGHT_ROLL));
 		
 		Entity knight = new EntityBuilder(KNIGHT, FRIENDLY)
 			.animation(animMap)
@@ -487,7 +484,7 @@ public class EntityFactory {
 		tornadoAbility.deactivate();
 		
 		// Player Related Components
-		knight.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
+		knight.getComponent(ImmuneComponent.class).add(EffectType.STUN);
 		knight.add(engine.createComponent(MoneyComponent.class));
 		knight.add(engine.createComponent(PlayerComponent.class));
 		knight.add(engine.createComponent(BarrierComponent.class)
@@ -1075,7 +1072,7 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.ROLL)
 			.addTag(TransitionTag.STATIC_STATE)
-			.addAnimation(EntityAnim.IDLE)
+			.addAnimation(EntityAnim.ROLL)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -1303,7 +1300,7 @@ public class EntityFactory {
 			.build();
 		
 		// Player Related Components
-		rogue.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
+		rogue.getComponent(ImmuneComponent.class).add(EffectType.STUN);
 		rogue.add(engine.createComponent(MoneyComponent.class));
 		rogue.add(engine.createComponent(PlayerComponent.class));
 		rogue.add(engine.createComponent(BarrierComponent.class)
@@ -1835,6 +1832,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.SWING_UP_ANTICIPATION, assets.getAnimation(Asset.MONK_ATTACK_UP_ANTICIPATION));
 		animMap.put(EntityAnim.WIND_BURST, assets.getAnimation(Asset.MONK_WIND_BURST));
 		animMap.put(EntityAnim.INSTA_WALL, assets.getAnimation(Asset.MONK_STAFF_SLAM));
+		animMap.put(EntityAnim.DASH, assets.getAnimation(Asset.MONK_DASH));
 		
 		Entity monk = new EntityBuilder(MONK, FRIENDLY)
 			.animation(animMap)
@@ -1868,7 +1866,7 @@ public class EntityFactory {
 		
 		
 		// Player Related Components4
-		monk.getComponent(ImmuneComponent.class).add(EffectType.KNOCKBACK).add(EffectType.STUN);
+		monk.getComponent(ImmuneComponent.class).add(EffectType.STUN);
 		monk.add(engine.createComponent(MoneyComponent.class));
 		monk.add(engine.createComponent(PlayerComponent.class));
 		monk.add(engine.createComponent(BarrierComponent.class)
@@ -1974,7 +1972,7 @@ public class EntityFactory {
 		
 		esm.createState(EntityStates.DASH)
 			.addTag(TransitionTag.STATIC_STATE)
-			.addAnimation(EntityAnim.IDLE)
+			.addAnimation(EntityAnim.DASH)
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
@@ -2037,7 +2035,7 @@ public class EntityFactory {
 		};
 		
 		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), new MultiTransition(dashTransition).and(Transitions.INPUT, dashData), EntityStates.DASH);
-		esm.addTransition(EntityStates.DASH, Transitions.TIME, new TimeTransitionData(0.1f), EntityStates.IDLING);
+		esm.addTransition(EntityStates.DASH, Transitions.TIME, new TimeTransitionData(monkStats.get("dash_duration")), EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -2047,206 +2045,99 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                 ENEMIES                   -
 	// ---------------------------------------------
-	public static Entity createAIPlayer(float x, float y) {
+	public static Entity createGoat(float x, float y) {
 		// Stats
-		EntityStats stats = EntityLoader.get(EntityIndex.AI_PLAYER);
-		NavMesh mesh = NavMesh.get(EntityIndex.AI_PLAYER);
-		PathFinder pathFinder = new PathFinder(mesh);
+		EntityStats stats = EntityLoader.get(EntityIndex.GOAT);
 		
 		// Setup Animations
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.KNIGHT_RUN));
-		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
-		animMap.put(EntityAnim.RANDOM_IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
-		animMap.put(EntityAnim.CLIMBING, assets.getAnimation(Asset.KNIGHT_IDLE));
-		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.KNIGHT_OVERHEAD_SWING));
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.GOAT_IDLE));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.GOAT_WALK));
+		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.GOAT_SWING_ATTACK));
 		
 		// Controller
 		AIController controller = new AIController();
 		
 		// Setup Player
-		Entity player = new EntityBuilder(AI_PLAYER, ENEMY)
+		Entity goat = new EntityBuilder(GOAT, ENEMY)
+				.ai(controller)
 				.animation(animMap)
 				.mob(controller, stats.get("health"))
-				.physics("player.json", x, y, true)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0), true)
+				.physics("goat.json", x, y, true)
+				.render(true)
 				.build();
 		float baseMoney = stats.get("money");
 		int money = (int)MathUtils.random(baseMoney - 0.1f * baseMoney, baseMoney + 0.1f * baseMoney);
-		player.add(engine.createComponent(MoneyComponent.class).set(money));
-		player.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		player.add(engine.createComponent(TargetComponent.class));
-//		player.add(engine.createComponent(PathComponent.class).set(pathFinder));
-		player.add(engine.createComponent(TintComponent.class).set(new Color(0xff2245ff)));
+		goat.add(engine.createComponent(MoneyComponent.class).set(money));
 
-		EntityStateMachine esm = StateFactory.createBaseBipedal(player, stats);
-		
-		esm = new StateFactory.EntityStateBuilder(esm)
-				.swingAttack(2.5f, 1.0f, 150f, -90f, 0.4f, stats.get("sword_damage"), stats.get("sword_knockback"))
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Goat ESM", engine, goat)
+				.idle()
+				.run(stats.get("ground_speed"))
 				.build();
 		
-		InputTransitionData runningData = new InputTransitionData(Type.ONLY_ONE, true);
-		runningData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-		runningData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
+		esm.createState(EntityStates.FALLING)
+			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+			.add(engine.createComponent(DirectionComponent.class))
+			.add(engine.createComponent(GroundMovementComponent.class))
+			.addAnimation(EntityAnim.IDLE)
+			.addTag(TransitionTag.AIR_STATE);
+		
+		esm.createState(EntityStates.SWING_ATTACK)
+			.add(engine.createComponent(FrameMovementComponent.class).set("goat/frames_overhead_swing"))
+			.add(engine.createComponent(SwingComponent.class).set(2.0f, 2.0f, 120, -60, GameVars.ANIM_FRAME * 5, stats.get("sword_damage"), stats.get("sword_knockback")))
+			.addAnimation(EntityAnim.SWING)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.swing.get(entity).shouldSwing = true;
+					Mappers.facing.get(entity).locked = true;
+				}
 
-		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
-		jumpData.triggers.add(new InputTrigger(Actions.JUMP, true));
-
-		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
-		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-		idleData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-
-		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
-		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-
-		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
-		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.facing.get(entity).locked = false;
+				}
+			});
 		
-		TimeTransitionData attackCooldown = new TimeTransitionData(0.5f);
+		InputTransitionData idle1 = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData idle2 = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData run = new InputTransitionData.Builder(Type.ONLY_ONE, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData attack = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 		
-		MultiTransition attackTransition = new MultiTransition(Transitions.INPUT, attackData)
-				.and(Transitions.TIME, attackCooldown);
+		MultiTransition idleTransition = new MultiTransition(Transitions.INPUT, idle1).or(Transitions.INPUT, idle2);
 		
-		InputTransitionData ladderInputData = new InputTransitionData(Type.ANY_ONE, true);
-		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_UP, false));
-		ladderInputData.triggers.add(new InputTrigger(Actions.MOVE_DOWN, false));
-		
-		CollisionTransitionData ladderCollisionData = new CollisionTransitionData(CollisionType.LADDER, true);
-		
-		MultiTransition ladderTransition = new MultiTransition(Transitions.INPUT, ladderInputData)
-				.and(Transitions.COLLISION, ladderCollisionData);
-		
-		CollisionTransitionData ladderFall = new CollisionTransitionData(CollisionType.LADDER, false);
-
-//		esm.addTransition(TransitionTag.GROUND_STATE, Transitions.FALLING, EntityStates.FALLING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
-//		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
-//		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.JUMPING), Transitions.LANDED, EntityStates.IDLING);
-//		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
-//		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.SWING_ATTACK), attackTransition, EntityStates.SWING_ATTACK);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), idleTransition, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, run, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.SWING_ATTACK);
 		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-//		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);
-//		esm.addTransition(EntityStates.CLIMBING, Transitions.COLLISION, ladderFall, EntityStates.FALLING);
-//		esm.addTransition(EntityStates.CLIMBING, Transitions.LANDED, EntityStates.IDLING);
-//		System.out.print(esm.printTransitions());
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.FALLING, EntityStates.FALLING);
+		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
 		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
-		tree.setObject(player);
+		tree.setObject(goat);
 
 		Selector<Entity> rootSelector = new Selector<Entity>();
 		
-		Sequence<Entity> turnAroundSequence = new Sequence<Entity>();
-		turnAroundSequence.addChild(new ReachedPlatformEndTask());
-		turnAroundSequence.addChild(new ReleaseControlsTask());
-		turnAroundSequence.addChild(new Wait<Entity>(1.25f));
-		turnAroundSequence.addChild(new TurnAroundTask());
-		
-		Sequence<Entity> walkSequence = new Sequence<Entity>();
-		walkSequence.addChild(new ReleaseControlsTask());
-		walkSequence.addChild(new WalkForwardTask());
-		
-		Sequence<Entity> turnWhenTargetBehindSequence = new Sequence<Entity>();
-		turnWhenTargetBehindSequence.addChild(new TargetBehindMeTask());
-		turnWhenTargetBehindSequence.addChild(new ReleaseControlsTask());
-		turnWhenTargetBehindSequence.addChild(new TurnAroundTask());
-		
-		Selector<Entity> moveTowardsTarget = new Selector<Entity>();
-		moveTowardsTarget.addChild(turnWhenTargetBehindSequence);
-		moveTowardsTarget.addChild(walkSequence);
-		
 		Sequence<Entity> pursueTarget = new Sequence<Entity>();
 		pursueTarget.addChild(new TargetOnPlatformTask());
-		pursueTarget.addChild(moveTowardsTarget);
+		pursueTarget.addChild(BTFactory.followOnPlatform());
 		
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
-		attackSequence.addChild(new InRangeTask(3.0f));
+		attackSequence.addChild(new InRangeTask(2.0f));
 		attackSequence.addChild(new InLoSTask());
-		attackSequence.addChild(new AlwaysSucceed<Entity>(turnWhenTargetBehindSequence));
-		attackSequence.addChild(new ReleaseControlsTask());
-		attackSequence.addChild(new AttackTask());
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
 		
 		rootSelector.addChild(attackSequence);
 		rootSelector.addChild(pursueTarget);
-		rootSelector.addChild(turnAroundSequence);
-		rootSelector.addChild(walkSequence);
+		rootSelector.addChild(BTFactory.patrol(1.25f));
 		
 		tree.addChild(rootSelector);
+		goat.add(engine.createComponent(BTComponent.class).set(tree));
 		
-		final BehaviorTree<Entity> copy = tree;
-		
-		player.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
-			@Override
-			public void update(Entity entity, float deltaTime) {
-				copy.step();
-			}
-		}));
-		
-//		AIStateMachine aism = new AIStateMachine(player);
-//		aism.setDebugName("AI Player AISM");
-//		aism.createState(AIState.WANDERING)
-//			.add(engine.createComponent(WanderingComponent.class).set(20, 1.5f));
-//		
-//		aism.createState(AIState.FOLLOWING)
-//			.add(engine.createComponent(FollowComponent.class));
-//		
-//		aism.createState(AIState.ATTACKING)
-//			.add(engine.createComponent(AttackComponent.class));
-//		
-//		LOSTransitionData inSightData = new LOSTransitionData(true);
-//		LOSTransitionData outOfSightData = new LOSTransitionData(false);
-//		
-//		RangeTransitionData wanderInRange = new RangeTransitionData();
-//		wanderInRange.distance = 15.0f;
-//		wanderInRange.fov = 180.0f;
-//		wanderInRange.inRange = true;
-//		
-//		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange)
-//			.and(Transitions.LINE_OF_SIGHT, inSightData);
-//		
-//		RangeTransitionData followOutOfRange = new RangeTransitionData();
-//		followOutOfRange.distance = 15.0f;
-//		followOutOfRange.fov = 180.0f;
-//		followOutOfRange.inRange = false;
-//
-//		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange)
-//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
-//		
-//		RangeTransitionData inAttackRange = new RangeTransitionData();
-//		inAttackRange.distance = 1.5f;
-//		inAttackRange.fov = 180.0f;
-//		inAttackRange.inRange = true;
-//		
-//		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange)
-//			.and(Transitions.LINE_OF_SIGHT, inSightData);
-//		
-//		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-//		outOfAttackRange.distance = 2.5f;
-//		outOfAttackRange.fov = 180.0f;
-//		outOfAttackRange.inRange = false;
-//		
-//		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange)
-//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
-//		
-////		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
-//		
-//		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
-//		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-//		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
-//		aism.addTransition(AIState.FOLLOWING, toAttackTransition, AIState.ATTACKING);
-//		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
-//		
-//		aism.changeState(AIState.WANDERING);
-//		System.out.println(aism.printTransitions());
-		return player;
+		return goat;
 	}
 	
 	public static Entity createSpitter(float x, float y){
@@ -2600,6 +2491,114 @@ public class EntityFactory {
 		return wings;
 	}
 
+	public static Entity createBoar(float x, float y) {
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.BOAR_IDLE));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.BOAR_WALK));
+		animMap.put(EntityAnim.CHARGE, assets.getAnimation(Asset.BOAR_CHARGE));
+		
+		AIController controller = new AIController();
+		final EntityStats boarStats = EntityLoader.get(EntityIndex.BOAR);
+		
+		Entity boar = new EntityBuilder(EntityType.BOAR, EntityStatus.ENEMY)
+				.render(true)
+				.animation(animMap)
+				.physics("boar.json", x, y, true)
+				.mob(controller, boarStats.get("health"))
+				.ai(controller, new TargetComponent.DefaultTargetBehavior())
+				.build();
+		
+		boar.add(engine.createComponent(MoneyComponent.class).set((int)boarStats.get("money")));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Boar ESM", engine, boar)
+				.idle()
+				.run(boarStats.get("ground_speed"))
+				.build();
+		
+		final CollisionFilter chargeFilter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.addEntityTypes(FRIENDLY)
+				.build();
+		
+		// BUG If boar is knocked back, a new force needs to be applied
+		esm.createState(EntityStates.CHARGE)
+				.add(engine.createComponent(DamageComponent.class).set(boarStats.get("damage")))
+				.addTag(TransitionTag.STATIC_STATE)
+				.addAnimation(EntityAnim.CHARGE)
+				.addChangeListener(new StateChangeListener() {
+					@Override
+					public void onEnter(State prevState, Entity entity) {
+						Mappers.facing.get(entity).locked = true;
+						
+						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
+						info.addBehavior(chargeFilter, new DamageOnCollideBehavior());
+						
+						float chargeSpeed = boarStats.get("charge_speed");
+						EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? chargeSpeed : -chargeSpeed, 0);
+					}
+
+					@Override
+					public void onExit(State nextState, Entity entity) {
+						Mappers.facing.get(entity).locked = false;
+						
+						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
+						info.removeBehaviors(chargeFilter);
+					}
+				});
+		
+		InputTransitionData idle1 = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData idle2 = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData run = new InputTransitionData.Builder(Type.ONLY_ONE, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
+		InputTransitionData attack = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
+		
+		MultiTransition idleTransition = new MultiTransition(Transitions.INPUT, idle1).or(Transitions.INPUT, idle2);
+
+		CollisionTransitionData rightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
+		CollisionTransitionData leftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
+		
+		TimeTransitionData chargeTime = new TimeTransitionData(boarStats.get("charge_time"));
+		MultiTransition chargeTransition = new MultiTransition(Transitions.TIME, chargeTime).or(Transitions.COLLISION, rightWallData).or(Transitions.COLLISION, leftWallData);
+		
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), idleTransition, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, run, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.CHARGE);
+		esm.addTransition(EntityStates.CHARGE, chargeTransition, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(boar);
+		
+		Selector<Entity> rootSelector = new Selector<Entity>();
+		
+		Sequence<Entity> onPlatCanAttack = new Sequence<Entity>();
+		onPlatCanAttack.addChild(new TargetOnPlatformTask());
+		onPlatCanAttack.addChild(new InRangeTask(boarStats.get("attack_range")));
+		
+		Selector<Entity> attackRangeSelector = new Selector<Entity>();
+		attackRangeSelector.addChild(onPlatCanAttack);
+		attackRangeSelector.addChild(new InRangeTask(boarStats.get("close_attack_range")));
+		
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(attackRangeSelector);
+		attackSequence.addChild(new InLoSTask());
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		Sequence<Entity> pursueTarget = new Sequence<Entity>();
+		pursueTarget.addChild(new TargetOnPlatformTask());
+		pursueTarget.addChild(BTFactory.followOnPlatform());
+		
+		rootSelector.addChild(attackSequence);
+		rootSelector.addChild(pursueTarget);
+		rootSelector.addChild(BTFactory.patrol(1.0f));
+		
+		tree.addChild(rootSelector);
+		boar.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		return boar;
+		
+	}
+	
 	// ---------------------------------------------
 	// -                   DROPS                   -
 	// ---------------------------------------------
@@ -3539,6 +3538,26 @@ public class EntityFactory {
 			entity.add(engine.createComponent(InvincibilityComponent.class));
 			entity.add(engine.createComponent(EffectComponent.class));
 			entity.add(engine.createComponent(ImmuneComponent.class));
+			return this;
+		}
+		
+		/**
+		 * Adds AIController and Target components (target behavior defaults to DefaultTargetBehavior).
+		 * @param controller
+		 * @return
+		 */
+		public EntityBuilder ai(AIController controller) {
+			return ai(controller, null);
+		}
+		
+		/**
+		 * Adds AIController and Target components.
+		 * @param controller
+		 * @return
+		 */
+		public EntityBuilder ai(AIController controller, TargetBehavior targetBehavior) {
+			entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
+			entity.add(engine.createComponent(TargetComponent.class).set(targetBehavior == null ? new TargetComponent.DefaultTargetBehavior() : targetBehavior));
 			return this;
 		}
 		

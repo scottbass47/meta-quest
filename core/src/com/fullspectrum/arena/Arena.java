@@ -14,7 +14,7 @@ public class Arena {
 	private PickPlayerScreen playerScreen;
 	private ArenaGame game;
 	private ArenaDeathScreen deathScreen;
-	private boolean stopped = false;
+	private boolean stopped = true;
 	
 	public Arena(LevelManager levelManager, OrthographicCamera hudCamera) {
 		this.levelManager = levelManager;
@@ -120,6 +120,10 @@ public class Arena {
 	
 	public boolean isFinished() {
 		return game.isFinished();
+	}
+
+	public boolean isActive() {
+		return !stopped;
 	}
 	
 	public void load(FileHandle config) {

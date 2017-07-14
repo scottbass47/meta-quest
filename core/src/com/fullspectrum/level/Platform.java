@@ -46,4 +46,9 @@ public class Platform {
 		return row == this.row && col >= startCol && col <= endCol;
 	}
 	
+	@Override
+	public String toString() {
+		return "Col " + startCol + " to " + endCol + " @ Row " + row;
+	}
+	
 }

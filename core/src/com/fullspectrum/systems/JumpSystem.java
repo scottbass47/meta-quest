@@ -33,7 +33,6 @@ public class JumpSystem extends IteratingSystem{
 		// For ai, jump height is calculated using multiplier
 		if(inputComp != null && inputComp.input instanceof GameInput) {
 			if(jumpComp.jumpReady) {
-				System.out.println("Jumping now");
 				jumpComp.jumpReady = false;
 				jumpComp.timeDown = 0.5f;
 			}

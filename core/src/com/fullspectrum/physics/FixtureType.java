@@ -16,6 +16,7 @@ import com.fullspectrum.physics.collision.behavior.FeetBehavior;
 import com.fullspectrum.physics.collision.behavior.LevelTriggerBehavior;
 import com.fullspectrum.physics.collision.behavior.SensorBehavior;
 import com.fullspectrum.physics.collision.behavior.SolidBehavior;
+import com.fullspectrum.physics.collision.behavior.WallBehavior;
 import com.fullspectrum.physics.collision.behavior.WindParticleBehavior;
 import com.fullspectrum.physics.collision.filter.CollisionFilter;
 import com.fullspectrum.physics.collision.filter.PlayerFilter;
@@ -173,6 +174,38 @@ public enum FixtureType {
 					.build();
 			
 			info.addBehavior(filter, new FeetBehavior());
+			
+			return info;
+		}
+	},
+	RIGHT_WALL {
+
+		@Override
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new WallBehavior(true));
+			
+			return info;
+		}
+		
+	},
+	LEFT_WALL {
+		@Override
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new WallBehavior(false));
 			
 			return info;
 		}

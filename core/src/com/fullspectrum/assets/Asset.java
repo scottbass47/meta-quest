@@ -55,6 +55,7 @@ public enum Asset {
 	KNIGHT_RISE(Atlas.ENTITY, "rise/knight_rise"),
 	KNIGHT_APEX(Atlas.ENTITY, "apex/knight_apex"),
 	KNIGHT_FALL(Atlas.ENTITY, "fall/knight_fall"),
+	KNIGHT_ROLL(Atlas.ENTITY, "roll/knight_roll"),
 	KNIGHT_PARRY_BLOCK(Atlas.ENTITY, "parry_block/knight_parry_block"),
 	KNIGHT_PARRY_SWING(Atlas.ENTITY, "parry_swing/knight_parry_swing"),
 	KNIGHT_KICK(Atlas.ENTITY, "kick/knight_kick"),
@@ -103,6 +104,7 @@ public enum Asset {
 	MONK_RISE(Atlas.ENTITY, "rise/monk_rise"),
 	MONK_APEX(Atlas.ENTITY, "apex/monk_apex"),
 	MONK_FALL(Atlas.ENTITY, "fall/monk_fall"),
+	MONK_DASH(Atlas.ENTITY, "dash/monk_dash"),
 	MONK_ATTACK_FRONT(Atlas.ENTITY, "swing_attack_front/monk_attack_front"),
 	MONK_ATTACK_UP(Atlas.ENTITY, "swing_attack_up/monk_swing_attack_up"),
 	MONK_ATTACK_FRONT_ANTICIPATION(Atlas.ENTITY, "swing_attack_front/monk_attack_front_anticipation"),
@@ -133,6 +135,16 @@ public enum Asset {
 	SLIME_LAND(Atlas.ENTITY, "land/slime_land"),
 	SLIME_RISE(Atlas.ENTITY, "rise/slime_rise"),
 	SLIME_IDLE(Atlas.ENTITY, "idle/slime_idle"),
+	
+	// Boar
+	BOAR_IDLE(Atlas.ENTITY, "idle/boar_idle"),
+	BOAR_WALK(Atlas.ENTITY, "walk/boar_walk"),
+	BOAR_CHARGE(Atlas.ENTITY, "charge/boar_charge"),
+	
+	// Goat
+	GOAT_IDLE(Atlas.ENTITY, "idle/goat_idle"),
+	GOAT_WALK(Atlas.ENTITY, "walk/goat_walk"),
+	GOAT_SWING_ATTACK(Atlas.ENTITY, "swing/goat_swing"),
 		
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),

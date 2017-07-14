@@ -27,6 +27,7 @@ public class Mappers {
 	public static final ComponentMapper<WanderingComponent> wandering = ComponentMapper.getFor(WanderingComponent.class);
 	public static final ComponentMapper<FlowFieldComponent> flowField = ComponentMapper.getFor(FlowFieldComponent.class);
 	public static final ComponentMapper<FlowFollowComponent> flowFollow = ComponentMapper.getFor(FlowFollowComponent.class);
+	public static final ComponentMapper<BTComponent> bt = ComponentMapper.getFor(BTComponent.class);
 	
 	// Movement
 	public static final ComponentMapper<GroundMovementComponent> groundMovement = ComponentMapper.getFor(GroundMovementComponent.class);

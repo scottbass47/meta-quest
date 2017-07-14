@@ -142,15 +142,15 @@ public enum EntityIndex {
 			return new Rectangle(0, 0, 12, 8);
 		}
 	},
-	AI_PLAYER {
+	GOAT {
 		@Override
 		public Entity create(float x, float y) {
-			return EntityFactory.createAIPlayer(x, y);
+			return EntityFactory.createGoat(x, y);
 		}
 
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.KNIGHT_IDLE);
+			return AssetLoader.getInstance().getAnimation(Asset.GOAT_IDLE);
 		}
 
 		@Override
@@ -184,6 +184,24 @@ public enum EntityIndex {
 		public Rectangle getHitBox() {
 			return new Rectangle(0, 0, 24, 24);
 		}
+	},
+	BOAR {
+		@Override
+		public Entity create(float x, float y) {
+			return EntityFactory.createBoar(x, y);
+		}
+
+		// TODO Add idle animation
+		@Override
+		public Animation<TextureRegion> getIdleAnimation() {
+			return AssetLoader.getInstance().getAnimation(Asset.BOAR_IDLE);
+		}
+
+		@Override
+		public Rectangle getHitBox() {
+			return new Rectangle(0, 0, 30, 20);
+		}
+		
 	};
 	
 	// TODO Consider including Input as a needed argument

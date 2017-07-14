@@ -70,7 +70,6 @@ public class NavMesh{
 		hitBoxes = new ArrayMap<EntityIndex, Rectangle>();
 		
 		// Manually put in hitbox info
-		hitBoxes.put(EntityIndex.AI_PLAYER, Maths.scl(EntityIndex.AI_PLAYER.getHitBox(), GameVars.PPM_INV));
 	}
 	
 	private NavMesh(Level level, EntityStats stats) {

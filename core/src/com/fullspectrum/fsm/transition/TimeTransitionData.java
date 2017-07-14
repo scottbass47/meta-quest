@@ -11,7 +11,6 @@ public class TimeTransitionData implements TransitionData{
 	
 	@Override
 	public void reset() {
-		System.out.println("Time set to 0");
 		timePassed = 0.0f;
 	}
 
