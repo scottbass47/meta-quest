@@ -22,6 +22,7 @@
 	jump_force: 30.0,
 	jump_float_amount: 2.0,
 	roll_speed: 12.0,
+	roll_cooldown: 0.25,
 	
 	// Anti Magnetic Armor
 	anti_magnetic_cooldown: 2.0,

@@ -6,6 +6,7 @@ import com.badlogic.ashley.core.EntityListener;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.utils.ArrayMap;
 import com.fullspectrum.component.BodyComponent;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.FrameMovementComponent;
@@ -18,10 +19,14 @@ public class FrameMovementSystem extends IteratingSystem{
 
 	@SuppressWarnings("unchecked")
 	private final static Family frameFamily = Family.all(FrameMovementComponent.class, FacingComponent.class).one(BodyComponent.class, VelocityComponent.class).get();
+
+	private ArrayMap<Entity, Boolean> gravMap;
 	
 	public FrameMovementSystem() {
 		super(frameFamily);
+		gravMap = new ArrayMap<Entity, Boolean>();
 	}
+	
 	
 	@Override
 	public void addedToEngine(Engine engine) {
@@ -30,19 +35,24 @@ public class FrameMovementSystem extends IteratingSystem{
 			@Override
 			public void entityRemoved(Entity entity) {
 				if(Mappers.body.get(entity) != null && Mappers.body.get(entity).body != null){
-					Mappers.body.get(entity).body.setGravityScale(1.0f);
-					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					bodyComp.body.setGravityScale(1.0f);
+					bodyComp.body.setLinearVelocity(0.0f, gravMap.get(entity) ? bodyComp.body.getLinearVelocity().y : 0.0f);
 				}
+				gravMap.removeKey(entity);
 			}
 			
 			@Override
 			public void entityAdded(Entity entity) {
+				FrameMovementComponent fmc = Mappers.frameMovement.get(entity);
+
 				if(Mappers.body.get(entity) != null && Mappers.body.get(entity).body != null) {
-					Mappers.body.get(entity).body.setGravityScale(0.0f);
-					Mappers.body.get(entity).body.setLinearVelocity(0.0f, 0.0f);
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					bodyComp.body.setGravityScale(fmc.useGravity ? 1.0f : 0.0f);
+					bodyComp.body.setLinearVelocity(0.0f, fmc.useGravity ? bodyComp.body.getLinearVelocity().y : 0.0f);
 				}
 
-				FrameMovementComponent fmc = Mappers.frameMovement.get(entity);
+				gravMap.put(entity, fmc.useGravity);
 				fmc.elapsed = 0.0f;
 				fmc.index = 0;
 				fmc.frameTimer = 0.0f;
@@ -68,9 +78,9 @@ public class FrameMovementSystem extends IteratingSystem{
 				fmc.frameTimer = 0.0f;
 				
 				if(hasBody) {
-					bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+					bodyComp.body.setLinearVelocity(0.0f, fmc.useGravity ? bodyComp.body.getLinearVelocity().y : 0.0f);
 				} else {
-					velComp.set(0.0f, 0.0f);
+					velComp.set(0.0f, fmc.useGravity ? velComp.dy : 0.0f);
 				}
 			}
 			return;
@@ -85,7 +95,7 @@ public class FrameMovementSystem extends IteratingSystem{
 			float y = currFrame.getY() * GameVars.PPM_INV;
 			x = facingComp.facingRight ? x : -x;
 			
-			Vector2 vel = new Vector2(x / GameVars.ANIM_FRAME, y / GameVars.ANIM_FRAME);
+			Vector2 vel = new Vector2(x / GameVars.ANIM_FRAME, fmc.useGravity ? (hasBody ? bodyComp.body.getLinearVelocity().y : velComp.dy) : y / GameVars.ANIM_FRAME);
 			
 			if(hasBody) {
 				bodyComp.body.applyLinearImpulse(
@@ -104,9 +114,9 @@ public class FrameMovementSystem extends IteratingSystem{
 				fmc.frameTimer = 0.0f;
 				
 				if(hasBody) {
-					bodyComp.body.setLinearVelocity(0.0f, 0.0f);
+					bodyComp.body.setLinearVelocity(0.0f, fmc.useGravity ? bodyComp.body.getLinearVelocity().y : 0.0f);
 				} else {
-					velComp.set(0.0f, 0.0f);
+					velComp.set(0.0f, fmc.useGravity ? velComp.dy : 0.0f);
 				}
 			}
 		}

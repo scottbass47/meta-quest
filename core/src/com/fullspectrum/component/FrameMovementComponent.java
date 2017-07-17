@@ -13,13 +13,19 @@ public class FrameMovementComponent implements Component, Poolable{
 	public float elapsed;
 	public int index;
 	public float frameTimer;
+	public boolean useGravity = false;
 	
 	public FrameMovementComponent() {
 		frames = new Array<Frame>();
 	}
 	
 	public FrameMovementComponent set(String filename) {
+		return set(filename, false);
+	}
+	
+	public FrameMovementComponent set(String filename, boolean useGravity) {
 		loadFrames(filename);
+		this.useGravity = useGravity;
 		return this;
 	}
 	

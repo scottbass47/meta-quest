@@ -28,7 +28,7 @@ public class KnockBackEffect extends Effect{
 //    		return 35.0f;
 //    	}
 //    	return 45.0f;
-    	return 1.8f * distance + 7.5f;
+    	return 4f * distance + 7.5f;
     }
     
     private float getTime(){

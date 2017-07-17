@@ -144,7 +144,7 @@ public class SwingingSystem extends IteratingSystem{
 		}
 		
 		for(Entity e : hitEntities){
-			DamageHandler.dealDamage(entity, e, swingComp.damage, swingComp.knockback, facingComp.facingRight ? 0.0f : 180);
+			DamageHandler.dealDamage(entity, e, swingComp.damage, swingComp.knockback, facingComp.facingRight ? 0.0f : 180.0f);
 			for(EffectDef effect : swingComp.effects){
 				effect.give(e);
 			}

@@ -40,8 +40,6 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
-import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibrary;
-import com.badlogic.gdx.ai.btree.utils.BehaviorTreeLibraryManager;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -232,12 +230,7 @@ public class EntityFactory {
 	public static Level level;
 	public static int ID;
 	
-	private static BehaviorTreeLibrary btLib;
-
 	private EntityFactory(){
-		btLib = new BehaviorTreeLibrary();
-		BehaviorTreeLibraryManager.getInstance().setLibrary(btLib);
-		
 	}
 	
 	// ---------------------------------------------
@@ -1114,12 +1107,37 @@ public class EntityFactory {
 					Mappers.ability.get(entity).unlockAllBlocking();
 					Mappers.facing.get(entity).locked = false;
 					Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+					Mappers.knight.get(entity).rollElapsed = 0.0f;
 				}
 			});
 		
 		InputTransitionData rollData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.INPUT, rollData, EntityStates.ROLL);
+		MultiTransition rollTransition = new MultiTransition(Transitions.INPUT, rollData).and(new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.knight.get(entity).rollElapsed >= knightStats.get("roll_cooldown");
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Time: " + knightStats.get("roll_cooldown") + "s";
+			}
+		});
+		
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), rollTransition, EntityStates.ROLL);
 		esm.addTransition(EntityStates.ROLL, Transitions.TIME, new TimeTransitionData(0.4f), EntityStates.IDLING);
+
+		Mappers.timer.get(knight).add("roll_handler", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				Mappers.knight.get(entity).rollElapsed += GameVars.UPS_INV;
+			}
+		});
 		
 		// Movement tweaks
 //		esm.getState(EntityStates.IDLING).addChangeListener(new StateChangeListener() {
@@ -1994,13 +2012,15 @@ public class EntityFactory {
 					Mappers.ability.get(entity).unlockAllBlocking();
 					Mappers.facing.get(entity).locked = false;
 					Mappers.body.get(entity).body.setGravityScale(1.0f);
+					Mappers.monk.get(entity).dashElapsed = 0.0f;
 				}
 				
 			});
 		
-		Mappers.timer.get(monk).add("dash", GameVars.UPS_INV, true, new TimeListener() {
+		Mappers.timer.get(monk).add("dash_handler", GameVars.UPS_INV, true, new TimeListener() {
 			@Override
 			public void onTime(Entity entity) {
+				Mappers.monk.get(entity).dashElapsed += GameVars.UPS_INV;
 				if(Mappers.collision.get(entity).onGround()) {
 					Mappers.monk.get(entity).canDash = true;
 				}
@@ -2016,11 +2036,10 @@ public class EntityFactory {
 
 		// Dashing
 		InputTransitionData dashData = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVEMENT, true).build();
-		
-		Transition dashTransition = new Transition() {
+		Transition canDash = new Transition() {
 			@Override
 			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
-				return Mappers.monk.get(entity).canDash;
+				return Mappers.monk.get(entity).canDash && Mappers.monk.get(entity).dashElapsed >= monkStats.get("dash_cooldown");
 			}
 			
 			@Override
@@ -2033,8 +2052,9 @@ public class EntityFactory {
 				return "Can Dash";
 			}
 		};
+		MultiTransition dashTransition = new MultiTransition(Transitions.INPUT, dashData).and(canDash);
 		
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), new MultiTransition(dashTransition).and(Transitions.INPUT, dashData), EntityStates.DASH);
+		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), dashTransition, EntityStates.DASH);
 		esm.addTransition(EntityStates.DASH, Transitions.TIME, new TimeTransitionData(monkStats.get("dash_duration")), EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
@@ -2083,7 +2103,7 @@ public class EntityFactory {
 			.addTag(TransitionTag.AIR_STATE);
 		
 		esm.createState(EntityStates.SWING_ATTACK)
-			.add(engine.createComponent(FrameMovementComponent.class).set("goat/frames_overhead_swing"))
+			.add(engine.createComponent(FrameMovementComponent.class).set("goat/frames_overhead_swing", true))
 			.add(engine.createComponent(SwingComponent.class).set(2.0f, 2.0f, 120, -60, GameVars.ANIM_FRAME * 5, stats.get("sword_damage"), stats.get("sword_knockback")))
 			.addAnimation(EntityAnim.SWING)
 			.addTag(TransitionTag.STATIC_STATE)
@@ -2354,8 +2374,9 @@ public class EntityFactory {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
 						// Save jump data to use later
+						JumpComponent jumpComp = EntityUtils.add(entity, JumpComponent.class).set(JUMP_FORCE, 0.0f);
 						InputComponent inputComp = Mappers.input.get(entity);
-						final float jForce = Mappers.jump.get(entity).maxForce;
+						final float jForce = jumpComp.maxForce;
 						final float jMultiplier = inputComp.input.getValue(Actions.JUMP);
 						final boolean facingRight = Mappers.facing.get(entity).facingRight;
 						final float rMultiplier = facingRight ? inputComp.input.getValue(Actions.MOVE_RIGHT) : inputComp.input.getValue(Actions.MOVE_LEFT);
@@ -2509,6 +2530,7 @@ public class EntityFactory {
 				.build();
 		
 		boar.add(engine.createComponent(MoneyComponent.class).set((int)boarStats.get("money")));
+		boar.add(engine.createComponent(ImmuneComponent.class));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Boar ESM", engine, boar)
 				.idle()
@@ -2520,7 +2542,6 @@ public class EntityFactory {
 				.addEntityTypes(FRIENDLY)
 				.build();
 		
-		// BUG If boar is knocked back, a new force needs to be applied
 		esm.createState(EntityStates.CHARGE)
 				.add(engine.createComponent(DamageComponent.class).set(boarStats.get("damage")))
 				.addTag(TransitionTag.STATIC_STATE)
@@ -2529,6 +2550,7 @@ public class EntityFactory {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
 						Mappers.facing.get(entity).locked = true;
+						Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.addBehavior(chargeFilter, new DamageOnCollideBehavior());
@@ -2540,6 +2562,7 @@ public class EntityFactory {
 					@Override
 					public void onExit(State nextState, Entity entity) {
 						Mappers.facing.get(entity).locked = false;
+						Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.removeBehaviors(chargeFilter);

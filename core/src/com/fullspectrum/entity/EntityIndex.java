@@ -191,7 +191,6 @@ public enum EntityIndex {
 			return EntityFactory.createBoar(x, y);
 		}
 
-		// TODO Add idle animation
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
 			return AssetLoader.getInstance().getAnimation(Asset.BOAR_IDLE);

@@ -26,6 +26,7 @@ import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.Maths;
 import com.fullspectrum.utils.PhysicsUtils;
 
+// INCOMPLETE What happens is wall is placed off of ledge?
 public class InstaWallAbility extends TimedAbility{
 
 	private boolean createdWall = false;
@@ -67,6 +68,8 @@ public class InstaWallAbility extends TimedAbility{
 			int row = Maths.toGridCoord(y);
 			int col = Maths.toGridCoord(x);
 
+			if(level.isSolid(row, col) && !level.isSolid(row + 1, col)) row++;
+			
 			int endRow = row;
 			int height = 0;
 			

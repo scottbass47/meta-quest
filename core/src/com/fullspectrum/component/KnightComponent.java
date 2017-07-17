@@ -26,6 +26,7 @@ public class KnightComponent implements Component, Poolable{
 	// Rolling
 	public Body rollBody;
 	public Body body;
+	public float rollElapsed = 2.0f;
 	
 	public KnightComponent(){
 		attacks = new Array<KnightAttack>();
@@ -73,6 +74,7 @@ public class KnightComponent implements Component, Poolable{
 		hitEnemies = null;
 		body = null;
 		rollBody = null;
+		rollElapsed = 2.0f;
 	}
 	
 	public class KnightAttack{

@@ -106,11 +106,11 @@ public class ConsoleCommands extends CommandExecutor {
 		DebugVars.SPAWN_AMOUNT = amount;
 		if(!on_click){
 			for(int i = 0; i < amount; i++){
-				int row = MathUtils.random(level.getHeight());
-				int col = MathUtils.random(level.getWidth());
+				int row = MathUtils.random(level.getMinRow(), level.getMaxRow());
+				int col = MathUtils.random(level.getMinCol(), level.getMaxCol());
 				while(level.isSolid(row, col)){
-					row = MathUtils.random(level.getHeight());
-					col = MathUtils.random(level.getWidth());
+					row = MathUtils.random(level.getMinRow(), level.getMaxRow());
+					col = MathUtils.random(level.getMinCol(), level.getMaxCol());
 				}
 				Entity entity = index.create(col + 0.5f, row + 0.5f);
 				engine.addEntity(entity);

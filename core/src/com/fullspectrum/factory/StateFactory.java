@@ -29,6 +29,7 @@ import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.TransitionTag;
 import com.fullspectrum.fsm.transition.Transitions;
 import com.fullspectrum.input.Actions;
+import com.fullspectrum.utils.EntityUtils;
 
 public class StateFactory {
 	
@@ -205,12 +206,11 @@ public class StateFactory {
 		 * @param withStateChangeListener 
 		 * @return
 		 */
-		public EntityStateBuilder jump(float jumpForce, float floatAmount, float airSpeed, boolean withStateChangeListener, final boolean jumpParticle){
+		public EntityStateBuilder jump(final float jumpForce, final float floatAmount, float airSpeed, boolean withStateChangeListener, final boolean jumpParticle){
 			EntityState state = esm.createState(EntityStates.JUMPING)
 				.add(engine.createComponent(SpeedComponent.class).set(airSpeed))
 				.add(engine.createComponent(DirectionComponent.class))
 				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(JumpComponent.class).set(jumpForce, floatAmount))
 				.addAnimation(EntityAnim.JUMP)
 				.addAnimation(EntityAnim.RISE)
 				.addAnimTransition(EntityAnim.JUMP, Transitions.ANIMATION_FINISHED, EntityAnim.RISE)
@@ -219,17 +219,13 @@ public class StateFactory {
 				state.addChangeListener(new StateChangeListener(){
 					@Override
 					public void onEnter(State prevState, Entity entity) {
-						JumpComponent jumpComp = Mappers.jump.get(entity);
+						JumpComponent jumpComp = EntityUtils.add(entity, JumpComponent.class).set(jumpForce, floatAmount);
 						InputComponent inputComp = Mappers.input.get(entity);						
 						jumpComp.multiplier = inputComp.input.getValue(Actions.JUMP);
 						if(jumpParticle) ParticleFactory.spawnJumpParticle(entity);
 					}
 					@Override
 					public void onExit(State nextState, Entity entity) {
-						if(Mappers.jump.get(entity) != null) {
-							Mappers.jump.get(entity).jumpReady = true;
-							Mappers.jump.get(entity).timeDown = 0.5f;
-						}
 					}
 				});
 			}
