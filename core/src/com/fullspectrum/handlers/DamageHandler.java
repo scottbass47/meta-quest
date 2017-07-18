@@ -92,12 +92,14 @@ public class DamageHandler {
 			if(DebugVars.PLAYER_INVINCIBILITY) return;
 			float duration = 1.0f;
 			Mappers.inviciblity.get(toEntity).add(InvincibilityType.ALL);
+			Mappers.immune.get(toEntity).addCompleteImmunity();
 			toEntity.add(engineComp.engine.createComponent(BlinkComponent.class).addBlink(duration, 0.15f));
 			TimerComponent timerComp = Mappers.timer.get(toEntity);
 			timerComp.add("invincibility", duration, false, new TimeListener() {
 				@Override
 				public void onTime(Entity entity) {
 					Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+					Mappers.immune.get(entity).removeCompleteImmunity();
 					entity.remove(BlinkComponent.class);
 					if (entity.getComponent(RenderComponent.class) == null) entity.add(new RenderComponent());
 				}

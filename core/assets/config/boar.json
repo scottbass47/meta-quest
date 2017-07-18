@@ -12,4 +12,6 @@
 	damage: 50.0,
 	charge_speed: 10.0,
 	charge_time: 2.0, 
+	knockback_angle: 30,
+	knockback_distance: 5,
 }

@@ -2,6 +2,8 @@ package com.fullspectrum.physics.collision;
 
 import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.physics.FixtureType;
+import com.fullspectrum.utils.EntityUtils;
+
 import static com.fullspectrum.utils.EntityUtils.*;
 
 public class CollisionInstance {
@@ -68,5 +70,9 @@ public class CollisionInstance {
 		return true;
 	}
 	
+	@Override
+	public String toString() {
+		return EntityUtils.asString(me) + "'s " + myFixtureType + " with " + EntityUtils.asString(other);
+	}
 	
 }

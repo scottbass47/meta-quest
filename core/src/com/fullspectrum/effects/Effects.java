@@ -3,11 +3,13 @@ package com.fullspectrum.effects;
 import java.util.Iterator;
 
 import com.badlogic.ashley.core.Entity;
+import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.EffectComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class Effects {
 
@@ -17,6 +19,19 @@ public class Effects {
 		if(effect.apply()){
 			effectComp.add(effect);
 		}
+	}
+	
+	/**
+	 * Applies knockback and automatically adjusts the angle based on the relative positioning between the two entities.
+	 * @param fromEntity
+	 * @param toEntity
+	 * @param distance
+	 * @param angle
+	 */
+	public static void giveKnockBackWithFlip(Entity fromEntity, Entity toEntity, float distance, float angle){
+		Vector2 fromPos = PhysicsUtils.getPos(fromEntity);
+		Vector2 toPos = PhysicsUtils.getPos(toEntity);
+		giveKnockBack(toEntity, distance, fromPos.x < toPos.x ? angle : 180 - angle);
 	}
 	
 	public static void giveStun(Entity toEntity, float duration){

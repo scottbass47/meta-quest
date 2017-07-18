@@ -14,6 +14,5 @@ public abstract class EffectDef {
 		return type;
 	}
 	
-	
 	public abstract void give(Entity toEntity);
 }

@@ -163,6 +163,7 @@ import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
+import com.fullspectrum.effects.KnockBackDef;
 import com.fullspectrum.entity.CoinType;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
@@ -2553,7 +2554,7 @@ public class EntityFactory {
 						Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
-						info.addBehavior(chargeFilter, new DamageOnCollideBehavior());
+						info.addBehavior(chargeFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, boarStats.get("knockback_distance"), boarStats.get("knockback_angle"))));
 						
 						float chargeSpeed = boarStats.get("charge_speed");
 						EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? chargeSpeed : -chargeSpeed, 0);

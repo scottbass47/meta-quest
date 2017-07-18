@@ -66,4 +66,8 @@ public class EntityUtils {
 		return Mappers.entity.get(entity).getID();
 	}
 	
+	public static String asString(Entity entity) {
+		return Mappers.entity.get(entity).toString();
+	}
+	
 }
