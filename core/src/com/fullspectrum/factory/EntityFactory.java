@@ -2556,14 +2556,21 @@ public class EntityFactory {
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.addBehavior(chargeFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, boarStats.get("knockback_distance"), boarStats.get("knockback_angle"))));
 						
-						float chargeSpeed = boarStats.get("charge_speed");
-						EntityUtils.add(entity, ForceComponent.class).set(Mappers.facing.get(entity).facingRight ? chargeSpeed : -chargeSpeed, 0);
+						final float chargeSpeed = boarStats.get("charge_speed");
+						Mappers.timer.get(entity).add("charge", GameVars.UPS_INV, true, new TimeListener() {
+							@Override
+							public void onTime(Entity entity) {
+								BodyComponent bodyComp = Mappers.body.get(entity);
+								bodyComp.body.setLinearVelocity(Mappers.facing.get(entity).facingRight ? chargeSpeed : -chargeSpeed, bodyComp.body.getLinearVelocity().y);
+							}
+						});
 					}
 
 					@Override
 					public void onExit(State nextState, Entity entity) {
 						Mappers.facing.get(entity).locked = false;
 						Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+						Mappers.timer.get(entity).remove("charge");
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.removeBehaviors(chargeFilter);
@@ -2620,7 +2627,6 @@ public class EntityFactory {
 		boar.add(engine.createComponent(BTComponent.class).set(tree));
 		
 		return boar;
-		
 	}
 	
 	// ---------------------------------------------

@@ -15,6 +15,7 @@ public class DamageOnCollideBehavior extends CollisionBehavior{
 	}
 	
 	public DamageOnCollideBehavior(KnockBackDef kdef) {
+		preSolveType = PreSolveType.DISABLE_CONTACT;
 		knockBackDef = kdef;
 	}
 	
