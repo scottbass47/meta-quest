@@ -28,7 +28,6 @@ public class OverheadSwingAbility extends AnimationAbility{
 		this.swing = swing;
 		setAbilityConstraints(new OnGroundConstraint());
 		addTemporaryImmunties(EffectType.KNOCKBACK, EffectType.STUN);
-		addTemporaryInvincibilities(InvincibilityType.ALL);
 	}
 
 	@Override

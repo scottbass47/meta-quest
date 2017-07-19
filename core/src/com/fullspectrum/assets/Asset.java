@@ -140,11 +140,24 @@ public enum Asset {
 	BOAR_IDLE(Atlas.ENTITY, "idle/boar_idle"),
 	BOAR_WALK(Atlas.ENTITY, "walk/boar_walk"),
 	BOAR_CHARGE(Atlas.ENTITY, "charge/boar_charge"),
+	BOAR_CHARGE_ANTICIPATION(Atlas.ENTITY, "charge_anticipation/boar_charge_anticipation"),
+	BOAR_CHARGE_COOLDOWN(Atlas.ENTITY, "charge_cooldown/boar_charge_cooldown"),
 	
 	// Goat
 	GOAT_IDLE(Atlas.ENTITY, "idle/goat_idle"),
 	GOAT_WALK(Atlas.ENTITY, "walk/goat_walk"),
 	GOAT_SWING_ATTACK(Atlas.ENTITY, "swing/goat_swing"),
+	
+	// Gun Gremlin
+	GUN_GREMLIN_IDLE(Atlas.ENTITY, "idle/gun_gremlin_idle"),
+	GUN_GREMLIN_WALK(Atlas.ENTITY, "walk/gun_gremlin_walk"),
+	GUN_GREMLIN_RUN(Atlas.ENTITY, "run/gun_gremlin_run"),
+	GUN_GREMLIN_JUMP(Atlas.ENTITY, "jump/gun_gremlin_jump"),
+	GUN_GREMLIN_RISE(Atlas.ENTITY, "rise/gun_gremlin_rise"),
+	GUN_GREMLIN_APEX(Atlas.ENTITY, "apex/gun_gremlin_apex"),
+	GUN_GREMLIN_FALL(Atlas.ENTITY, "fall/gun_gremlin_fall"),
+	GUN_GREMLIN_SHOOT(Atlas.ENTITY, "shoot/gun_gremlin_shoot"),
+	GUN_GREMLIN_PROJECTILE(Atlas.ENTITY, "projectile/gun_gremlin_projectile"),
 		
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),

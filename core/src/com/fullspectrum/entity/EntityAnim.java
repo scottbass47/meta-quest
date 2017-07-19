@@ -43,6 +43,7 @@ public enum EntityAnim implements State{
 	POP,
 	CHARGE,
 	ROLL,
+	WALK,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

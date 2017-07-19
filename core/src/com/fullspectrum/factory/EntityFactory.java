@@ -82,6 +82,7 @@ import com.fullspectrum.ability.rogue.HomingKnivesAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
+import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
@@ -136,6 +137,7 @@ import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.MonkComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
+import com.fullspectrum.component.PathComponent;
 import com.fullspectrum.component.PlayerComponent;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.component.ProjectileComponent;
@@ -202,9 +204,11 @@ import com.fullspectrum.game.GameVars;
 import com.fullspectrum.input.Actions;
 import com.fullspectrum.input.Input;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.movement.BoomerangCurveMovement;
 import com.fullspectrum.movement.BoomerangLineMovement;
 import com.fullspectrum.movement.Movement;
+import com.fullspectrum.physics.BodyBuilder;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.FixtureType;
 import com.fullspectrum.physics.collision.CollisionBodyType;
@@ -231,6 +235,9 @@ public class EntityFactory {
 	public static Level level;
 	public static int ID;
 	
+	// TODO Add in boar anticipation state
+	// TODO Add in boar cooldown state
+	// TODO Make money drops randomized
 	private EntityFactory(){
 	}
 	
@@ -2522,13 +2529,37 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		final EntityStats boarStats = EntityLoader.get(EntityIndex.BOAR);
 		
+		BodyBuilder bodyBuilder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, 30, 20)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.boxPixels(0, -11, 28, 4)
+					.makeSensor()
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.RIGHT_WALL)
+					.boxPixels(15, 0, 2, 18)
+					.makeSensor()
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.LEFT_WALL)
+					.boxPixels(-15, 0, 2, 18)
+					.makeSensor()
+					.build();
+		
 		Entity boar = new EntityBuilder(EntityType.BOAR, EntityStatus.ENEMY)
 				.render(true)
 				.animation(animMap)
-				.physics("boar.json", x, y, true)
+				.physics(bodyBuilder, x, y, true)
 				.mob(controller, boarStats.get("health"))
 				.ai(controller, new TargetComponent.DefaultTargetBehavior())
 				.build();
+
 		
 		boar.add(engine.createComponent(MoneyComponent.class).set((int)boarStats.get("money")));
 		boar.add(engine.createComponent(ImmuneComponent.class));
@@ -2543,6 +2574,13 @@ public class EntityFactory {
 				.addEntityTypes(FRIENDLY)
 				.build();
 		
+		esm.createState(EntityStates.ATTACK_ANTICIPATION)
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(DirectionComponent.class))
+				.addAnimation(EntityAnim.CHARGE)
+				.addTag(TransitionTag.STATIC_STATE);
+		
 		esm.createState(EntityStates.CHARGE)
 				.add(engine.createComponent(DamageComponent.class).set(boarStats.get("damage")))
 				.addTag(TransitionTag.STATIC_STATE)
@@ -2551,7 +2589,7 @@ public class EntityFactory {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
 						Mappers.facing.get(entity).locked = true;
-						Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+//						Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.addBehavior(chargeFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, boarStats.get("knockback_distance"), boarStats.get("knockback_angle"))));
@@ -2569,13 +2607,20 @@ public class EntityFactory {
 					@Override
 					public void onExit(State nextState, Entity entity) {
 						Mappers.facing.get(entity).locked = false;
-						Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+//						Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
 						Mappers.timer.get(entity).remove("charge");
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
 						info.removeBehaviors(chargeFilter);
 					}
 				});
+		
+		esm.createState(EntityStates.ATTACK_COOLDOWN)
+				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
+				.add(engine.createComponent(GroundMovementComponent.class))
+				.add(engine.createComponent(DirectionComponent.class))
+				.addAnimation(EntityAnim.IDLE)
+				.addTag(TransitionTag.STATIC_STATE);
 		
 		InputTransitionData idle1 = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
 		InputTransitionData idle2 = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
@@ -2592,8 +2637,10 @@ public class EntityFactory {
 		
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), idleTransition, EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, run, EntityStates.RUNNING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.CHARGE);
-		esm.addTransition(EntityStates.CHARGE, chargeTransition, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.ATTACK_ANTICIPATION);
+		esm.addTransition(EntityStates.ATTACK_ANTICIPATION, Transitions.TIME, new TimeTransitionData(boarStats.get("charge_anticipation")), EntityStates.CHARGE);
+		esm.addTransition(EntityStates.CHARGE, chargeTransition, EntityStates.ATTACK_COOLDOWN);
+		esm.addTransition(EntityStates.ATTACK_COOLDOWN, Transitions.TIME, new TimeTransitionData(boarStats.get("charge_cooldown")), EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -2627,6 +2674,123 @@ public class EntityFactory {
 		boar.add(engine.createComponent(BTComponent.class).set(tree));
 		
 		return boar;
+	}
+	
+	public static Entity createGunGremlin(float x, float y) {
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.IDLE, null);
+		animMap.put(EntityAnim.WALK, null);
+		animMap.put(EntityAnim.RUN, null);
+		animMap.put(EntityAnim.JUMP, null);
+		animMap.put(EntityAnim.RISE, null);
+		animMap.put(EntityAnim.JUMP_APEX, null);
+		animMap.put(EntityAnim.FALLING, null);
+		animMap.put(EntityAnim.ATTACK, null);
+		
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.GUN_GREMLIN);
+		NavMesh mesh = NavMesh.get(EntityIndex.GUN_GREMLIN);
+		PathFinder pathFinder = new PathFinder(mesh);
+		
+		BodyBuilder bodyBuilder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.box(0, 0, 15, 26)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.box(0, -14, 14, 4)
+					.makeSensor()
+					.build();
+		
+		Entity gremlin = new EntityBuilder(EntityType.GUN_GREMLIN, ENEMY)
+				.physics(bodyBuilder, x, y, true)
+				.ai(controller)
+				.mob(controller, stats.get("health"))
+				.animation(animMap)
+				.render(true)
+				.build();
+
+		gremlin.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
+		gremlin.add(engine.createComponent(PathComponent.class).set(pathFinder));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Gun Gremlin ESM", engine, gremlin)
+				.idle()
+				.run(stats.get("ground_speed"))
+				.jump(stats.get("jump_force"), 0.0f, stats.get("air_speed"), true, true)
+				.fall(stats.get("air_speed"), true)
+				.build();
+		
+		esm.createState(EntityStates.PROJECTILE_ATTACK)
+				.addAnimation(EntityAnim.ATTACK)
+				.addTag(TransitionTag.STATIC_STATE)
+				.add(engine.createComponent(FrameMovementComponent.class).set("gun_gremlin/frames_shoot", true))
+				.addChangeListener(new StateChangeListener() {
+					@Override
+					public void onEnter(State prevState, Entity entity) {
+						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 2, false, new TimeListener() {
+							@Override
+							public void onTime(Entity entity) {
+								EntityStateMachine esm = Mappers.esm.get(entity).first();
+								if(esm.getCurrentState() == EntityStates.PROJECTILE_ATTACK) {
+									// Create attack
+									int numBullets = (int)stats.get("projectile_amount");
+									float damage = stats.get("projectile_damage");
+									float range = stats.get("projectile_range");
+									float speed = stats.get("projectile_speed");
+									float spread = stats.get("projectile_spread");
+									
+									Vector2 pos = PhysicsUtils.getPos(entity);
+									float xOff = 0.0f;
+									float yOff = 0.0f;
+									
+									float a1;
+									float a2;
+									float spreadFrac = spread / numBullets;
+									for(int i = 0; i < numBullets; i++) {
+										a1 = -i * spreadFrac + spread * 0.5f;
+										a2 = -(i + 1) * spreadFrac + spread * 0.5f;
+										
+										float angle = MathUtils.random(a2, a1);
+										
+										if(!Mappers.facing.get(entity).facingRight) {
+											angle = 180 - angle;
+											xOff = -xOff;
+										}
+										
+										Entity projectile = createShotgunBullet(pos.x + xOff, pos.y + yOff, speed, angle, damage, range, assets.getRegion(Asset.GUN_GREMLIN_PROJECTILE), Mappers.status.get(entity).status);
+										EntityManager.addEntity(projectile);
+									}
+								}
+							}
+						});
+					}
+
+					@Override
+					public void onExit(State nextState, Entity entity) {
+					}
+				});
+				
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(), EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(gremlin);
+		
+		Selector<Entity> rootSelector = new Selector<Entity>();
+		
+		rootSelector.addChild(BTFactory.patrol(1.0f));
+		
+		tree.addChild(rootSelector);
+		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		return gremlin;
 	}
 	
 	// ---------------------------------------------
@@ -2735,6 +2899,14 @@ public class EntityFactory {
 				.animate(assets.getAnimation(Asset.ROGUE_THROWING_KNIFE))
 				.build();
 		return knife;
+	}
+	
+	public static Entity createShotgunBullet(float x, float y, float speed, float angle, float damage, float range, TextureRegion frame, EntityStatus status) {
+		return new ProjectileBuilder(BULLET, status, x, y, speed, angle)
+				.addDamage(damage)
+				.addTimedDeath(range / speed)
+				.render(frame, false)
+				.build();
 	}
 	
 	public static Entity createHomingKnife(Vector2 fromPos, Vector2 toPos, float time, float damage, EntityStatus status){
@@ -3552,6 +3724,24 @@ public class EntityFactory {
 		 */
 		public EntityBuilder physics(String physicsBody, float x, float y, boolean collideable){
 			return physics(physicsBody, null, x, y, collideable);
+		}
+		
+		/**
+		 * Adds Body, Position, Velocity and optional Collision components.
+		 * 
+		 * @param builder
+		 * @param x
+		 * @param y
+		 * @param collideable
+		 * @return
+		 */
+		public EntityBuilder physics(BodyBuilder builder, float x, float y, boolean collideable) {
+			builder.setEntity(entity);
+			entity.add(engine.createComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(world, builder)));
+			entity.add(engine.createComponent(PositionComponent.class).set(x, y));
+			entity.add(engine.createComponent(VelocityComponent.class));
+			if(collideable) entity.add(engine.createComponent(CollisionComponent.class));
+			return this;
 		}
 		
 		/**

@@ -17,6 +17,7 @@ import com.fullspectrum.fsm.State;
 import com.fullspectrum.fsm.StateChangeDef;
 import com.fullspectrum.fsm.StateMachine;
 import com.fullspectrum.fsm.StateObject;
+import com.fullspectrum.physics.BodyBuilder;
 import com.fullspectrum.physics.PhysicsDef;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
@@ -26,6 +27,7 @@ public class EntityManager {
 	private static Array<Entity> toDie = new Array<Entity>();
 	private static Array<Entity> toAdd = new Array<Entity>();
 	private static Array<PhysicsDef> toLoadPhysics = new Array<PhysicsDef>();
+	private static Array<BodyBuilder> bodyDefinitions = new Array<BodyBuilder>();
 	private static Array<StateChangeDef> stateChanges = new Array<StateChangeDef>();
 	private static Array<Effect> effects = new Array<Effect>();
 	private static Array<DelayedAction> actions = new Array<DelayedAction>();
@@ -58,6 +60,10 @@ public class EntityManager {
 		toLoadPhysics.add(def);
 	}
 	
+	public static void addBodyDefinition(BodyBuilder builder) {
+		bodyDefinitions.add(builder);
+	}
+	
 	public static void sendToDie(Entity entity){
 		toDie.add(entity);
 	}
@@ -88,6 +94,13 @@ public class EntityManager {
 			PhysicsDef def = iter.next();
 			Entity entity = def.getEntity();
 			entity.add(Mappers.engine.get(entity).engine.createComponent(BodyComponent.class).set(PhysicsUtils.createPhysicsBody(def)));
+			iter.remove();
+		}
+		
+		for(Iterator<BodyBuilder> iter = bodyDefinitions.iterator(); iter.hasNext();){
+			BodyBuilder def = iter.next();
+			Entity entity = def.getEntity();
+			entity.add(Mappers.engine.get(entity).engine.createComponent(BodyComponent.class).set(def.build()));
 			iter.remove();
 		}
 		

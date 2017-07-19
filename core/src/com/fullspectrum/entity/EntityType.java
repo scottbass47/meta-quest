@@ -16,6 +16,7 @@ public enum EntityType {
 	WINGS,
 	SPAWNER,
 	BOAR,
+	GUN_GREMLIN,
 	
 	// Drops
 	COIN,

@@ -1,5 +1,6 @@
 package com.fullspectrum.assets;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
 import com.badlogic.gdx.assets.loaders.TextureLoader.TextureParameter;
 import com.badlogic.gdx.audio.Sound;
@@ -101,6 +102,7 @@ public class AssetLoader {
 	public TextureRegion getRegion(Atlas atlas, Asset asset){
 		TextureRegion region = manager.get(atlas.getFilepath(), TextureAtlas.class).findRegion(asset.getFilename());
 		if(region == null){
+			Gdx.app.error("Assets", asset + " was not loaded properly.");
 			//throw new RuntimeException(asset + " was not loaded properly.");
 		}
 		return region;
@@ -113,6 +115,7 @@ public class AssetLoader {
 	public Animation<TextureRegion> getAnimation(Atlas atlas, Asset asset){
 		Animation<TextureRegion> animation = new Animation<TextureRegion>(GameVars.ANIM_FRAME, manager.get(atlas.getFilepath(),TextureAtlas.class).findRegions(asset.getFilename()), PlayMode.LOOP);
 		if(animation.getAnimationDuration() < 0.001f){
+			Gdx.app.error("Assets", asset + " was not loaded properly.");
 //			throw new RuntimeException(asset + " was not loaded properly.");
 		}
 		return animation;

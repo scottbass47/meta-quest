@@ -201,6 +201,23 @@ public enum EntityIndex {
 			return new Rectangle(0, 0, 30, 20);
 		}
 		
+	},
+	GUN_GREMLIN {
+		@Override
+		public Entity create(float x, float y) {
+			return EntityFactory.createGunGremlin(x, y);
+		}
+
+		@Override
+		public Animation<TextureRegion> getIdleAnimation() {
+			return AssetLoader.getInstance().getAnimation(Asset.GUN_GREMLIN_IDLE);
+		}
+
+		// IMPORTANT Adjust if necessary
+		@Override
+		public Rectangle getHitBox() {
+			return new Rectangle(0, 0, 15, 26);
+		}
 	};
 	
 	// TODO Consider including Input as a needed argument

@@ -18,6 +18,7 @@ public class DropFactory {
 		EntityManager.addEntity(EntityFactory.createCoin(x, y, fx, fy, amount));
 	}
 	
+	// BUG Crashes "n < 0" random num generator
 	public static void spawnCoins(Entity entity){
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);

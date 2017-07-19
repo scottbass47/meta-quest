@@ -42,7 +42,9 @@ public enum EntityStates implements State{
 	ROLL,
 	DOUBLE_JUMP,
 	CHARGE,
-	INIT;
+	INIT,
+	ATTACK_ANTICIPATION,
+	ATTACK_COOLDOWN;
 	
 	@Override
 	public int getIndex() {

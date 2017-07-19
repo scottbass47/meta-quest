@@ -12,8 +12,8 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
-import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.BodyDef.BodyType;
+import com.badlogic.gdx.physics.box2d.ChainShape;
 import com.badlogic.gdx.physics.box2d.CircleShape;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
@@ -28,6 +28,7 @@ import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.physics.BodyBuilder;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.CollisionBits;
 import com.fullspectrum.physics.FixtureType;
@@ -36,6 +37,14 @@ import com.fullspectrum.physics.collision.CollisionBodyType;
 import com.fullspectrum.physics.collision.CollisionData;
 
 public class PhysicsUtils {
+	
+	public static Body createPhysicsBody(World world, BodyBuilder builder) {
+		if(world.isLocked()) {
+			EntityManager.addBodyDefinition(builder);
+			return null;
+		}
+		return builder.build();
+	}
 	
 	public static Body createPhysicsBody(PhysicsDef def){
 		return createPhysicsBody(def.getFile(), def.getWorld(), def.getPosition(), def.getEntity(), def.getProperties());

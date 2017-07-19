@@ -54,7 +54,7 @@ public class ProjectileFactory {
 		ProjectileData data = initProjectile(entity, xOff, yOff, angle);
 		EntityManager.addEntity(EntityFactory.createThrowingKnife(data.x, data.y, speed, data.angle, damage, Mappers.status.get(entity).status));
 	}
-
+	
 //	public static void spawnExplosiveProjectile(Entity entity, float xOff, float yOff, float speed, float damage, float angle, float explosionRadius, float damageDropOffRate) {
 //		EngineComponent engineComp = Mappers.engine.get(entity);
 //		WorldComponent worldComp = Mappers.world.get(entity);

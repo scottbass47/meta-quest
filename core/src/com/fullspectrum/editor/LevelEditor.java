@@ -48,6 +48,7 @@ public class LevelEditor extends InputMultiplexer{
 	private int shiftCount = 0;
 	private float animTime;
 	
+	// BUG Ctrl + A when having an enemy selected causes a crash
 	public LevelEditor() {
 		tilePanel = new TilePanel();
 		tilePanel.setX(0.0f);

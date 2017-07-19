@@ -10,8 +10,10 @@
 	attack_range: 8.0, // range when player is on the same platform
 	close_attack_range: 3.0, // range when player isn't on the same platform
 	damage: 50.0,
+	charge_anticipation: 1.0,
 	charge_speed: 10.0,
 	charge_time: 2.0, 
+	charge_cooldown: 1.0,
 	knockback_angle: 30,
 	knockback_distance: 5,
 }
