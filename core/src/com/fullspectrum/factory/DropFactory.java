@@ -13,26 +13,27 @@ import com.fullspectrum.entity.EntityManager;
 public class DropFactory {
 
 	private final static int MIN_COIN_DROPS = 3;
+	private static float variance = 0.25f;
 	
 	public static void spawnCoin(float x, float y, float fx, float fy, int amount){
 		EntityManager.addEntity(EntityFactory.createCoin(x, y, fx, fy, amount));
 	}
 	
-	// BUG Crashes "n < 0" random num generator
 	public static void spawnCoins(Entity entity){
 		MoneyComponent moneyComp = Mappers.money.get(entity);
 		BodyComponent bodyComp = Mappers.body.get(entity);
-		Body body = bodyComp.body;
 		
 		if(bodyComp == null || bodyComp.body == null || moneyComp == null || moneyComp.money <= 0) return;
+		Body body = bodyComp.body;
 		
-		int amount = moneyComp.money;
+		int amount = (int)(moneyComp.money + MathUtils.random(2 * variance * moneyComp.money) - variance * moneyComp.money);
 		int min = CoinType.getLowestCoinValue();
 		int max = CoinType.getHighestCoinValue();
 		
 		int numCoins = MIN_COIN_DROPS;
 		Array<Integer> coins = new Array<Integer>();
 		for(int i = 0; i < numCoins; i++){
+			if(amount < 1) break;
 			float averageCoinValue = (float)amount / (float)(numCoins - i);
 			if(averageCoinValue > max) {
 				numCoins++;
@@ -43,7 +44,12 @@ public class DropFactory {
 				coins.add(amount);
 				break;
 			}
-			int value = MathUtils.random(min, Math.min(max, amount - min * (numCoins - i)));
+			int value = 0;
+			try {
+				value = MathUtils.random(min, Math.min(max, amount - min * (numCoins - i)));
+			} catch (Exception e) {
+				continue;
+			}
 			coins.add(value);
 			amount -= value;
 		}

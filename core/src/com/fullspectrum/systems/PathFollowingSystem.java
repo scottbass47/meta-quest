@@ -36,6 +36,8 @@ public class PathFollowingSystem extends IteratingSystem{
 		BodyComponent bodyComp = Mappers.body.get(entity);
 		CollisionComponent collisionComp = Mappers.collision.get(entity);
 		
+		if(!pathComp.shouldFollow) return;
+		
 		PathFinder pathFinder = pathComp.pathFinder;
 		NavMesh navMesh = pathFinder.getNavMesh();
 		
@@ -54,9 +56,6 @@ public class PathFollowingSystem extends IteratingSystem{
 				pathFinder.setStart(currentNode);
 				
 				pathFinder.calculatePath();
-				if(pathFinder.getPath().size == 0 && Mappers.wandering.get(entity) != null) {
-					Mappers.wandering.get(entity).wandering = false;
-				}
 			}
 			link = pathFinder.getNextLink(currentNode);
 		}

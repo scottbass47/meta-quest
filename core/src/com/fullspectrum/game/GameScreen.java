@@ -476,7 +476,7 @@ public class GameScreen extends AbstractScreen {
 		levelManager.render();
 		if (DebugVars.NAVMESH_ON) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
-				NavMesh.get(EntityIndex.GOAT).render(batch);
+				NavMesh.get(EntityIndex.GUN_GREMLIN).render(batch);
 			}
 		}
 		if(DebugVars.FLOW_FIELD_ON){

@@ -68,7 +68,12 @@ public class BTFactory {
 		return moveTowardsTarget;
 	}
 	
-	private static Task<Entity> walk() {
+	/**
+	 * Moves the AI forward. <br>
+	 * <br><em>Success Conditions</em>: Will always succeed as long as AI can move forward.
+	 * @return
+	 */
+	public static Task<Entity> walk() {
 		Sequence<Entity> walkSequence = new Sequence<Entity>();
 		walkSequence.addChild(new ReleaseControlsTask());
 		walkSequence.addChild(new WalkForwardTask());
@@ -76,7 +81,12 @@ public class BTFactory {
 		return walkSequence;
 	}
 	
-	private static Task<Entity> turnWhenTargetBehind(){
+	/**
+	 * Turns the AI around if the target is behind it.<br>
+	 * <br><em>Success Conditions</em>: Succeeds if the target is behind the AI, fails otherwise.
+	 * @return
+	 */
+	public static Task<Entity> turnWhenTargetBehind(){
 		Sequence<Entity> turnWhenTargetBehindSequence = new Sequence<Entity>();
 		turnWhenTargetBehindSequence.addChild(new TargetBehindMeTask());
 		turnWhenTargetBehindSequence.addChild(new ReleaseControlsTask());

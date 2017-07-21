@@ -210,7 +210,7 @@ public enum EntityIndex {
 
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.GUN_GREMLIN_IDLE);
+			return AssetLoader.getInstance().getAnimation(Asset.KNIGHT_IDLE);
 		}
 
 		// IMPORTANT Adjust if necessary

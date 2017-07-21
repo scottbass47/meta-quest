@@ -7,10 +7,12 @@ import com.fullspectrum.ai.PathFinder;
 public class PathComponent implements Component, Poolable{
 
 	public PathFinder pathFinder;
+	public boolean shouldFollow = false;
 	
 	@Override
 	public void reset() {
 		pathFinder = null;
+		shouldFollow = false;
 	}
 	
 	public PathComponent set(PathFinder pathFinder){

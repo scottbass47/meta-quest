@@ -9,6 +9,7 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -805,55 +806,7 @@ public class Level {
 	}
 
 	public boolean performRayTrace(float x1, float y1, float x2, float y2) {
-//		int startCol = (int) x1;
-//		int startRow = (int) y1;
-//		int endCol = (int) x2;
-//		int endRow = (int) y2;
-//
-//		if (startCol == endCol && startRow == endRow) {
-//			return !isSolid(startRow, startCol);
-//		}
-//
-//		boolean alongX = Math.abs(startCol - endCol) > Math.abs(startRow - endRow);
-//
-//		float slope = 0.0f;
-//		if (alongX) {
-//			slope = (startRow - endRow) / (float) (startCol - endCol);
-//		} else {
-//			slope = (startCol - endCol) / (float) (startRow - endRow);
-//		}
-//
-//		// y2 - y1 = m(x2 - x1)
-//		// startRow - y1 = m(startCol - x1)
-//		// startRow - y1 = m(startCol - col)
-//		// y1 = -m(startCol - col) + startRow
-//
-//		if (alongX) {
-//			if (startCol < endCol) {
-//				for (int col = startCol; col <= endCol; col++) {
-//					if (isSolid((int) (-slope * (startCol - col) + startRow), col))
-//						return false;
-//				}
-//			} else {
-//				for (int col = startCol; col >= endCol; col--) {
-//					if (isSolid((int) (-slope * (startCol - col) + startRow), col))
-//						return false;
-//				}
-//			}
-//		} else {
-//			if (startRow < endRow) {
-//				for (int row = startRow; row <= endRow; row++) {
-//					if (isSolid(row, (int) (-slope * (startRow - row) + startCol)))
-//						return false;
-//				}
-//			} else {
-//				for (int row = startRow; row >= endRow; row--) {
-//					if (isSolid(row, (int) (-slope * (startRow - row) + startCol)))
-//						return false;
-//				}
-//			}
-//		}
-
+		if(MathUtils.isEqual(x1, x2) && MathUtils.isEqual(y1, y2)) return true;
 		MyRayCastCallback callback = new MyRayCastCallback();
 		world.rayCast(callback, x1, y1, x2, y2);
 		return !callback.hitWall();

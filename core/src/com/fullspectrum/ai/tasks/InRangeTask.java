@@ -21,7 +21,7 @@ public class InRangeTask extends LeafTask<Entity> {
 	public Status execute() {
 		Entity entity = getObject();
 		TargetComponent targetComp = Mappers.target.get(entity);
-		if(targetComp == null || !EntityUtils.isValid(targetComp.target)) return Status.FAILED;
+		if(targetComp == null || !EntityUtils.isTargetable(targetComp.target)) return Status.FAILED;
 		
 		Vector2 myPos = PhysicsUtils.getPos(entity);
 		Vector2 targetPos = PhysicsUtils.getPos(targetComp.target);

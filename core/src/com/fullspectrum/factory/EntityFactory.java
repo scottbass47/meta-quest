@@ -160,6 +160,7 @@ import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
+import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
@@ -235,9 +236,6 @@ public class EntityFactory {
 	public static Level level;
 	public static int ID;
 	
-	// TODO Add in boar anticipation state
-	// TODO Add in boar cooldown state
-	// TODO Make money drops randomized
 	private EntityFactory(){
 	}
 	
@@ -2094,9 +2092,7 @@ public class EntityFactory {
 				.physics("goat.json", x, y, true)
 				.render(true)
 				.build();
-		float baseMoney = stats.get("money");
-		int money = (int)MathUtils.random(baseMoney - 0.1f * baseMoney, baseMoney + 0.1f * baseMoney);
-		goat.add(engine.createComponent(MoneyComponent.class).set(money));
+		goat.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
 
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Goat ESM", engine, goat)
 				.idle()
@@ -2622,12 +2618,7 @@ public class EntityFactory {
 				.addAnimation(EntityAnim.IDLE)
 				.addTag(TransitionTag.STATIC_STATE);
 		
-		InputTransitionData idle1 = new InputTransitionData.Builder(Type.ALL, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
-		InputTransitionData idle2 = new InputTransitionData.Builder(Type.ALL, false).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
-		InputTransitionData run = new InputTransitionData.Builder(Type.ONLY_ONE, true).add(Actions.MOVE_RIGHT).add(Actions.MOVE_LEFT).build();
 		InputTransitionData attack = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-		
-		MultiTransition idleTransition = new MultiTransition(Transitions.INPUT, idle1).or(Transitions.INPUT, idle2);
 
 		CollisionTransitionData rightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
 		CollisionTransitionData leftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
@@ -2635,8 +2626,8 @@ public class EntityFactory {
 		TimeTransitionData chargeTime = new TimeTransitionData(boarStats.get("charge_time"));
 		MultiTransition chargeTransition = new MultiTransition(Transitions.TIME, chargeTime).or(Transitions.COLLISION, rightWallData).or(Transitions.COLLISION, leftWallData);
 		
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), idleTransition, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, run, EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.ATTACK_ANTICIPATION);
 		esm.addTransition(EntityStates.ATTACK_ANTICIPATION, Transitions.TIME, new TimeTransitionData(boarStats.get("charge_anticipation")), EntityStates.CHARGE);
 		esm.addTransition(EntityStates.CHARGE, chargeTransition, EntityStates.ATTACK_COOLDOWN);
@@ -2678,14 +2669,14 @@ public class EntityFactory {
 	
 	public static Entity createGunGremlin(float x, float y) {
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, null);
-		animMap.put(EntityAnim.WALK, null);
-		animMap.put(EntityAnim.RUN, null);
-		animMap.put(EntityAnim.JUMP, null);
-		animMap.put(EntityAnim.RISE, null);
-		animMap.put(EntityAnim.JUMP_APEX, null);
-		animMap.put(EntityAnim.FALLING, null);
-		animMap.put(EntityAnim.ATTACK, null);
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
+		animMap.put(EntityAnim.WALK, assets.getAnimation(Asset.KNIGHT_RUN));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.KNIGHT_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
+		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
+		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
+		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
 		
 		AIController controller = new AIController();
 		final EntityStats stats = EntityLoader.get(EntityIndex.GUN_GREMLIN);
@@ -2697,11 +2688,11 @@ public class EntityFactory {
 				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
 				.addFixture()
 					.fixtureType(FixtureType.BODY)
-					.box(0, 0, 15, 26)
+					.boxPixels(0, 0, 15, 26)
 					.build()
 				.addFixture()
 					.fixtureType(FixtureType.FEET)
-					.box(0, -14, 14, 4)
+					.boxPixels(0, -14, 14, 4)
 					.makeSensor()
 					.build();
 		
@@ -2715,6 +2706,7 @@ public class EntityFactory {
 
 		gremlin.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
 		gremlin.add(engine.createComponent(PathComponent.class).set(pathFinder));
+		gremlin.add(engine.createComponent(TintComponent.class).set(Color.MAGENTA));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Gun Gremlin ESM", engine, gremlin)
 				.idle()
@@ -2785,6 +2777,12 @@ public class EntityFactory {
 		
 		Selector<Entity> rootSelector = new Selector<Entity>();
 		
+		Sequence<Entity> chaseSequence = new Sequence<Entity>();
+		chaseSequence.addChild(new InRangeTask(stats.get("chase_range")));
+		chaseSequence.addChild(new InLoSTask());
+		chaseSequence.addChild(BTFactory.followOnPlatform());
+		
+		rootSelector.addChild(chaseSequence);
 		rootSelector.addChild(BTFactory.patrol(1.0f));
 		
 		tree.addChild(rootSelector);

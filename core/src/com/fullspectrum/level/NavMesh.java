@@ -70,7 +70,7 @@ public class NavMesh{
 		hitBoxes = new ArrayMap<EntityIndex, Rectangle>();
 		
 		// Manually put in hitbox info
-		hitBoxes.put(EntityIndex.GUN_GREMLIN, EntityIndex.GUN_GREMLIN.getHitBox());
+		hitBoxes.put(EntityIndex.GUN_GREMLIN, Maths.scl(EntityIndex.GUN_GREMLIN.getHitBox(), GameVars.PPM_INV));
 	}
 	
 	private NavMesh(Level level, EntityStats stats) {

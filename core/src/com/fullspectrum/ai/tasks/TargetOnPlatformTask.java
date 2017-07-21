@@ -19,7 +19,7 @@ public class TargetOnPlatformTask extends LeafTask<Entity>{
 		Entity entity = getObject();
 		
 		TargetComponent targetComp = Mappers.target.get(entity);
-		if(targetComp == null || !EntityUtils.isValid(targetComp.target)) return Status.FAILED;
+		if(targetComp == null || !EntityUtils.isTargetable(targetComp.target)) return Status.FAILED;
 		
 		Level level = Mappers.level.get(entity).level;
 		

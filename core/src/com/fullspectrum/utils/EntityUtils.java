@@ -31,7 +31,7 @@ public class EntityUtils {
 	}
 	
 	public static boolean isTargetable(Entity entity){
-		return (entity.flags & TARGETABLE) == TARGETABLE;
+		return isValid(entity) && (entity.flags & TARGETABLE) == TARGETABLE;
 	}
 	
 	public static void setTargetable(Entity entity, boolean valid){
