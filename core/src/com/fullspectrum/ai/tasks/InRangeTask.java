@@ -3,9 +3,14 @@ package com.fullspectrum.ai.tasks;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.ai.btree.LeafTask;
 import com.badlogic.gdx.ai.btree.Task;
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.TargetComponent;
+import com.fullspectrum.debug.DebugInput;
+import com.fullspectrum.debug.DebugRender;
+import com.fullspectrum.debug.DebugToggle;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
 
@@ -28,6 +33,12 @@ public class InRangeTask extends LeafTask<Entity> {
 		
 		float dx = myPos.x - targetPos.x;
 		float dy = myPos.y - targetPos.y;
+		
+		if(DebugInput.isToggled(DebugToggle.SHOW_RANGE)) {
+			DebugRender.setColor(Color.MAGENTA);
+			DebugRender.setType(ShapeType.Line);
+			DebugRender.circle(myPos.x, myPos.y, range);
+		}
 		
 		if(dx * dx + dy * dy <= range * range) return Status.SUCCEEDED;
 		return Status.FAILED;

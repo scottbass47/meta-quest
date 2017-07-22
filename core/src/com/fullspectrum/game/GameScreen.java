@@ -489,11 +489,6 @@ public class GameScreen extends AbstractScreen {
 				Mappers.path.get(enemy).pathFinder.render(batch);
 			}
 		}
-		if (DebugVars.HEALTH_ON) {
-			for (Entity entity : engine.getEntitiesFor(Family.all(HealthComponent.class).get())) {
-				renderHealth(batch, entity);
-			}
-		}
 		if (DebugVars.HITBOXES_ON) b2dr.render(world, worldCamera.combined);
 		if (DebugVars.RANGES_ON){
 			for(Entity enemy : engine.getEntitiesFor(Family.all(AISMComponent.class).get())){
@@ -501,6 +496,10 @@ public class GameScreen extends AbstractScreen {
 			}
 		}
 
+		for (Entity entity : engine.getEntitiesFor(Family.all(HealthComponent.class).get())) {
+			renderHealth(batch, entity);
+		}
+		
 		DebugRender.render(batch);
 		renderer.render(batch);
 		textRenderer.render(batch, levelManager.getCameraEntity());
@@ -716,8 +715,11 @@ public class GameScreen extends AbstractScreen {
 	}
 
 	private void renderHealth(SpriteBatch batch, Entity entity) {
-		if (!EntityUtils.isValid(entity)) return;
+		if (!EntityUtils.isValid(entity) || Mappers.player.get(entity) != null) return;
+		
 		HealthComponent healthComp = Mappers.heatlh.get(entity);
+		if(MathUtils.isEqual(healthComp.health, healthComp.maxHealth)) return;
+		
 		BodyComponent bodyComp = Mappers.body.get(entity);
 
 		float width = 1.0f;

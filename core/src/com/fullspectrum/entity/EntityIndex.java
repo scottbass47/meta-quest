@@ -110,38 +110,6 @@ public enum EntityIndex {
 	},
 	
 	// Enemies
-	SPITTER {
-		@Override
-		public Entity create(float x, float y) {
-			return EntityFactory.createSpitter(x, y);
-		}
-
-		@Override
-		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.SPITTER_IDLE);
-		}
-
-		@Override
-		public Rectangle getHitBox() {
-			return new Rectangle(0, 0, 24, 24);
-		}
-	},
-	SLIME {
-		@Override
-		public Entity create(float x, float y) {
-			return EntityFactory.createSlime(x, y);
-		}
-
-		@Override
-		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.SLIME_IDLE);
-		}
-
-		@Override
-		public Rectangle getHitBox() {
-			return new Rectangle(0, 0, 12, 8);
-		}
-	},
 	GOAT {
 		@Override
 		public Entity create(float x, float y) {
@@ -210,13 +178,12 @@ public enum EntityIndex {
 
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.KNIGHT_IDLE);
+			return AssetLoader.getInstance().getAnimation(Asset.GUN_GREMLIN_IDLE_RANDOM);
 		}
 
-		// IMPORTANT Adjust if necessary
 		@Override
 		public Rectangle getHitBox() {
-			return new Rectangle(0, 0, 15, 26);
+			return new Rectangle(0, 0, 14, 22);
 		}
 	};
 	

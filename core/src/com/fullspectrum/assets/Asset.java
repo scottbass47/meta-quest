@@ -119,23 +119,6 @@ public enum Asset {
 	COIN_GOLD(Atlas.ENTITY, "coin_gold"),
 	COIN_BLUE(Atlas.ENTITY, "coin_blue"),
 		
-	// Spitter
-	SPITTER_WINGS(Atlas.ENTITY, "wings/spitter_wings"),
-	SPITTER_ATTACK(Atlas.ENTITY, "attack/spitter_attack"),
-	SPITTER_IDLE(Atlas.ENTITY, "idle/spitter_idle"),
-	SPITTER_DEATH(Atlas.ENTITY, "death/spitter_death"),
-	SPIT_INIT(Atlas.ENTITY, "init_projectile/spitter_init_projectile"),
-	SPIT_FLY(Atlas.ENTITY, "flying_projectile/spitter_flying_projectile"),
-	SPIT_DEATH(Atlas.ENTITY, "splashing_projectile/spitter_splashing_projectile"),
-		
-	// Slime
-	SLIME_APEX(Atlas.ENTITY, "apex/slime_apex"),
-	SLIME_FALL(Atlas.ENTITY, "fall/slime_fall"),
-	SLIME_JUMP(Atlas.ENTITY, "jump/slime_jump"),
-	SLIME_LAND(Atlas.ENTITY, "land/slime_land"),
-	SLIME_RISE(Atlas.ENTITY, "rise/slime_rise"),
-	SLIME_IDLE(Atlas.ENTITY, "idle/slime_idle"),
-	
 	// Boar
 	BOAR_IDLE(Atlas.ENTITY, "idle/boar_idle"),
 	BOAR_WALK(Atlas.ENTITY, "walk/boar_walk"),
@@ -157,7 +140,8 @@ public enum Asset {
 	GUN_GREMLIN_APEX(Atlas.ENTITY, "apex/gun_gremlin_apex"),
 	GUN_GREMLIN_FALL(Atlas.ENTITY, "fall/gun_gremlin_fall"),
 	GUN_GREMLIN_SHOOT(Atlas.ENTITY, "shoot/gun_gremlin_shoot"),
-	GUN_GREMLIN_PROJECTILE(Atlas.ENTITY, "projectile/gun_gremlin_projectile"),
+	GUN_GREMLIN_MUZZLE_FLASH(Atlas.ENTITY, "muzzle_flash/gun_gremlin_muzzle_flash"),
+	GUN_GREMLIN_IDLE_RANDOM(Atlas.ENTITY, "idle_random/gun_gremlin_idle_random"),
 		
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),

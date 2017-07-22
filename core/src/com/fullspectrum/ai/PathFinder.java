@@ -152,6 +152,11 @@ public class PathFinder {
 		
 	}
 	
+	public void reset() {
+		path.clear();
+		resetPath();
+	}
+	
 	private void resetPath(){
 		for(Entry<Node, PathData> node : pathDataMap.entries()){
 			pathDataMap.get(node.key).reset();
@@ -197,6 +202,9 @@ public class PathFinder {
 		return false;
 	}
 	
+	public boolean noPath(){
+		return path.size == 0;
+	}
 	
 	/**
 	 * Returns the next link in the path and advances the current link to that link.

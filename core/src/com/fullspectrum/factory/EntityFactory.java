@@ -23,11 +23,8 @@ import static com.fullspectrum.entity.EntityType.MANA_BOMB;
 import static com.fullspectrum.entity.EntityType.MONK;
 import static com.fullspectrum.entity.EntityType.PARTICLE;
 import static com.fullspectrum.entity.EntityType.ROGUE;
-import static com.fullspectrum.entity.EntityType.SLIME;
 import static com.fullspectrum.entity.EntityType.SMOKE;
 import static com.fullspectrum.entity.EntityType.SPAWNER;
-import static com.fullspectrum.entity.EntityType.SPIT;
-import static com.fullspectrum.entity.EntityType.SPITTER;
 import static com.fullspectrum.entity.EntityType.THROWING_KNIFE;
 import static com.fullspectrum.entity.EntityType.WINGS;
 import static com.fullspectrum.physics.collision.CollisionBodyType.MOB;
@@ -38,8 +35,11 @@ import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.ai.btree.BehaviorTree;
+import com.badlogic.gdx.ai.btree.LeafTask;
+import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
+import com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -80,11 +80,13 @@ import com.fullspectrum.ability.rogue.ExecuteAbility;
 import com.fullspectrum.ability.rogue.FlashPowderAbility;
 import com.fullspectrum.ability.rogue.HomingKnivesAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
-import com.fullspectrum.ai.AIBehavior;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.ai.tasks.CalculatePathTask;
+import com.fullspectrum.ai.tasks.FollowPathTask;
 import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
+import com.fullspectrum.ai.tasks.OnGroundTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
@@ -92,10 +94,8 @@ import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
 import com.fullspectrum.component.AnimationComponent;
-import com.fullspectrum.component.AttackComponent;
 import com.fullspectrum.component.BTComponent;
 import com.fullspectrum.component.BarrierComponent;
-import com.fullspectrum.component.BehaviorComponent;
 import com.fullspectrum.component.BlinkComponent;
 import com.fullspectrum.component.BobComponent;
 import com.fullspectrum.component.BodyComponent;
@@ -117,9 +117,6 @@ import com.fullspectrum.component.EffectComponent;
 import com.fullspectrum.component.EngineComponent;
 import com.fullspectrum.component.EntityComponent;
 import com.fullspectrum.component.FacingComponent;
-import com.fullspectrum.component.FlowFieldComponent;
-import com.fullspectrum.component.FlowFollowComponent;
-import com.fullspectrum.component.FlyingComponent;
 import com.fullspectrum.component.ForceComponent;
 import com.fullspectrum.component.FrameMovementComponent;
 import com.fullspectrum.component.GroundMovementComponent;
@@ -160,9 +157,7 @@ import com.fullspectrum.component.TextRenderComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
-import com.fullspectrum.component.TintComponent;
 import com.fullspectrum.component.VelocityComponent;
-import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
@@ -177,8 +172,6 @@ import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.entity.EntityType;
-import com.fullspectrum.fsm.AIState;
-import com.fullspectrum.fsm.AIStateMachine;
 import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
@@ -195,7 +188,6 @@ import com.fullspectrum.fsm.transition.CollisionTransitionData.CollisionType;
 import com.fullspectrum.fsm.transition.InputTransitionData;
 import com.fullspectrum.fsm.transition.InputTransitionData.Type;
 import com.fullspectrum.fsm.transition.RandomTransitionData;
-import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TimeTransitionData;
 import com.fullspectrum.fsm.transition.Transition;
 import com.fullspectrum.fsm.transition.TransitionObject;
@@ -2164,303 +2156,6 @@ public class EntityFactory {
 		return goat;
 	}
 	
-	public static Entity createSpitter(float x, float y){
-		// Stats
-		final EntityStats stats = EntityLoader.get(EntityIndex.SPITTER);
-		
-		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.SPITTER_IDLE));
-		animMap.put(EntityAnim.DYING, assets.getAnimation(Asset.SPITTER_DEATH));
-		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.SPITTER_ATTACK));
-//		animMap.put(EntityAnim.FLAPPING, assets.getAnimation(Assets.spitterWings));
-		AIController controller = new AIController();
-		Entity entity = new EntityBuilder(SPITTER, ENEMY)
-				.animation(animMap)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
-				.physics("spitter.json", new BodyProperties.Builder().setGravityScale(0.0f).build(), x, y, false)
-				.mob(controller, stats.get("health"))
-				.build();
-		
-		float baseMoney = stats.get("money");
-		int money = (int)MathUtils.random(baseMoney - 0.1f * baseMoney, baseMoney + 0.1f * baseMoney);
-		entity.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		entity.add(engine.createComponent(TargetComponent.class).set(new TargetComponent.DefaultTargetBehavior(15.0f * 15.0f)));
-		entity.add(engine.createComponent(MoneyComponent.class).set(money));
-		entity.add(engine.createComponent(BobComponent.class).set(2.0f, 4.0f * GameVars.PPM_INV)); // 0.5f loop (2 cycles in one second), 16 pixel height
-		entity.getComponent(DeathComponent.class).add(new DeathBehavior(){
-			@Override
-			public void onDeath(Entity entity) {
-				Mappers.body.get(entity).body.setActive(false);
-				Mappers.wing.get(entity).wings.add(new RemoveComponent());
-				Mappers.esm.get(entity).first().changeState(EntityStates.DYING);
-			}
-		});
-		
-		Entity wings = createWings(entity, x, y, -0.8f, 0.5f, assets.getAnimation(Asset.SPITTER_WINGS));
-		entity.add(engine.createComponent(WingComponent.class).set(wings));
-		entity.add(engine.createComponent(ChildrenComponent.class).add(wings));
-		EntityManager.addEntity(wings);
-		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Spitter ESM", engine, entity)
-			.build();
-		
-		// Wings
-//		AnimationStateMachine wingsASM = new AnimationStateMachine(entity, new StateObjectCreator());
-//		wingsASM.createState(EntityAnim.FLAPPING);
-//		wingsASM.changeState(EntityAnim.FLAPPING);
-		
-		esm.createState(EntityStates.FLYING)
-			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
-			.add(engine.createComponent(FlyingComponent.class))
-			.add(engine.createComponent(FlowFieldComponent.class))
-			.addAnimation(EntityAnim.IDLE);
-		
-		esm.createState(EntityStates.PROJECTILE_ATTACK)
-			.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-			.add(engine.createComponent(FlyingComponent.class))
-			.add(engine.createComponent(FlowFieldComponent.class))
-			.addAnimation(EntityAnim.ATTACK)
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					Mappers.timer.get(entity).add("spit_delay", 0.4f, false, new TimeListener(){
-						@Override
-						public void onTime(Entity entity) {
-							ProjectileFactory.spawnSpitProjectile(entity, 5.0f, 2.0f, stats.get("projectile_speed"), stats.get("projectile_damage"), 0.0f, stats.get("projectile_time"));
-						}
-					});
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-				}
-			});
-		
-		esm.createState(EntityStates.DYING)
-			.addAnimation(EntityAnim.DYING)
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-					// Remove wings
-//					Mappers.asm.get(entity).remove(Mappers.asm.get(entity).get(EntityAnim.FLAPPING));
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					entity.add(new RemoveComponent());
-				}
-			});
-		
-		esm.changeState(EntityStates.FLYING);
-		
-		// Attack Input
-		InputTransitionData attackInput = new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
-		TimeTransitionData attackCooldown = new TimeTransitionData(2.0f);
-		
-		// Attack Transitions
-		esm.addTransition(EntityStates.FLYING, new MultiTransition(Transitions.INPUT, attackInput).and(Transitions.TIME, attackCooldown), EntityStates.PROJECTILE_ATTACK);
-		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
-
-		// After death
-		esm.addTransition(EntityStates.DYING, Transitions.ANIMATION_FINISHED, EntityStates.FLYING);
-		
-		AIStateMachine aism = new  AIStateMachine(entity);
-		aism.setDebugName("Spitter AISM");
-		aism.createState(AIState.WANDERING);
-		aism.createState(AIState.FOLLOWING)
-			.add(engine.createComponent(FlowFollowComponent.class))
-			.addChangeListener(new StateChangeListener(){
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-				}
-
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					Mappers.aiController.get(entity).controller.releaseAll();
-				}
-			});
-		aism.createState(AIState.ATTACKING)
-			.add(engine.createComponent(AttackComponent.class))
-			.addChangeListener(new StateChangeListener() {
-				@Override
-				public void onEnter(State prevState, Entity entity) {
-				}
-				
-				@Override
-				public void onExit(State nextState, Entity entity) {
-					Mappers.aiController.get(entity).controller.releaseAll();
-				}
-			});
-		
-//		LOSTransitionData inSightData = new LOSTransitionData(true);
-//		LOSTransitionData outOfSightData = new LOSTransitionData(false);
-		
-		RangeTransitionData wanderInRange = new RangeTransitionData();
-		wanderInRange.distance = 15.0f;
-		wanderInRange.inRange = true;
-		
-		MultiTransition wanderToFollow = new MultiTransition(Transitions.RANGE, wanderInRange);
-//			.and(Transitions.LINE_OF_SIGHT, inSightData);
-		
-		RangeTransitionData followOutOfRange = new RangeTransitionData();
-		followOutOfRange.distance = 15.0f;
-		followOutOfRange.inRange = false;
-
-		MultiTransition followToWander = new MultiTransition(Transitions.RANGE, followOutOfRange);
-//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
-		
-		RangeTransitionData inAttackRange = new RangeTransitionData();
-		inAttackRange.distance = 8.0f;
-		inAttackRange.fov = 30.0f;
-		inAttackRange.inRange = true;
-		
-		MultiTransition toAttackTransition = new MultiTransition(Transitions.RANGE, inAttackRange);
-//			.and(Transitions.LINE_OF_SIGHT, inSightData);
-		
-		RangeTransitionData outOfAttackRange = new RangeTransitionData();
-		outOfAttackRange.distance = 9.0f;
-		outOfAttackRange.fov = 30.0f;
-		outOfAttackRange.inRange = false;
-		
-		MultiTransition fromAttackTransition = new MultiTransition(Transitions.RANGE, outOfAttackRange);
-//			.or(Transitions.LINE_OF_SIGHT, outOfSightData);
-		
-//		InvalidEntityData invalidEntity = new InvalidEntityData(toFollow);
-		
-		aism.addTransition(AIState.WANDERING, wanderToFollow, AIState.FOLLOWING);
-		aism.addTransition(AIState.FOLLOWING, followToWander, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.FOLLOWING, AIState.ATTACKING), Transitions.INVALID_ENTITY/*, invalidEntity*/, AIState.WANDERING);
-		aism.addTransition(aism.one(AIState.WANDERING, AIState.FOLLOWING), toAttackTransition, AIState.ATTACKING);
-		aism.addTransition(AIState.ATTACKING, fromAttackTransition, AIState.FOLLOWING);
-		
-		aism.changeState(AIState.WANDERING);
-
-		return entity;
-	}
-	
-	public static Entity createSlime(float x, float y){
-		// Stats
-		final EntityStats stats = EntityLoader.get(EntityIndex.SLIME);
-		
-		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.SLIME_IDLE));
-		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.SLIME_JUMP));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.SLIME_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.SLIME_APEX));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.SLIME_FALL));
-		animMap.put(EntityAnim.LAND, assets.getAnimation(Asset.SLIME_LAND));
-		
-		AIController controller = new AIController();
-		
-		Entity slime = new EntityBuilder(SLIME, ENEMY)
-				.mob(controller, stats.get("health"))
-				.physics("slime.json", x, y, true)
-				.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
-				.animation(animMap)
-				.build();
-		float baseMoney = stats.get("money");
-		int money = (int)MathUtils.random(baseMoney - 0.1f * baseMoney, baseMoney + 0.1f * baseMoney);
-		slime.add(engine.createComponent(AIControllerComponent.class).set(controller));
-		slime.add(engine.createComponent(MoneyComponent.class).set(money));
-		slime.add(engine.createComponent(DamageComponent.class).set(stats.get("damage")));
-		
-		final float SPEED = stats.get("air_speed");
-		final float JUMP_FORCE = stats.get("jump_force");
-		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Slime ESM", engine, slime)
-				.idle()
-				.fall(SPEED, true)
-				.jump(JUMP_FORCE, 0.0f, SPEED,  false, false)
-				.build();
-		
-		esm.getState(EntityStates.JUMPING)
-				.addChangeListener(new StateChangeListener() {
-					@Override
-					public void onEnter(State prevState, Entity entity) {
-						// Save jump data to use later
-						JumpComponent jumpComp = EntityUtils.add(entity, JumpComponent.class).set(JUMP_FORCE, 0.0f);
-						InputComponent inputComp = Mappers.input.get(entity);
-						final float jForce = jumpComp.maxForce;
-						final float jMultiplier = inputComp.input.getValue(Actions.JUMP);
-						final boolean facingRight = Mappers.facing.get(entity).facingRight;
-						final float rMultiplier = facingRight ? inputComp.input.getValue(Actions.MOVE_RIGHT) : inputComp.input.getValue(Actions.MOVE_LEFT);
-						
-						Mappers.aiController.get(entity).controller.releaseAll();
-						entity.remove(JumpComponent.class);
-						
-						Mappers.timer.get(entity).add("jump", 0.25f, false, new TimeListener() {
-							@Override
-							public void onTime(Entity entity) {
-								AIController controller = Mappers.aiController.get(entity).controller;
-								controller.press(facingRight ? Actions.MOVE_RIGHT : Actions.MOVE_LEFT, rMultiplier);
-								entity.add(Mappers.engine.get(entity).engine.createComponent(JumpComponent.class).set(jForce, 0.0f));
-								Mappers.jump.get(entity).multiplier = jMultiplier;
-							}
-						});
-					}
-
-					@Override
-					public void onExit(State nextState, Entity entity) {
-					}
-				});
-		
-		esm.createState(EntityStates.LANDING)
-				.add(engine.createComponent(DirectionComponent.class))
-				.add(engine.createComponent(GroundMovementComponent.class))
-				.add(engine.createComponent(SpeedComponent.class).set(0.0f))
-				.addAnimation(EntityAnim.LAND);
-		
-		MultiTransition jumpTransition = new MultiTransition(Transitions.INPUT, new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build());
-		
-		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.LANDING);
-		esm.addTransition(EntityStates.LANDING, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
-		esm.addTransition(EntityStates.IDLING, jumpTransition, EntityStates.JUMPING);
-		esm.addTransition(esm.one(TransitionTag.GROUND_STATE, TransitionTag.AIR_STATE), Transitions.FALLING, EntityStates.FALLING);
-		
-		esm.changeState(EntityStates.IDLING);
-		
-		AIStateMachine aism = new AIStateMachine(slime);
-		aism.setDebugName("Slime AISM");
-		aism.createState(AIState.WANDERING)
-				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
-					@Override
-					public void update(Entity entity, float deltaTime) {
-						if(Mappers.esm.get(entity).first().getCurrentState() != EntityStates.IDLING) return;
-						
-						TimerComponent timerComp = Mappers.timer.get(entity);
-						if(!timerComp.timers.containsKey("jump_delay")){
-							timerComp.add("jump_delay", MathUtils.random(2.5f, 3.5f), false, new TimeListener() {
-								@Override
-								public void onTime(Entity entity) {
-									AIController controller = Mappers.aiController.get(entity).controller;
-									boolean right = MathUtils.randomBoolean();
-									float xMult = MathUtils.random(0.5f, 1.0f);
-									
-									controller.releaseAll();
-									if(right){
-										controller.press(Actions.MOVE_RIGHT, xMult);
-									}else{
-										controller.press(Actions.MOVE_LEFT, xMult);
-									}
-									controller.justPress(Actions.JUMP);
-								}
-							});
-						}
-					}
-				}));
-		
-		aism.createState(AIState.ATTACKING)
-				.add(engine.createComponent(BehaviorComponent.class).set(new AIBehavior() {
-					@Override
-					public void update(Entity entity, float deltaTime) {
-					}
-				}));
-		
-		
-		aism.changeState(AIState.WANDERING);
-		return slime;
-	}
-	
 	public static Entity createSpawner(float x, float y){
 		EntityStats stats = EntityLoader.get(EntityIndex.SPAWNER);
 		AIController controller = new AIController();
@@ -2669,30 +2364,31 @@ public class EntityFactory {
 	
 	public static Entity createGunGremlin(float x, float y) {
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.KNIGHT_IDLE));
-		animMap.put(EntityAnim.WALK, assets.getAnimation(Asset.KNIGHT_RUN));
-		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.KNIGHT_RUN));
-		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.KNIGHT_JUMP));
-		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.KNIGHT_RISE));
-		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.KNIGHT_APEX));
-		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.KNIGHT_FALL));
-		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.KNIGHT_CHAIN1_SWING));
+		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.GUN_GREMLIN_IDLE));
+		animMap.put(EntityAnim.WALK, assets.getAnimation(Asset.GUN_GREMLIN_WALK));
+		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.GUN_GREMLIN_RUN));
+		animMap.put(EntityAnim.JUMP, assets.getAnimation(Asset.GUN_GREMLIN_JUMP));
+		animMap.put(EntityAnim.RISE, assets.getAnimation(Asset.GUN_GREMLIN_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.GUN_GREMLIN_APEX));
+		animMap.put(EntityAnim.FALLING, assets.getAnimation(Asset.GUN_GREMLIN_FALL));
+		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.GUN_GREMLIN_SHOOT));
 		
 		AIController controller = new AIController();
 		final EntityStats stats = EntityLoader.get(EntityIndex.GUN_GREMLIN);
 		NavMesh mesh = NavMesh.get(EntityIndex.GUN_GREMLIN);
 		PathFinder pathFinder = new PathFinder(mesh);
 		
+		Rectangle hitbox = EntityIndex.GUN_GREMLIN.getHitBox();
 		BodyBuilder bodyBuilder = new BodyBuilder()
 				.pos(x, y)
 				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
 				.addFixture()
 					.fixtureType(FixtureType.BODY)
-					.boxPixels(0, 0, 15, 26)
+					.boxPixels(0, 0, (int)hitbox.width, (int)hitbox.height)
 					.build()
 				.addFixture()
 					.fixtureType(FixtureType.FEET)
-					.boxPixels(0, -14, 14, 4)
+					.boxPixels(0, -(int)(hitbox.height * 0.5f) - 1, (int)hitbox.width - 1, 4)
 					.makeSensor()
 					.build();
 		
@@ -2706,23 +2402,44 @@ public class EntityFactory {
 
 		gremlin.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
 		gremlin.add(engine.createComponent(PathComponent.class).set(pathFinder));
-		gremlin.add(engine.createComponent(TintComponent.class).set(Color.MAGENTA));
+		gremlin.add(engine.createComponent(PropertyComponent.class));
 		
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Gun Gremlin ESM", engine, gremlin)
-				.idle()
-				.run(stats.get("ground_speed"))
-				.jump(stats.get("jump_force"), 0.0f, stats.get("air_speed"), true, true)
-				.fall(stats.get("air_speed"), true)
-				.build();
+		Mappers.property.get(gremlin).setProperty("walking", true);
+		
+		EntityStateMachine esm = StateFactory.createBaseBipedal(gremlin, stats);
+		
+		esm.getState(EntityStates.RUNNING)
+			.addAnimation(EntityAnim.WALK);
+		
+		Mappers.timer.get(gremlin).add("run_handler", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				boolean walking = Mappers.property.get(entity).getBoolean("walking");
+				AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.RUN);
+				if(asm != null) {
+					if(asm.getCurrentState() == EntityAnim.WALK && !walking) {
+						asm.changeState(EntityAnim.RUN);
+					} else if(asm.getCurrentState() == EntityAnim.RUN && walking) {
+						asm.changeState(EntityAnim.WALK);
+					}
+				}
+				
+				EntityStateMachine esm = Mappers.esm.get(entity).first();
+				if(esm.getCurrentState() == EntityStates.RUNNING) {
+					Mappers.speed.get(entity).set(walking ? stats.get("walk_speed") : stats.get("ground_speed"));
+				}
+			}
+		});
 		
 		esm.createState(EntityStates.PROJECTILE_ATTACK)
 				.addAnimation(EntityAnim.ATTACK)
 				.addTag(TransitionTag.STATIC_STATE)
-				.add(engine.createComponent(FrameMovementComponent.class).set("gun_gremlin/frames_shoot", true))
+				.add(engine.createComponent(FrameMovementComponent.class).set("gun_gremlin/frames_gremlin_shoot", true))
 				.addChangeListener(new StateChangeListener() {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
-						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 2, false, new TimeListener() {
+						Mappers.facing.get(entity).locked = true;
+						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 6, false, new TimeListener() {
 							@Override
 							public void onTime(Entity entity) {
 								EntityStateMachine esm = Mappers.esm.get(entity).first();
@@ -2752,7 +2469,7 @@ public class EntityFactory {
 											xOff = -xOff;
 										}
 										
-										Entity projectile = createShotgunBullet(pos.x + xOff, pos.y + yOff, speed, angle, damage, range, assets.getRegion(Asset.GUN_GREMLIN_PROJECTILE), Mappers.status.get(entity).status);
+										Entity projectile = createShotgunBullet(pos.x + xOff, pos.y + yOff, speed, angle, damage, range, null, Mappers.status.get(entity).status);
 										EntityManager.addEntity(projectile);
 									}
 								}
@@ -2762,28 +2479,124 @@ public class EntityFactory {
 
 					@Override
 					public void onExit(State nextState, Entity entity) {
+						Mappers.facing.get(entity).locked = false;
 					}
 				});
 				
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(), EntityStates.PROJECTILE_ATTACK);
 		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
+		
+		LeafTask<Entity> setWalking = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.property.get(getObject()).setProperty("walking", true);
+				return Status.SUCCEEDED;
+			}
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		LeafTask<Entity> setRunning = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.property.get(getObject()).setProperty("walking", false);
+				return Status.SUCCEEDED;
+			}
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		LeafTask<Entity> cancelPath = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.path.get(getObject()).pathFinder.reset();
+				return Status.SUCCEEDED;
+			}
+
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		LeafTask<Entity> onTile = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Entity entity = getObject();
+				boolean facingRight = Mappers.facing.get(entity).facingRight;
+				
+				float percentOn = 0.5f;
+				float xOff = facingRight ? -percentOn : percentOn;
+				
+				BodyComponent bodyComp = Mappers.body.get(entity);
+				Rectangle hitbox = bodyComp.getAABB();
+				Body body = bodyComp.body;
+				
+				float x = body.getPosition().x + xOff;
+				float y = body.getPosition().y - hitbox.height * 0.5f - 0.4f; // one tile below where you're standing
+				
+				Level level = Mappers.level.get(entity).level;
+				return level.isSolid(x, y) ? Status.SUCCEEDED : Status.FAILED;
+			}
+
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
 		
 		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
 		tree.setObject(gremlin);
 		
 		Selector<Entity> rootSelector = new Selector<Entity>();
 		
-		Sequence<Entity> chaseSequence = new Sequence<Entity>();
-		chaseSequence.addChild(new InRangeTask(stats.get("chase_range")));
-		chaseSequence.addChild(new InLoSTask());
-		chaseSequence.addChild(BTFactory.followOnPlatform());
+		Sequence<Entity> patrolSequence = new Sequence<Entity>();
+		patrolSequence.addChild(setWalking);
+		patrolSequence.addChild(cancelPath);
+		patrolSequence.addChild(BTFactory.patrol(1.0f));
 		
+		Selector<Entity> rangeSelector = new Selector<Entity>();
+		
+		Sequence<Entity> immediateRange = new Sequence<Entity>();
+		immediateRange.addChild(new InRangeTask(stats.get("chase_range")));
+		immediateRange.addChild(new InLoSTask());
+		
+		Sequence<Entity> platformRange = new Sequence<Entity>();
+		platformRange.addChild(new TargetOnPlatformTask());
+		immediateRange.addChild(new InRangeTask(stats.get("platform_range")));
+		immediateRange.addChild(new InLoSTask());
+		
+		rangeSelector.addChild(immediateRange);
+		rangeSelector.addChild(platformRange);
+		
+		Sequence<Entity> pursueTarget = new Sequence<Entity>();
+		pursueTarget.addChild(rangeSelector);
+		pursueTarget.addChild(new AlwaysSucceed<Entity>(new CalculatePathTask(true)));
+		pursueTarget.addChild(new FollowPathTask());
+		
+		Selector<Entity> chaseSelector = new Selector<Entity>();
+		chaseSelector.addChild(pursueTarget);
+		chaseSelector.addChild(new FollowPathTask());
+		
+		Sequence<Entity> chaseSequence = new Sequence<Entity>();
+		chaseSequence.addChild(setRunning);
+		chaseSequence.addChild(chaseSelector);
+		
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(new InRangeTask(stats.get("attack_range")));
+		attackSequence.addChild(new OnGroundTask());
+		attackSequence.addChild(onTile);
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		rootSelector.addChild(attackSequence);
 		rootSelector.addChild(chaseSequence);
-		rootSelector.addChild(BTFactory.patrol(1.0f));
+		rootSelector.addChild(patrolSequence);
 		
 		tree.addChild(rootSelector);
 		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
@@ -3014,26 +2827,6 @@ public class EntityFactory {
 				.build();
 		
 		return pellet;
-	}
-	
-	public static Entity createSpitProjectile(float speed, float angle, float x, float y, float damage, float airTime, EntityStatus status){
-		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.PROJECTILE_INIT, assets.getAnimation(Asset.SPIT_INIT));
-		animMap.put(EntityAnim.PROJECTILE_FLY, assets.getAnimation(Asset.SPIT_FLY));
-		animMap.put(EntityAnim.PROJECTILE_DEATH, assets.getAnimation(Asset.SPIT_DEATH));
-		
-		Entity spit = new ProjectileBuilder(SPIT, status, x, y, speed, angle)
-				.addDamage(damage)
-				.render(true)
-				.animate(
-						animMap.get(EntityAnim.PROJECTILE_INIT), 
-						animMap.get(EntityAnim.PROJECTILE_FLY), 
-						animMap.get(EntityAnim.PROJECTILE_DEATH))
-				.addTimedDeath(airTime)
-				.addStateMachine()
-				.build();
-		
-		return spit;
 	}
 	
 	private static Entity createExplosiveProjectile(float speed, float angle, float x, float y, float damage, boolean isArc, EntityStatus status, EntityType type, String physicsBody, float radius, float damageDropOffRate, float knockback, Animation<TextureRegion> init, Animation<TextureRegion> fly, Animation<TextureRegion> death){

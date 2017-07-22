@@ -9,11 +9,13 @@ public class PropertyComponent implements Component, Poolable{
 	private ArrayMap<String, Float> floatMap;
 	private ArrayMap<String, String> stringMap;
 	private ArrayMap<String, Object> objectMap;
+	private ArrayMap<String, Boolean> booleanMap;
 	
 	public PropertyComponent() {
 		floatMap = new ArrayMap<String, Float>();
 		stringMap = new ArrayMap<String, String>();
 		objectMap = new ArrayMap<String, Object>();
+		booleanMap = new ArrayMap<String, Boolean>();
 	}
 	
 	public void setProperty(String name, float value) {
@@ -28,6 +30,10 @@ public class PropertyComponent implements Component, Poolable{
 		objectMap.put(name, value);
 	}
 	
+	public void setProperty(String name, boolean value) {
+		booleanMap.put(name, value);
+	}
+	
 	public float getFloat(String name) {
 		return floatMap.get(name);
 	}
@@ -40,10 +46,16 @@ public class PropertyComponent implements Component, Poolable{
 		return objectMap.get(name);
 	}
 	
+	public boolean getBoolean(String name) {
+		return booleanMap.get(name);
+	}
+	
 	@Override
 	public void reset() {
 		floatMap.clear();
 		stringMap.clear();
+		objectMap.clear();
+		booleanMap.clear();
 	}
 
 	

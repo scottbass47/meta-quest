@@ -109,10 +109,6 @@ public class Level {
 				meshes.add(index);
 			}
 
-			if (index == EntityIndex.SPITTER) {
-				requiresFlowField = true;
-			}
-
 			if (index == EntityIndex.SPAWNER) {
 				requiresFlowField = true;
 			}
@@ -772,7 +768,7 @@ public class Level {
 	}
 
 	public boolean isSolid(float x, float y) {
-		return isSolid((int) y, (int) x);
+		return isSolid(Maths.toGridCoord(y), Maths.toGridCoord(x));
 	}
 
 	/**
