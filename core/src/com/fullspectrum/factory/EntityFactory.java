@@ -228,6 +228,32 @@ public class EntityFactory {
 	public static Level level;
 	public static int ID;
 	
+	// -------------
+	// Bugs / Todos
+	// -------------
+	
+	// Level Editor
+	// TODO Add in undo history
+	// TODO Add in save prompt when exiting program
+	// TODO Add in help menu with list of commands
+	// TODO Add in fill tool
+	
+	// Entity
+	// BUG Player can get hit by gremlin shotgun when parrying
+	// BUG Gun gremlin rapidly switches between two entity states sometimes
+	// TODO Add double jump stats to rogue config file
+	// TODO Make muzzle flash a separate particle
+	
+	// ------------
+	// Optimization
+	// ------------
+	
+	// Physics
+	// PERFORMANCE Add in Box2d filtering system
+	
+	// AI
+	// TODO Split pathfinding calculations into chunks so new paths aren't calculated in their entirety in a single frame
+	
 	private EntityFactory(){
 	}
 	
@@ -2600,6 +2626,8 @@ public class EntityFactory {
 		
 		tree.addChild(rootSelector);
 		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		esm.setDebugOutput(true);
 		
 		return gremlin;
 	}

@@ -61,6 +61,12 @@ public enum DebugToggle {
 		public void onToggle() {
 			DebugVars.FPS_ON = !DebugVars.FPS_ON;
 		}
+	},
+	FULLSCREEN('f'){
+		@Override
+		public void onToggle() {
+			DebugVars.FULLSCREEN_MODE = !DebugVars.FULLSCREEN_MODE;
+		}
 	};
 	
 	private final char character;
