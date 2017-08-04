@@ -119,35 +119,15 @@ public class ActionManager implements InputProcessor {
 				Level currentLevel = editor.getCurrentLevel();
 				System.out.println("Saving level " + currentLevel.getInfo());
 				LevelUtils.saveLevel(currentLevel);
+				editor.saved();
 			} 
 			// Erase
 			else if(keycode == Keys.E) {
-				if(currentAction == EditorActions.AUTO_PLACE) {
-					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
-					autoPlaceAction.setErasing(!autoPlaceAction.isErasing());
-					
-					// If you're done erasing and there is no active tile, go back to select
-					if(!autoPlaceAction.isErasing() && editor.getTilePanel().getActiveTile() == null) {
-						switchAction(EditorActions.SELECT);
-					}
-				} else {
-					switchAction(EditorActions.ERASE);
-				}
+				switchAction(EditorActions.ERASE);
 			}
 			// Auto Tile
 			else if(keycode == Keys.A) {
-				if(currentAction == EditorActions.AUTO_PLACE) {
-					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
-					autoPlaceAction.setErasing(false);
-				} else if(currentAction == EditorActions.PLACE || currentAction == EditorActions.ERASE) {
-					switchAction(EditorActions.AUTO_PLACE);
-					AutoPlaceAction autoPlaceAction = (AutoPlaceAction) currentActionInstance;
-					if(previousAction == EditorActions.PLACE) {
-						autoPlaceAction.setErasing(false);
-					} else if(previousAction == EditorActions.ERASE) {
-						autoPlaceAction.setErasing(true);
-					}
-				}
+				editor.setAutoTiling(!editor.isAutoTiling());
 			}
 			// Enemy Panel
 			else if(keycode == Keys.Q) {
@@ -156,6 +136,9 @@ public class ActionManager implements InputProcessor {
 			// Level Trigger Panel
 			else if(keycode == Keys.W) {
 				
+			}
+			else if(keycode == Keys.Z) {
+				editor.undo();
 			}
 		}
 

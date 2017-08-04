@@ -3,9 +3,8 @@ package com.fullspectrum.editor.action;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.fullspectrum.editor.command.EraseCommand;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
-import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
 
 public class EraseAction extends Action {
@@ -20,16 +19,14 @@ public class EraseAction extends Action {
 	@Override
 	public void update(float delta) {
 		if(editor.isMouseOnMap() && editor.isMouseDown()) {
-			ExpandableGrid<MapTile> tileMap = editor.getCurrentLevel().getTileMap();
-			
 			Vector2 worldCoords = editor.toWorldCoords(mouseX, mouseY);
 			
 			int row = Maths.toGridCoord(worldCoords.y);
 			int col = Maths.toGridCoord(worldCoords.x);
 			
-			if(tileMap.contains(row, col)) {
-				tileMap.set(row, col, null);
-			}
+			editor.beginTile();
+			editor.executeCommand(new EraseCommand(row, col));
+			editor.endTile();
 		}
 	}
 

@@ -741,6 +741,10 @@ public class Level {
 		spawn.setFacingRight(facingRight);
 		entitySpawns.add(spawn);
 	}
+	
+	public void addEntitySpawn(EntitySpawn spawn) {
+		entitySpawns.add(spawn);
+	}
 
 	public Array<EntitySpawn> getEntitySpawns() {
 		return entitySpawns;

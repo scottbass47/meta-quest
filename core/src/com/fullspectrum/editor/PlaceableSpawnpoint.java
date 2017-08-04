@@ -8,12 +8,11 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
+import com.fullspectrum.editor.command.Command;
+import com.fullspectrum.editor.command.PlaceSpawnpointCommand;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
-import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
-import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
 
 public class PlaceableSpawnpoint implements Placeable{
@@ -27,7 +26,7 @@ public class PlaceableSpawnpoint implements Placeable{
 	}
 	
 	@Override
-	public void onClick(Vector2 mousePos, LevelEditor editor) {
+	public Command onClick(Vector2 mousePos, LevelEditor editor) {
 		Rectangle rect = entityIndex.getHitBox();
 
 		int row = Maths.toGridCoord(mousePos.y);
@@ -35,12 +34,8 @@ public class PlaceableSpawnpoint implements Placeable{
 		float hitX = mousePos.x;
 		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
 
-		Level level = editor.getCurrentLevel();
-		if(entityIndex == EntityIndex.KNIGHT || entityIndex == EntityIndex.MONK || entityIndex == EntityIndex.ROGUE) {
-			level.setPlayerSpawn(new EntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight));
-		} else {
-			editor.getCurrentLevel().addEntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
-		}
+		EntitySpawn spawn = new EntitySpawn(entityIndex, new Vector2(hitX, hitY), facingRight);
+		return new PlaceSpawnpointCommand(spawn);
 	}
 
 	@Override
@@ -93,11 +88,9 @@ public class PlaceableSpawnpoint implements Placeable{
 		int maxRow = Maths.toGridCoord(y + height);
 		int maxCol = Maths.toGridCoord(x + width);
 		
-		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
-		
 		for(int row = minRow; row <= maxRow; row++) {
 			for(int col = minCol; col <= maxCol; col++) {
-				if(tileMap.contains(row, col) && tileMap.get(row, col) != null && tileMap.get(row, col).isSolid()) return true;
+				if(editor.contains(row, col) && editor.getTile(row, col) != null && editor.getTile(row, col).isSolid()) return true;
 			}
 		}
 		return false;
@@ -107,5 +100,4 @@ public class PlaceableSpawnpoint implements Placeable{
 	public boolean placeOnClick() {
 		return true;
 	}
-
 }

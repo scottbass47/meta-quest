@@ -3,6 +3,7 @@ package com.fullspectrum.editor.action;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.editor.Placeable;
+import com.fullspectrum.editor.command.Command;
 
 public class PlaceAction extends Action {
 
@@ -36,7 +37,14 @@ public class PlaceAction extends Action {
 		if(!editor.isMouseOnMap()) return false;
 		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
 		if(!activePlaceable.placeOnClick()) {
-			activePlaceable.onClick(mousePos, editor);
+			Command command = activePlaceable.onClick(mousePos, editor);
+			if(command.editsTiles()) {
+				editor.beginTile();
+				editor.executeCommand(command);
+				editor.endTile();
+			} else {
+				editor.executeCommand(command);
+			}
 		}
 		
 		return false;
@@ -46,7 +54,14 @@ public class PlaceAction extends Action {
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		if(!editor.isMouseOnMap()) return false;
 		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
-		activePlaceable.onClick(mousePos, editor);
+		Command command = activePlaceable.onClick(mousePos, editor);
+		if(command.editsTiles()) {
+			editor.beginTile();
+			editor.executeCommand(command);
+			editor.endTile();
+		} else {
+			editor.executeCommand(command);
+		}
 		return false;
 	}
 

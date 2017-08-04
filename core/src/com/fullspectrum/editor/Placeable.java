@@ -2,11 +2,12 @@ package com.fullspectrum.editor;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.fullspectrum.editor.command.Command;
 
 public interface Placeable {
 	
 	/** Called when the placeable is being placed */
-	public void onClick(Vector2 mousePos, LevelEditor editor);
+	public Command onClick(Vector2 mousePos, LevelEditor editor);
 	
 	public void update(float delta);
 	

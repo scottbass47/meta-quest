@@ -197,7 +197,7 @@ public class ExpandableGrid<T> {
 	
 	public T get(int row, int col) {
 		if(!contains(row, col)) {
-			throw new ArrayIndexOutOfBoundsException("Grid does not contain a point at " + row + ", " + col);
+			return null;
 		}
 		return grid.get(row - minRow).get(col - minCol);
 	}
@@ -234,17 +234,8 @@ public class ExpandableGrid<T> {
 	}
 	
 	public void removeRow(boolean above, boolean allEmpty) {
-		int index = 0;
-		if(above) {
-			index = getRows() - 1;
-		}
-		
-		if(allEmpty) {
-			Array<T> row = grid.get(index);
-			for(T value : row) {
-				if(value != null) return;
-			}
-		}
+		if(allEmpty && !rowAllEmpty(above)) return;
+		int index = above ? getRows() - 1 : 0;
 		
 		if(above) {
 			maxRow--;
@@ -255,16 +246,8 @@ public class ExpandableGrid<T> {
 	}
 	
 	public void removeCol(boolean right, boolean allEmpty) {
-		int index = 0;
-		if(right) {
-			index = getCols() - 1;
-		}
-		
-		if(allEmpty) {
-			for(Array<T> row : grid) {
-				if(row.get(index) != null) return;
-			}
-		}
+		if(allEmpty && !colAllEmpty(right)) return;
+		int index = right ? getCols() - 1 : 0;
 		
 		if(right) {
 			maxCol--;
@@ -274,6 +257,25 @@ public class ExpandableGrid<T> {
 		for(Array<T> row : grid) {
 			row.removeIndex(index);
 		}
+	}
+	
+	public boolean rowAllEmpty(boolean above) {
+		int index = above ? getRows() - 1 : 0;
+		
+		Array<T> row = grid.get(index);
+		for(T value : row) {
+			if(value != null) return false;
+		}
+		return true;
+	}
+	
+	public boolean colAllEmpty(boolean right) {
+		int index = right ? getCols() - 1 : 0;
+		
+		for(Array<T> row : grid) {
+			if(row.get(index) != null) return false;
+		}
+		return true;
 	}
 	
 	public T getXY(int x, int y) {

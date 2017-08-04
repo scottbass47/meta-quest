@@ -5,6 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.editor.LevelEditor;
 import com.fullspectrum.editor.Selectable;
+import com.fullspectrum.editor.command.MoveCommand;
 
 public class MoveAction extends Action{
 
@@ -73,9 +74,7 @@ public class MoveAction extends Action{
 	}
 	
 	public void move() {
-		for(Selectable<?> select : selected) {
-			select.move(select.getPosition(offset), editor);
-		}
+		editor.executeCommand(new MoveCommand(selected, offset));
 		
 		actionManager.switchAction(EditorActions.SELECT);
 		SelectAction selectAction = (SelectAction) actionManager.getCurrentActionInstance();

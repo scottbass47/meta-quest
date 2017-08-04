@@ -24,6 +24,13 @@ public class MapTile {
 		this.type = type;
 	}
 	
+	public MapTile(MapTile mapTile) {
+		this.id = mapTile.id;
+		this.row = mapTile.row;
+		this.col = mapTile.col;
+		this.type = mapTile.type;
+	}
+
 	public int getRow() {
 		return row;
 	}
@@ -70,8 +77,9 @@ public class MapTile {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + col;
+		result = prime * result + id;
 		result = prime * result + row;
-		result = prime * result + ((type == null) ? 0 : type.name().hashCode());
+		result = prime * result + ((type == null) ? 0 : type.hashCode());
 		return result;
 	}
 
@@ -82,6 +90,7 @@ public class MapTile {
 		if (getClass() != obj.getClass()) return false;
 		MapTile other = (MapTile) obj;
 		if (col != other.col) return false;
+		if (id != other.id) return false;
 		if (row != other.row) return false;
 		if (type != other.type) return false;
 		return true;

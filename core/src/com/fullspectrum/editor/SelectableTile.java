@@ -3,7 +3,6 @@ package com.fullspectrum.editor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -41,7 +40,9 @@ public class SelectableTile implements Selectable<MapTile>{
 
 	@Override
 	public void remove(LevelEditor editor) {
-		editor.getTileMap().set(tile.getRow(), tile.getCol(), null);
+		editor.beginTile();
+		editor.setTile(tile.getRow(), tile.getCol(), null);
+		editor.endTile();
 	}
 
 	@Override
@@ -57,7 +58,7 @@ public class SelectableTile implements Selectable<MapTile>{
 
 	@Override
 	public void move(Vector2 position, LevelEditor editor) {
-		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
+		remove(editor);
 		
 		int row = Maths.toGridCoord(position.y);
 		int col = Maths.toGridCoord(position.x);
@@ -65,7 +66,9 @@ public class SelectableTile implements Selectable<MapTile>{
 		tile.setRow(row);
 		tile.setCol(col);
 		
-		tileMap.add(row, col, tile);
+		editor.beginTile();
+		editor.addTile(row, col, new MapTile(tile));
+		editor.endTile();
 	}
 	
 	public MapTile getTile() {

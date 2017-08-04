@@ -2,9 +2,10 @@ package com.fullspectrum.editor;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.fullspectrum.editor.command.Command;
+import com.fullspectrum.editor.command.DoNothingCommand;
+import com.fullspectrum.editor.command.PlaceTileCommand;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
-import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.TileType;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -13,22 +14,16 @@ import com.fullspectrum.utils.Maths;
 public class PlaceableTile implements Placeable {
 
 	@Override
-	public void onClick(Vector2 mousePos, LevelEditor editor) {
+	public Command onClick(Vector2 mousePos, LevelEditor editor) {
 		int row = Maths.toGridCoord(mousePos.y);
 		int col = Maths.toGridCoord(mousePos.x);
 		
-		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
 		TilePanel tilePanel = editor.getTilePanel();
 		
-		if(!tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getID() != tilePanel.getActiveTile().getID()) {
-			MapTile mapTile = new MapTile();
-			mapTile.setRow(row);
-			mapTile.setCol(col);
-			mapTile.setId(tilePanel.getActiveTile().getID());
-			mapTile.setType(TileType.GROUND);
-			
-			tileMap.add(row, col, mapTile);
+		if(!editor.contains(row, col) || editor.getTile(row, col) == null || editor.getTile(row, col).getID() != tilePanel.getActiveTile().getID()) {
+			return new PlaceTileCommand(row, col, tilePanel.getActiveTile().getID(), TileType.GROUND);
 		}
+		return new DoNothingCommand();
 	}
 
 	@Override

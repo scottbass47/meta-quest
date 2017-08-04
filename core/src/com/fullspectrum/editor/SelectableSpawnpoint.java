@@ -9,10 +9,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
-import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
 
 public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
@@ -68,11 +66,9 @@ public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 		int maxRow = Maths.toGridCoord(y + height);
 		int maxCol = Maths.toGridCoord(x + width);
 		
-		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
-		
 		for(int row = minRow; row <= maxRow; row++) {
 			for(int col = minCol; col <= maxCol; col++) {
-				if(tileMap.contains(row, col) && tileMap.get(row, col) != null && tileMap.get(row, col).isSolid()) return true;
+				if(editor.getTile(row, col) != null && editor.getTile(row, col).isSolid()) return true;
 			}
 		}
 		return false;

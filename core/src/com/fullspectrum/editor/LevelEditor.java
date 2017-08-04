@@ -1,5 +1,7 @@
 package com.fullspectrum.editor;
 
+import java.util.Stack;
+
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
@@ -14,17 +16,32 @@ import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.editor.action.ActionManager;
 import com.fullspectrum.editor.action.EditorActions;
 import com.fullspectrum.editor.action.MoveAction;
 import com.fullspectrum.editor.action.SelectAction;
+import com.fullspectrum.editor.command.Command;
+import com.fullspectrum.editor.command.ResizeMapCommand;
+import com.fullspectrum.editor.command.ResizeMapCommand.Direction;
+import com.fullspectrum.editor.command.UpdateSurroundingTilesCommand;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
+import com.fullspectrum.gui.Label;
+import com.fullspectrum.gui.Window;
 import com.fullspectrum.level.ExpandableGrid;
+import com.fullspectrum.level.GridPoint;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
+import com.fullspectrum.level.tiles.MapTile.Side;
+import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.level.tiles.TileSlot;
+import com.fullspectrum.level.tiles.Tileset;
+import com.fullspectrum.level.tiles.TilesetTile;
 
 public class LevelEditor extends InputMultiplexer{
 
@@ -47,6 +64,20 @@ public class LevelEditor extends InputMultiplexer{
 	private int ctrlCount = 0;
 	private int shiftCount = 0;
 	private float animTime;
+	private boolean unsavedEdits = false;
+	private boolean autoTiling = false;
+	
+	// Commands
+	private Stack<Command> history;
+	private int savePointer = 0;
+	private TileChanges currTileChanges;
+	private Stack<TileChanges> tileHistory;
+	private boolean editingTiles = false;
+	private boolean discardTileChanges = false;
+	
+	// UI
+	private Window editorWindow;
+	private Label saveLabel;
 	
 	// BUG Ctrl + A when having an enemy selected causes a crash
 	public LevelEditor() {
@@ -62,6 +93,20 @@ public class LevelEditor extends InputMultiplexer{
 
 		actionManager = new ActionManager(this);
 		addProcessor(actionManager);
+		
+		history = new Stack<Command>();
+		tileHistory = new Stack<TileChanges>();
+		
+		editorWindow = new Window();
+		editorWindow.setPosition(0, 0);
+		editorWindow.setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
+		
+		saveLabel = new Label("Saved");
+		saveLabel.setPosition(10, 10 + (int)tilePanel.getHeight());
+		saveLabel.setFont(AssetLoader.getInstance().getFont(AssetLoader.font18));
+		saveLabel.autoSetSize();
+		
+		editorWindow.add(saveLabel);
 	}
 	
 	private void setupTextures() {
@@ -97,6 +142,7 @@ public class LevelEditor extends InputMultiplexer{
 	public void setHudCamera(OrthographicCamera hudCamera) {
 		this.hudCamera = hudCamera;
 		actionManager.setHudCamera(hudCamera);
+		editorWindow.setHudCamera(hudCamera);
 	}
 
 	public void update(float delta) {
@@ -104,6 +150,12 @@ public class LevelEditor extends InputMultiplexer{
 		
 		actionManager.update(delta);
 		moveCamera(delta);
+		
+		unsavedEdits = history.size() != savePointer;
+		
+		saveLabel.setText(unsavedEdits ? "Unsaved edits..." : "Saved");
+		saveLabel.autoSetSize();
+		editorWindow.update(delta);
 	}
 	
 	private void moveCamera(float delta) {
@@ -130,32 +182,32 @@ public class LevelEditor extends InputMultiplexer{
 		
 		if (ctrlDown()) {
 			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
-				tileMap.addRow(true);
+				executeCommand(new ResizeMapCommand(Direction.UP, true));
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-				tileMap.addRow(false);
+				executeCommand(new ResizeMapCommand(Direction.DOWN, true));
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
-				tileMap.addCol(false);
+				executeCommand(new ResizeMapCommand(Direction.LEFT, true));
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-				tileMap.addCol(true);
+				executeCommand(new ResizeMapCommand(Direction.RIGHT, true));
 			}
 		}
 
 		// Removing rows/cols
 		if (shiftDown()) {
-			if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
-				tileMap.removeRow(true, true);
-			}
 			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
-				tileMap.removeRow(false, true);
+				if(tileMap.rowAllEmpty(false)) executeCommand(new ResizeMapCommand(Direction.UP, false));
 			}
-			if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
-				tileMap.removeCol(false, true);
+			if (Gdx.input.isKeyJustPressed(Keys.DOWN)) {
+				if(tileMap.rowAllEmpty(true)) executeCommand(new ResizeMapCommand(Direction.DOWN, false));
 			}
 			if (Gdx.input.isKeyJustPressed(Keys.LEFT)) {
-				tileMap.removeCol(true, true);
+				if(tileMap.colAllEmpty(true)) executeCommand(new ResizeMapCommand(Direction.LEFT, false));
+			}
+			if (Gdx.input.isKeyJustPressed(Keys.RIGHT)) {
+				if(tileMap.colAllEmpty(false)) executeCommand(new ResizeMapCommand(Direction.RIGHT, false));
 			}
 		}
 	}
@@ -214,15 +266,166 @@ public class LevelEditor extends InputMultiplexer{
 		batch.end();
 		
 		if(actionManager.renderInFront()) {
+			editorWindow.render(batch);
 			tilePanel.render(hudCamera, batch);
 			actionManager.render(batch);
 		} else {
 			actionManager.render(batch);
+			editorWindow.render(batch);
 			tilePanel.render(hudCamera, batch);
 		}
-	}
 		
+	}
+	
+	// **************************************************
+	// *				TILE MAP STUFF					*
+	// **************************************************
+		
+	public void placeTile(MapTile tile) {
+		placeTile(tile, autoTiling);
+	}
+	
+	public void setTile(int row, int col, MapTile tile){
+		if(!editingTiles) throw new RuntimeException("Must begin tile editing before making changes to the tile map.");
+		
+		currTileChanges.addTile(row, col, tileMap.get(row, col));
+		tileMap.add(row, col, tile);
+	}
+	
+	public void addTile(int row, int col, MapTile tile){
+		setTile(row, col, tile);
+	}
+	
+	public void placeTile(MapTile tile, boolean autoTiling) {
+		if(!editingTiles) throw new RuntimeException("Must begin tile editing before making changes to the tile map.");
 
+		int row = tile.getRow();
+		int col = tile.getCol();
+
+		if(autoTiling) {
+			TilePanel tilePanel = getTilePanel();
+			
+			TilesetTile tilesetTile = calculateTilesetTileAt(row, col, tilePanel.getActiveTile().getClusterID());
+			tile.setId(tilesetTile.getID());
+
+			currTileChanges.addTile(row, col, tileMap.get(row, col));
+			tileMap.add(row, col, tile);
+			
+			executeCommand(new UpdateSurroundingTilesCommand(row, col));
+		} else {
+			currTileChanges.addTile(row, col, tileMap.get(row, col));
+			tileMap.add(row, col, tile);
+		}
+	}
+	
+	public void eraseTile(int row, int col) {
+		eraseTile(row, col, autoTiling);
+	}
+	
+	public void eraseTile(int row, int col, boolean autoTiling) {
+		if(!editingTiles) throw new RuntimeException("Must begin tile editing before making changes to the tile map.");
+		
+		if (tileMap.contains(row, col) && tileMap.get(row, col) != null) {
+			currTileChanges.addTile(row, col, tileMap.get(row, col));
+			tileMap.set(row, col, null);
+			if(autoTiling) executeCommand(new UpdateSurroundingTilesCommand(row, col));
+		}
+	}
+	
+	public void updateTile(LevelEditor editor, int row, int col) {
+		if(!editingTiles) throw new RuntimeException("Must begin tile editing before making changes to the tile map.");
+		
+		TilePanel tilePanel = editor.getTilePanel();
+		if (!tileMap.contains(row, col) || tileMap.get(row, col) == null) return;
+		MapTile mapTile = tileMap.get(row, col);
+		Tileset tileset = tilePanel.getTileset();
+
+		int clusterID = tileset.getClusterID(mapTile.getID());
+
+		TilesetTile tile = calculateTilesetTileAt(row, col, clusterID);
+		mapTile.setId(tile.getID());
+		
+		currTileChanges.addTile(row, col, tileMap.get(row, col));
+		tileMap.set(row, col, mapTile);
+	}
+	
+	public TilesetTile calculateTilesetTileAt(int row, int col, int clusterID) {
+		TilePanel tilePanel = getTilePanel();
+
+		Array<Side> sidesOpen = new Array<Side>(Side.class);
+
+		if (isOpen(row + 1, col, clusterID)) sidesOpen.add(Side.NORTH);
+		if (isOpen(row - 1, col, clusterID)) sidesOpen.add(Side.SOUTH);
+		if (isOpen(row, col + 1, clusterID)) sidesOpen.add(Side.EAST);
+		if (isOpen(row, col - 1, clusterID)) sidesOpen.add(Side.WEST);
+
+		TileSlot slot = TileSlot.getSlot(sidesOpen.toArray());
+
+		Tileset tileset = tilePanel.getTileset();
+		TilesetTile tilesetTile = tileset.getTile(clusterID, slot);
+		return tilesetTile;
+	}
+
+	public boolean isOpen(int row, int col, int clusterID) {
+		TilePanel tilePanel = getTilePanel();
+		return !tileMap.contains(row, col) || tileMap.get(row, col) == null || tileMap.get(row, col).getType() != TileType.GROUND || tilePanel.getTileset().getClusterID(tileMap.get(row, col).getID()) != clusterID;
+	}
+	
+	public boolean contains(int row, int col) {
+		return tileMap.contains(row, col);
+	}
+	
+	public MapTile getTile(int row, int col) {
+		return tileMap.get(row, col);
+	}
+	
+	public void beginTile() {
+		if(editingTiles) throw new RuntimeException("Already editing tiles.");
+		editingTiles = true;
+		currTileChanges = new TileChanges();
+	}
+	
+	public void endTile() {
+		if(!editingTiles) throw new RuntimeException("Begin was never called.");
+		editingTiles = false;
+		if(discardTileChanges) {
+			discardTileChanges = false;
+			return;
+		}
+		tileHistory.push(currTileChanges);
+	}
+	
+	public void undoTile() {
+		if(editingTiles) throw new RuntimeException("Can't undo tile changes while in the middle of editing.");
+		if(tileHistory.isEmpty()) return;
+		TileChanges tileChanges = tileHistory.pop();
+		
+		System.out.println("Tile History Size: " + tileHistory.size());
+		
+		ArrayMap<GridPoint, MapTile> changes = tileChanges.getChanges();
+		for(GridPoint point : changes.keys()){
+			tileMap.set(point.row, point.col, changes.get(point));
+		}
+	}
+	
+	public void addRow(boolean above){
+		tileMap.addRow(above);
+	}
+	
+	public void addCol(boolean right){
+		tileMap.addCol(right);
+	}
+	
+	public void removeRow(boolean above, boolean allEmpty){
+		tileMap.removeRow(above, allEmpty);
+	}
+	
+	public void removeCol(boolean right, boolean allEmpty){
+		tileMap.removeCol(right, allEmpty);
+	}
+	
+	// ********************************************************************
+	
 	////////////////////////
 	// 		  INPUT		  //
 	////////////////////////
@@ -304,10 +507,6 @@ public class LevelEditor extends InputMultiplexer{
 		return tilePanel;
 	}
 	
-	public ExpandableGrid<MapTile> getTileMap() {
-		return tileMap;
-	}
-	
 	public Vector2 toHudCoords(int screenX, int screenY) {
 		Vector3 result = hudCamera.unproject(new Vector3(screenX, screenY, 0));
 		return new Vector2(result.x, result.y);
@@ -366,4 +565,43 @@ public class LevelEditor extends InputMultiplexer{
 		return selectTexture;
 	}
 	
+	public void madeChanges(){
+		unsavedEdits = true;
+	}
+	
+	public void saved() {
+		unsavedEdits = false;
+		savePointer = history.size();
+	}
+	
+	public boolean requiresSaving() {
+		return unsavedEdits;
+	}
+	
+	public void setAutoTiling(boolean autoTiling) {
+		this.autoTiling = autoTiling;
+	}
+	
+	public boolean isAutoTiling() {
+		return autoTiling;
+	}
+	
+	public void executeCommand(Command command) {
+		command.execute(this);
+		if(command.discard()) {
+			discardTileChanges = command.editsTiles();
+			return; // If the command needs to be discarded, don't save it on the stack
+		}
+		System.out.println("Executing Command: " + command);
+		history.add(command);
+	}
+	
+	public void undo() {
+		if(history.size() == 0) return;
+		Command command = history.pop();
+		System.out.println("Undoing command: " + command);
+		
+		command.undo(this);
+		if(!history.empty() && history.peek() instanceof UpdateSurroundingTilesCommand) undo();
+	}
 }

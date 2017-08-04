@@ -16,7 +16,6 @@ import com.fullspectrum.editor.SelectableSpawnpoint;
 import com.fullspectrum.editor.SelectableTile;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.utils.Maths;
@@ -253,9 +252,8 @@ public class SelectAction extends Action {
 			
 			for(int row = startRow; row <= endRow; row++) {
 				for(int col = startCol; col <= endCol; col++) {
-					ExpandableGrid<MapTile> tileMap = editor.getTileMap();
-					if(tileMap.contains(row, col) && tileMap.get(row, col) != null) {
-						selected.add(new SelectableTile(tileMap.get(row, col)));
+					if(editor.getTile(row, col) != null) {
+						selected.add(new SelectableTile(editor.getTile(row, col)));
 					}
 				}
 			}
@@ -282,30 +280,29 @@ public class SelectAction extends Action {
 	}
 	
 	private void magicSelectTiles(int row, int col) {
-		ExpandableGrid<MapTile> tileMap = editor.getTileMap();
-		if(!tileMap.contains(row, col) || tileMap.get(row, col) == null) return;
-		recursiveMagicSelect(row, col, tileMap, new ObjectSet<MapTile>());
+		if(editor.getTile(row, col) == null) return;
+		recursiveMagicSelect(row, col, new ObjectSet<MapTile>());
 	}
 	
-	private void recursiveMagicSelect(int row, int col, ExpandableGrid<MapTile> tileMap, ObjectSet<MapTile> visited) {
-		MapTile tile = tileMap.get(row, col);
+	private void recursiveMagicSelect(int row, int col, ObjectSet<MapTile> visited) {
+		MapTile tile = editor.getTile(row, col);
 		visited.add(tile);
 		selected.add(new SelectableTile(tile));
 		
-		if(tileMap.contains(row + 1, col) && tileMap.get(row + 1, col) != null && !visited.contains(tileMap.get(row + 1, col))) {
-			recursiveMagicSelect(row + 1, col, tileMap, visited);
+		if(editor.getTile(row + 1, col) != null && !visited.contains(editor.getTile(row + 1, col))) {
+			recursiveMagicSelect(row + 1, col, visited);
 		}
 		
-		if(tileMap.contains(row - 1, col) && tileMap.get(row - 1, col) != null && !visited.contains(tileMap.get(row - 1, col))) {
-			recursiveMagicSelect(row - 1, col, tileMap, visited);
+		if(editor.getTile(row - 1, col) != null && !visited.contains(editor.getTile(row - 1, col))) {
+			recursiveMagicSelect(row - 1, col, visited);
 		}
 		
-		if(tileMap.contains(row, col + 1) && tileMap.get(row, col + 1) != null && !visited.contains(tileMap.get(row, col + 1))) {
-			recursiveMagicSelect(row, col + 1, tileMap, visited);
+		if(editor.getTile(row, col + 1) != null && !visited.contains(editor.getTile(row, col + 1))) {
+			recursiveMagicSelect(row, col + 1, visited);
 		}
 		
-		if(tileMap.contains(row, col - 1) && tileMap.get(row, col - 1) != null && !visited.contains(tileMap.get(row, col - 1))) {
-			recursiveMagicSelect(row, col - 1, tileMap, visited);
+		if(editor.getTile(row, col - 1) != null && !visited.contains(editor.getTile(row, col - 1))) {
+			recursiveMagicSelect(row, col - 1, visited);
 		}
 	}
 
