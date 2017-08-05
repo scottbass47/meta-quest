@@ -24,9 +24,7 @@ public class EraseAction extends Action {
 			int row = Maths.toGridCoord(worldCoords.y);
 			int col = Maths.toGridCoord(worldCoords.x);
 			
-			editor.beginTile();
 			editor.executeCommand(new EraseCommand(row, col));
-			editor.endTile();
 		}
 	}
 

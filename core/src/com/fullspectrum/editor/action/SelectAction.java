@@ -1,5 +1,7 @@
 package com.fullspectrum.editor.action;
 
+import java.util.Iterator;
+
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,6 +16,8 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.fullspectrum.editor.Selectable;
 import com.fullspectrum.editor.SelectableSpawnpoint;
 import com.fullspectrum.editor.SelectableTile;
+import com.fullspectrum.editor.command.DeleteCommand;
+import com.fullspectrum.editor.command.PasteCommand;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.Level.EntitySpawn;
@@ -31,7 +35,7 @@ public class SelectAction extends Action {
 	private boolean mouseDown = false;
 	private boolean tiles = false;
 	private boolean areaSelected = false;
-	private boolean copied = false;
+//	private boolean copied = false;
 	private boolean magicSelect = false;
 	
 	// Marching Ants
@@ -54,6 +58,16 @@ public class SelectAction extends Action {
 	@Override
 	public void update(float delta) {
 		animTime += delta;
+		
+		// HACK ughhhh...
+		// Removed bad spawns
+		for(Iterator<Selectable<?>> iter = selected.iterator(); iter.hasNext(); ) {
+			Selectable<?> select = iter.next();
+			if(select instanceof SelectableSpawnpoint) {
+				SelectableSpawnpoint spawnpoint = (SelectableSpawnpoint) select;
+				if(spawnpoint.disabled()) iter.remove();
+			}
+		}
 	}
 
 	@Override
@@ -158,22 +172,22 @@ public class SelectAction extends Action {
 	@Override
 	public boolean keyUp(int keycode) {
 		if(keycode == Keys.DEL) {
-			for(int i = 0; i < selected.size; i++) {
-				Selectable<?> sel = selected.get(i);
-				sel.remove(editor);
-				selected.removeIndex(i);
-				i--;
-			}
+			DeleteCommand delete = new DeleteCommand(selected);
+			editor.executeCommand(delete);
+			selected.clear();
 			areaSelected = false;
 		} else if(editor.ctrlDown() && keycode == Keys.C) {
 			clipboard.clear();
 			for(Selectable<?> select : selected) {
-				clipboard.add(select.copy(editor));
+				clipboard.add(select);
 			}
 		} else if(editor.ctrlDown() && keycode == Keys.V && clipboard.size > 0) {
-			copied = true;
+//			copied = true;
 			selected.clear();
-			selected.addAll(clipboard);
+			
+			PasteCommand paste = new PasteCommand(clipboard, editor);
+			editor.executeCommand(paste);
+			selected.addAll(paste.getSelected());
 		}
 		return false;
 	}
@@ -214,9 +228,9 @@ public class SelectAction extends Action {
 			
 			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
 			moveAction.setStart(worldCoords);
-			moveAction.setSelected(selected, editor, this, copied);
+			moveAction.setSelected(selected, editor, this, /*copied*/false);
 		} else {
-			copied = false;
+//			copied = false;
 			selected.clear();
 			mouseDown = true;
 			areaSelected = false;
@@ -259,7 +273,8 @@ public class SelectAction extends Action {
 			}
 			
 		} else {
-			for(EntitySpawn spawn : editor.getCurrentLevel().getEntitySpawns()) {
+			for(int id = 0; id < editor.nextID(); id++) {
+				EntitySpawn spawn = editor.getSpawn(id);
 				Vector2 spawnPoint = spawn.getPos();
 				EntityIndex index = spawn.getIndex();
 				Rectangle hitbox = Maths.scl(index.getHitBox(), GameVars.PPM_INV);
@@ -270,7 +285,7 @@ public class SelectAction extends Action {
 				Rectangle collision = new Rectangle(lowerX, lowerY, hitbox.width, hitbox.height);
 				
 				if(selectRect.overlaps(collision)) {
-					selected.add(new SelectableSpawnpoint(spawn));
+					selected.add(new SelectableSpawnpoint(editor, id));
 				}
 			}
 		}

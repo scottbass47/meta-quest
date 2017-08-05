@@ -12,4 +12,5 @@ public interface Selectable<T> {
 	public void remove(LevelEditor editor);
 	public boolean contentsEqual(T value);
 	public void move(Vector2 position, LevelEditor editor);
+	public void add(Vector2 position, LevelEditor editor);
 }

@@ -2,12 +2,12 @@ package com.fullspectrum.editor.command;
 
 import com.fullspectrum.editor.LevelEditor;
 import com.fullspectrum.entity.EntityIndex;
-import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
 
 public class PlaceSpawnpointCommand extends Command {
 
-	private EntitySpawn spawn;
+	private int spawnID;
+	private EntitySpawn spawn; // Used for placing, DO NOT reference when undoing. Use spawnID to ensure you get a good spawn.
 	private EntitySpawn oldPlayer;
 	
 	public PlaceSpawnpointCommand(EntitySpawn spawn) {
@@ -17,30 +17,29 @@ public class PlaceSpawnpointCommand extends Command {
 	
 	@Override
 	public void execute(LevelEditor editor) {
-		Level level = editor.getCurrentLevel();
 		EntityIndex index = spawn.getIndex();
 		if(index == EntityIndex.KNIGHT || index == EntityIndex.MONK || index == EntityIndex.ROGUE) {
-			oldPlayer = level.getPlayerSpawn();
-			level.setPlayerSpawn(spawn);
+			oldPlayer = editor.getPlayerSpawn();
+			editor.setPlayerSpawn(spawn);
 		} else {
-			editor.getCurrentLevel().addEntitySpawn(spawn);
+			spawnID = editor.addSpawn(spawn);
 		}
 	}
 
 	@Override
 	public void undo(LevelEditor editor) {
-		Level level = editor.getCurrentLevel();
+		EntitySpawn spawn = editor.getSpawn(spawnID);
 		EntityIndex index = spawn.getIndex();
 		if(index == EntityIndex.KNIGHT || index == EntityIndex.MONK || index == EntityIndex.ROGUE) {
-			level.setPlayerSpawn(oldPlayer);
+			editor.setPlayerSpawn(oldPlayer);
 		} else {
-			editor.getCurrentLevel().removeSpawn(spawn);
+			editor.removeSpawn(spawnID);
 		}
 	}
 	
 	@Override
 	public String toString() {
-		return "Place " + spawn;
+		return "Place " + spawn + " [" + spawnID + "]";
 	}
 
 }

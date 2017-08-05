@@ -6,20 +6,19 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
-import com.badlogic.gdx.utils.Array;
-import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.level.Level;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.utils.Maths;
 
 public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 
-	private EntitySpawn spawn;
+	private LevelEditor editor;
+	private int spawnID;
 	private float animTime;
 	
-	public SelectableSpawnpoint(EntitySpawn spawn) {
-		this.spawn = spawn;
+	public SelectableSpawnpoint(LevelEditor editor, int spawnID) {
+		this.editor = editor;
+		this.spawnID = spawnID;
 	}
 	
 	@Override
@@ -34,6 +33,7 @@ public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 		
 		int row = Maths.toGridCoord(y);
 		
+		EntitySpawn spawn = editor.getSpawn(spawnID);
 		Animation<TextureRegion> idle = spawn.getIndex().getIdleAnimation();
 		Rectangle rect = spawn.getIndex().getHitBox();
 		TextureRegion region = idle.getKeyFrame(animTime);
@@ -75,32 +75,30 @@ public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 	}
 	@Override
 	public Selectable<EntitySpawn> copy(LevelEditor editor) {
-		EntitySpawn copy = new EntitySpawn(spawn.getIndex(), spawn.getPos(), spawn.isFacingRight());
-		return new SelectableSpawnpoint(copy);
+		return new SelectableSpawnpoint(editor, editor.addSpawn(editor.getSpawn(spawnID)));
 	}
 
 	@Override
 	public void remove(LevelEditor editor) {
-		editor.getCurrentLevel().removeSpawn(spawn);
+		editor.removeSpawn(spawnID);
 	}
 
 	@Override
 	public Vector2 getPosition(Vector2 offset) {
+		EntitySpawn spawn = editor.getSpawn(spawnID);
 		return new Vector2(spawn.getPos().x + offset.x, spawn.getPos().y + offset.y);
 	}
 
 	@Override
 	public boolean contentsEqual(EntitySpawn value) {
+		EntitySpawn spawn = editor.getSpawn(spawnID);
 		return spawn.equals(value);
 	}
 
 	@Override
 	public void move(Vector2 position, LevelEditor editor) {
-		Level level = editor.getCurrentLevel();
-		Array<EntitySpawn> spawns = level.getEntitySpawns();
-		
-		EntityIndex entityIndex = spawn.getIndex();
-		Rectangle rect = entityIndex.getHitBox();
+		EntitySpawn spawn = editor.getSpawn(spawnID);
+		Rectangle rect = spawn.getIndex().getHitBox();
 
 		int row = Maths.toGridCoord(position.y);
 		
@@ -108,7 +106,31 @@ public class SelectableSpawnpoint implements Selectable<EntitySpawn>{
 		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
 
 		spawn.setPos(new Vector2(hitX, hitY));
-		spawns.add(spawn);
+		editor.enableSpawn(spawnID);
+	}
+	
+	@Override
+	public void add(Vector2 position, LevelEditor editor) {
+		// CLEANUP Same as move
+		EntitySpawn spawn = editor.getSpawn(spawnID);
+		Rectangle rect = spawn.getIndex().getHitBox();
+
+		int row = Maths.toGridCoord(position.y);
+		
+		float hitX = position.x;
+		float hitY = row + GameVars.PPM_INV * (rect.height * 0.5f);
+
+		spawn.setPos(new Vector2(hitX, hitY));
+		editor.enableSpawn(spawnID);	
+	}
+	
+	public boolean disabled() {
+		return !editor.isEnabled(spawnID);
+	}
+	
+	@Override
+	public String toString() {
+		return "[" + spawnID + "] - " + editor.getSpawn(spawnID);
 	}
 
 }

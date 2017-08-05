@@ -14,7 +14,7 @@ public class MoveCommand extends Command {
 	
 	public MoveCommand(Array<Selectable<?>> selected, Vector2 offset) {
 		super(false);
-		this.selected = selected;
+		this.selected = new Array<Selectable<?>>(selected);
 		this.offset = offset;
 		oldState = new ArrayMap<Vector2, Selectable<?>>();
 	}
@@ -25,11 +25,12 @@ public class MoveCommand extends Command {
 			oldState.put(select.getPosition(Vector2.Zero), select);
 			select.move(select.getPosition(offset), editor);
 		}
-		
 	}
 
 	@Override
 	public void undo(LevelEditor editor) {
+		for(Selectable<?> select  : selected) select.remove(editor);
+		
 		for(Vector2 pos : oldState.keys()) {
 			Selectable<?> select = oldState.get(pos);
 			select.move(pos, editor);

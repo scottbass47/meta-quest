@@ -23,4 +23,9 @@ public class TileChanges {
 	public ArrayMap<GridPoint, MapTile> getChanges(){
 		return tileMap;
 	}
+	
+	@Override
+	public String toString() {
+		return tileMap.toString();
+	}
 }

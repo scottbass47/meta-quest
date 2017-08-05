@@ -233,7 +233,6 @@ public class EntityFactory {
 	// -------------
 	
 	// Level Editor
-	// TODO Add in undo history
 	// TODO Add in save prompt when exiting program
 	// TODO Add in help menu with list of commands
 	// TODO Add in fill tool
@@ -2626,8 +2625,6 @@ public class EntityFactory {
 		
 		tree.addChild(rootSelector);
 		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
-		
-		esm.setDebugOutput(true);
 		
 		return gremlin;
 	}

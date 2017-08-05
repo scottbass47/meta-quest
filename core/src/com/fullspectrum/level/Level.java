@@ -612,120 +612,6 @@ public class Level {
 		return platform;
 	}
 
-	// private void setupGround() {
-	// final TiledMapTileLayer layer = (TiledMapTileLayer)
-	// map.getLayers().get("ground");
-	// width = layer.getWidth();
-	// height = layer.getHeight();
-	//
-	// for (int row = 0; row < height; row++) {
-	// for (int col = 0; col < width; col++) {
-	// Cell cell = layer.getCell(col, row);
-	//
-	// MapTile mapTile = new MapTile();
-	// mapTile.setRow(row);
-	// mapTile.setCol(col);
-	//
-	// if (cell == null || cell.getTile() == null) {
-	// mapTile.setId(-1);
-	// mapTile.setType(TileType.AIR);
-	// } else {
-	// mapTile.setId(cell.getTile().getId());
-	// mapTile.setType(TileType.GROUND);
-	// }
-	//
-	// tileMap.add(row, col, mapTile);
-	// }
-	// }
-	// }
-
-	// CLEANUP WON'T WORK ANYMORE
-	// private void setupLadders(){
-	// BodyDef bdef = new BodyDef();
-	// bdef.type = BodyType.StaticBody;
-	// PolygonShape shape = new PolygonShape();
-	// shape.setAsBox(0.5f, 0.5f);
-	// FixtureDef fdef = new FixtureDef();
-	// fdef.shape = shape;
-	// fdef.friction = 0.0f;
-	// fdef.filter.categoryBits = CollisionBits.TILE.getBit();
-	// fdef.filter.maskBits = CollisionBits.getOtherBits(CollisionBits.TILE);
-	// fdef.isSensor = true;
-	//
-	// while(ladders.size > 0){
-	// Tile ladder = ladders.first();
-	// int startCol = ladder.getCol();
-	// int startRow = ladder.getRow();
-	// int endCol = ladder.getCol();
-	// int endRow = ladder.getRow();
-	//
-	// // Traverse Up
-	// for(int row = startRow + 1; row < height; row++){
-	// if(tileMap.get(row, startCol).getType() != TileType.LADDER){
-	// break;
-	// }
-	// endRow++;
-	// }
-	//
-	// // Traverse Down
-	// for(int row = startRow - 1; row >= 0; row--){
-	// if(tileMap.get(row, startCol).getType() != TileType.LADDER){
-	// break;
-	// }
-	// startRow--;
-	// }
-	//
-	// // Remove Ladders
-	// for(Iterator<Tile> iter = ladders.iterator(); iter.hasNext();){
-	// Tile t = iter.next();
-	// if(t.getRow() >= startRow && t.getRow() <= endRow && t.getCol() >=
-	// startCol && t.getCol() <= endCol){
-	// iter.remove();
-	// }
-	// }
-	//
-	// int width = endCol - startCol + 1;
-	// int height = endRow - startRow + 1;
-	// shape.setAsBox(width * 0.5f - 0.4f, height * 0.5f);
-	// bdef.position.set(startCol + width * 0.5f, startRow + height * 0.5f);
-	// Body body = world.createBody(bdef);
-	// body.createFixture(fdef).setUserData("ladder");
-	// bodies.add(body);
-	// }
-	// }
-
-	// private void setupSpawnPoints() {
-	// MapObjects objects = map.getLayers().get("spawns").getObjects();
-	// for (MapObject o : objects) {
-	// float x = (Float) o.getProperties().get("x");
-	// float y = (Float) o.getProperties().get("y");
-	// float width = (Float) o.getProperties().get("width");
-	// float height = (Float) o.getProperties().get("height");
-	// Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height *
-	// 0.5f).scl(PPM_INV);
-	// if (o.getName().equals("player_spawn")) {
-	// playerSpawn = spawnPoint;
-	// }else {
-	// entitySpawns.add(new EntitySpawn(EntityIndex.get(o.getName()),
-	// spawnPoint));
-	// }
-	// }
-	// }
-	//
-	// private void setupLevelTriggers() {
-	// MapObjects objects = map.getLayers().get("triggers").getObjects();
-	// for (MapObject o : objects) {
-	// float x = (Float) o.getProperties().get("x");
-	// float y = (Float) o.getProperties().get("y");
-	// float width = (Float) o.getProperties().get("width");
-	// float height = (Float) o.getProperties().get("height");
-	// Vector2 spawnPoint = new Vector2(x + width * 0.5f, y + height *
-	// 0.5f).scl(PPM_INV);
-	// EntityManager.addEntity(EntityFactory.createLevelTrigger(spawnPoint.x,
-	// spawnPoint.y, o.getName()));
-	// }
-	// }
-
 	public void destroy() {
 		// Destroy Physics Bodies
 		for (Iterator<Body> iter = bodies.iterator(); iter.hasNext();) {
@@ -754,6 +640,10 @@ public class Level {
 		entitySpawns.removeValue(spawn, false);
 	}
 
+	public void removeAllSpawns(){
+		entitySpawns.clear();
+	}
+	
 	public boolean isLadder(int row, int col) {
 		MapTile tile = tileAt(row, col);
 		return tile != null && tile.getType() == TileType.LADDER;
@@ -827,6 +717,12 @@ public class Level {
 			this.index = index;
 			this.pos = pos;
 			this.facingRight = facingRight;
+		}
+		
+		public EntitySpawn(EntitySpawn spawn){
+			index = spawn.index;
+			pos = new Vector2(spawn.pos);
+			facingRight = spawn.facingRight;
 		}
 
 		public EntityIndex getIndex() {

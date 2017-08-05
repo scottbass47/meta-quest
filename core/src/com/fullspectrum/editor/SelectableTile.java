@@ -13,7 +13,7 @@ public class SelectableTile implements Selectable<MapTile>{
 	private MapTile tile;
 	
 	public SelectableTile(MapTile tile) {
-		this.tile = tile;
+		this.tile = new MapTile(tile);
 	}
 	
 	@Override
@@ -28,21 +28,18 @@ public class SelectableTile implements Selectable<MapTile>{
 		Tileset tileset = editor.getTilePanel().getTileset();
 		TilesetTile tilesetTile = tileset.getTilesetTile(tile.getID());
 
+//		batch.draw(editor.getSelectTexture(), tile.getCol(), tile.getRow(), 0.0f, 0.0f, 16.0f, 16.0f, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, 16, 16, false, false);
 		batch.draw(tileset.getTilesheet().getTexture(), col, row, 0.0f, 0.0f, 16.0f, 16.0f, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, tilesetTile.getSheetX(), tilesetTile.getSheetY(), 16, 16, false, false);
 	}
 
 	@Override
 	public Selectable<MapTile> copy(LevelEditor editor) {
-		MapTile copy = new MapTile(tile.getRow(), tile.getCol(), tile.getType());
-		copy.setId(tile.getID());
-		return new SelectableTile(copy);
+		return new SelectableTile(new MapTile(tile));
 	}
 
 	@Override
 	public void remove(LevelEditor editor) {
-		editor.beginTile();
-		editor.setTile(tile.getRow(), tile.getCol(), null);
-		editor.endTile();
+		editor.unsafeSetTile(tile.getRow(), tile.getCol(), null);
 	}
 
 	@Override
@@ -58,17 +55,21 @@ public class SelectableTile implements Selectable<MapTile>{
 
 	@Override
 	public void move(Vector2 position, LevelEditor editor) {
-		remove(editor);
-		
 		int row = Maths.toGridCoord(position.y);
 		int col = Maths.toGridCoord(position.x);
 		
 		tile.setRow(row);
 		tile.setCol(col);
 		
-		editor.beginTile();
-		editor.addTile(row, col, new MapTile(tile));
-		editor.endTile();
+		editor.unsafeSetTile(row, col, new MapTile(tile));
+	}
+	
+	@Override
+	public void add(Vector2 position, LevelEditor editor) {
+		int row = Maths.toGridCoord(position.y);
+		int col = Maths.toGridCoord(position.x);
+		
+		editor.unsafeSetTile(row, col, new MapTile(tile));
 	}
 	
 	public MapTile getTile() {

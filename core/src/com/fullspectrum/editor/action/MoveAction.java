@@ -41,6 +41,7 @@ public class MoveAction extends Action{
 		return selected;
 	}
 
+	// Entry point for move command
 	public void setSelected(Array<Selectable<?>> selected, LevelEditor editor, SelectAction selectAction, boolean copied) {
 		this.selected = selected;
 		this.selectAction = selectAction;

@@ -45,6 +45,7 @@ import com.fullspectrum.level.tiles.TilesetTile;
 
 public class LevelEditor extends InputMultiplexer{
 
+	// Level
 	private Level currentLevel;
 	private ExpandableGrid<MapTile> tileMap;
 	private TilePanel tilePanel;
@@ -78,8 +79,12 @@ public class LevelEditor extends InputMultiplexer{
 	// UI
 	private Window editorWindow;
 	private Label saveLabel;
+
+	// Entity Spawns
+	private ArrayMap<Integer, EntitySpawn> spawnMap; // 0 is reserved for the player
+	private ArrayMap<Integer, Boolean> entityAdded;
+	private int nextID = 0;
 	
-	// BUG Ctrl + A when having an enemy selected causes a crash
 	public LevelEditor() {
 		tilePanel = new TilePanel();
 		tilePanel.setX(0.0f);
@@ -107,6 +112,9 @@ public class LevelEditor extends InputMultiplexer{
 		saveLabel.autoSetSize();
 		
 		editorWindow.add(saveLabel);
+		
+		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
+		entityAdded = new ArrayMap<Integer, Boolean>();
 	}
 	
 	private void setupTextures() {
@@ -125,6 +133,8 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public Level getCurrentLevel() {
+		// Setup spawns
+		updateLevelSpawns();
 		return currentLevel;
 	}
 	
@@ -132,6 +142,72 @@ public class LevelEditor extends InputMultiplexer{
 		this.currentLevel = currentLevel;
 		mapRenderer.setTileMap(currentLevel.getTileMap());
 		tileMap = currentLevel.getTileMap();
+		
+		// Init the entity spawns
+		initEntitySpawns();
+	}
+	
+	private void initEntitySpawns() {
+		addSpawn(currentLevel.getPlayerSpawn());
+		for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
+			addSpawn(spawn);
+		}
+	}
+	
+	public int addSpawn(EntitySpawn spawn) {
+		spawnMap.put(nextID, new EntitySpawn(spawn));
+		entityAdded.put(nextID, true);
+		return nextID++;
+	}
+	
+	public void removeSpawn(int id){
+		entityAdded.put(id, false);
+	}
+	
+	public EntitySpawn getSpawn(int id){
+		return spawnMap.get(id);
+	}
+	
+	public void updateLevelSpawns(){
+		currentLevel.removeAllSpawns();
+		currentLevel.setPlayerSpawn(spawnMap.get(0));
+		
+		for(Integer id : spawnMap.keys()){
+			if(id == 0) continue;
+			if(entityAdded.get(id)) {
+				currentLevel.addEntitySpawn(spawnMap.get(id));
+			}
+		}
+	}
+	
+	public Array<EntitySpawn> getActiveSpawns(){
+		Array<EntitySpawn> spawns = new Array<Level.EntitySpawn>();
+		for(int id : spawnMap.keys()) {
+			if(entityAdded.get(id)) {
+				spawns.add(spawnMap.get(id));
+			}
+		}
+		return spawns;
+	}
+	
+	public int nextID(){
+		return nextID;
+	}
+	
+	public void setPlayerSpawn(EntitySpawn spawn){
+		spawnMap.put(0, spawn);
+	}
+	
+	public EntitySpawn getPlayerSpawn(){
+		return spawnMap.get(0);
+	}
+	
+	public void enableSpawn(int id){
+		entityAdded.put(id, true);
+	}
+	
+	public boolean isEnabled(int spawnID) {
+		return entityAdded.get(spawnID);
 	}
 	
 	public void setWorldCamera(OrthographicCamera camera) {
@@ -153,7 +229,7 @@ public class LevelEditor extends InputMultiplexer{
 		
 		unsavedEdits = history.size() != savePointer;
 		
-		saveLabel.setText(unsavedEdits ? "Unsaved edits..." : "Saved");
+		saveLabel.setText((unsavedEdits ? "Unsaved edits..." : "Saved") + " -------- Enemy Count: " + (getActiveSpawns().size - 1));
 		saveLabel.autoSetSize();
 		editorWindow.update(delta);
 	}
@@ -228,15 +304,9 @@ public class LevelEditor extends InputMultiplexer{
 			selectAction = (SelectAction) actionManager.getCurrentActionInstance();
 		}
 		
-		for(int i = 0; i < currentLevel.getEntitySpawns().size + 1; i++ ) { 
-			EntitySpawn entitySpawn = null;
-			if(i == 0 && currentLevel.getPlayerSpawn() != null) {
-				entitySpawn = currentLevel.getPlayerSpawn();
-			} else if(i == 0 && currentLevel.getPlayerSpawn() == null) {
-				continue;
-			} else {
-				entitySpawn = currentLevel.getEntitySpawns().get(i - 1);
-			}
+		for(int id : spawnMap.keys()) { 
+			if(!entityAdded.get(id)) continue;
+			EntitySpawn entitySpawn = spawnMap.get(id);
 			
 			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
 			EntityIndex index = entitySpawn.getIndex();
@@ -292,6 +362,16 @@ public class LevelEditor extends InputMultiplexer{
 		tileMap.add(row, col, tile);
 	}
 	
+	/**
+	 * WARNING using this method prevents UNDOs. Only use this method if you want immediate mode tilemap editing with no save states.
+	 * @param row
+	 * @param col
+	 * @param tile
+	 */
+	public void unsafeSetTile(int row, int col, MapTile tile) {
+		tileMap.add(row, col, tile);
+	}
+	
 	public void addTile(int row, int col, MapTile tile){
 		setTile(row, col, tile);
 	}
@@ -338,6 +418,8 @@ public class LevelEditor extends InputMultiplexer{
 		TilePanel tilePanel = editor.getTilePanel();
 		if (!tileMap.contains(row, col) || tileMap.get(row, col) == null) return;
 		MapTile mapTile = tileMap.get(row, col);
+		currTileChanges.addTile(row, col, mapTile);
+
 		Tileset tileset = tilePanel.getTileset();
 
 		int clusterID = tileset.getClusterID(mapTile.getID());
@@ -345,7 +427,6 @@ public class LevelEditor extends InputMultiplexer{
 		TilesetTile tile = calculateTilesetTileAt(row, col, clusterID);
 		mapTile.setId(tile.getID());
 		
-		currTileChanges.addTile(row, col, tileMap.get(row, col));
 		tileMap.set(row, col, mapTile);
 	}
 	
@@ -379,13 +460,13 @@ public class LevelEditor extends InputMultiplexer{
 		return tileMap.get(row, col);
 	}
 	
-	public void beginTile() {
+	private void beginTile() {
 		if(editingTiles) throw new RuntimeException("Already editing tiles.");
 		editingTiles = true;
 		currTileChanges = new TileChanges();
 	}
 	
-	public void endTile() {
+	private void endTile() {
 		if(!editingTiles) throw new RuntimeException("Begin was never called.");
 		editingTiles = false;
 		if(discardTileChanges) {
@@ -535,6 +616,7 @@ public class LevelEditor extends InputMultiplexer{
 			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
 			moveAction.move();
 		}
+		updateLevelSpawns();
 	}
 	
 	public boolean shiftDown() {
@@ -587,13 +669,29 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void executeCommand(Command command) {
+		// If this is called while editing tiles, then this command must be called within another command
+		// that edits tiles. Don't call begin or end if this is the case.
+		boolean embeddedCall = editingTiles;
+		
+		if(!embeddedCall && command.editsTiles()) beginTile();
 		command.execute(this);
+		
 		if(command.discard()) {
-			discardTileChanges = command.editsTiles();
+			discardTileChanges = command.editsTiles() && !embeddedCall; // Embedded calls can't determine if tile changes are discarded
+			if(discardTileChanges) endTile();
 			return; // If the command needs to be discarded, don't save it on the stack
 		}
+		if(!embeddedCall && command.editsTiles()) endTile();
 		System.out.println("Executing Command: " + command);
-		history.add(command);
+		
+		// HACK Better system for embedded command calls
+		if(!(command instanceof UpdateSurroundingTilesCommand)) history.add(command);
+		
+//		System.out.println("\nCommand History");
+//		System.out.println(history);
+//		
+//		System.out.println("\nTile History");
+//		System.out.println(tileHistory);
 	}
 	
 	public void undo() {
@@ -602,6 +700,11 @@ public class LevelEditor extends InputMultiplexer{
 		System.out.println("Undoing command: " + command);
 		
 		command.undo(this);
-		if(!history.empty() && history.peek() instanceof UpdateSurroundingTilesCommand) undo();
+		
+//		System.out.println("\nCommand History");
+//		System.out.println(history);
+//		
+//		System.out.println("\nTile History");
+//		System.out.println(tileHistory);
 	}
 }

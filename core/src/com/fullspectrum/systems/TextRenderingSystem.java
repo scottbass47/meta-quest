@@ -52,6 +52,7 @@ public class TextRenderingSystem extends EntitySystem{
 			textRenderComp.font.getData().setScale(cameraComp.zoom);
 			layout.setText(textRenderComp.font, textRenderComp.text);
 			textRenderComp.font.draw(batch, textRenderComp.text, coords.x - layout.width * 0.5f, coords.y - layout.height * 0.5f);
+			textRenderComp.font.getData().setScale(1.0f);
 		}
 		batch.end();
 		batch.setProjectionMatrix(cameraComp.camera.combined);
