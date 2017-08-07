@@ -165,6 +165,7 @@ public class LevelManager{
 		}
 		
 		// Setup editor
+		editor.onEnter();
 		editor.setCurrentLevel(currentLevel);
 		editor.setWorldCamera(worldCamera);
 		editor.setHudCamera(hudCamera);

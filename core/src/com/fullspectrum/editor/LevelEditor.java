@@ -35,12 +35,12 @@ import com.fullspectrum.gui.Window;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.GridPoint;
 import com.fullspectrum.level.Level;
+import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.Level.EntitySpawn;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
 import com.fullspectrum.level.tiles.MapTile.TileType;
-import com.fullspectrum.utils.StringUtils;
 import com.fullspectrum.level.tiles.TileSlot;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -69,6 +69,8 @@ public class LevelEditor extends InputMultiplexer{
 	private float animTime;
 	private boolean unsavedEdits = false;
 	private boolean autoTiling = false;
+	private int autoSaveInterval = 3000;
+	private boolean open = false;
 	
 	// Commands
 	private Stack<Command> history;
@@ -133,6 +135,26 @@ public class LevelEditor extends InputMultiplexer{
 		
 		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
 		entityAdded = new ArrayMap<Integer, Boolean>();
+		
+		Thread saveThread = new Thread(new Runnable() {
+			@Override
+			public void run() {
+				while(true) {
+					if(currentLevel == null || !open || !unsavedEdits) continue;
+					try {
+						Thread.sleep(autoSaveInterval);
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+					synchronized (currentLevel) {
+						LevelUtils.saveLevel(currentLevel);
+						saved();
+					}
+				}
+			}
+		}, "Editor Auto-Save");
+		saveThread.setDaemon(true);
+		saveThread.start();
 	}
 	
 	private void setupTextures() {
@@ -247,7 +269,7 @@ public class LevelEditor extends InputMultiplexer{
 		
 		unsavedEdits = history.size() != savePointer;
 		
-		saveLabel.setText((unsavedEdits ? "Unsaved edits..." : "Saved"));
+		saveLabel.setText((unsavedEdits ? "Unsaved Changes" : "Saved"));
 		saveLabel.autoSetSize();
 		
 		autoTileLabel.setText("Auto-Tiling: " + (autoTiling ? "Yes" : "No"));
@@ -639,11 +661,16 @@ public class LevelEditor extends InputMultiplexer{
 		return toWorldCoords(coords.x, coords.y);
 	}
 	
+	public void onEnter(){
+		open = true;
+	}
+	
 	public void onExit() {
 		if(actionManager.getCurrentAction() == EditorActions.MOVE) {
 			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
 			moveAction.move();
 		}
+		open = false;
 		updateLevelSpawns();
 	}
 	

@@ -38,6 +38,16 @@ public class LevelUtils {
 		return level;
 	}
 	
+//	public static void saveTmpLevel(Level level) {
+//		FileHandle handle = Gdx.files.local("map/" + "~" + level.getInfo().toFileFormat() + "~.map");
+//		
+//		Kryo kryo = setupKryoInstance();
+//		Output output = new Output(new BufferedOutputStream(handle.write(false)));
+//		
+//		kryo.writeObject(output, level);
+//		output.close();
+//	}
+	
 	public static void saveLevel(Level level) {
 		FileHandle handle = Gdx.files.local("map/" + level.getInfo().toFileFormatWithExtension());
 		
