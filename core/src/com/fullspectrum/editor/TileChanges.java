@@ -13,6 +13,7 @@ public class TileChanges {
 	}
 	
 	public void addTile(int row, int col, MapTile value) {
+		if(tileMap.containsKey(new GridPoint(row, col))) return;
 		tileMap.put(new GridPoint(row, col), value == null ? null : new MapTile(value));
 	}
 	

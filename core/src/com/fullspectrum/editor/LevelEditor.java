@@ -11,6 +11,7 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Animation;
+import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
@@ -39,6 +40,7 @@ import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
 import com.fullspectrum.level.tiles.MapTile.TileType;
+import com.fullspectrum.utils.StringUtils;
 import com.fullspectrum.level.tiles.TileSlot;
 import com.fullspectrum.level.tiles.Tileset;
 import com.fullspectrum.level.tiles.TilesetTile;
@@ -79,6 +81,8 @@ public class LevelEditor extends InputMultiplexer{
 	// UI
 	private Window editorWindow;
 	private Label saveLabel;
+	private Label actionLabel;
+	private Label autoTileLabel;
 
 	// Entity Spawns
 	private ArrayMap<Integer, EntitySpawn> spawnMap; // 0 is reserved for the player
@@ -106,12 +110,26 @@ public class LevelEditor extends InputMultiplexer{
 		editorWindow.setPosition(0, 0);
 		editorWindow.setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
 		
+		BitmapFont font = AssetLoader.getInstance().getFont(AssetLoader.font18);
+		
 		saveLabel = new Label("Saved");
 		saveLabel.setPosition(10, 10 + (int)tilePanel.getHeight());
-		saveLabel.setFont(AssetLoader.getInstance().getFont(AssetLoader.font18));
+		saveLabel.setFont(font);
 		saveLabel.autoSetSize();
 		
+		autoTileLabel = new Label("Auto-Tiling: No");
+		autoTileLabel.setPosition(saveLabel.getX() + saveLabel.getWidth() + 30, saveLabel.getY());
+		autoTileLabel.setFont(font);
+		autoTileLabel.autoSetSize();
+
+		actionLabel = new Label("Action: Select");
+		actionLabel.setPosition(autoTileLabel.getX() + autoTileLabel.getWidth() + 30, saveLabel.getY());
+		actionLabel.setFont(font);
+		actionLabel.autoSetSize();
+		
 		editorWindow.add(saveLabel);
+		editorWindow.add(autoTileLabel);
+		editorWindow.add(actionLabel);
 		
 		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
 		entityAdded = new ArrayMap<Integer, Boolean>();
@@ -229,8 +247,17 @@ public class LevelEditor extends InputMultiplexer{
 		
 		unsavedEdits = history.size() != savePointer;
 		
-		saveLabel.setText((unsavedEdits ? "Unsaved edits..." : "Saved") + " -------- Enemy Count: " + (getActiveSpawns().size - 1));
+		saveLabel.setText((unsavedEdits ? "Unsaved edits..." : "Saved"));
 		saveLabel.autoSetSize();
+		
+		autoTileLabel.setText("Auto-Tiling: " + (autoTiling ? "Yes" : "No"));
+		autoTileLabel.setPosition(saveLabel.getX() + saveLabel.getWidth() + 30, saveLabel.getY());
+		autoTileLabel.autoSetSize();
+		
+		actionLabel.setText("Action: " + StringUtils.toTitleCase(actionManager.getCurrentAction().name()));
+		actionLabel.autoSetSize();
+		actionLabel.setPosition(autoTileLabel.getX() + autoTileLabel.getWidth() + 30, saveLabel.getY());
+		
 		editorWindow.update(delta);
 	}
 	
@@ -481,7 +508,7 @@ public class LevelEditor extends InputMultiplexer{
 		if(tileHistory.isEmpty()) return;
 		TileChanges tileChanges = tileHistory.pop();
 		
-		System.out.println("Tile History Size: " + tileHistory.size());
+//		System.out.println("Tile History Size: " + tileHistory.size());
 		
 		ArrayMap<GridPoint, MapTile> changes = tileChanges.getChanges();
 		for(GridPoint point : changes.keys()){
@@ -682,7 +709,7 @@ public class LevelEditor extends InputMultiplexer{
 			return; // If the command needs to be discarded, don't save it on the stack
 		}
 		if(!embeddedCall && command.editsTiles()) endTile();
-		System.out.println("Executing Command: " + command);
+//		System.out.println("Executing Command: " + command);
 		
 		// HACK Better system for embedded command calls
 		if(!(command instanceof UpdateSurroundingTilesCommand)) history.add(command);
@@ -697,7 +724,7 @@ public class LevelEditor extends InputMultiplexer{
 	public void undo() {
 		if(history.size() == 0) return;
 		Command command = history.pop();
-		System.out.println("Undoing command: " + command);
+//		System.out.println("Undoing command: " + command);
 		
 		command.undo(this);
 		

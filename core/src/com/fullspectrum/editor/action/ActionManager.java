@@ -137,8 +137,13 @@ public class ActionManager implements InputProcessor {
 			else if(keycode == Keys.W) {
 				
 			}
+			// Undo
 			else if(keycode == Keys.Z) {
 				editor.undo();
+			}
+			// Fill
+			else if(keycode == Keys.F && editor.getTilePanel().getActiveTile() != null) {
+				switchAction(EditorActions.FILL);
 			}
 		}
 

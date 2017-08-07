@@ -19,6 +19,12 @@ public enum EditorActions {
 			return new PlaceAction();
 		}
 	},
+	FILL {
+		@Override
+		public Action getActionInstance() {
+			return new FillAction();
+		}
+	},
 	SELECT_ENEMY {
 		@Override
 		public Action getActionInstance() {

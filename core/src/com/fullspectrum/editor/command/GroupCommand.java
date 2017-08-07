@@ -7,19 +7,17 @@ public class GroupCommand<T extends Command> extends Command {
 
 	private Array<T> commands;
 	
-	public GroupCommand() {
-		super(false);
+	public GroupCommand(boolean editsTiles) {
+		super(editsTiles);
 		commands = new Array<T>();
 	}
 	
 	@Override
 	public void execute(LevelEditor editor) {
 		discard = true;
-		editsTiles = false;
 		for(T command : commands) {
 			command.execute(editor);
 			discard = discard && command.discard;
-			editsTiles = editsTiles || command.editsTiles;
 		}
 	}
 
@@ -43,10 +41,14 @@ public class GroupCommand<T extends Command> extends Command {
 		return commands;
 	}
 
-	// TODO Fill this out
 	@Override
 	public String toString() {
-		return super.toString();
+		StringBuilder builder = new StringBuilder();
+		builder.append("Commands: ");
+		for(Command command : commands) {
+			builder.append("\n\t" + command);
+		}
+		return builder.toString();
 	}
 	
 }
