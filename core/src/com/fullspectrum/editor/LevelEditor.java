@@ -254,7 +254,7 @@ public class LevelEditor extends InputMultiplexer{
 		autoTileLabel.setPosition(saveLabel.getX() + saveLabel.getWidth() + 30, saveLabel.getY());
 		autoTileLabel.autoSetSize();
 		
-		actionLabel.setText("Action: " + StringUtils.toTitleCase(actionManager.getCurrentAction().name()));
+		actionLabel.setText("Action: " + actionManager.getCurrentAction().getDisplayName());
 		actionLabel.autoSetSize();
 		actionLabel.setPosition(autoTileLabel.getX() + autoTileLabel.getWidth() + 30, saveLabel.getY());
 		
@@ -601,6 +601,7 @@ public class LevelEditor extends InputMultiplexer{
 	@Override
 	public boolean scrolled(int amount) {
 //		actionManager.scrolled(amount);
+		if(actionManager.isBlocking()) return super.scrolled(amount);
 		worldCamera.zoom += amount * 0.02f;
 		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
 		return super.scrolled(amount);

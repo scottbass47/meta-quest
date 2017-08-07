@@ -145,6 +145,10 @@ public class ActionManager implements InputProcessor {
 			else if(keycode == Keys.F && editor.getTilePanel().getActiveTile() != null) {
 				switchAction(EditorActions.FILL);
 			}
+			// Help
+			else if(keycode == Keys.H) {
+				switchAction(EditorActions.HELP);
+			}
 		}
 
 		return false;
