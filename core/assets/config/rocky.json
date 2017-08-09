@@ -1,0 +1,21 @@
+{
+	// Movement
+	ground_speed: 3.0,
+	
+	// Base Stats
+	money: 400,
+	health: 250.0,
+	sword_damage: 25.0,
+	sword_knockback: 2.0,
+	
+	// Swing
+	swing_damage: 50,
+	swing_knockback: 5,
+	
+	// Rock
+	rock_damage: 20,
+	rock_angle: 60,
+	
+	// AI
+	throw_range: 12.0,
+}

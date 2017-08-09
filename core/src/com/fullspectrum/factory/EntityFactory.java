@@ -132,6 +132,7 @@ import com.fullspectrum.component.LevelSwitchComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.MoneyComponent;
 import com.fullspectrum.component.MonkComponent;
+import com.fullspectrum.component.NoMovementComponent;
 import com.fullspectrum.component.OffsetComponent;
 import com.fullspectrum.component.ParentComponent;
 import com.fullspectrum.component.PathComponent;
@@ -172,6 +173,7 @@ import com.fullspectrum.entity.EntityStates;
 import com.fullspectrum.entity.EntityStats;
 import com.fullspectrum.entity.EntityStatus;
 import com.fullspectrum.entity.EntityType;
+import com.fullspectrum.factory.ProjectileFactory.ProjectileData;
 import com.fullspectrum.fsm.AnimationStateMachine;
 import com.fullspectrum.fsm.EntityState;
 import com.fullspectrum.fsm.EntityStateMachine;
@@ -219,6 +221,7 @@ import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.PhysicsUtils;
+import com.fullspectrum.utils.RenderUtils;
 
 public class EntityFactory {
 
@@ -2629,6 +2632,142 @@ public class EntityFactory {
 		return gremlin;
 	}
 	
+	public static Entity createRocky(float x, float y) {
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.ROCKY);
+		
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.IDLE, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_IDLE), 2.0f));
+		animMap.put(EntityAnim.RUN, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_WALK), 2.0f));
+		animMap.put(EntityAnim.SWING, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_SWING_ATTACK), 2.0f));
+		animMap.put(EntityAnim.PROJECTILE_ATTACK, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_SWING_ATTACK), 2.0f));
+		
+		Rectangle hitbox = EntityIndex.ROCKY.getHitBox();
+		BodyBuilder builder = new BodyBuilder()
+				.fixedRotation(true)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.pos(x, y)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, (int)hitbox.width, (int)hitbox.height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.boxPixels(0, -(int)(hitbox.height * 0.5f), (int)(hitbox.width - 1), 4)
+					.makeSensor()
+					.build();
+		
+		Entity rocky = new EntityBuilder(EntityType.ROCKY, EntityStatus.ENEMY)
+				.ai(controller)
+				.animation(animMap)
+				.render(true)
+				.physics(builder, x, y, true)
+				.mob(controller, stats.get("health"), (int) stats.get("money"))
+				.build();
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rocky ESM", engine, rocky)
+				.idle()
+				.run(stats.get("ground_speed"))
+				.build();
+		
+		SwingComponent swingComp = engine.createComponent(SwingComponent.class)
+				.set(4.0f, 3.0f, 60, -120, GameVars.ANIM_FRAME * 5, stats.get("swing_damage"), stats.get("swing_knockback"));
+		
+		esm.createState(EntityStates.SWING_ATTACK)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.SWING)
+			.add(engine.createComponent(NoMovementComponent.class))
+			.add(swingComp)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.swing.get(entity).shouldSwing = true;
+					Mappers.facing.get(entity).locked = true;
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.facing.get(entity).locked = false;
+				}
+			});
+		
+		esm.createState(EntityStates.PROJECTILE_ATTACK)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.PROJECTILE_ATTACK)
+			.add(engine.createComponent(NoMovementComponent.class))
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					float damage = stats.get("rock_damage");
+					float angle = stats.get("rock_angle");
+					
+					Entity target = Mappers.target.get(entity).target;
+					if(!EntityUtils.isValid(target)) return;
+
+					Vector2 to = PhysicsUtils.getPos(target);
+					Vector2 from = PhysicsUtils.getPos(entity);
+					
+					float y = to.y - from.y;
+					float x = to.x - from.x;
+					
+					if(x < 0) angle = 180 - angle;
+					
+					float cos = MathUtils.cosDeg(angle);
+					float sin = MathUtils.sinDeg(angle);
+					float tan = sin / cos;
+					
+					float g = GameVars.GRAVITY;
+					float speed = (float)Math.sqrt((g * x*x)/(2*cos*cos*(y - x*tan)));
+					
+					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, angle);
+					Entity rock = createRock(data.x, data.y, angle, damage, speed, EntityStatus.ENEMY);
+					EntityManager.addEntity(rock);
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					
+				}
+			});
+		
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(Actions.ATTACK), EntityStates.SWING_ATTACK);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(Actions.ATTACK2), EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(esm.one(EntityStates.SWING_ATTACK, EntityStates.PROJECTILE_ATTACK), Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(rocky);
+	
+		Selector<Entity> rootSelector = new Selector<Entity>();
+		
+		Sequence<Entity> pursueTarget = new Sequence<Entity>();
+		pursueTarget.addChild(new TargetOnPlatformTask());
+		pursueTarget.addChild(BTFactory.followOnPlatform());
+		
+		Sequence<Entity> throwSequence = new Sequence<Entity>();
+		throwSequence.addChild(new InRangeTask(stats.get("throw_range")));
+		throwSequence.addChild(new InLoSTask());
+		throwSequence.addChild(BTFactory.attack(Actions.ATTACK2));
+		
+		Sequence<Entity> meleeSequence = new Sequence<Entity>();
+		meleeSequence.addChild(new InRangeTask(4.0f));
+		meleeSequence.addChild(new InLoSTask());
+		meleeSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		rootSelector.addChild(meleeSequence);
+		rootSelector.addChild(throwSequence);
+		rootSelector.addChild(pursueTarget);
+		rootSelector.addChild(BTFactory.patrol(1.25f));
+		
+		tree.addChild(rootSelector);
+		rocky.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		return rocky;
+	}
+	
 	// ---------------------------------------------
 	// -                   DROPS                   -
 	// ---------------------------------------------
@@ -2952,12 +3091,37 @@ public class EntityFactory {
 		return particle;
 	}
 	
+	public static Entity createRock(float x, float y, float angle, float damage, float speed, EntityStatus status){
+		BodyBuilder builder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.PROJECTILE)
+				.fixedRotation(true)
+				.addFixture()
+					.fixtureType(FixtureType.BULLET)
+					.circle(0, 0, 0.5f)
+					.build();
+		
+		return new ProjectileBuilder(EntityType.ROCK, status, builder, x, y, speed, angle)
+				.addDamage(damage)
+				.makeArced()
+				.build();
+	}
+	
 	private static class ProjectileBuilder {
 		
 		private Entity projectile;
 		
 		public ProjectileBuilder(EntityType type, EntityStatus status, float x, float y, float speed, float angle){
 			this(type, status, "bullet.json", x, y, speed, angle);
+		}
+		
+		public ProjectileBuilder(EntityType type, EntityStatus status, BodyBuilder builder, float x, float y, float speed, float angle){
+			projectile = new EntityBuilder(type, status)
+					.physics(builder, x, y, false)
+					.build();
+			projectile.add(engine.createComponent(ProjectileComponent.class).set(x, y, speed, angle, false));
+			projectile.add(engine.createComponent(StatusComponent.class).set(status).setCollideWith(status.getOpposite()));
+			projectile.add(engine.createComponent(ForceComponent.class).set(speed * MathUtils.cosDeg(angle), speed * MathUtils.sinDeg(angle)));
 		}
 		
 		public ProjectileBuilder(EntityType type, EntityStatus status, String physics, float x, float y, float speed, float angle){
@@ -3561,20 +3725,25 @@ public class EntityFactory {
 		}
 		
 		/**
-		 * Adds Input, Health, Effect and Invincibility components.
+		 * Adds Input, Health, Money, Effect and Invincibility components.
 		 * 
 		 * @param input
 		 * @param status
 		 * @param health
 		 * @return
 		 */ 
-		public EntityBuilder mob(Input input, float health){
+		public EntityBuilder mob(Input input, float health, int money){
 			entity.add(engine.createComponent(InputComponent.class).set(input));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
+			entity.add(engine.createComponent(MoneyComponent.class).set(money));
 			entity.add(engine.createComponent(InvincibilityComponent.class));
 			entity.add(engine.createComponent(EffectComponent.class));
 			entity.add(engine.createComponent(ImmuneComponent.class));
 			return this;
+		}
+		
+		public EntityBuilder mob(Input input, float health){
+			return mob(input, health, 0);
 		}
 		
 		/**

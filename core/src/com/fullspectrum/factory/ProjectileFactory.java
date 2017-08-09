@@ -13,7 +13,6 @@ public class ProjectileFactory {
 	private ProjectileFactory() {
 	}
 
-	// INCOMPLETE Add in momentum to projectiles
 	/** Offset are in pixels */
 	public static ProjectileData initProjectile(Entity entity, float xOff, float yOff, float angle) {
 		FacingComponent facingComp = Mappers.facing.get(entity);

@@ -10,6 +10,8 @@ public enum Actions {
 	JUMP,
 	MOVEMENT,
 	ATTACK,
+	ATTACK2, // reserved for ai
+	ATTACK3, // reserved for ai
 	ABILITY_1,
 	ABILITY_2,
 	ABILITY_3,

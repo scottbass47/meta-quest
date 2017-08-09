@@ -92,6 +92,7 @@ import com.fullspectrum.systems.JumpSystem;
 import com.fullspectrum.systems.KnockBackSystem;
 import com.fullspectrum.systems.LadderMovementSystem;
 import com.fullspectrum.systems.LevelSwitchSystem;
+import com.fullspectrum.systems.NoMovementSystem;
 import com.fullspectrum.systems.PathFollowingSystem;
 import com.fullspectrum.systems.PositioningSystem;
 import com.fullspectrum.systems.RelativePositioningSystem;
@@ -238,6 +239,7 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new LadderMovementSystem());
 		engine.addSystem(new FrameMovementSystem());
 		engine.addSystem(new ControlledMovementSystem());
+		engine.addSystem(new NoMovementSystem());
 //		engine.addSystem(new WallSlideSystem());
 		
 		engine.addSystem(new KnockBackSystem()); // order matters, knockback has to come after movement systems

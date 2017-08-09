@@ -182,6 +182,7 @@ public class BodyBuilder {
 		}
 		
 		public BodyBuilder build() {
+			if(type == null) throw new NullPointerException("FixtureType cannot be null.");
 			bodyBuilder.fixtures.add(this);
 			return bodyBuilder;
 		}

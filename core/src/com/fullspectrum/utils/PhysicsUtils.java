@@ -8,6 +8,7 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
@@ -28,6 +29,7 @@ import com.fullspectrum.component.CollisionListenerComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.game.GameVars;
 import com.fullspectrum.physics.BodyBuilder;
 import com.fullspectrum.physics.BodyProperties;
 import com.fullspectrum.physics.CollisionBits;
@@ -271,6 +273,28 @@ public class PhysicsUtils {
 	
 	public static float getDistance(Entity e1, Entity e2){
 		return (float)Math.sqrt(getDistanceSqr(e1, e2));
+	}
+	
+	public static float getLaunchAngle(Vector2 from, Vector2 to, float speed, boolean direct) {
+		float y = to.y - from.y;
+		float x = to.x - from.x;
+		float g = GameVars.GRAVITY;
+		float v = speed;
+		
+		float underRoot = (v*v*v*v) - g * (g * x*x + 2 * y * v*v);
+		if(underRoot < 0) {
+			// Speed isn't great enough to reach target
+			return 0;
+		}
+		
+		float sqrt = (float) Math.sqrt(underRoot);
+		float r1 = (float) Math.atan(((v*v) + sqrt) / (g * x));
+		float r2 = (float) Math.atan(((v*v) - sqrt) / (g * x));
+		
+		float angle = ((direct && r1 < r2) || (!direct && r1 > r2)) ? MathUtils.radDeg * r1 : MathUtils.radDeg * r2;
+		if(x < 0) angle = 180 - angle;
+		
+		return angle;
 	}
 	
 	

@@ -17,6 +17,7 @@ public enum EntityType {
 	SPAWNER,
 	BOAR,
 	GUN_GREMLIN,
+	ROCKY,
 	
 	// Drops
 	COIN,
@@ -33,6 +34,7 @@ public enum EntityType {
 	DYNAMITE,
 	EXPLOSIVE_PARTICLE,
 	WIND_PARTICLE,
+	ROCK,
 	
 	// Explosives
 	EXPLOSION,

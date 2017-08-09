@@ -18,6 +18,7 @@ import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.game.GameVars;
+import com.fullspectrum.utils.RenderUtils;
 
 
 // IMPORTANT CAN'T REORDER. LEVEL DEPENDS ON ENUM INDICES NOT CHANGING FOR SPAWNPOINTS
@@ -184,6 +185,24 @@ public enum EntityIndex {
 		@Override
 		public Rectangle getHitBox() {
 			return new Rectangle(0, 0, 14, 22);
+		}
+	},
+	ROCKY {
+		Animation<TextureRegion> idle = RenderUtils.scaleAnimation(AssetLoader.getInstance().getAnimation(Asset.GOAT_IDLE), 2.0f);
+		
+		@Override
+		public Entity create(float x, float y) {
+			return EntityFactory.createRocky(x, y);
+		}
+
+		@Override
+		public Animation<TextureRegion> getIdleAnimation() {
+			return idle;
+		}
+
+		@Override
+		public Rectangle getHitBox() {
+			return new Rectangle(0, 0, 30, 50);
 		}
 	};
 	

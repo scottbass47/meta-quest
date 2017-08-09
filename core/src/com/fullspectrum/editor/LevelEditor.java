@@ -69,7 +69,7 @@ public class LevelEditor extends InputMultiplexer{
 	private float animTime;
 	private boolean unsavedEdits = false;
 	private boolean autoTiling = false;
-	private int autoSaveInterval = 3000;
+	private int autoSaveInterval = 1000;
 	private boolean open = false;
 	
 	// Commands
@@ -140,16 +140,18 @@ public class LevelEditor extends InputMultiplexer{
 			@Override
 			public void run() {
 				while(true) {
-					if(currentLevel == null || !open || !unsavedEdits) continue;
-					try {
-						Thread.sleep(autoSaveInterval);
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-					synchronized (currentLevel) {
-						LevelUtils.saveLevel(currentLevel);
+					if(currentLevel == null || !open || !unsavedEdits) {
+						try {
+							Thread.sleep(autoSaveInterval);
+						} catch (InterruptedException e) {
+							e.printStackTrace();
+						}
+					} else {
+						LevelUtils.saveLevel(getCurrentLevel());
 						saved();
 					}
+//					synchronized (currentLevel) {
+//					}
 				}
 			}
 		}, "Editor Auto-Save");

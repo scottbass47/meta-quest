@@ -28,6 +28,10 @@ public class InputFactory {
 		return new InputTransitionData.Builder(Type.ALL, true).add(Actions.ATTACK, true).build();
 	}
 	
+	public static InputTransitionData attack(Actions action) {
+		return new InputTransitionData.Builder(Type.ALL, true).add(action, true).build();
+	}
+	
 	public static InputTransitionData jump() {
 		return new InputTransitionData.Builder(Type.ALL, true).add(Actions.JUMP, true).build();
 	}

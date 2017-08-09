@@ -27,7 +27,7 @@ public class TargetOnPlatformTask extends LeafTask<Entity>{
 		Rectangle myHitbox = Mappers.body.get(entity).getAABB();
 		
 		Vector2 targetPos = PhysicsUtils.getPos(targetComp.target);
-		Rectangle targetHitbox = Mappers.body.get(entity).getAABB();
+		Rectangle targetHitbox = Mappers.body.get(targetComp.target).getAABB();
 		
 		Platform platform = level.getPlatform(myPos.x, myPos.y - myHitbox.height * 0.5f + 0.05f);
 		if(platform == null) return Status.FAILED;
