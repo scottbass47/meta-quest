@@ -9,6 +9,7 @@ import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.effects.EffectType;
@@ -27,6 +28,7 @@ public class ParryAbility extends Ability{
 	private Entity entity;
 	private float swingDuration = 0.0f;
 	private SwingComponent swing;
+	private boolean hadInv = false;
 	
 	public ParryAbility(float cooldown, Actions input, float maxTime, float stunDuration, Animation<TextureRegion> parrySwingAnimation, SwingComponent swing) {
 		super(AbilityType.PARRY, AssetLoader.getInstance().getRegion(Asset.PARRY_ICON), cooldown, input, true);
@@ -74,6 +76,9 @@ public class ParryAbility extends Ability{
 		swingComp.shouldSwing = true;
 		entity.add(swingComp);
 		
+		Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
+		hadInv = true;
+		
 		elapsed = 0.0f;
 		blocking = false;
 		hasBlocked = true;
@@ -90,6 +95,8 @@ public class ParryAbility extends Ability{
 		hasBlocked = false;
 		blocking = true;
 		entity.remove(SwingComponent.class);
+		if(hadInv) Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+		hadInv = false;
 	}
 
 }

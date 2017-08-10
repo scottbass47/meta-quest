@@ -235,15 +235,7 @@ public class EntityFactory {
 	// Bugs / Todos
 	// -------------
 	
-	// Level Editor
-	// TODO Add in save prompt when exiting program
-	// TODO Add in help menu with list of commands
-	// TODO Add in fill tool
-	
 	// Entity
-	// BUG Player can get hit by gremlin shotgun when parrying
-	// BUG Gun gremlin rapidly switches between two entity states sometimes
-	// TODO Add double jump stats to rogue config file
 	// TODO Make muzzle flash a separate particle
 	
 	// ------------
@@ -424,7 +416,7 @@ public class EntityFactory {
 				knightStats.get("parry_stun_duration"),
 				animMap.get(EntityAnim.PARRY_SWING),
 				engine.createComponent(SwingComponent.class)
-					.set(3.0f, 2.0f, 90, -135, 4 * GameVars.ANIM_FRAME, 0.0f, knightStats.get("parry_knockback")));
+					.set(3.0f, 2.0f, 90, -135, 4 * GameVars.ANIM_FRAME, 0.0f, knightStats.get("parry_knockback")).breakProjectiles());
 		
 		KickAbility kickAbility = new KickAbility(
 				knightStats.get("kick_cooldown"), 
@@ -1476,7 +1468,7 @@ public class EntityFactory {
 			.add(engine.createComponent(SpeedComponent.class).set(rogueStats.get("air_speed")))
 			.add(engine.createComponent(DirectionComponent.class))
 			.add(engine.createComponent(GroundMovementComponent.class))
-			.add(engine.createComponent(JumpComponent.class).set(rogueStats.get("jump_force"), rogueStats.get("jump_float_amount")))
+			.add(engine.createComponent(JumpComponent.class).set(rogueStats.get("double_jump_force"), rogueStats.get("double_jump_float_amount")))
 			.addTag(TransitionTag.AIR_STATE)
 			.addChangeListener(new StateChangeListener(){
 				@Override
@@ -2597,8 +2589,8 @@ public class EntityFactory {
 		
 		Sequence<Entity> platformRange = new Sequence<Entity>();
 		platformRange.addChild(new TargetOnPlatformTask());
-		immediateRange.addChild(new InRangeTask(stats.get("platform_range")));
-		immediateRange.addChild(new InLoSTask());
+		platformRange.addChild(new InRangeTask(stats.get("platform_range")));
+		platformRange.addChild(new InLoSTask());
 		
 		rangeSelector.addChild(immediateRange);
 		rangeSelector.addChild(platformRange);

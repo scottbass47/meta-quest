@@ -17,6 +17,7 @@ public class SwingComponent implements Component, Poolable {
 	public float damage;
 	public float knockback;
 	public boolean shouldSwing = false;
+	public boolean breaksProjectiles = false;
 	public ObjectSet<EffectDef> effects;
 
 	public SwingComponent() {
@@ -31,6 +32,11 @@ public class SwingComponent implements Component, Poolable {
 		this.delay = delay;
 		this.damage = damage;
 		this.knockback = knockback;
+		return this;
+	}
+	
+	public SwingComponent breakProjectiles(){
+		breaksProjectiles = true;
 		return this;
 	}
 	
@@ -58,6 +64,7 @@ public class SwingComponent implements Component, Poolable {
 		knockback = 0.0f;
 		effects = null;
 		shouldSwing = false;
+		breaksProjectiles = false;
 	}
 
 }

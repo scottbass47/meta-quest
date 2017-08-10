@@ -118,6 +118,7 @@ public class LevelManager{
 		
 		// 5. Spawn in entities in new level
 		for(EntitySpawn spawn : newLevel.getEntitySpawns()){
+			if(spawn.getIndex() == EntityIndex.KNIGHT || spawn.getIndex() == EntityIndex.ROGUE || spawn.getIndex() == EntityIndex.MONK) continue;
 			Vector2 spawnPoint = spawn.getPos();
 			Entity enemy = spawn.getIndex().create(spawnPoint.x, spawnPoint.y);
 			engine.addEntity(enemy);

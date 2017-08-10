@@ -20,6 +20,7 @@ import com.fullspectrum.component.KnightComponent;
 import com.fullspectrum.component.LevelComponent;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.PositionComponent;
+import com.fullspectrum.component.ProjectileComponent;
 import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.debug.DebugRender;
@@ -38,7 +39,7 @@ public class SwingingSystem extends IteratingSystem{
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		LevelComponent levelComp = Mappers.level.get(entity);
-		SwingComponent swingComp = Mappers.swing.get(entity);
+		final SwingComponent swingComp = Mappers.swing.get(entity);
 		
 		if(!swingComp.shouldSwing) return;
 		
@@ -71,7 +72,7 @@ public class SwingingSystem extends IteratingSystem{
 			@SuppressWarnings("unchecked")
 			@Override
 			public Family componentsNeeded() {
-				return Family.all(BodyComponent.class, HealthComponent.class, StatusComponent.class).get();
+				return Family.all(BodyComponent.class, StatusComponent.class).one(HealthComponent.class, ProjectileComponent.class).get();
 			}
 
 			@Override
@@ -81,6 +82,7 @@ public class SwingingSystem extends IteratingSystem{
 				
 				// Don't deal damage to entities that aren't compatible
 				if(!swordTypeComp.shouldCollide(otherTypeComp)) return false;
+				if(Mappers.projectile.get(other) != null && !swingComp.breaksProjectiles) return false;
 				
 				Body otherBody = Mappers.body.get(other).body;
 				Rectangle aabb = Mappers.body.get(other).getAABB();
@@ -144,6 +146,10 @@ public class SwingingSystem extends IteratingSystem{
 		}
 		
 		for(Entity e : hitEntities){
+			if(Mappers.projectile.get(e) != null) {
+				Mappers.death.get(e).triggerDeath();
+				continue;
+			}
 			DamageHandler.dealDamage(entity, e, swingComp.damage, swingComp.knockback, facingComp.facingRight ? 0.0f : 180.0f);
 			for(EffectDef effect : swingComp.effects){
 				effect.give(e);

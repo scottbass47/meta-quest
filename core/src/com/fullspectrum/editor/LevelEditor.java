@@ -147,11 +147,11 @@ public class LevelEditor extends InputMultiplexer{
 							e.printStackTrace();
 						}
 					} else {
-						LevelUtils.saveLevel(getCurrentLevel());
-						saved();
+						synchronized (currentLevel) {
+							LevelUtils.saveLevel(getCurrentLevel());
+							saved();
+						}
 					}
-//					synchronized (currentLevel) {
-//					}
 				}
 			}
 		}, "Editor Auto-Save");
