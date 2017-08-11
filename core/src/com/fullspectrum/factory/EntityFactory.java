@@ -245,9 +245,6 @@ public class EntityFactory {
 	// Physics
 	// PERFORMANCE Add in Box2d filtering system
 	
-	// AI
-	// TODO Split pathfinding calculations into chunks so new paths aren't calculated in their entirety in a single frame
-	
 	private EntityFactory(){
 	}
 	

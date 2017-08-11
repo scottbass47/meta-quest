@@ -43,7 +43,7 @@ public class PathFinder {
 	
 	// Queue
 	private static Queue<PathFinder> pathQueue = new Queue<PathFinder>();
-	private static final float MAX_ALLOTTED_TIME = GameVars.UPS_INV * 0.01f; // Path calculation cant take up more than X% of the update cycle
+	private static final float MAX_ALLOTTED_TIME = GameVars.UPS_INV * 0.2f; // Path calculation cant take up more than X% of the update cycle
 	
 	public PathFinder(final NavMesh navMesh){
 		this.navMesh = navMesh;
