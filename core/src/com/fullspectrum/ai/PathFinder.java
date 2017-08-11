@@ -4,6 +4,7 @@ import static com.fullspectrum.game.GameVars.PPM_INV;
 
 import java.util.Comparator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -14,6 +15,8 @@ import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectMap.Entry;
+import com.badlogic.gdx.utils.Queue;
+import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.NavLink;
 import com.fullspectrum.level.NavMesh;
 import com.fullspectrum.level.Node;
@@ -34,15 +37,17 @@ public class PathFinder {
 	private Array<NavLink> path;
 	private ArrayMap<Node, PathData> pathDataMap;
 	private PathHeuristic heuristic;
+	private Set<Node> visitedNodes;
+	private TreeSet<NavLink> uncheckedLinks;
+	private boolean calculating = false;
 	
-	public PathFinder(NavMesh navMesh){
+	// Queue
+	private static Queue<PathFinder> pathQueue = new Queue<PathFinder>();
+	private static final float MAX_ALLOTTED_TIME = GameVars.UPS_INV * 0.01f; // Path calculation cant take up more than X% of the update cycle
+	
+	public PathFinder(final NavMesh navMesh){
 		this.navMesh = navMesh;
 		sRender = new ShapeRenderer();
-//		start = navMesh.getNodeMap().get(new Point(startRow, startCol));
-//		goal = navMesh.getNodeMap().get(new Point(goalRow, goalCol));
-//		if(start == null) throw new IllegalArgumentException("Start node doesn't exist!");
-//		if(goal == null) throw new IllegalArgumentException("Goal node doesn't exist!");
-//		current = start;
 		path = new Array<NavLink>();
 		pathDataMap = new ArrayMap<Node, PathData>();
 		for(Node node : navMesh.getNodes()){
@@ -50,13 +55,17 @@ public class PathFinder {
 		}
 		debugColor = new Color((float)Math.random(), (float)Math.random(), (float)Math.random(), 1.0f);
 		heuristic = new DefaultHeuristic();
-//		calculatePath();
+		
+		visitedNodes = new HashSet<Node>();
+		uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
+			@Override
+			public int compare(NavLink linkOne, NavLink linkTwo) {
+				return heuristic.cost(linkOne, navMesh, goal) > heuristic.cost(linkTwo, navMesh, goal) ? 1 : -1;
+			}
+		});	
 	}
 	
-//	public PathFinder(NavMesh navMesh, Node start, Node goal){
-//		this(navMesh, start.getRow(), start.getCol(), goal.getRow(), goal.getCol());
-//	}
-	
+	// BUG Paths are looking kinda funny
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
 		sRender.begin(ShapeType.Line);
@@ -103,56 +112,100 @@ public class PathFinder {
 		sRender.end();
 	}
 	
-	public void calculatePath(){
+	public void calculatePath() {
 		if(goal == null || start == null) return;
-//		long startTime = System.nanoTime();
+		addToQueue(this);
+	}
+	
+	private float startPathCalc() {
+		long time = System.nanoTime();
+		calculating = true;
 		path.clear();
-		Set<Node> visitedNodes = new HashSet<Node>();
+		visitedNodes.clear();
+		uncheckedLinks.clear();
 		resetPath();
 		visitedNodes.add(start);
 		pathDataMap.get(start).setCost(0.0f);
-		TreeSet<NavLink> uncheckedLinks = new TreeSet<NavLink>(new Comparator<NavLink>() {
-			@Override
-			public int compare(NavLink linkOne, NavLink linkTwo) {
-				return heuristic.cost(linkOne, navMesh, goal) > heuristic.cost(linkTwo, navMesh, goal) ? 1 : -1;
-			}
-		});
+		
 		for(NavLink link : start.getLinks()){
 			uncheckedLinks.add(link);
 		}
-//		int linksChecked = 0;
-		while(uncheckedLinks.size() > 0){
-//			System.out.println(uncheckedLinks);
-			NavLink link = uncheckedLinks.pollFirst();
-			if(link.toNode.equals(goal)){
-//				System.out.println("Links Checked: " + linksChecked);
-				pathDataMap.put(goal, new PathData(link, link.cost));
-				// Reached the goal, backtrack and create path
-				Node node = goal;
-				while(!node.equals(start)){
-					path.add(pathDataMap.get(node).getFromLink());
-					node = pathDataMap.get(node).getFromLink().fromNode;
-				}
-				path.reverse();
-//				System.out.println("Time: " + ((System.nanoTime() - startTime) / 1000000000d));
+		return elapsedSeconds(time, System.nanoTime());
+	}
+	
+	private float elapsedSeconds(long start, long end) {
+		return (end - start) / 1000000000f;
+	}
+	
+	// Runs one cycle of the pathing calculating and returns the time it took
+	private float runIteration() {
+		long time = System.nanoTime();
+		NavLink link = uncheckedLinks.pollFirst();
+		if(link.toNode.equals(goal)){
+			pathDataMap.put(goal, new PathData(link, link.cost));
+			// Reached the goal, backtrack and create path
+			Node node = goal;
+			while(!node.equals(start)){
+				path.add(pathDataMap.get(node).getFromLink());
+				node = pathDataMap.get(node).getFromLink().fromNode;
+			}
+			path.reverse();
+			calculating = false;
+			return elapsedSeconds(time, System.nanoTime());
+		}
+		
+		visitedNodes.add(link.fromNode);
+		if(visitedNodes.contains(link.toNode)) return elapsedSeconds(time, System.nanoTime());
+
+		if(link.cost < pathDataMap.get(link.toNode).getCost()){
+			pathDataMap.get(link.toNode).setCost(link.cost);
+			pathDataMap.get(link.toNode).setFromLink(link);
+		}
+		for(NavLink newLink : link.toNode.getLinks()){
+			uncheckedLinks.add(newLink.increaseCost(link.cost));
+		}
+		return elapsedSeconds(time, System.nanoTime());
+	}
+	
+	private static void addToQueue(PathFinder finder) {
+		for(Iterator<PathFinder> iter = pathQueue.iterator(); iter.hasNext();) {
+			// If there is already being a path calculated then
+			// reset it and don't add it to the queue again
+			if(iter.next() == finder) {
+       			finder.reset();
 				return;
 			}
+		}
+		pathQueue.addLast(finder);
+	}
+	
+	public static void update(float delta) {
+		if(pathQueue.size == 0) return;
+		
+		float timeLeft = MAX_ALLOTTED_TIME;
+		
+		while(timeLeft > 0 && pathQueue.size != 0) {
+			PathFinder finder = pathQueue.first();
+			if(!finder.calculating) {
+				timeLeft -= finder.startPathCalc();
+			}
 			
-			visitedNodes.add(link.fromNode);
-			if(visitedNodes.contains(link.toNode)) continue;
-//			linksChecked++;
-			if(link.cost < pathDataMap.get(link.toNode).getCost()){
-				pathDataMap.get(link.toNode).setCost(link.cost);
-				pathDataMap.get(link.toNode).setFromLink(link);
+			if(timeLeft < 0) return;
+			
+			while(timeLeft > 0 && finder.uncheckedLinks.size() > 0) {
+				timeLeft -= finder.runIteration();
 			}
-			for(NavLink newLink : link.toNode.getLinks()){
-				uncheckedLinks.add(newLink.increaseCost(link.cost));
-			}
+			
+			// If after running the calculation no path was found, set calculating to false
+			if(finder.noPath()) finder.calculating = false; 
+			
+			pathQueue.removeFirst();
 		}
 		
 	}
 	
 	public void reset() {
+		calculating = false;
 		path.clear();
 		resetPath();
 	}

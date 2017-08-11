@@ -866,24 +866,14 @@ public class Level {
 			for (EntitySpawn spawn : object.entitySpawns) {
 				output.writeFloat(spawn.getPos().x);
 				output.writeFloat(spawn.getPos().y);
-				output.writeInt(spawn.getIndex().ordinal()); // CLEANUP Writing
-																// index is
-																// dangerous, it
-																// will break if
-																// enum gets
-																// reordered
+				output.writeString(spawn.getIndex().name().toLowerCase());
 				output.writeBoolean(spawn.facingRight);
 			}
 
 			EntitySpawn spawn = object.getPlayerSpawn();
 			output.writeFloat(spawn.getPos().x);
 			output.writeFloat(spawn.getPos().y);
-			output.writeInt(spawn.getIndex().ordinal()); // CLEANUP Writing
-															// index is
-															// dangerous, it
-															// will break if
-															// enum gets
-															// reordered
+			output.writeString(spawn.getIndex().name().toLowerCase());
 			output.writeBoolean(spawn.facingRight);
 		}
 
@@ -911,7 +901,7 @@ public class Level {
 			for (int i = 0; i < size; i++) {
 				EntitySpawn spawn = new EntitySpawn();
 				spawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
-				spawn.index = EntityIndex.values()[input.readInt()];
+				spawn.index = EntityIndex.get(input.readString());
 				spawn.facingRight = input.readBoolean();
 				spawns.add(spawn);
 			}
@@ -920,7 +910,7 @@ public class Level {
 			try {
 				EntitySpawn playerSpawn = new EntitySpawn();
 				playerSpawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
-				playerSpawn.index = EntityIndex.values()[input.readInt()];
+				playerSpawn.index = EntityIndex.get(input.readString());
 				playerSpawn.facingRight = input.readBoolean();
 				level.setPlayerSpawn(playerSpawn);
 			} catch (Exception e) {

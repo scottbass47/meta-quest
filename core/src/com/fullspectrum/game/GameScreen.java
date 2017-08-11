@@ -212,9 +212,9 @@ public class GameScreen extends AbstractScreen {
 		engine.addSystem(new TargetingSystem());
 		engine.addSystem(new BehaviorSystem());
 		engine.addSystem(new BTSystem());
-		engine.addSystem(new FollowingSystem());
-		engine.addSystem(new WanderingSystem());
-		engine.addSystem(new PathFollowingSystem());
+//		engine.addSystem(new FollowingSystem());
+//		engine.addSystem(new WanderingSystem());
+//		engine.addSystem(new PathFollowingSystem());
 		engine.addSystem(new FlowFieldSystem());
 		engine.addSystem(new FlowFollowSystem());
 		engine.addSystem(new AttackingSystem());
