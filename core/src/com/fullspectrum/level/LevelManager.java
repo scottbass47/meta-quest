@@ -121,6 +121,9 @@ public class LevelManager{
 			if(spawn.getIndex() == EntityIndex.KNIGHT || spawn.getIndex() == EntityIndex.ROGUE || spawn.getIndex() == EntityIndex.MONK) continue;
 			Vector2 spawnPoint = spawn.getPos();
 			Entity enemy = spawn.getIndex().create(spawnPoint.x, spawnPoint.y);
+
+			if(Mappers.facing.get(enemy) != null) Mappers.facing.get(enemy).facingRight = spawn.isFacingRight();
+			
 			engine.addEntity(enemy);
 		}
 		
@@ -201,6 +204,9 @@ public class LevelManager{
 		}else{
 			player = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
 		}
+		
+		Mappers.facing.get(player).facingRight = spawn.isFacingRight();
+		
 		Body body = Mappers.body.get(player).body;
 		body.setTransform(spawn.getPos().x, spawn.getPos().y, 0.0f);
 		Mappers.level.get(player).level = newLevel;

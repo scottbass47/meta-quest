@@ -20,8 +20,6 @@ import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.utils.RenderUtils;
 
-
-// IMPORTANT CAN'T REORDER. LEVEL DEPENDS ON ENUM INDICES NOT CHANGING FOR SPAWNPOINTS
 public enum EntityIndex {
 
 	// Player
@@ -188,7 +186,10 @@ public enum EntityIndex {
 		}
 	},
 	ROCKY {
-		Animation<TextureRegion> idle = RenderUtils.scaleAnimation(AssetLoader.getInstance().getAnimation(Asset.GOAT_IDLE), 2.0f);
+		private Animation<TextureRegion> idle = RenderUtils.scaleAnimation(
+				AssetLoader.getInstance().getAnimation(Asset.ROCKY_IDLE),
+				2.0f
+		);
 		
 		@Override
 		public Entity create(float x, float y) {

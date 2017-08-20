@@ -8,6 +8,7 @@ import com.badlogic.ashley.utils.ImmutableArray;
 import com.fullspectrum.ai.PathFinder;
 import com.fullspectrum.component.BTComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.debug.DebugVars;
 
 public class BTSystem extends EntitySystem {
 
@@ -20,6 +21,7 @@ public class BTSystem extends EntitySystem {
 	
 	@Override
 	public void update(float deltaTime) {
+		if(DebugVars.AI_DISABLED) return;
 		for(Entity entity : entities) {
 			BTComponent btComp = Mappers.bt.get(entity);
 			

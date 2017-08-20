@@ -51,6 +51,7 @@ public class Mappers {
 	public static final ComponentMapper<RotationComponent> rotation =  ComponentMapper.getFor(RotationComponent.class);
 	public static final ComponentMapper<CollisionComponent> collision = ComponentMapper.getFor(CollisionComponent.class);
 	public static final ComponentMapper<CollisionListenerComponent> collisionListener = ComponentMapper.getFor(CollisionListenerComponent.class);
+	public static final ComponentMapper<WeightComponent> weight = ComponentMapper.getFor(WeightComponent.class);
 	
 	// Render
 	public static final ComponentMapper<RenderComponent> render =  ComponentMapper.getFor(RenderComponent.class);

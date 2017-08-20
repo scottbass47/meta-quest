@@ -4,6 +4,7 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.fullspectrum.component.KnockBackComponent;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.component.WeightComponent;
 
 public class KnockBackEffect extends Effect{
 
@@ -13,10 +14,15 @@ public class KnockBackEffect extends Effect{
 	
     public KnockBackEffect(Entity toEntity, float distance, float angle) {
     	super(toEntity, 0.0f, false);
-    	this.distance = distance;
+    	this.distance = calculateDistance(distance);
     	this.speed = calculateSpeed();
     	this.angle = angle;
     	this.duration = getTime();
+    }
+    
+    private float calculateDistance(float distance) {
+    	WeightComponent weightComp = Mappers.weight.get(toEntity);
+    	return distance / (weightComp.weight / 10.0f);
     }
     
     private float calculateSpeed(){

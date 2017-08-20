@@ -17,10 +17,14 @@ public class RotationSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		RotationComponent rotationComp = Mappers.rotation.get(entity);
-		if(!rotationComp.automatic) return;
-
-		VelocityComponent velComp = Mappers.velocity.get(entity);
-		rotationComp.rotation = MathUtils.radiansToDegrees * MathUtils.atan2(velComp.dy, velComp.dx);
+		
+		// Automatic rotation uses the velocity component to determine direction
+		if(rotationComp.automatic) {
+			VelocityComponent velComp = Mappers.velocity.get(entity);
+			rotationComp.rotation = MathUtils.radiansToDegrees * MathUtils.atan2(velComp.dy, velComp.dx);
+		} else {
+			rotationComp.rotation += rotationComp.angularVel * deltaTime;
+		}
 	}
 	
 }

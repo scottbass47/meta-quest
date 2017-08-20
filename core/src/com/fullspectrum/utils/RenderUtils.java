@@ -71,4 +71,29 @@ public class RenderUtils {
 		}
 		return new Animation<TextureRegion>(GameVars.ANIM_FRAME, frames, PlayMode.LOOP);
 	}
+	
+	public static TextureRegion scaleRegion(TextureRegion region, float scale){
+		SpriteBatch batch = new SpriteBatch();
+		OrthographicCamera cam = new OrthographicCamera();
+			
+		FrameBuffer buffer = new FrameBuffer(region.getTexture().getTextureData().getFormat(), (int)(region.getRegionWidth() * scale), (int)(region.getRegionHeight() * scale), false);
+		cam.setToOrtho(false, buffer.getWidth(), buffer.getHeight());
+		buffer.begin();
+		
+		Gdx.gl.glClearColor(1f, 1f, 1f, 0f);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+		
+		batch.setProjectionMatrix(cam.combined);
+		
+		batch.begin();
+		batch.draw(region, 0, 0, 0, 0, region.getRegionWidth(), region.getRegionHeight(), scale, scale, 0.0f);
+		batch.end();
+		
+		buffer.end();
+		
+		TextureRegion result = new TextureRegion(buffer.getColorBufferTexture());
+		result.flip(false, true);
+		result.getTexture().setFilter(TextureFilter.Nearest, TextureFilter.Nearest);
+		return result;
+	}
 }

@@ -50,6 +50,9 @@ public class StateMachineSystem extends TransitionSystem {
 		EntityUtils.engineUpdating = true;
 	}
 
+	/**
+	 * Adds / Removes machines sitting in the queue. 
+	 */
 	public void updateMachines() {
 		// Only add/remove after all machines have updated
 		for (Iterator<StateMachine<? extends State, ? extends StateObject>> iter = toRemove.iterator(); iter.hasNext();) {

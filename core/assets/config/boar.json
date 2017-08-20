@@ -5,6 +5,7 @@
 	// Base Stats
 	money: 75.0,
 	health: 100.0,
+	weight: 10.0,
 	
 	// Attack
 	attack_range: 8.0, // range when player is on the same platform

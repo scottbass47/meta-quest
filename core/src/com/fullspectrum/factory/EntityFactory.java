@@ -159,6 +159,7 @@ import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimeListener;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.VelocityComponent;
+import com.fullspectrum.component.WeightComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
@@ -237,6 +238,7 @@ public class EntityFactory {
 	
 	// Entity
 	// TODO Make muzzle flash a separate particle
+	// BUG Player placing / removing in level editor is creating duplicate player spawns
 	
 	// ------------
 	// Optimization
@@ -395,7 +397,7 @@ public class EntityFactory {
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, knightStats.get("health"))
+			.mob(null, knightStats.get("health"), knightStats.get("weight"))
 			.build();
 		
 		// Abilities
@@ -1329,7 +1331,7 @@ public class EntityFactory {
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, rogueStats.get("health"))
+			.mob(null, rogueStats.get("health"), rogueStats.get("weight"))
 			.build();
 		
 		// Player Related Components
@@ -1871,7 +1873,7 @@ public class EntityFactory {
 			.animation(animMap)
 			.render(animMap.get(EntityAnim.IDLE).getKeyFrame(0.0f), true)
 			.physics("player.json", x, y, true)
-			.mob(null, monkStats.get("health"))
+			.mob(null, monkStats.get("health"), monkStats.get("weight"))
 			.build();
 		
 		// Abilities
@@ -2097,7 +2099,7 @@ public class EntityFactory {
 		Entity goat = new EntityBuilder(GOAT, ENEMY)
 				.ai(controller)
 				.animation(animMap)
-				.mob(controller, stats.get("health"))
+				.mob(controller, stats.get("health"), stats.get("weight"))
 				.physics("goat.json", x, y, true)
 				.render(true)
 				.build();
@@ -2179,7 +2181,7 @@ public class EntityFactory {
 		
 		Entity spawner = new EntityBuilder(SPAWNER, ENEMY)
 				.physics("spawner.json", new BodyProperties.Builder().setSleepingAllowed(false).build(), x, y, false)
-				.mob(controller, stats.get("health"))
+				.mob(controller, stats.get("health"), Float.MAX_VALUE)
 				.build();
 		
 		float baseMoney = stats.get("money");
@@ -2235,7 +2237,7 @@ public class EntityFactory {
 		animMap.put(EntityAnim.CHARGE, assets.getAnimation(Asset.BOAR_CHARGE));
 		
 		AIController controller = new AIController();
-		final EntityStats boarStats = EntityLoader.get(EntityIndex.BOAR);
+		final EntityStats stats = EntityLoader.get(EntityIndex.BOAR);
 		
 		BodyBuilder bodyBuilder = new BodyBuilder()
 				.pos(x, y)
@@ -2264,17 +2266,17 @@ public class EntityFactory {
 				.render(true)
 				.animation(animMap)
 				.physics(bodyBuilder, x, y, true)
-				.mob(controller, boarStats.get("health"))
+				.mob(controller, stats.get("health"), stats.get("weight"))
 				.ai(controller, new TargetComponent.DefaultTargetBehavior())
 				.build();
 
 		
-		boar.add(engine.createComponent(MoneyComponent.class).set((int)boarStats.get("money")));
+		boar.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
 		boar.add(engine.createComponent(ImmuneComponent.class));
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Boar ESM", engine, boar)
 				.idle()
-				.run(boarStats.get("ground_speed"))
+				.run(stats.get("ground_speed"))
 				.build();
 		
 		final CollisionFilter chargeFilter = new CollisionFilter.Builder()
@@ -2290,7 +2292,7 @@ public class EntityFactory {
 				.addTag(TransitionTag.STATIC_STATE);
 		
 		esm.createState(EntityStates.CHARGE)
-				.add(engine.createComponent(DamageComponent.class).set(boarStats.get("damage")))
+				.add(engine.createComponent(DamageComponent.class).set(stats.get("damage")))
 				.addTag(TransitionTag.STATIC_STATE)
 				.addAnimation(EntityAnim.CHARGE)
 				.addChangeListener(new StateChangeListener() {
@@ -2300,9 +2302,9 @@ public class EntityFactory {
 //						Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
 						
 						FixtureInfo info = Mappers.collisionListener.get(entity).collisionData.getFixtureInfo(FixtureType.BODY);
-						info.addBehavior(chargeFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, boarStats.get("knockback_distance"), boarStats.get("knockback_angle"))));
+						info.addBehavior(chargeFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, stats.get("knockback_distance"), stats.get("knockback_angle"))));
 						
-						final float chargeSpeed = boarStats.get("charge_speed");
+						final float chargeSpeed = stats.get("charge_speed");
 						Mappers.timer.get(entity).add("charge", GameVars.UPS_INV, true, new TimeListener() {
 							@Override
 							public void onTime(Entity entity) {
@@ -2335,15 +2337,15 @@ public class EntityFactory {
 		CollisionTransitionData rightWallData = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
 		CollisionTransitionData leftWallData = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
 		
-		TimeTransitionData chargeTime = new TimeTransitionData(boarStats.get("charge_time"));
+		TimeTransitionData chargeTime = new TimeTransitionData(stats.get("charge_time"));
 		MultiTransition chargeTransition = new MultiTransition(Transitions.TIME, chargeTime).or(Transitions.COLLISION, rightWallData).or(Transitions.COLLISION, leftWallData);
 		
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, attack, EntityStates.ATTACK_ANTICIPATION);
-		esm.addTransition(EntityStates.ATTACK_ANTICIPATION, Transitions.TIME, new TimeTransitionData(boarStats.get("charge_anticipation")), EntityStates.CHARGE);
+		esm.addTransition(EntityStates.ATTACK_ANTICIPATION, Transitions.TIME, new TimeTransitionData(stats.get("charge_anticipation")), EntityStates.CHARGE);
 		esm.addTransition(EntityStates.CHARGE, chargeTransition, EntityStates.ATTACK_COOLDOWN);
-		esm.addTransition(EntityStates.ATTACK_COOLDOWN, Transitions.TIME, new TimeTransitionData(boarStats.get("charge_cooldown")), EntityStates.IDLING);
+		esm.addTransition(EntityStates.ATTACK_COOLDOWN, Transitions.TIME, new TimeTransitionData(stats.get("charge_cooldown")), EntityStates.IDLING);
 		
 		esm.changeState(EntityStates.IDLING);
 		
@@ -2354,11 +2356,11 @@ public class EntityFactory {
 		
 		Sequence<Entity> onPlatCanAttack = new Sequence<Entity>();
 		onPlatCanAttack.addChild(new TargetOnPlatformTask());
-		onPlatCanAttack.addChild(new InRangeTask(boarStats.get("attack_range")));
+		onPlatCanAttack.addChild(new InRangeTask(stats.get("attack_range")));
 		
 		Selector<Entity> attackRangeSelector = new Selector<Entity>();
 		attackRangeSelector.addChild(onPlatCanAttack);
-		attackRangeSelector.addChild(new InRangeTask(boarStats.get("close_attack_range")));
+		attackRangeSelector.addChild(new InRangeTask(stats.get("close_attack_range")));
 		
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
 		attackSequence.addChild(attackRangeSelector);
@@ -2412,7 +2414,7 @@ public class EntityFactory {
 		Entity gremlin = new EntityBuilder(EntityType.GUN_GREMLIN, ENEMY)
 				.physics(bodyBuilder, x, y, true)
 				.ai(controller)
-				.mob(controller, stats.get("health"))
+				.mob(controller, stats.get("health"), stats.get("weight"))
 				.animation(animMap)
 				.render(true)
 				.build();
@@ -2626,10 +2628,10 @@ public class EntityFactory {
 		final EntityStats stats = EntityLoader.get(EntityIndex.ROCKY);
 		
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_IDLE), 2.0f));
-		animMap.put(EntityAnim.RUN, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_WALK), 2.0f));
-		animMap.put(EntityAnim.SWING, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_SWING_ATTACK), 2.0f));
-		animMap.put(EntityAnim.PROJECTILE_ATTACK, RenderUtils.scaleAnimation(assets.getAnimation(Asset.GOAT_SWING_ATTACK), 2.0f));
+		animMap.put(EntityAnim.IDLE,              RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_IDLE),  2.0f));
+		animMap.put(EntityAnim.RUN,               RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_WALK),  2.0f));
+		animMap.put(EntityAnim.SWING, 			  RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_SWING), 2.0f));
+		animMap.put(EntityAnim.PROJECTILE_ATTACK, RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_THROW), 2.0f));
 		
 		Rectangle hitbox = EntityIndex.ROCKY.getHitBox();
 		BodyBuilder builder = new BodyBuilder()
@@ -2651,7 +2653,7 @@ public class EntityFactory {
 				.animation(animMap)
 				.render(true)
 				.physics(builder, x, y, true)
-				.mob(controller, stats.get("health"), (int) stats.get("money"))
+				.mob(controller, stats.get("health"), stats.get("weight"), (int) stats.get("money"))
 				.build();
 		
 		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Rocky ESM", engine, rocky)
@@ -2660,7 +2662,7 @@ public class EntityFactory {
 				.build();
 		
 		SwingComponent swingComp = engine.createComponent(SwingComponent.class)
-				.set(4.0f, 3.0f, 60, -120, GameVars.ANIM_FRAME * 5, stats.get("swing_damage"), stats.get("swing_knockback"));
+				.set(4.0f, 3.0f, 60, -120, GameVars.ANIM_FRAME * 7, stats.get("swing_damage"), stats.get("swing_knockback"));
 		
 		esm.createState(EntityStates.SWING_ATTACK)
 			.addTag(TransitionTag.STATIC_STATE)
@@ -2687,30 +2689,41 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					float damage = stats.get("rock_damage");
-					float angle = stats.get("rock_angle");
-					
-					Entity target = Mappers.target.get(entity).target;
-					if(!EntityUtils.isValid(target)) return;
-
-					Vector2 to = PhysicsUtils.getPos(target);
-					Vector2 from = PhysicsUtils.getPos(entity);
-					
-					float y = to.y - from.y;
-					float x = to.x - from.x;
-					
-					if(x < 0) angle = 180 - angle;
-					
-					float cos = MathUtils.cosDeg(angle);
-					float sin = MathUtils.sinDeg(angle);
-					float tan = sin / cos;
-					
-					float g = GameVars.GRAVITY;
-					float speed = (float)Math.sqrt((g * x*x)/(2*cos*cos*(y - x*tan)));
-					
-					ProjectileData data = ProjectileFactory.initProjectile(entity, 0.0f, 0.0f, angle);
-					Entity rock = createRock(data.x, data.y, angle, damage, speed, EntityStatus.ENEMY);
-					EntityManager.addEntity(rock);
+					Mappers.timer.get(entity).add("throw_delay", 8 * GameVars.ANIM_FRAME, false, new TimeListener() {
+						@Override
+						public void onTime(Entity entity) {
+							// If rocky is no longer throwing, dont throw the projectile
+							if(Mappers.esm.get(entity).first().getCurrentState() != EntityStates.PROJECTILE_ATTACK) return;
+						
+							float damage = stats.get("rock_damage");
+							float angle = stats.get("rock_angle");
+							
+							Entity target = Mappers.target.get(entity).target;
+							if(!EntityUtils.isValid(target)) return;
+							
+							Vector2 to = PhysicsUtils.getPos(target);
+							Vector2 from = PhysicsUtils.getPos(entity);
+							
+							float y = to.y - from.y;
+							float x = to.x - from.x;
+							
+							if(x < 0) angle = 180 - angle;
+							
+							float cos = MathUtils.cosDeg(angle);
+							float sin = MathUtils.sinDeg(angle);
+							float tan = sin / cos;
+							
+							float g = GameVars.GRAVITY;
+							float speed = (float)Math.sqrt((g * x*x)/(2*cos*cos*(y - x*tan)));
+							
+							float xOff = 0;
+							float yOff = 28;
+							
+							ProjectileData data = ProjectileFactory.initProjectile(entity, xOff, yOff, angle);
+							Entity rock = createRock(data.x, data.y, angle, damage, speed, EntityStatus.ENEMY);
+							EntityManager.addEntity(rock);
+						}
+					});
 				}
 
 				@Override
@@ -2976,7 +2989,7 @@ public class EntityFactory {
 				.animate(assets.getAnimation(Asset.ROGUE_BALLOON_PROJECTILE))
 				.addDamage(damage)
 				.addTimedDeath(4.0f / speed)
-				.makeRotatable()
+				.makeAutomaticRotatable()
 				.build();
 		
 		return pellet;
@@ -3090,7 +3103,10 @@ public class EntityFactory {
 					.circle(0, 0, 0.5f)
 					.build();
 		
+		// PERFORMANCE HACK Creating a new texture and scaling 2x every time this method is called
 		return new ProjectileBuilder(EntityType.ROCK, status, builder, x, y, speed, angle)
+				.render(RenderUtils.scaleRegion(assets.getRegion(Asset.ROCKY_PROJECTILE), 2.0f), true)
+				.giveAngularSpeed(300.0f)
 				.addDamage(damage)
 				.makeArced()
 				.build();
@@ -3260,8 +3276,13 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public ProjectileBuilder makeRotatable(){
+		public ProjectileBuilder makeAutomaticRotatable(){
 			Mappers.rotation.get(projectile).automatic = true;
+			return this;
+		}
+		
+		public ProjectileBuilder giveAngularSpeed(float angularVel) {
+			Mappers.rotation.get(projectile).angularVel = angularVel;
 			return this;
 		}
 		
@@ -3714,16 +3735,18 @@ public class EntityFactory {
 		}
 		
 		/**
-		 * Adds Input, Health, Money, Effect and Invincibility components.
+		 * Adds Input, Health, Weight, Money, Effect and Invincibility components.
 		 * 
 		 * @param input
-		 * @param status
 		 * @param health
+		 * @param weight
+		 * @param money
 		 * @return
 		 */ 
-		public EntityBuilder mob(Input input, float health, int money){
+		public EntityBuilder mob(Input input, float health, float weight, int money){
 			entity.add(engine.createComponent(InputComponent.class).set(input));
 			entity.add(engine.createComponent(HealthComponent.class).set(health, health));
+			entity.add(engine.createComponent(WeightComponent.class).set(weight));
 			entity.add(engine.createComponent(MoneyComponent.class).set(money));
 			entity.add(engine.createComponent(InvincibilityComponent.class));
 			entity.add(engine.createComponent(EffectComponent.class));
@@ -3731,8 +3754,8 @@ public class EntityFactory {
 			return this;
 		}
 		
-		public EntityBuilder mob(Input input, float health){
-			return mob(input, health, 0);
+		public EntityBuilder mob(Input input, float health, float weight){
+			return mob(input, health, weight, 0);
 		}
 		
 		/**

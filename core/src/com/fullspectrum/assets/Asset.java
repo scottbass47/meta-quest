@@ -3,36 +3,36 @@ package com.fullspectrum.assets;
 public enum Asset {
 
 	// HUD
-	HEALTH_BAR_EMPTY(Atlas.HUD, "healthbar_empty"),
-	HEALTH_BAR_FULL(Atlas.HUD, "healthbar_full"),
+	HEALTH_BAR_EMPTY (Atlas.HUD, "healthbar_empty"),
+	HEALTH_BAR_FULL  (Atlas.HUD, "healthbar_full"),
 	STAMINA_BAR_EMPTY(Atlas.HUD, "staminabar_empty"),
-	STAMINA_BAR_FULL(Atlas.HUD, "staminabar_full"),
+	STAMINA_BAR_FULL (Atlas.HUD, "staminabar_full"),
 
 	// UI
 	VERTICAL_ARROW(Atlas.HUD, "vertical_arrow"),
 	
 	// Ability Icons
-	ANTI_MAGNETIC_ARMOR_ICON(Atlas.HUD, "anti_magnetic_armor_icon"),
-	PARRY_ICON(Atlas.HUD, "parry_icon"),
-	KICK_ICON(Atlas.HUD, "kick_icon"),
-	OVERHEAD_SWING_ICON(Atlas.HUD, "overhead_swing_icon"),
-	SLAM_ICON(Atlas.HUD, "slam_icon"),
-	BLACKSMITH_ICON(Atlas.HUD, "blacksmith_icon"),
-	SPIN_SLICE_ICON(Atlas.HUD, "spin_slice_icon"),
-	DASH_SLASH_ICON(Atlas.HUD, "dash_slash_icon"),
-	TORNADO_ICON(Atlas.HUD, "tornado_icon"),
-	DYNAMITE(Atlas.HUD, "slingshot_icon"),
-	BALLOON_ICON(Atlas.HUD, "balloon_icon"),
-	BOOMERANG_ICON(Atlas.HUD, "boomerang_icon"),
-	BOW_ICON(Atlas.HUD, "bow_icon"),
-	EXECUTE_ICON(Atlas.HUD, "execute_icon"),
-	DASH_ICON(Atlas.HUD, "dash_icon"),
-	FLASH_POWDER_ICON(Atlas.HUD, "flash_powder_icon"),
-	VANISH_ICON(Atlas.HUD, "smoke_bomb_icon"),
-	HOMING_KNIVES_ICON(Atlas.HUD, "homing_knives_icon"),
-	POISON_DEBUFF_ICON(Atlas.HUD, "poison_debuff_icon"),
-	INSTA_WALL_ICON(Atlas.HUD, "insta_wall_icon"),
-	WIND_BURST_ICON(Atlas.HUD, "wind_burst_icon"),
+	ANTI_MAGNETIC_ARMOR_ICON (Atlas.HUD, "anti_magnetic_armor_icon"),
+	PARRY_ICON				 (Atlas.HUD, "parry_icon"),
+	KICK_ICON                (Atlas.HUD, "kick_icon"),
+	OVERHEAD_SWING_ICON      (Atlas.HUD, "overhead_swing_icon"),
+	SLAM_ICON                (Atlas.HUD, "slam_icon"),
+	BLACKSMITH_ICON          (Atlas.HUD, "blacksmith_icon"),
+	SPIN_SLICE_ICON          (Atlas.HUD, "spin_slice_icon"),
+	DASH_SLASH_ICON          (Atlas.HUD, "dash_slash_icon"),
+	TORNADO_ICON             (Atlas.HUD, "tornado_icon"),
+	DYNAMITE                 (Atlas.HUD, "slingshot_icon"),
+	BALLOON_ICON             (Atlas.HUD, "balloon_icon"),
+	BOOMERANG_ICON           (Atlas.HUD, "boomerang_icon"),
+	BOW_ICON                 (Atlas.HUD, "bow_icon"),
+	EXECUTE_ICON             (Atlas.HUD, "execute_icon"),
+	DASH_ICON                (Atlas.HUD, "dash_icon"),
+	FLASH_POWDER_ICON        (Atlas.HUD, "flash_powder_icon"),
+	VANISH_ICON              (Atlas.HUD, "smoke_bomb_icon"),
+	HOMING_KNIVES_ICON       (Atlas.HUD, "homing_knives_icon"),
+	POISON_DEBUFF_ICON       (Atlas.HUD, "poison_debuff_icon"),
+	INSTA_WALL_ICON          (Atlas.HUD, "insta_wall_icon"),
+	WIND_BURST_ICON          (Atlas.HUD, "wind_burst_icon"),
 
 	//Knight
 //	KNIGHT_CHAIN1_IDLE_ANTICIPATION(Atlas.ENTITY, "chain_1/knight_chain1_idle_anticipation"),
@@ -143,6 +143,13 @@ public enum Asset {
 	GUN_GREMLIN_MUZZLE_FLASH(Atlas.ENTITY, "muzzle_flash/gun_gremlin_muzzle_flash"),
 	GUN_GREMLIN_IDLE_RANDOM(Atlas.ENTITY, "idle_random/gun_gremlin_idle_random"),
 		
+	// Rocky
+	ROCKY_IDLE		 (Atlas.ENTITY, "idle/rocky_idle"),
+	ROCKY_WALK		 (Atlas.ENTITY, "walk/rocky_walk"),
+	ROCKY_SWING		 (Atlas.ENTITY, "swing/rocky_swing"),
+	ROCKY_THROW 	 (Atlas.ENTITY, "throw/rocky_throw"),
+	ROCKY_PROJECTILE (Atlas.ENTITY, "projectile/rocky_projectile"),
+	
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),
 	MANA_BOMB_EXPLOSION(Atlas.ENTITY, "mana_bomb_explosion"),

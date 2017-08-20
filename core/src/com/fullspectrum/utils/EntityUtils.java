@@ -10,8 +10,9 @@ import com.fullspectrum.factory.EntityFactory;
 
 public class EntityUtils {
 	
-	public static final int VALID = 0x1;
-	public static final int TARGETABLE = 0x2;
+	public static final int VALID 	   = 1 << 0;
+	public static final int TARGETABLE = 1 << 1;
+	public static final int STUNNED    = 1 << 2;
 	public static boolean engineUpdating = false;
 
 	private EntityUtils(){}
@@ -40,6 +41,19 @@ public class EntityUtils {
 		}
 		else{
 			entity.flags &= ~TARGETABLE;
+		}
+	}
+	
+	public static boolean isStunned(Entity entity){
+		return isValid(entity) && (entity.flags & STUNNED) == STUNNED;
+	}
+	
+	public static void setStunned(Entity entity, boolean stunned){
+		if(stunned){
+			entity.flags |= STUNNED;
+		}
+		else{
+			entity.flags &= ~STUNNED;
 		}
 	}
 	

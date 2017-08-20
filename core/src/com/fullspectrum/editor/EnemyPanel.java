@@ -24,7 +24,8 @@ public class EnemyPanel extends Container {
 	private TextField textField;
 	
 	private float scale = 3.0f;
-	private float padding = 8.0f;
+	private float horizPadding = 16.0f;
+	private float vertPadding = 8.0f;
 	
 	public EnemyPanel() {
 		setSize(500, 500);
@@ -58,6 +59,7 @@ public class EnemyPanel extends Container {
 		for(int i = 0; i < length; i++) {
 			final EntityIndex index = EntityIndex.values()[i];
 			EnemyIcon icon = new EnemyIcon(index, scale);
+			icon.setDebugRender(true);
 			iconMap.put(index, icon);
 			
 			icon.addListener(new ActionListener() {
@@ -90,8 +92,8 @@ public class EnemyPanel extends Container {
 		
 		ArrayMap<EntityIndex, EnemyIcon> row = new ArrayMap<EntityIndex, EnemyIcon>();
 		
-		float xx = x + padding * scale;
-		float yy = y + height - textField.getHeight() - padding * scale;
+		float xx = x + horizPadding * scale;
+		float yy = y + height - textField.getHeight() - vertPadding * scale;
 		float height = 0;
 		
 		for(EntityIndex index : iconMap.keys()) {
@@ -107,15 +109,15 @@ public class EnemyPanel extends Container {
 					add(ei);
 				}
 				row.clear();
-				yy -= height + padding * scale;
-				xx = x + padding * scale;
+				yy -= height + vertPadding * scale;
+				xx = x + horizPadding * scale;
 				height = 0;
 			} 
 			
 			icon.setPosition((int)xx, (int)yy);
 			height = Math.max(height, icon.getHeight());
 			
-			xx += icon.getWidth() + padding * scale;
+			xx += icon.getWidth() + horizPadding * scale;
 
 			row.put(index, icon);
 		}

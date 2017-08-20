@@ -10,7 +10,6 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.utils.Array;
 import com.fullspectrum.component.FacingComponent;
 import com.fullspectrum.component.Mappers;
@@ -61,7 +60,9 @@ public class RenderingSystem extends EntitySystem {
 			FacingComponent facingComp = Mappers.facing.get(entity);
 			TintComponent tintComp = Mappers.tint.get(entity);
 			
-			if(textureComp.getRegions() == null || textureComp.getRegions().size == 0) return;
+			if(textureComp.getRegions() == null || textureComp.getRegions().size == 0){
+				continue;
+			}
 
 			// Setup Shader
 			ShaderComponent shaderComp = Mappers.shader.get(entity);
@@ -86,9 +87,8 @@ public class RenderingSystem extends EntitySystem {
 				
 				if(facingComp != null){
 					// Rotation
-					boolean quad23 = MathUtils.cosDeg(rotation) < 0.0f;
 					region.flip(!facingComp.facingRight, false);
-					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, quad23 ? rotation - 180: rotation);
+					batch.draw(region, x, y, width * 0.5f, height * 0.5f, width, height, PPM_INV, PPM_INV, Mappers.facing.get(entity).facingRight ? rotation : -rotation);
 					region.flip(region.isFlipX(), false);
 				}
 				else{

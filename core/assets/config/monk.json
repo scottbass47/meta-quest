@@ -15,7 +15,8 @@
 	dash_duration: 0.2,
 	dash_cooldown: 0.4,
 	
-	// Health
+	// Base Stats
+	weight: 10.0,
 	health: 100,
 	
 	// Base Attack

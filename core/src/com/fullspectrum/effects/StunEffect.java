@@ -34,6 +34,7 @@ import com.fullspectrum.component.StatusComponent;
 import com.fullspectrum.component.TextureComponent;
 import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.TintComponent;
+import com.fullspectrum.component.WeightComponent;
 import com.fullspectrum.component.WingComponent;
 import com.fullspectrum.component.WorldComponent;
 import com.fullspectrum.fsm.State;
@@ -57,6 +58,7 @@ public class StunEffect extends Effect{
 				PositionComponent.class, 
 				TextureComponent.class,
 				KnockBackComponent.class,
+				WeightComponent.class,
 				HealthComponent.class,
 				BarrierComponent.class,
 				MoneyComponent.class,
@@ -82,6 +84,24 @@ public class StunEffect extends Effect{
 		);
 	}
 	
+	// ==============
+	// =    STUN    =
+	// ==============
+	// Apply
+	// ------------------
+	// 1. Set enemy to stunned
+	// 2. Pause timers
+	// 3. Add shader
+	// 4. Stop movement
+	// 5. Remove state machines
+	// ------------------
+	// Remove
+	// ------------------
+	// 1. Set enemy to not be stunned
+	// 2. Resume timers
+	// 3. Remove shader
+	// 4. Add back state machines
+	
 	public StunEffect(Entity toEntity, float duration) {
 		this(toEntity, duration, false);
 	}
@@ -94,6 +114,46 @@ public class StunEffect extends Effect{
 
 	@Override
 	protected void give() {
+//		// 1. Set enemy to stunned
+//		EntityUtils.setStunned(toEntity, true);
+//		
+//		// 2. Pause Timers
+//		TimerComponent timerComp = Mappers.timer.get(toEntity);
+//		for(String name : timerComp.timers.keys()){
+//			if(name.contains("_effect")) continue;
+//			timerComp.get(name).pause();
+//		}
+//		
+//		// 3. Add shader
+//		Mappers.shader.get(toEntity).shader = shader;
+//
+//		// 4. Stop movement
+//		Mappers.body.get(toEntity).body.setLinearVelocity(0.0f, 0.0f);
+//		
+//		// 5. Remove state machines
+//		if(Mappers.esm.get(toEntity) != null) {
+//			removedMachines.addAll(Mappers.esm.get(toEntity).getMachines());
+//		}
+//		if(Mappers.asm.get(toEntity) != null) {
+//			removedMachines.addAll(Mappers.asm.get(toEntity).getMachines());
+//		}
+//		if(Mappers.aism.get(toEntity) != null) {
+//			removedMachines.addAll(Mappers.aism.get(toEntity).getMachines());
+//		}
+//		if(Mappers.fsm.get(toEntity) != null) {
+//			removedMachines.addAll(Mappers.fsm.get(toEntity).getMachines());
+//		}
+//		StateMachineSystem.getInstance().removeStateMachines(removedMachines);
+//		StateMachineSystem.getInstance().updateMachines();
+//		
+//		// HACK Can't add null keys to an object set, but fuck it
+//		try {
+//			removed.add(toEntity.remove(ESMComponent.class));
+//			removed.add(toEntity.remove(ASMComponent.class));
+//			removed.add(toEntity.remove(AISMComponent.class));
+//			removed.add(toEntity.remove(FSMComponent.class));
+//		} catch(Exception e ) {}
+		
 		boolean hasKnockback = false;
 		for(int i = 0; i < toEntity.getComponents().size(); i++){
 			Component comp = toEntity.getComponents().get(i);
@@ -121,7 +181,7 @@ public class StunEffect extends Effect{
 			if(comp instanceof ChildrenComponent){
 				ChildrenComponent childrenComp = (ChildrenComponent) comp;
 				for(Entity child : childrenComp.getChildren()){
-					Effects.giveImmediateStun(child, duration);
+					Effects.giveImmediateStun(child, duration); // Recursively stun
 				}
 			}
 			removed.add(toEntity.remove(comp.getClass()));
@@ -136,10 +196,35 @@ public class StunEffect extends Effect{
 
 	@Override
 	protected void cleanUp() {
+//		// 1. Set enemy to not be stunned
+//		EntityUtils.setStunned(toEntity, false);
+//		
+//		// 2. Resume timers
+//		TimerComponent timerComp = Mappers.timer.get(toEntity);
+//		for(int i = 0; i < timerComp.timers.size; i++){
+//			timerComp.get(timerComp.timers.getKeyAt(i)).unpause();
+//		}
+//		
+//		// 3. Remove shader
+//		Mappers.shader.get(toEntity).shader = null;
+//		
+//		// 4. Add back state machines
+//		for(Iterator<Component> iter = removed.iterator(); iter.hasNext(); ){
+//			Component comp = iter.next();
+//			toEntity.add(comp);
+//			iter.remove();
+//		}
+//		StateMachineSystem.getInstance().addStateMachines(removedMachines);
+//		removedMachines.clear();
+//		StateMachineSystem.getInstance().updateMachines();
+		
+		// Add back removed components
 		for(Iterator<Component> iter = removed.iterator(); iter.hasNext(); ){
-			toEntity.add(iter.next());
+			Component comp = iter.next();
+			toEntity.add(comp);
 			iter.remove();
 		}
+		
 		StateMachineSystem.getInstance().addStateMachines(removedMachines);
 		removedMachines.clear();
 		if(Mappers.body.get(toEntity) != null) {

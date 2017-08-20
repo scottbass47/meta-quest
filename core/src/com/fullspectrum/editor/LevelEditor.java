@@ -35,8 +35,8 @@ import com.fullspectrum.gui.Window;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.GridPoint;
 import com.fullspectrum.level.Level;
-import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.Level.EntitySpawn;
+import com.fullspectrum.level.LevelUtils;
 import com.fullspectrum.level.MapRenderer;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.level.tiles.MapTile.Side;
@@ -181,15 +181,23 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void setCurrentLevel(Level currentLevel) {
+		if(this.currentLevel == currentLevel) return; // CLEANUP Bad check. Something more robust should be put in place to keep track of when levels are changing
 		this.currentLevel = currentLevel;
 		mapRenderer.setTileMap(currentLevel.getTileMap());
 		tileMap = currentLevel.getTileMap();
 		
 		// Init the entity spawns
 		initEntitySpawns();
+		
+		System.out.println(spawnMap);
+		System.out.println(entityAdded);
 	}
 	
+	/** Clears spawn map and disable map. Loads in spawns from new level */
 	private void initEntitySpawns() {
+		spawnMap.clear();
+		entityAdded.clear();
+		
 		addSpawn(currentLevel.getPlayerSpawn());
 		for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
 			addSpawn(spawn);
@@ -203,6 +211,7 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void removeSpawn(int id){
+		if(id == 0) return;
 		entityAdded.put(id, false);
 	}
 	
@@ -238,6 +247,9 @@ public class LevelEditor extends InputMultiplexer{
 	
 	public void setPlayerSpawn(EntitySpawn spawn){
 		spawnMap.put(0, spawn);
+		enableSpawn(0);
+		System.out.println(spawnMap);
+		System.out.println(entityAdded);
 	}
 	
 	public EntitySpawn getPlayerSpawn(){

@@ -5,6 +5,7 @@
 	// Base Stats
 	money: 40.0,
 	health: 100.0,
+	weight: 10.0,
 	sword_damage: 25.0,
 	sword_knockback: 2.0
 }
