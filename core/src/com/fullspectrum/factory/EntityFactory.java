@@ -239,6 +239,7 @@ public class EntityFactory {
 	
 	// Entity
 	// TODO Make muzzle flash a separate particle
+	// BUG Rapid switching in grunt gremlin
 	
 	// ------------
 	// Optimization

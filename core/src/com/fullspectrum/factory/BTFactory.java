@@ -48,7 +48,7 @@ public class BTFactory {
 	public static Task<Entity> attack(Actions attackAction) {
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
 		attackSequence.addChild(new AlwaysSucceed<Entity>(turnWhenTargetBehind()));
-//		attackSequence.addChild(new ReleaseControlsTask());
+		attackSequence.addChild(new ReleaseControlsTask());
 		attackSequence.addChild(new AttackTask(attackAction));
 		
 		return attackSequence;
