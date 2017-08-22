@@ -240,6 +240,7 @@ public class EntityFactory {
 	// Entity
 	// TODO Make muzzle flash a separate particle
 	// BUG Rapid switching in grunt gremlin
+	// TODO Refactor shader system to handle layering effects / priorities
 	
 	// ------------
 	// Optimization
@@ -2817,7 +2818,7 @@ public class EntityFactory {
 		});
 		
 		SwingComponent swingComp = engine.createComponent(SwingComponent.class)
-				.set(2.0f, 1.0f, 90, -90, GameVars.ANIM_FRAME * 4, stats.get("swing_damage"), stats.get("swing_knockback"));
+				.set(2.0f, 1.0f, 90, -90, GameVars.ANIM_FRAME * 3, stats.get("swing_damage"), stats.get("swing_knockback"));
 		
 		esm.createState(EntityStates.SWING_ATTACK)
 				.addAnimation(EntityAnim.ATTACK)

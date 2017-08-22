@@ -13,7 +13,7 @@ public class BlinkSystem extends IteratingSystem{
 	public BlinkSystem(){
 		super(Family.all(BlinkComponent.class).get());
 	}
-
+	
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		BlinkComponent blinkComp = Mappers.blink.get(entity);
@@ -46,7 +46,4 @@ public class BlinkSystem extends IteratingSystem{
 			entity.remove(RenderComponent.class);
 		}
 	}
-	
-	
-	
 }
