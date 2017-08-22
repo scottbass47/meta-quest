@@ -10,7 +10,11 @@ public class PlaceAction extends Action {
 	private Placeable activePlaceable;
 	
 	@Override
-	public void init() {
+	public void onEnter() {
+	}
+	
+	@Override
+	public void onExit() {
 	}
 	
 	@Override

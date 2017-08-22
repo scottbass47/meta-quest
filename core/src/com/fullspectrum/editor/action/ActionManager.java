@@ -36,6 +36,8 @@ public class ActionManager implements InputProcessor {
 	}
 
 	public void switchAction(EditorActions newAction) {
+		if(currentActionInstance != null) currentActionInstance.onExit();
+		
 		previousAction = currentAction;
 		previousActionInstance = currentActionInstance;
 		
@@ -46,7 +48,7 @@ public class ActionManager implements InputProcessor {
 		currentActionInstance.setHudCamera(hudCamera);
 		currentActionInstance.setActionManager(this);
 		
-		currentActionInstance.init();
+		currentActionInstance.onEnter();
 	}
 	
 	public boolean isBlocking() {

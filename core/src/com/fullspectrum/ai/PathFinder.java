@@ -192,7 +192,7 @@ public class PathFinder {
 			
 			if(timeLeft < 0) return;
 			
-			while(timeLeft > 0 && finder.uncheckedLinks.size() > 0) {
+			while(timeLeft > 0 && finder.calculating && finder.uncheckedLinks.size() > 0) {
 				timeLeft -= finder.runIteration();
 			}
 			

@@ -67,5 +67,10 @@ public class AIController implements Input{
 	public Float getValue(Actions action) {
 		return actionValues.get(action);
 	}
+	
+	@Override
+	public String toString() {
+		return pressed.toString();
+	}
 
 }

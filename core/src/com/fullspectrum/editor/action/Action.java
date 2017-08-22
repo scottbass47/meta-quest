@@ -13,9 +13,10 @@ public abstract class Action implements InputProcessor {
 	protected ActionManager actionManager;
 	
 	/** Called after all fields have been set. Use this instead of constructor. */
-	public abstract void init();
+	public abstract void onEnter();
 	public abstract void update(float delta);
 	public abstract void render(SpriteBatch batch);
+	public abstract void onExit();
 	
 	public boolean isBlocking() {
 		return false;

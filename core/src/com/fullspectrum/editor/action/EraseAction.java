@@ -13,7 +13,11 @@ public class EraseAction extends Action {
 	private float mouseY;
 	
 	@Override
-	public void init() {
+	public void onEnter() {
+	}
+	
+	@Override
+	public void onExit() {
 	}
 	
 	@Override

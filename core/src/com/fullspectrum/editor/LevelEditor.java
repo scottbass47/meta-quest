@@ -1,10 +1,12 @@
 package com.fullspectrum.editor;
 
+import java.util.Iterator;
 import java.util.Stack;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.InputMultiplexer;
+import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -71,6 +73,7 @@ public class LevelEditor extends InputMultiplexer{
 	private boolean autoTiling = false;
 	private int autoSaveInterval = 1000;
 	private boolean open = false;
+	private Array<InputProcessor> toRemove;
 	
 	// Commands
 	private Stack<Command> history;
@@ -157,6 +160,8 @@ public class LevelEditor extends InputMultiplexer{
 		}, "Editor Auto-Save");
 		saveThread.setDaemon(true);
 		saveThread.start();
+		
+		toRemove = new Array<InputProcessor>();
 	}
 	
 	private void setupTextures() {
@@ -188,9 +193,6 @@ public class LevelEditor extends InputMultiplexer{
 		
 		// Init the entity spawns
 		initEntitySpawns();
-		
-		System.out.println(spawnMap);
-		System.out.println(entityAdded);
 	}
 	
 	/** Clears spawn map and disable map. Loads in spawns from new level */
@@ -248,8 +250,6 @@ public class LevelEditor extends InputMultiplexer{
 	public void setPlayerSpawn(EntitySpawn spawn){
 		spawnMap.put(0, spawn);
 		enableSpawn(0);
-		System.out.println(spawnMap);
-		System.out.println(entityAdded);
 	}
 	
 	public EntitySpawn getPlayerSpawn(){
@@ -274,8 +274,13 @@ public class LevelEditor extends InputMultiplexer{
 		actionManager.setHudCamera(hudCamera);
 		editorWindow.setHudCamera(hudCamera);
 	}
-
+	
 	public void update(float delta) {
+		for(Iterator<InputProcessor> iter = toRemove.iterator(); iter.hasNext();) {
+			removeProcessor(iter.next());
+			iter.remove();
+		}
+
 		animTime += delta;
 		
 		actionManager.update(delta);
@@ -641,6 +646,10 @@ public class LevelEditor extends InputMultiplexer{
 		worldCamera.zoom += amount * 0.02f;
 		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
 		return super.scrolled(amount);
+	}
+	
+	public void removeInputProcessor(InputProcessor processor) {
+		toRemove.add(processor);
 	}
 	
 	public boolean onTilePanel(float screenX, float screenY) {

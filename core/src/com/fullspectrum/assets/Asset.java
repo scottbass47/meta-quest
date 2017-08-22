@@ -132,16 +132,16 @@ public enum Asset {
 	GOAT_SWING_ATTACK(Atlas.ENTITY, "swing/goat_swing"),
 	
 	// Gun Gremlin
-	GUN_GREMLIN_IDLE(Atlas.ENTITY, "idle/gun_gremlin_idle"),
-	GUN_GREMLIN_WALK(Atlas.ENTITY, "walk/gun_gremlin_walk"),
-	GUN_GREMLIN_RUN(Atlas.ENTITY, "run/gun_gremlin_run"),
-	GUN_GREMLIN_JUMP(Atlas.ENTITY, "jump/gun_gremlin_jump"),
-	GUN_GREMLIN_RISE(Atlas.ENTITY, "rise/gun_gremlin_rise"),
-	GUN_GREMLIN_APEX(Atlas.ENTITY, "apex/gun_gremlin_apex"),
-	GUN_GREMLIN_FALL(Atlas.ENTITY, "fall/gun_gremlin_fall"),
-	GUN_GREMLIN_SHOOT(Atlas.ENTITY, "shoot/gun_gremlin_shoot"),
-	GUN_GREMLIN_MUZZLE_FLASH(Atlas.ENTITY, "muzzle_flash/gun_gremlin_muzzle_flash"),
-	GUN_GREMLIN_IDLE_RANDOM(Atlas.ENTITY, "idle_random/gun_gremlin_idle_random"),
+	GUN_GREMLIN_IDLE         (Atlas.ENTITY, "idle/gun_gremlin_idle"),
+	GUN_GREMLIN_WALK         (Atlas.ENTITY, "walk/gun_gremlin_walk"),
+	GUN_GREMLIN_RUN          (Atlas.ENTITY, "run/gun_gremlin_run"),
+	GUN_GREMLIN_JUMP         (Atlas.ENTITY, "jump/gun_gremlin_jump"),
+	GUN_GREMLIN_RISE         (Atlas.ENTITY, "rise/gun_gremlin_rise"),
+	GUN_GREMLIN_APEX         (Atlas.ENTITY, "apex/gun_gremlin_apex"),
+	GUN_GREMLIN_FALL         (Atlas.ENTITY, "fall/gun_gremlin_fall"),
+	GUN_GREMLIN_SHOOT        (Atlas.ENTITY, "shoot/gun_gremlin_shoot"),
+	GUN_GREMLIN_MUZZLE_FLASH (Atlas.ENTITY, "muzzle_flash/gun_gremlin_muzzle_flash"),
+	GUN_GREMLIN_IDLE_RANDOM  (Atlas.ENTITY, "idle_random/gun_gremlin_idle_random"),
 		
 	// Rocky
 	ROCKY_IDLE		 (Atlas.ENTITY, "idle/rocky_idle"),
@@ -149,6 +149,17 @@ public enum Asset {
 	ROCKY_SWING		 (Atlas.ENTITY, "swing/rocky_swing"),
 	ROCKY_THROW 	 (Atlas.ENTITY, "throw/rocky_throw"),
 	ROCKY_PROJECTILE (Atlas.ENTITY, "projectile/rocky_projectile"),
+	
+	// Grunt Gremlin
+	GRUNT_GREMLIN_IDLE  (Atlas.ENTITY, "idle/grunt_gremlin_idle"),
+	GRUNT_GREMLIN_WALK  (Atlas.ENTITY, "walk/grunt_gremlin_walk"),
+	GRUNT_GREMLIN_RUN   (Atlas.ENTITY, "run/grunt_gremlin_run"),
+	GRUNT_GREMLIN_TRIP  (Atlas.ENTITY, "trip/grunt_gremlin_trip"),
+	GRUNT_GREMLIN_JUMP  (Atlas.ENTITY, "jump/grunt_gremlin_jump"),
+	GRUNT_GREMLIN_RISE  (Atlas.ENTITY, "rise/grunt_gremlin_rise"),
+	GRUNT_GREMLIN_APEX  (Atlas.ENTITY, "apex/grunt_gremlin_apex"),
+	GRUNT_GREMLIN_FALL  (Atlas.ENTITY, "fall/grunt_gremlin_fall"),
+	GRUNT_GREMLIN_SWING (Atlas.ENTITY, "swing/grunt_gremlin_swing"),
 	
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),

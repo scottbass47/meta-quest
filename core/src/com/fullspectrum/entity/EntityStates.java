@@ -44,7 +44,8 @@ public enum EntityStates implements State{
 	CHARGE,
 	INIT,
 	ATTACK_ANTICIPATION,
-	ATTACK_COOLDOWN;
+	ATTACK_COOLDOWN,
+	TRIP;
 	
 	@Override
 	public int getIndex() {

@@ -16,10 +16,14 @@ public class MoveAction extends Action{
 	private SelectAction selectAction;
 	
 	@Override
-	public void init() {
+	public void onEnter() {
 		offset = new Vector2();
 	}
 
+	@Override
+	public void onExit() {
+	}
+	
 	@Override
 	public void update(float delta) {
 		for(Selectable<?> select : selected) {

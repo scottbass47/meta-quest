@@ -11,13 +11,13 @@ public enum EntityType {
 	
 	// Enemies
 	GOAT,
-	SLIME,
-	SPITTER,
 	WINGS,
 	SPAWNER,
 	BOAR,
 	GUN_GREMLIN,
 	ROCKY,
+	GRUNT_GREMLIN,
+	PROJECTILE_GREMLIN,
 	
 	// Drops
 	COIN,
@@ -35,6 +35,7 @@ public enum EntityType {
 	EXPLOSIVE_PARTICLE,
 	WIND_PARTICLE,
 	ROCK,
+	GREMLIN_PROJECTILE,
 	
 	// Explosives
 	EXPLOSION,

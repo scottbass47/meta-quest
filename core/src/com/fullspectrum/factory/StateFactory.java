@@ -117,6 +117,23 @@ public class StateFactory {
 		return builder.build();
 	}
 	
+	/**
+	 * Stats need <code>ground_speed</code>
+	 * @param entity
+	 * @param stats
+	 * @return
+	 */
+	public static EntityStateMachine createBaseBipedalNoJump(Entity entity, EntityStats stats) {
+		EntityStateMachine esm = new EntityStateBuilder(Mappers.entity.get(entity).type.toString(), Mappers.engine.get(entity).engine, entity)
+				.idle()
+				.run(stats.get("ground_speed"))
+				.build();
+		
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING), InputFactory.idle(), EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING), Transitions.INPUT, InputFactory.run(), EntityStates.RUNNING);
+		return esm;
+	}
+	
 	public static class EntityStateBuilder{
 		
 		private Engine engine;

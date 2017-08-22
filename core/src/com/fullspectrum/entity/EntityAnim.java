@@ -44,6 +44,7 @@ public enum EntityAnim implements State{
 	CHARGE,
 	ROLL,
 	WALK,
+	TRIP,
 	PROJECTILE_ATTACK,
 	
 	// Knight stuff (so ugly!!)

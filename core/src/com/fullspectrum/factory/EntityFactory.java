@@ -87,6 +87,7 @@ import com.fullspectrum.ai.tasks.FollowPathTask;
 import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
 import com.fullspectrum.ai.tasks.OnGroundTask;
+import com.fullspectrum.ai.tasks.OnTileTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
@@ -238,7 +239,6 @@ public class EntityFactory {
 	
 	// Entity
 	// TODO Make muzzle flash a separate particle
-	// BUG Player placing / removing in level editor is creating duplicate player spawns
 	
 	// ------------
 	// Optimization
@@ -2544,32 +2544,6 @@ public class EntityFactory {
 			}
 		};
 		
-		LeafTask<Entity> onTile = new LeafTask<Entity>() {
-			@Override
-			public Status execute() {
-				Entity entity = getObject();
-				boolean facingRight = Mappers.facing.get(entity).facingRight;
-				
-				float percentOn = 0.5f;
-				float xOff = facingRight ? -percentOn : percentOn;
-				
-				BodyComponent bodyComp = Mappers.body.get(entity);
-				Rectangle hitbox = bodyComp.getAABB();
-				Body body = bodyComp.body;
-				
-				float x = body.getPosition().x + xOff;
-				float y = body.getPosition().y - hitbox.height * 0.5f - 0.4f; // one tile below where you're standing
-				
-				Level level = Mappers.level.get(entity).level;
-				return level.isSolid(x, y) ? Status.SUCCEEDED : Status.FAILED;
-			}
-
-			@Override
-			protected Task<Entity> copyTo(Task<Entity> task) {
-				return task;
-			}
-		};
-		
 		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
 		tree.setObject(gremlin);
 		
@@ -2610,7 +2584,7 @@ public class EntityFactory {
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
 		attackSequence.addChild(new InRangeTask(stats.get("attack_range")));
 		attackSequence.addChild(new OnGroundTask());
-		attackSequence.addChild(onTile);
+		attackSequence.addChild(new OnTileTask(0.5f));
 		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
 		
 		rootSelector.addChild(attackSequence);
@@ -2627,6 +2601,7 @@ public class EntityFactory {
 		AIController controller = new AIController();
 		final EntityStats stats = EntityLoader.get(EntityIndex.ROCKY);
 		
+		// PERFORMANCE Scale animations on creation is not very efficient
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
 		animMap.put(EntityAnim.IDLE,              RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_IDLE),  2.0f));
 		animMap.put(EntityAnim.RUN,               RenderUtils.scaleAnimation(assets.getAnimation(Asset.ROCKY_WALK),  2.0f));
@@ -2755,7 +2730,7 @@ public class EntityFactory {
 		throwSequence.addChild(BTFactory.attack(Actions.ATTACK2));
 		
 		Sequence<Entity> meleeSequence = new Sequence<Entity>();
-		meleeSequence.addChild(new InRangeTask(4.0f));
+		meleeSequence.addChild(new InRangeTask(stats.get("swing_range")));
 		meleeSequence.addChild(new InLoSTask());
 		meleeSequence.addChild(BTFactory.attack(Actions.ATTACK));
 		
@@ -2768,6 +2743,332 @@ public class EntityFactory {
 		rocky.add(engine.createComponent(BTComponent.class).set(tree));
 		
 		return rocky;
+	}
+	
+	public static Entity createGruntGremlin(float x, float y) {
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.IDLE,      assets.getAnimation(Asset.GRUNT_GREMLIN_IDLE));
+		animMap.put(EntityAnim.WALK,      assets.getAnimation(Asset.GRUNT_GREMLIN_WALK));
+		animMap.put(EntityAnim.RUN,       assets.getAnimation(Asset.GRUNT_GREMLIN_RUN));
+		animMap.put(EntityAnim.JUMP,      assets.getAnimation(Asset.GRUNT_GREMLIN_JUMP));
+		animMap.put(EntityAnim.RISE,      assets.getAnimation(Asset.GRUNT_GREMLIN_RISE));
+		animMap.put(EntityAnim.JUMP_APEX, assets.getAnimation(Asset.GRUNT_GREMLIN_APEX));
+		animMap.put(EntityAnim.FALLING,   assets.getAnimation(Asset.GRUNT_GREMLIN_FALL));
+		animMap.put(EntityAnim.ATTACK,    assets.getAnimation(Asset.GRUNT_GREMLIN_SWING));
+		animMap.put(EntityAnim.TRIP,      assets.getAnimation(Asset.GRUNT_GREMLIN_TRIP));
+		
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.GRUNT_GREMLIN);
+		NavMesh mesh = NavMesh.get(EntityIndex.GRUNT_GREMLIN);
+		PathFinder pathFinder = new PathFinder(mesh);
+		
+		Rectangle hitbox = EntityIndex.GRUNT_GREMLIN.getHitBox();
+		BodyBuilder bodyBuilder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, (int)hitbox.width, (int)hitbox.height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.boxPixels(0, -(int)(hitbox.height * 0.5f) - 1, (int)hitbox.width - 1, 4)
+					.makeSensor()
+					.build();
+		
+		Entity gremlin = new EntityBuilder(EntityType.GRUNT_GREMLIN, ENEMY)
+				.physics(bodyBuilder, x, y, true)
+				.ai(controller)
+				.mob(controller, stats.get("health"), stats.get("weight"), (int) stats.get("money"))
+				.animation(animMap)
+				.render(true)
+				.build();
+
+		gremlin.add(engine.createComponent(PathComponent.class).set(pathFinder));
+		gremlin.add(engine.createComponent(PropertyComponent.class));
+		
+		Mappers.property.get(gremlin).setProperty("walking", true);
+		Mappers.property.get(gremlin).setProperty("should_trip", false);
+		
+		EntityStateMachine esm = StateFactory.createBaseBipedal(gremlin, stats);
+		
+		esm.getState(EntityStates.RUNNING)
+			.addAnimation(EntityAnim.WALK);
+		
+		Mappers.timer.get(gremlin).add("run_handler", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				boolean walking = Mappers.property.get(entity).getBoolean("walking");
+				AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.RUN);
+				if(asm != null) {
+					if(asm.getCurrentState() == EntityAnim.WALK && !walking) {
+						asm.changeState(EntityAnim.RUN);
+					} else if(asm.getCurrentState() == EntityAnim.RUN && walking) {
+						asm.changeState(EntityAnim.WALK);
+					}
+				}
+				
+				EntityStateMachine esm = Mappers.esm.get(entity).first();
+				if(esm.getCurrentState() == EntityStates.RUNNING) {
+					Mappers.speed.get(entity).set(walking ? stats.get("walk_speed") : stats.get("ground_speed"));
+				}
+			}
+		});
+		
+		SwingComponent swingComp = engine.createComponent(SwingComponent.class)
+				.set(2.0f, 1.0f, 90, -90, GameVars.ANIM_FRAME * 4, stats.get("swing_damage"), stats.get("swing_knockback"));
+		
+		esm.createState(EntityStates.SWING_ATTACK)
+				.addAnimation(EntityAnim.ATTACK)
+				.addTag(TransitionTag.STATIC_STATE)
+				.add(engine.createComponent(NoMovementComponent.class))
+				.add(swingComp)
+				.addChangeListener(new StateChangeListener() {
+					@Override
+					public void onEnter(State prevState, Entity entity) {
+						Mappers.facing.get(entity).locked = true;
+						Mappers.swing.get(entity).shouldSwing = true;
+					}
+
+					@Override
+					public void onExit(State nextState, Entity entity) {
+						Mappers.facing.get(entity).locked = false;
+					}
+				});
+				
+		esm.createState(EntityStates.TRIP)
+			.add(engine.createComponent(NoMovementComponent.class))
+			.addAnimation(EntityAnim.TRIP)
+			.addTag(TransitionTag.STATIC_STATE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.property.get(entity).setProperty("should_trip", false);
+				}
+			});
+		
+		Transition tripTransition = new Transition() {
+			@Override
+			public boolean shouldTransition(Entity entity, TransitionObject obj, float deltaTime) {
+				return Mappers.property.get(entity).getBoolean("should_trip");
+			}
+			
+			@Override
+			public boolean allowMultiple() {
+				return false;
+			}
+			
+			@Override
+			public String toString() {
+				return "Should Trip";
+			}
+		};
+		
+		Mappers.timer.get(gremlin).add("trip_handler", GameVars.UPS_INV, true, new TimeListener() {
+			@Override
+			public void onTime(Entity entity) {
+				// Can't trip if not running
+				if(Mappers.esm.get(entity).first().getCurrentState() != EntityStates.RUNNING) return;
+				
+				AnimationStateMachine asm = Mappers.asm.get(entity).get(EntityAnim.RUN);
+				if(asm == null || asm.getCurrentAnimation() != EntityAnim.RUN) return;
+				
+				// Check to see if gremlin should trip
+				if(MathUtils.random() < GameVars.UPS_INV / stats.get("seconds_per_trip")) {
+					Mappers.property.get(entity).setProperty("should_trip", true);
+				}
+			}
+		});
+		
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(), EntityStates.SWING_ATTACK);
+		esm.addTransition(EntityStates.SWING_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), tripTransition, EntityStates.TRIP);
+		esm.addTransition(EntityStates.TRIP, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		LeafTask<Entity> setWalking = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.property.get(getObject()).setProperty("walking", true);
+				return Status.SUCCEEDED;
+			}
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		LeafTask<Entity> setRunning = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.property.get(getObject()).setProperty("walking", false);
+				return Status.SUCCEEDED;
+			}
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		LeafTask<Entity> cancelPath = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Mappers.path.get(getObject()).pathFinder.reset();
+				return Status.SUCCEEDED;
+			}
+
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(gremlin);
+		
+		Selector<Entity> rootSelector = new Selector<Entity>();
+		
+		Sequence<Entity> patrolSequence = new Sequence<Entity>();
+		patrolSequence.addChild(setWalking);
+		patrolSequence.addChild(cancelPath);
+		patrolSequence.addChild(BTFactory.patrol(1.0f));
+		
+		Sequence<Entity> immediateRange = new Sequence<Entity>();
+		immediateRange.addChild(new InRangeTask(stats.get("chase_range")));
+		immediateRange.addChild(new InLoSTask());
+
+		Sequence<Entity> pursueTarget = new Sequence<Entity>();
+		pursueTarget.addChild(immediateRange);
+		pursueTarget.addChild(new AlwaysSucceed<Entity>(new CalculatePathTask(true)));
+		pursueTarget.addChild(new FollowPathTask());
+		
+		Selector<Entity> chaseSelector = new Selector<Entity>();
+		chaseSelector.addChild(pursueTarget);
+		chaseSelector.addChild(new FollowPathTask());
+		
+		Sequence<Entity> chaseSequence = new Sequence<Entity>();
+		chaseSequence.addChild(setRunning);
+		chaseSequence.addChild(chaseSelector);
+		
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(new InRangeTask(stats.get("attack_range")));
+		attackSequence.addChild(new OnGroundTask());
+		attackSequence.addChild(new OnTileTask(0.5f));
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		rootSelector.addChild(attackSequence);
+		rootSelector.addChild(chaseSequence);
+		rootSelector.addChild(patrolSequence);
+		
+		tree.addChild(rootSelector);
+		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		return gremlin;
+	}
+	
+	public static Entity createProjectileGremlin(float x, float y) {
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.IDLE,   assets.getAnimation(Asset.GUN_GREMLIN_IDLE));
+		animMap.put(EntityAnim.RUN,    assets.getAnimation(Asset.GUN_GREMLIN_WALK));
+		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.GUN_GREMLIN_SHOOT));
+		
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.PROJECTILE_GREMLIN);
+		
+		Rectangle hitbox = EntityIndex.PROJECTILE_GREMLIN.getHitBox();
+		BodyBuilder bodyBuilder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, (int)hitbox.width, (int)hitbox.height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.boxPixels(0, -(int)(hitbox.height * 0.5f) - 1, (int)hitbox.width - 1, 4)
+					.makeSensor()
+					.build();
+		
+		Entity gremlin = new EntityBuilder(EntityType.PROJECTILE_GREMLIN, ENEMY)
+				.physics(bodyBuilder, x, y, true)
+				.ai(controller)
+				.mob(controller, stats.get("health"), stats.get("weight"), (int) stats.get("money"))
+				.animation(animMap)
+				.render(true)
+				.build();
+
+		EntityStateMachine esm = StateFactory.createBaseBipedalNoJump(gremlin, stats);
+		
+		esm.createState(EntityStates.PROJECTILE_ATTACK)
+				.addAnimation(EntityAnim.ATTACK)
+				.addTag(TransitionTag.STATIC_STATE)
+				.add(engine.createComponent(NoMovementComponent.class))
+				.addChangeListener(new StateChangeListener() {
+					@Override
+					public void onEnter(State prevState, Entity entity) {
+						Mappers.facing.get(entity).locked = true;
+						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 6, false, new TimeListener() {
+							@Override
+							public void onTime(Entity entity) {
+								EntityStateMachine esm = Mappers.esm.get(entity).first();
+								if(esm.getCurrentState() == EntityStates.PROJECTILE_ATTACK) {
+									// Create attack
+									TargetComponent targetComp = Mappers.target.get(entity);
+									if(targetComp == null || !EntityUtils.isTargetable(targetComp.target)) return;
+									
+									Vector2 toPos   = PhysicsUtils.getPos(targetComp.target);
+									Vector2 fromPos = PhysicsUtils.getPos(entity);
+									Vector2 diff = toPos.sub(fromPos);
+									
+									float angle = MathUtils.radDeg * MathUtils.atan2(diff.y, diff.x);
+									float xOff = 0;
+									float yOff = 0;
+									
+									ProjectileData data = ProjectileFactory.initProjectile(entity, xOff, yOff, angle);
+									Entity proj = createGremlinProjectile(data.x, data.y, angle, stats.get("projectile_damage"), stats.get("projectile_speed"), Mappers.status.get(entity).status);
+									EntityManager.addEntity(proj);
+								}
+							}
+						});
+					}
+
+					@Override
+					public void onExit(State nextState, Entity entity) {
+						Mappers.facing.get(entity).locked = false;
+					}
+				});
+				
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(), EntityStates.PROJECTILE_ATTACK);
+		esm.addTransition(EntityStates.PROJECTILE_ATTACK, Transitions.ANIMATION_FINISHED, EntityStates.IDLING);
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(gremlin);
+		
+		Selector<Entity> rootSelector = new Selector<Entity>();
+		
+		Sequence<Entity> patrolSequence = new Sequence<Entity>();
+		patrolSequence.addChild(BTFactory.patrol(1.0f));
+		
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(new InRangeTask(stats.get("attack_range")));
+		attackSequence.addChild(new OnGroundTask());
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		rootSelector.addChild(attackSequence);
+		rootSelector.addChild(patrolSequence);
+		
+		tree.addChild(rootSelector);
+		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		return gremlin;
 	}
 	
 	// ---------------------------------------------
@@ -3109,6 +3410,22 @@ public class EntityFactory {
 				.giveAngularSpeed(300.0f)
 				.addDamage(damage)
 				.makeArced()
+				.build();
+	}
+	
+	public static Entity createGremlinProjectile(float x, float y, float angle, float damage, float speed, EntityStatus status) {
+		BodyBuilder builder = new BodyBuilder()
+				.bullet(true)
+				.type(BodyType.DynamicBody, CollisionBodyType.PROJECTILE)
+				.pos(x, y)
+				.gravScale(0.0f)
+				.addFixture()
+					.fixtureType(FixtureType.BULLET)
+					.circle(0, 0, 0.2f)
+					.build();
+		
+		return new ProjectileBuilder(EntityType.GREMLIN_PROJECTILE, status, builder, x, y, speed, angle)
+				.addDamage(damage)
 				.build();
 	}
 	

@@ -39,9 +39,14 @@ public class SelectEnemyAction extends Action {
 	}
 	
 	@Override
-	public void init() {
+	public void onEnter() {
 		enemyWindow.setHudCamera(hudCamera);
 		editor.addProcessor(enemyWindow);
+	}
+	
+	@Override
+	public void onExit() {
+		editor.removeInputProcessor(enemyWindow);
 	}
 	
 	public EntityIndex getSelectedEntity() {

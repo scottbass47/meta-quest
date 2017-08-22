@@ -52,7 +52,11 @@ public class SelectAction extends Action {
 	}
 	
 	@Override
-	public void init() {
+	public void onEnter() {
+	}
+	
+	@Override
+	public void onExit() {
 	}
 	
 	@Override

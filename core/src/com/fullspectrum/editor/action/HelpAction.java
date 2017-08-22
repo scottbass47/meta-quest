@@ -21,9 +21,13 @@ public class HelpAction extends Action {
 	}
 	
 	@Override
-	public void init() {
+	public void onEnter() {
 		helpWindow.setHudCamera(hudCamera);
 		editor.addProcessor(helpWindow);
+	}
+	
+	@Override
+	public void onExit() {
 	}
 	
 	@Override

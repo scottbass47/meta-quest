@@ -1,10 +1,11 @@
 {
 	// Movement
-	walk_speed: 3.0,
+	walk_speed: 4.0,
 	ground_speed: 7.5, // a.k.a his run speed, needs to be called ground_speed for navmesh purposes
 	air_speed: 7.5,
 	jump_force: 12.0,
 	jump_float_amount: 0.0,
+	seconds_per_trip: 3.0,
 	
 	// Base Stats
 	money: 40.0,
@@ -12,14 +13,10 @@
 	weight: 10.0,
 	
 	// Attack
-	projectile_damage: 20.0,
-	projectile_amount: 5,
-	projectile_spread: 60, // degree arc of spread
-	projectile_range: 4.0,
-	projectile_speed: 20.0,
+	swing_damage: 6.0,
+	swing_knockback: 1.0,
 	
 	// AI
-	chase_range: 6.0,
-	platform_range: 8.0,
-	attack_range: 2.5,
+	chase_range: 8.0,
+	attack_range: 2.0,
 }

@@ -28,6 +28,7 @@ public class BTSystem extends EntitySystem {
 			if(btComp.tree == null) return;
 			btComp.tree.step();
 		}
+		
 		PathFinder.update(deltaTime);
 	}
 	

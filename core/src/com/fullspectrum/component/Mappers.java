@@ -83,7 +83,6 @@ public class Mappers {
 	public static final ComponentMapper<HealthComponent> heatlh = ComponentMapper.getFor(HealthComponent.class);
 	public static final ComponentMapper<BulletStatsComponent> bulletStats = ComponentMapper.getFor(BulletStatsComponent.class);
 	public static final ComponentMapper<StatusComponent> status = ComponentMapper.getFor(StatusComponent.class);
-	public static final ComponentMapper<AttackComponent> attack = ComponentMapper.getFor(AttackComponent.class);
 	public static final ComponentMapper<MoneyComponent> money = ComponentMapper.getFor(MoneyComponent.class);
 	public static final ComponentMapper<BlinkComponent> blink = ComponentMapper.getFor(BlinkComponent.class);
 	public static final ComponentMapper<ForceComponent> force = ComponentMapper.getFor(ForceComponent.class);

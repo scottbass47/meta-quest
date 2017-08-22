@@ -18,8 +18,12 @@ public class FillAction extends Action {
 	private Array<GridPoint> fillTiles;
 	
 	@Override
-	public void init() {
+	public void onEnter() {
 		fillTiles = new Array<GridPoint>();
+	}
+	
+	@Override
+	public void onExit() {
 	}
 
 	@Override
