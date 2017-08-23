@@ -199,8 +199,11 @@ public class LevelEditor extends InputMultiplexer{
 	private void initEntitySpawns() {
 		spawnMap.clear();
 		entityAdded.clear();
+		nextID = 1;
 		
-		addSpawn(currentLevel.getPlayerSpawn());
+		if(currentLevel.getPlayerSpawn() != null) {
+			setPlayerSpawn(currentLevel.getPlayerSpawn());
+		}
 		for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
 			addSpawn(spawn);
 		}
@@ -261,7 +264,7 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public boolean isEnabled(int spawnID) {
-		return entityAdded.get(spawnID);
+		return entityAdded.containsKey(spawnID) && entityAdded.get(spawnID);
 	}
 	
 	public void setWorldCamera(OrthographicCamera camera) {

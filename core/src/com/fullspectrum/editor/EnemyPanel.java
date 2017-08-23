@@ -59,7 +59,6 @@ public class EnemyPanel extends Container {
 		for(int i = 0; i < length; i++) {
 			final EntityIndex index = EntityIndex.values()[i];
 			EnemyIcon icon = new EnemyIcon(index, scale);
-			icon.setDebugRender(true);
 			iconMap.put(index, icon);
 			
 			icon.addListener(new ActionListener() {

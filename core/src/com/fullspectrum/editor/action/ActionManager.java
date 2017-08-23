@@ -119,7 +119,7 @@ public class ActionManager implements InputProcessor {
 			// Save
 			if (keycode == Keys.X) {
 				Level currentLevel = editor.getCurrentLevel();
-				System.out.println("Saving level " + currentLevel.getInfo());
+				System.out.println("Saving level " + currentLevel.getName());
 				LevelUtils.saveLevel(currentLevel);
 				editor.saved();
 			} 
@@ -150,6 +150,10 @@ public class ActionManager implements InputProcessor {
 			// Help
 			else if(keycode == Keys.H) {
 				switchAction(EditorActions.HELP);
+			}
+			// New Level
+			else if(keycode == Keys.N) {
+				switchAction(EditorActions.NEW_LEVEL);
 			}
 		}
 

@@ -3,7 +3,6 @@ package com.fullspectrum.level;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
@@ -26,7 +25,6 @@ import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.game.PauseMenu;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.level.Level.EntitySpawn;
-import com.fullspectrum.level.LevelInfo.LevelType;
 import com.fullspectrum.level.tiles.MapTile;
 import com.fullspectrum.systems.FlowFieldSystem;
 
@@ -45,8 +43,8 @@ public class LevelManager{
 	private Entity player;
 	
 	// Level
-	private LevelInfo previous;
-	private LevelInfo lastLevel;
+//	private LevelInfo previous;
+//	private LevelInfo lastLevel;
 
 	// Editor
 	private LevelEditor editor;
@@ -76,7 +74,7 @@ public class LevelManager{
 	// 5. Spawn in entities in new level
 	// 6. Spawn in player
 	// 7. Initialize camera (zoom, position, bounds, etc...)
-	public void switchLevel(Theme theme, LevelType type, int level, int secret, int section){
+	public void switchLevel(String levelName){
 		if(currentLevel != null){
 			
 			// 1. Destroy old level
@@ -91,14 +89,12 @@ public class LevelManager{
 		}
 		
 		// 3. Load in new level
-		LevelInfo info = new LevelInfo(theme, type, level, secret, section);
-		
 		// Load from disk if you're changing levels
 		Level newLevel = currentLevel;
-		if(currentLevel == null || !currentLevel.getInfo().equals(info)) {
-			newLevel = LevelUtils.loadLevel(this, info);
+		if(currentLevel == null || !currentLevel.getName().equals(levelName)) {
+			newLevel = LevelUtils.loadLevel(this, levelName);
 			if(newLevel == null) {
-				newLevel = new Level(this, info);
+				throw new RuntimeException("No level '" + levelName + "'");
 			}
 			newLevel.load();
 		}
@@ -147,12 +143,12 @@ public class LevelManager{
 		cameraComp.zoom = newLevel.getCameraZoom();
 		cameraComp.update();
 		
-		if(currentLevel != null){
-			if(currentLevel.getInfo().isLevel()){
-				lastLevel = currentLevel.getInfo();
-			}
-			previous = currentLevel.getInfo();
-		}
+//		if(currentLevel != null){
+//			if(currentLevel.getInfo().isLevel()){
+//				lastLevel = currentLevel.getInfo();
+//			}
+//			previous = currentLevel.getInfo();
+//		}
 		currentLevel = newLevel;
 	}
 	
@@ -184,7 +180,7 @@ public class LevelManager{
 		editor.onExit();
 		editorActive = false;
 		input.getRawInput().removeInput(editor);
-		switchLevel(currentLevel.getInfo());
+		switchLevel(editor.getCurrentLevel().getName());
 		DebugInput.enable();
 	}
 	
@@ -218,45 +214,45 @@ public class LevelManager{
 		input.reset();
 	}
 	
-	public void switchHub(Theme theme){
-		switchLevel(theme, LevelType.HUB, -1, -1, -1);
-	}
+//	public void switchHub(Theme theme){
+//		switchLevel(theme, LevelType.HUB, -1, -1, -1);
+//	}
+//	
+//	public void switchLevel(LevelInfo info){
+//		switchLevel(info.getTheme(), info.getLevelType(), info.getLevel(), info.getSecret(), info.getSection());
+//	}
+//	
+//	public void switchLevel(Theme theme, int level, int section){
+//		switchLevel(theme, LevelType.LEVEL, level, -1, section);
+//	}
+//	
+//	public void switchNext(){
+//		LevelInfo currentInfo = currentLevel.getInfo();
+//		Theme nextTheme = currentInfo.getTheme().getNext();
+//		if(nextTheme == null && currentInfo.isHub()) throw new RuntimeException("Can't switch to next level when in last section in hub.");
+//	
+//		if(currentInfo.isHub()){
+//			switchHub(nextTheme);
+//		} else if(currentInfo.isSecret()){
+//			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.SECRET, currentInfo.getLevel(), currentInfo.getSecret(), currentInfo.getSecret() + 1);
+//			if(!levelExists(newInfo)){
+//				switchLevel(lastLevel);
+//			}else{
+//				switchLevel(newInfo);
+//			}
+//		}else{
+//			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.LEVEL, currentInfo.getLevel(), 1, currentInfo.getSection() + 1);
+//			if(!levelExists(newInfo)){
+//				switchHub(currentInfo.getTheme());
+//			}else{
+//				switchLevel(newInfo);
+//			}
+//		}
+//	}
 	
-	public void switchLevel(LevelInfo info){
-		switchLevel(info.getTheme(), info.getLevelType(), info.getLevel(), info.getSecret(), info.getSection());
-	}
-	
-	public void switchLevel(Theme theme, int level, int section){
-		switchLevel(theme, LevelType.LEVEL, level, -1, section);
-	}
-	
-	public void switchNext(){
-		LevelInfo currentInfo = currentLevel.getInfo();
-		Theme nextTheme = currentInfo.getTheme().getNext();
-		if(nextTheme == null && currentInfo.isHub()) throw new RuntimeException("Can't switch to next level when in last section in hub.");
-	
-		if(currentInfo.isHub()){
-			switchHub(nextTheme);
-		} else if(currentInfo.isSecret()){
-			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.SECRET, currentInfo.getLevel(), currentInfo.getSecret(), currentInfo.getSecret() + 1);
-			if(!levelExists(newInfo)){
-				switchLevel(lastLevel);
-			}else{
-				switchLevel(newInfo);
-			}
-		}else{
-			LevelInfo newInfo = new LevelInfo(currentInfo.getTheme(), LevelType.LEVEL, currentInfo.getLevel(), 1, currentInfo.getSection() + 1);
-			if(!levelExists(newInfo)){
-				switchHub(currentInfo.getTheme());
-			}else{
-				switchLevel(newInfo);
-			}
-		}
-	}
-	
-	public boolean levelExists(LevelInfo info){
-		return Gdx.files.internal(info.toFileFormatWithExtension()).exists();
-	}
+//	public boolean levelExists(LevelInfo info){
+//		return Gdx.files.internal(info.toFileFormatWithExtension()).exists();
+//	}
 	
 	public void update(float delta) {
 		if(editorActive) {

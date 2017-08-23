@@ -53,21 +53,20 @@ public class Level {
 
 	// Level Info
 	private LevelManager manager;
-	private LevelInfo info;
 	private ObjectSet<EntityIndex> meshes;
 	private boolean requiresFlowField;
 	private boolean isCameraLocked;
 	private float cameraZoom;
+	private String name;
 
 	private ArrayMap<Integer, Array<GridPoint>> edgeGroups;
 
 	public Level() {
-		this(null, null);
+		this(null);
 	}
 
-	public Level(LevelManager manager, LevelInfo info) {
+	public Level(LevelManager manager) {
 		this.manager = manager;
-		this.info = info;
 
 		entitySpawns = new Array<EntitySpawn>();
 		bodies = new Array<Body>();
@@ -122,6 +121,14 @@ public class Level {
 		// setupLevelTriggers();
 	}
 
+	public void setName(String name) {
+		this.name = name;
+	}
+	
+	public String getName() {
+		return name;
+	}
+	
 	public int getWidth() {
 		return tileMap.getWidth();
 	}
@@ -152,14 +159,6 @@ public class Level {
 
 	public LevelManager getManager() {
 		return manager;
-	}
-
-	public void setInfo(LevelInfo info) {
-		this.info = info;
-	}
-
-	public LevelInfo getInfo() {
-		return info;
 	}
 
 	public ObjectSet<EntityIndex> getMeshes() {
@@ -871,10 +870,14 @@ public class Level {
 			}
 
 			EntitySpawn spawn = object.getPlayerSpawn();
-			output.writeFloat(spawn.getPos().x);
-			output.writeFloat(spawn.getPos().y);
-			output.writeString(spawn.getIndex().name().toLowerCase());
-			output.writeBoolean(spawn.facingRight);
+			output.writeBoolean(spawn != null);
+			
+			if(spawn != null) {
+				output.writeFloat(spawn.getPos().x);
+				output.writeFloat(spawn.getPos().y);
+				output.writeString(spawn.getIndex().name().toLowerCase());
+				output.writeBoolean(spawn.facingRight);
+			}
 		}
 
 		@Override
@@ -907,16 +910,18 @@ public class Level {
 			}
 			level.entitySpawns = spawns;
 
-			try {
+			boolean playerExists = input.readBoolean();
+			if(!playerExists) {
+				System.out.println("No player spawn");
+				return level;
+			} else {
 				EntitySpawn playerSpawn = new EntitySpawn();
 				playerSpawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
 				playerSpawn.index = EntityIndex.get(input.readString());
 				playerSpawn.facingRight = input.readBoolean();
 				level.setPlayerSpawn(playerSpawn);
-			} catch (Exception e) {
-				System.out.println("No player spawn");
 			}
-
+			
 			return level;
 		}
 

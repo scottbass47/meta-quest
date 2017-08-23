@@ -22,8 +22,8 @@ public class LevelUtils {
 		return kryo;
 	}
 	
-	public static Level loadLevel(LevelManager manager, LevelInfo info) {
-		FileHandle handle = Gdx.files.local("map/" + info.toFileFormatWithExtension());
+	public static Level loadLevel(LevelManager manager, String levelName) {
+		FileHandle handle = Gdx.files.local("map/" + levelName + ".map");
 		
 		if(!handle.exists()) return null;
 		
@@ -32,7 +32,7 @@ public class LevelUtils {
 		
 		Level level = kryo.readObject(input, Level.class);
 		level.setManager(manager);
-		level.setInfo(info);
+		level.setName(levelName);
 		
 		input.close();
 		return level;
@@ -49,12 +49,16 @@ public class LevelUtils {
 //	}
 	
 	public static void saveLevel(Level level) {
-		FileHandle handle = Gdx.files.local("map/" + level.getInfo().toFileFormatWithExtension());
+		FileHandle handle = Gdx.files.local("map/" + level.getName() + ".map");
 		
 		Kryo kryo = setupKryoInstance();
 		Output output = new Output(new BufferedOutputStream(handle.write(false)));
 		
 		kryo.writeObject(output, level);
 		output.close();
+	}
+	
+	public static boolean levelExists(String levelName) {
+		return Gdx.files.local("map/" + levelName + ".map").exists();
 	}
 }

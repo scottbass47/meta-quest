@@ -278,6 +278,7 @@ public class SelectAction extends Action {
 			
 		} else {
 			for(int id = 0; id < editor.nextID(); id++) {
+				if(!editor.isEnabled(id)) continue;
 				EntitySpawn spawn = editor.getSpawn(id);
 				Vector2 spawnPoint = spawn.getPos();
 				EntityIndex index = spawn.getIndex();

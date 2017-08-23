@@ -116,7 +116,7 @@ public class NavMesh{
 	}
 
 	public static NavMesh createNavMesh(Level level, EntityStats stats) {
-		String fileName = stats.getEntityIndex().getName() + "-" + level.getInfo().toFileFormat() + ".nav";
+		String fileName = stats.getEntityIndex().getName() + "-" + level.getName() + ".nav";
 		final Level levelCopy = level;
 		Rectangle boundingBox = hitBoxes.get(stats.getEntityIndex());
 		
@@ -137,7 +137,7 @@ public class NavMesh{
 				Rectangle rect = new Rectangle(input.readFloat(), input.readFloat(), input.readFloat(), input.readFloat());
 				if(version == VERSION && levelHash == level.hashCode() && statsHash == stats.hashCode() && rect.equals(boundingBox)){
 					NavMesh mesh = kryo.readObject(input, NavMesh.class);
-					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getInfo().toFileFormat());
+					Gdx.app.log("Nav Mesh", "Loaded " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getName());
 					input.close();
 					mesh.level = levelCopy;
 					for(Node n : mesh.nodes){
@@ -150,7 +150,7 @@ public class NavMesh{
 				e.printStackTrace();
 			}
 		}
-		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getInfo().toFileFormat() + "...");
+		Gdx.app.log("Nav Mesh", "Creating " + StringUtils.toTitleCase(stats.getEntityIndex().getName()) + " mesh for level " + level.getName() + "...");
 		NavMesh mesh = new NavMesh(level, stats);
 		try {
 			Output output = new Output(new FileOutputStream(Gdx.files.local(fileName).path()));

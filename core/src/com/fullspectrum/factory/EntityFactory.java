@@ -241,6 +241,7 @@ public class EntityFactory {
 	// TODO Make muzzle flash a separate particle
 	// BUG Rapid switching in grunt gremlin
 	// TODO Refactor shader system to handle layering effects / priorities
+	// BUG Rocky sometimes gets stuck in a loop swinging
 	
 	// ------------
 	// Optimization
@@ -2976,9 +2977,9 @@ public class EntityFactory {
 	
 	public static Entity createProjectileGremlin(float x, float y) {
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE,   assets.getAnimation(Asset.GUN_GREMLIN_IDLE));
-		animMap.put(EntityAnim.RUN,    assets.getAnimation(Asset.GUN_GREMLIN_WALK));
-		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.GUN_GREMLIN_SHOOT));
+		animMap.put(EntityAnim.IDLE,   assets.getAnimation(Asset.PROJECTILE_GREMLIN_IDLE));
+		animMap.put(EntityAnim.RUN,    assets.getAnimation(Asset.PROJECTILE_GREMLIN_WALK));
+		animMap.put(EntityAnim.ATTACK, assets.getAnimation(Asset.PROJECTILE_GREMLIN_SHOOT));
 		
 		AIController controller = new AIController();
 		final EntityStats stats = EntityLoader.get(EntityIndex.PROJECTILE_GREMLIN);
@@ -3015,7 +3016,7 @@ public class EntityFactory {
 					@Override
 					public void onEnter(State prevState, Entity entity) {
 						Mappers.facing.get(entity).locked = true;
-						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 6, false, new TimeListener() {
+						Mappers.timer.get(entity).add("shot_delay", GameVars.ANIM_FRAME * 8, false, new TimeListener() {
 							@Override
 							public void onTime(Entity entity) {
 								EntityStateMachine esm = Mappers.esm.get(entity).first();
@@ -3030,7 +3031,7 @@ public class EntityFactory {
 									
 									float angle = MathUtils.radDeg * MathUtils.atan2(diff.y, diff.x);
 									float xOff = 0;
-									float yOff = 0;
+									float yOff = 5;
 									
 									ProjectileData data = ProjectileFactory.initProjectile(entity, xOff, yOff, angle);
 									Entity proj = createGremlinProjectile(data.x, data.y, angle, stats.get("projectile_damage"), stats.get("projectile_speed"), Mappers.status.get(entity).status);
@@ -3061,6 +3062,7 @@ public class EntityFactory {
 		
 		Sequence<Entity> attackSequence = new Sequence<Entity>();
 		attackSequence.addChild(new InRangeTask(stats.get("attack_range")));
+		attackSequence.addChild(new InLoSTask());
 		attackSequence.addChild(new OnGroundTask());
 		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
 		
@@ -3428,6 +3430,7 @@ public class EntityFactory {
 		
 		return new ProjectileBuilder(EntityType.GREMLIN_PROJECTILE, status, builder, x, y, speed, angle)
 				.addDamage(damage)
+				.render(assets.getRegion(Asset.PROJECTILE_GREMLIN_PROJECTILE), true)
 				.build();
 	}
 	

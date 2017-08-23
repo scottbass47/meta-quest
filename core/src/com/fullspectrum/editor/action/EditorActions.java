@@ -129,6 +129,22 @@ public enum EditorActions {
 		public String getDisplayName() {
 			return "Help";
 		}
+	},
+	NEW_LEVEL {
+		@Override
+		public Action getActionInstance() {
+			return new NewLevelAction();
+		}
+
+		@Override
+		public String getShortcut() {
+			return "Ctrl + N";
+		}
+
+		@Override
+		public String getDisplayName() {
+			return "New Level";
+		}
 	};
 	
 	public abstract Action getActionInstance();

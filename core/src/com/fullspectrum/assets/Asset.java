@@ -161,6 +161,12 @@ public enum Asset {
 	GRUNT_GREMLIN_FALL  (Atlas.ENTITY, "fall/grunt_gremlin_fall"),
 	GRUNT_GREMLIN_SWING (Atlas.ENTITY, "swing/grunt_gremlin_swing"),
 	
+	// Projectile Gremlin
+	PROJECTILE_GREMLIN_IDLE       (Atlas.ENTITY, "idle/projectile_gremlin_idle"),
+	PROJECTILE_GREMLIN_WALK       (Atlas.ENTITY, "walk/projectile_gremlin_walk"),
+	PROJECTILE_GREMLIN_SHOOT      (Atlas.ENTITY, "shoot/projectile_gremlin_shoot"),
+	PROJECTILE_GREMLIN_PROJECTILE (Atlas.ENTITY, "projectile/projectile_gremlin_projectile"),
+	
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),
 	MANA_BOMB_EXPLOSION(Atlas.ENTITY, "mana_bomb_explosion"),

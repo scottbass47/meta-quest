@@ -230,7 +230,7 @@ public enum EntityIndex {
 
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.GUN_GREMLIN_IDLE_RANDOM);
+			return AssetLoader.getInstance().getAnimation(Asset.PROJECTILE_GREMLIN_IDLE);
 		}
 
 		@Override

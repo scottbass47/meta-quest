@@ -64,7 +64,6 @@ import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.level.NavMesh;
-import com.fullspectrum.level.Theme;
 import com.fullspectrum.physics.collision.WorldCollision;
 import com.fullspectrum.systems.AbilitySystem;
 import com.fullspectrum.systems.AnimationSystem;
@@ -255,7 +254,7 @@ public class GameScreen extends AbstractScreen {
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
 		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input);
-		levelManager.switchHub(Theme.GRASSY);
+		levelManager.switchLevel("grassy-hub");
 //		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 		
 		ConsoleCommands.setPlayer(levelManager.getPlayer());
@@ -473,7 +472,7 @@ public class GameScreen extends AbstractScreen {
 		levelManager.render();
 		if (DebugVars.NAVMESH_ON) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
-				NavMesh.get(EntityIndex.GUN_GREMLIN).render(batch);
+				NavMesh.get(EntityIndex.GRUNT_GREMLIN).render(batch);
 			}
 		}
 		if(DebugVars.FLOW_FIELD_ON){

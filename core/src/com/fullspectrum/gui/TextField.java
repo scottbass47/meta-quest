@@ -57,7 +57,7 @@ public class TextField extends Component implements KeyListener {
 		batch.begin();
 		
 		if((int)(elapsed * 0.05f * GameVars.UPS) % 2 == 0 && hasFocus()) {
-			batch.draw(cursor, cursorX, y + padding);
+			batch.draw(cursor, x + cursorX, y + padding);
 		}
 		
 		font.setColor(Color.WHITE);
