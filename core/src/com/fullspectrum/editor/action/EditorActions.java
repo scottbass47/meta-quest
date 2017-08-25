@@ -145,6 +145,22 @@ public enum EditorActions {
 		public String getDisplayName() {
 			return "New Level";
 		}
+	},
+	OPEN_LEVEL {
+		@Override
+		public Action getActionInstance() {
+			return new OpenLevelAction();
+		}
+
+		@Override
+		public String getShortcut() {
+			return "Ctrl + O";
+		}
+
+		@Override
+		public String getDisplayName() {
+			return "Open Level";
+		}
 	};
 	
 	public abstract Action getActionInstance();

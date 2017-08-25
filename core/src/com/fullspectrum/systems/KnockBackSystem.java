@@ -11,7 +11,6 @@ import com.fullspectrum.component.TimerComponent.Timer;
 
 public class KnockBackSystem extends IteratingSystem{
 
-	// TODO Knocback should follow gravity
 	public KnockBackSystem() {
 		super(Family.all(KnockBackComponent.class, BodyComponent.class).get());
 	}

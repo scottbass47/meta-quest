@@ -87,12 +87,15 @@ public class AssetLoader {
 	}
 	
 	public void loadSounds() {
-		manager.load(Sounds.COIN_PICKUP.getFilename(), Sound.class);
+		// PERFORMANCE Inefficent loading
+		for(Sounds sound : Sounds.values()) {
+			manager.load("sounds/" + sound.getFilename(), Sound.class);
+		}
 		manager.finishLoading();
 	}
 	
 	public Sound getSound(Sounds sound) {
-		return manager.get(sound.getFilename(), Sound.class);
+		return manager.get("sounds/" + sound.getFilename(), Sound.class);
 	}
 	
 	public TextureRegion getRegion(Asset asset){

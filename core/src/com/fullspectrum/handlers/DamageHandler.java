@@ -11,6 +11,8 @@ import com.fullspectrum.ability.AbilityType;
 import com.fullspectrum.ability.knight.BlacksmithAbility;
 import com.fullspectrum.ability.knight.ParryAbility;
 import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.Sounds;
 import com.fullspectrum.component.BarrierComponent;
 import com.fullspectrum.component.BlacksmithComponent;
 import com.fullspectrum.component.BlinkComponent;
@@ -28,12 +30,14 @@ import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.Effects;
 import com.fullspectrum.entity.EntityManager;
+import com.fullspectrum.entity.EntityType;
 import com.fullspectrum.factory.DropFactory;
 import com.fullspectrum.factory.EntityFactory;
 import com.fullspectrum.shader.HurtShader;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.EntityUtils;
 import com.fullspectrum.utils.Maths;
+import com.fullspectrum.utils.PhysicsUtils;
 
 public class DamageHandler {
 	
@@ -165,6 +169,11 @@ public class DamageHandler {
 			}
 		}
 
+		// HACK Damage dealing should fire an event that entities can listen for and decide what to do
+		if(Mappers.entity.get(toEntity).type == EntityType.GRUNT_GREMLIN) {
+			AudioLocator.getAudio().playSound(Sounds.DAMAGE, PhysicsUtils.getPos(toEntity));
+		}
+		
 		float x = body.getPosition().x;
 		float y = body.getPosition().y + bodyComp.getAABB().height * 0.5f + 0.5f;
 		BitmapFont font = AssetLoader.getInstance().getFont(AssetLoader.font18);

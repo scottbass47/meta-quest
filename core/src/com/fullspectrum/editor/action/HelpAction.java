@@ -28,6 +28,7 @@ public class HelpAction extends Action {
 	
 	@Override
 	public void onExit() {
+		editor.removeInputProcessor(helpWindow);
 	}
 	
 	@Override

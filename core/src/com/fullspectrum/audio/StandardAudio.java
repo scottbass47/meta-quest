@@ -2,6 +2,7 @@ package com.fullspectrum.audio;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
+import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.LongMap;
@@ -78,7 +79,7 @@ public class StandardAudio implements Audio {
 
 		PlayMessage message = pending[head];
 		Sound sound = AssetLoader.getInstance().getSound(message.getSound());
-		long realID = sound.play(message.getVolume());
+		long realID = sound.play(message.getVolume(), MathUtils.random(0.8f, 1.25f), 0.0f);
 		idMap.put(message.getId(), realID);
 		soundMap.put(realID, sound);
 		

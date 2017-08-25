@@ -65,7 +65,6 @@ public class PathFinder {
 		});	
 	}
 	
-	// BUG Paths are looking kinda funny
 	public void render(SpriteBatch batch){
 		sRender.setProjectionMatrix(batch.getProjectionMatrix());
 		sRender.begin(ShapeType.Line);

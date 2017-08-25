@@ -155,6 +155,10 @@ public class ActionManager implements InputProcessor {
 			else if(keycode == Keys.N) {
 				switchAction(EditorActions.NEW_LEVEL);
 			}
+			// Open Level
+			else if(keycode == Keys.O) {
+				switchAction(EditorActions.OPEN_LEVEL);
+			}
 		}
 
 		return false;

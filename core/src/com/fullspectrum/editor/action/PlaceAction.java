@@ -42,11 +42,7 @@ public class PlaceAction extends Action {
 		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
 		if(!activePlaceable.placeOnClick()) {
 			Command command = activePlaceable.onClick(mousePos, editor);
-			if(command.editsTiles()) {
-				editor.executeCommand(command);
-			} else {
-				editor.executeCommand(command);
-			}
+			editor.executeCommand(command);
 		}
 		
 		return false;
@@ -57,11 +53,7 @@ public class PlaceAction extends Action {
 		if(!editor.isMouseOnMap()) return false;
 		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
 		Command command = activePlaceable.onClick(mousePos, editor);
-		if(command.editsTiles()) {
-			editor.executeCommand(command);
-		} else {
-			editor.executeCommand(command);
-		}
+		editor.executeCommand(command);
 		return false;
 	}
 

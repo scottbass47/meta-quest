@@ -91,6 +91,8 @@ import com.fullspectrum.ai.tasks.OnTileTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.audio.AudioLocator;
+import com.fullspectrum.audio.Sounds;
 import com.fullspectrum.component.AIControllerComponent;
 import com.fullspectrum.component.ASMComponent;
 import com.fullspectrum.component.AbilityComponent;
@@ -239,9 +241,9 @@ public class EntityFactory {
 	
 	// Entity
 	// TODO Make muzzle flash a separate particle
-	// BUG Rapid switching in grunt gremlin
 	// TODO Refactor shader system to handle layering effects / priorities
-	// BUG Rocky sometimes gets stuck in a loop swinging
+	// BUG Rocky sometimes gets stuck in a loop swinging (can't replicate)
+	// BUG Auto-saving iterator() nested
 	
 	// ------------
 	// Optimization
@@ -2846,7 +2848,7 @@ public class EntityFactory {
 			.addChangeListener(new StateChangeListener() {
 				@Override
 				public void onEnter(State prevState, Entity entity) {
-					
+					AudioLocator.getAudio().playSound(Sounds.TRIP, Vector2.Zero);
 				}
 
 				@Override
@@ -2854,6 +2856,14 @@ public class EntityFactory {
 					Mappers.property.get(entity).setProperty("should_trip", false);
 				}
 			});
+		
+		Mappers.death.get(gremlin).add(new DeathBehavior() {
+			@Override
+			public void onDeath(Entity entity) {
+				AudioLocator.getAudio().playSound(Sounds.DYING, PhysicsUtils.getPos(entity));
+				entity.add(engine.createComponent(RemoveComponent.class));
+			}
+		});
 		
 		Transition tripTransition = new Transition() {
 			@Override

@@ -9,7 +9,11 @@ import com.fullspectrum.input.Actions;
 public class InputFactory {
 
 	public static MultiTransition idle() {
-		return new MultiTransition(Transitions.INPUT, idleNeither()).or(Transitions.INPUT, idleBoth());
+		return new MultiTransition(Transitions.INPUT, notAttack()).and(new MultiTransition(Transitions.INPUT, idleNeither()).or(Transitions.INPUT, idleBoth()));
+	}
+	
+	public static InputTransitionData notAttack() {
+		return new InputTransitionData.Builder(Type.ALL, false).add(Actions.ATTACK).build();
 	}
 	
 	public static InputTransitionData idleNeither() {

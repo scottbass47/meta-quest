@@ -1,25 +1,25 @@
 package com.fullspectrum.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.fullspectrum.editor.NewLevelPanel;
+import com.fullspectrum.editor.OpenLevelPanel;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.gui.Window;
 
-public class NewLevelAction extends Action {
+public class OpenLevelAction extends Action {
 
 	private Window window;
-	private NewLevelPanel newLevelPanel;
+	private OpenLevelPanel openLevelPanel;
 	
 	@Override
 	public void onEnter() {
-		newLevelPanel = new NewLevelPanel(actionManager);
-		newLevelPanel.setPosition(0, 0);
+		openLevelPanel = new OpenLevelPanel(actionManager);
+		openLevelPanel.setPosition(0, 0);
 		
 		window = new Window();
-		window.setPosition(GameVars.SCREEN_WIDTH / 2 - newLevelPanel.getWidth() / 2, 450);
+		window.setPosition(GameVars.SCREEN_WIDTH / 2 - openLevelPanel.getWidth() / 2, 450);
 		
-		window.add(newLevelPanel);
-		window.giveFocus(newLevelPanel);
+		window.add(openLevelPanel);
+		window.giveFocus(openLevelPanel);
 		window.setHudCamera(hudCamera);
 
 		editor.addProcessor(window);

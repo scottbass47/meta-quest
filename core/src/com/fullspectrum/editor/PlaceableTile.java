@@ -3,7 +3,6 @@ package com.fullspectrum.editor;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.fullspectrum.editor.command.Command;
-import com.fullspectrum.editor.command.DoNothingCommand;
 import com.fullspectrum.editor.command.PlaceTileCommand;
 import com.fullspectrum.game.GameVars;
 import com.fullspectrum.level.tiles.MapTile.TileType;
@@ -19,11 +18,7 @@ public class PlaceableTile implements Placeable {
 		int col = Maths.toGridCoord(mousePos.x);
 		
 		TilePanel tilePanel = editor.getTilePanel();
-		
-		if(!editor.contains(row, col) || editor.getTile(row, col) == null || editor.getTile(row, col).getID() != tilePanel.getActiveTile().getID()) {
-			return new PlaceTileCommand(row, col, tilePanel.getActiveTile().getID(), TileType.GROUND);
-		}
-		return new DoNothingCommand();
+		return new PlaceTileCommand(row, col, tilePanel.getActiveTile().getID(), TileType.GROUND);
 	}
 
 	@Override

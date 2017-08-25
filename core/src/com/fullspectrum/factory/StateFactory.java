@@ -80,14 +80,6 @@ public class StateFactory {
 		InputTransitionData jumpData = new InputTransitionData(Type.ALL, true);
 		jumpData.triggers.add(new InputTrigger(Actions.JUMP, false));
 
-		InputTransitionData idleData = new InputTransitionData(Type.ALL, false);
-		idleData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-		idleData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-
-		InputTransitionData bothData = new InputTransitionData(Type.ALL, true);
-		bothData.triggers.add(new InputTrigger(Actions.MOVE_LEFT));
-		bothData.triggers.add(new InputTrigger(Actions.MOVE_RIGHT));
-
 		InputTransitionData attackData = new InputTransitionData(Type.ALL, true);
 		attackData.triggers.add(new InputTrigger(Actions.ATTACK, true));
 		
@@ -106,8 +98,7 @@ public class StateFactory {
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.RUNNING, TransitionTag.STATIC_STATE), Transitions.INPUT, runningData, EntityStates.RUNNING);
 		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(TransitionTag.STATIC_STATE), Transitions.INPUT, jumpData, EntityStates.JUMPING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING), Transitions.FALLING, EntityStates.FALLING);
-		esm.addTransition(EntityStates.RUNNING, Transitions.INPUT, idleData, EntityStates.IDLING);
-		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), Transitions.INPUT, bothData, EntityStates.IDLING);
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE).exclude(EntityStates.IDLING, TransitionTag.STATIC_STATE), InputFactory.idle(), EntityStates.IDLING);
 		esm.addTransition(esm.all(TransitionTag.AIR_STATE).exclude(EntityStates.FALLING)/*.exclude(EntityStates.JUMPING)*/, new MultiTransition(Transitions.LANDED).and(Transitions.TIME, new TimeTransitionData(0.25f)), EntityStates.IDLING);
 		esm.addTransition(EntityStates.FALLING, Transitions.LANDED, EntityStates.IDLING);	
 //		esm.addTransition(esm.one(TransitionTag.AIR_STATE, TransitionTag.GROUND_STATE), ladderTransition, EntityStates.CLIMBING);

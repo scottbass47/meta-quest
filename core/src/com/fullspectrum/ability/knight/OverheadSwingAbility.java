@@ -9,7 +9,6 @@ import com.fullspectrum.ability.OnGroundConstraint;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.component.ForceComponent;
-import com.fullspectrum.component.InvincibilityComponent.InvincibilityType;
 import com.fullspectrum.component.Mappers;
 import com.fullspectrum.component.SwingComponent;
 import com.fullspectrum.component.TimeListener;

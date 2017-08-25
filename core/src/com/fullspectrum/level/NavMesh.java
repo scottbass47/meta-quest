@@ -473,7 +473,7 @@ public class NavMesh{
 		}
 		
 
-		Gdx.app.debug("NavMesh", "Links created - " + linksCreated);
+		Gdx.app.debug("Nav Mesh", "Links created - " + linksCreated);
 	}
 
 	private TrajectoryData getTrajectory(float fromX, float fromY, float toX, float toY, float speed, float jumpForce, Rectangle boundingBox, boolean right) {

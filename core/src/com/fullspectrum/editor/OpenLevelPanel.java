@@ -1,8 +1,5 @@
 package com.fullspectrum.editor;
 
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -17,28 +14,27 @@ import com.fullspectrum.gui.Button;
 import com.fullspectrum.gui.Container;
 import com.fullspectrum.gui.Label;
 import com.fullspectrum.gui.TextField;
-import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelUtils;
 
-public class NewLevelPanel extends Container {
+public class OpenLevelPanel extends Container {
 
 	private Texture background;
 	private Label nameLabel;
 	private Label titleLabel;
 	private TextField nameField;
-	private Button createButton;
+	private Button loadButton;
 	private Button cancelButton;
 	private int borderPadding = 10;
 	private int buttonWidth = 100;
 	private int buttonHeight = 40;
 	private Label invalidNameLabel;
 	
-	public NewLevelPanel(final ActionManager manager) {
+	public OpenLevelPanel(final ActionManager manager) {
 		setSize(300, 150);
 		
 		AssetLoader loader = AssetLoader.getInstance();
 		
-		titleLabel = new Label("New Level");
+		titleLabel = new Label("Open Level");
 		titleLabel.setFont(loader.getFont(AssetLoader.font24));
 		titleLabel.autoSetSize();
 		titleLabel.setPosition(width / 2 - titleLabel.getWidth() / 2, height - titleLabel.getHeight() - borderPadding);
@@ -53,14 +49,14 @@ public class NewLevelPanel extends Container {
 		nameField.setSize(width - 2 * borderPadding - (nameLabel.getX() + nameLabel.getWidth()), 30);
 		nameField.setPosition(nameLabel.getX() + nameLabel.getWidth() + 5, nameLabel.getY() + nameLabel.getHeight() / 2 - nameField.getHeight() / 2);
 		
-		createButton = new Button("Create");
-		createButton.setSize(buttonWidth, buttonHeight);
-		createButton.setPosition(borderPadding * 3, nameLabel.getY() - buttonHeight - 3 * borderPadding);
+		loadButton = new Button("Load");
+		loadButton.setSize(buttonWidth, buttonHeight);
+		loadButton.setPosition(borderPadding * 3, nameLabel.getY() - buttonHeight - 3 * borderPadding);
 		
-		createButton.addListener(new ActionListener() {
+		loadButton.addListener(new ActionListener() {
 			@Override
 			public void onAction(ActionEvent event) {
-				boolean success = createNewLevel(manager.getEditor());
+				boolean success = loadLevel(manager.getEditor());
 				if(success) {
 					manager.switchAction(EditorActions.SELECT);
 				}
@@ -69,7 +65,7 @@ public class NewLevelPanel extends Container {
 		
 		cancelButton = new Button("Cancel");
 		cancelButton.setSize(buttonWidth, buttonHeight);
-		cancelButton.setPosition(width - 3 * borderPadding - buttonWidth, createButton.getY());
+		cancelButton.setPosition(width - 3 * borderPadding - buttonWidth, loadButton.getY());
 
 		cancelButton.addListener(new ActionListener() {
 			@Override
@@ -88,7 +84,7 @@ public class NewLevelPanel extends Container {
 		add(titleLabel);
 		add(nameLabel);
 		add(nameField);
-		add(createButton);
+		add(loadButton);
 		add(cancelButton);
 		add(invalidNameLabel);
 		giveFocus(nameField);
@@ -96,19 +92,11 @@ public class NewLevelPanel extends Container {
 		drawBackground();
 	}
 	
-	private boolean createNewLevel(LevelEditor editor) {
+	private boolean loadLevel(LevelEditor editor) {
 		String levelName = nameField.getText();
 		
-		if(!validName(levelName)){
-			invalidNameLabel.setText("Invalid name");
-			invalidNameLabel.setVisible(true);
-			invalidNameLabel.autoSetSize();
-			giveFocus(nameField);
-			return false;
-		} 
-
-		if(LevelUtils.levelExists(levelName)) {
-			invalidNameLabel.setText("Level already exists");
+		if(!LevelUtils.levelExists(levelName)) {
+			invalidNameLabel.setText("No level found");
 			invalidNameLabel.setVisible(true);
 			invalidNameLabel.autoSetSize();
 			giveFocus(nameField);
@@ -116,20 +104,8 @@ public class NewLevelPanel extends Container {
 		}
 		
 		// Create a new level
-		Level level = new Level();
-		level.setName(levelName);
-		level.setManager(editor.getCurrentLevel().getManager());
-
-		editor.setCurrentLevel(level);
-		
+		editor.setCurrentLevel(LevelUtils.loadLevel(editor.getCurrentLevel().getManager(), levelName));
 		return true;
-	}
-	
-	private boolean validName(String name) {
-		String regex = "^[a-z][a-z0-9\\-_]*$";
-		Pattern pattern = Pattern.compile(regex);
-		Matcher match = pattern.matcher(name);
-		return match.find();
 	}
 	
 	private void drawBackground() {

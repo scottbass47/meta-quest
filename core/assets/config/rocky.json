@@ -17,5 +17,5 @@
 	rock_angle: 60,
 	
 	// AI
-	throw_range: 20.0,
+	throw_range: 16.0,
 }
