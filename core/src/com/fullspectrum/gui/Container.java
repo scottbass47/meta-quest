@@ -6,7 +6,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.utils.Array;
 
-public abstract class Container extends Component implements KeyListener, MouseListener{
+public abstract class Container extends Component implements KeyListener, MouseListener {
 
 	protected Array<Component> components;
 	private Component focusedComponent;
@@ -16,6 +16,8 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	public Container() {
 		components = new Array<Component>();
 		matrix = new Matrix4();
+		setKeyListener(this);
+		setMouseListener(this);
 	}
 	
 	public void add(Component component) {
@@ -189,25 +191,31 @@ public abstract class Container extends Component implements KeyListener, MouseL
 	
 	@Override
 	public void onKeyPress(int keycode) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
-			KeyListener listener = (KeyListener) focusedComponent;
-			listener.onKeyPress(keycode);
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible()){
+			KeyListener listener = focusedComponent.getKeyListener();
+			if(listener != null) {
+				listener.onKeyPress(keycode);
+			}
 		}
 	}
 	
 	@Override
 	public void onKeyRelease(int keycode) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
-			KeyListener listener = (KeyListener) focusedComponent;
-			listener.onKeyRelease(keycode);
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible()){
+			KeyListener listener = focusedComponent.getKeyListener();
+			if(listener != null) {
+				listener.onKeyRelease(keycode);
+			}
 		}
 	}
 	
 	@Override
 	public void onKeyType(char character) {
-		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() && focusedComponent instanceof KeyListener){
-			KeyListener listener = (KeyListener) focusedComponent;
-			listener.onKeyType(character);
+		if(focusedComponent != null && focusedComponent.isEnabled() && focusedComponent.isVisible() ){
+			KeyListener listener = focusedComponent.getKeyListener();
+			if(listener != null) {
+				listener.onKeyType(character);
+			}
 		}
 	}
 	

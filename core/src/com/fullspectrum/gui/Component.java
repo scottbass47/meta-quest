@@ -19,7 +19,12 @@ public abstract class Component {
 	private boolean visible = true;
 	private boolean enabled = true;
 	private boolean focus = false;
+	private KeyListener keyListener;
+	private MouseListener mouseListener;
+	
+	// Debug
 	private boolean debugRender = false;
+	private final ShapeRenderer shape = new ShapeRenderer();
 	
 	public abstract void update(float delta);
 	
@@ -29,7 +34,6 @@ public abstract class Component {
 	public final void debugRender(SpriteBatch batch) {
 		batch.end();
 		
-		ShapeRenderer shape = new ShapeRenderer();
 		shape.setProjectionMatrix(batch.getProjectionMatrix());
 		shape.begin(ShapeType.Line);
 		shape.setColor(Color.RED);
@@ -115,6 +119,22 @@ public abstract class Component {
 	
 	public boolean isDebugRender() {
 		return debugRender;
+	}
+	
+	public void setKeyListener(KeyListener keyListener) {
+		this.keyListener = keyListener;
+	}
+	
+	public KeyListener getKeyListener() {
+		return keyListener;
+	}
+	
+	public void setMouseListener(MouseListener mouseListener) {
+		this.mouseListener = mouseListener;
+	}
+	
+	public MouseListener getMouseListener() {
+		return mouseListener;
 	}
 	
 }
