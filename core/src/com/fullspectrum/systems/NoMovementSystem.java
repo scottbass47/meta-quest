@@ -17,9 +17,10 @@ public class NoMovementSystem extends IteratingSystem {
 	@Override
 	protected void processEntity(Entity entity, float deltaTime) {
 		BodyComponent bodyComp = Mappers.body.get(entity);
+		NoMovementComponent noComp = Mappers.noMovement.get(entity);
 		
 		Vector2 actual = bodyComp.body.getLinearVelocity();
-		Vector2 wanted = new Vector2(0.0f, actual.y);
+		Vector2 wanted = new Vector2(0.0f, noComp.ignoreGravity ? 0.0f : actual.y);
 		bodyComp.body.applyLinearImpulse(wanted.sub(actual), bodyComp.body.getWorldCenter(), true);
 	}
 	

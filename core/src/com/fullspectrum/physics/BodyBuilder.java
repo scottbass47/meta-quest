@@ -157,7 +157,7 @@ public class BodyBuilder {
 		}
 		
 		/**
-		 * Creates a box scaling down all dimensions by PPM_INV
+		 * Creates a box scaling down all dimensions by PPM_INV centered at x, y
 		 * @param x
 		 * @param y
 		 * @param width

@@ -167,6 +167,21 @@ public enum Asset {
 	PROJECTILE_GREMLIN_SHOOT      (Atlas.ENTITY, "shoot/projectile_gremlin_shoot"),
 	PROJECTILE_GREMLIN_PROJECTILE (Atlas.ENTITY, "projectile/projectile_gremlin_projectile"),
 	
+	// Drill Gremlin
+	DRILL_GREMLIN_ATTACK			 (Atlas.ENTITY, "attack/drill_gremlin_attack"),
+	DRILL_GREMLIN_IDLE				 (Atlas.ENTITY, "idle/drill_gremlin_idle"),
+	DRILL_GREMLIN_WALK				 (Atlas.ENTITY, "walk/drill_gremlin_walk"),
+	DRILL_GREMLIN_SURFACE_PLUNGE	 (Atlas.ENTITY, "surface_plunge/drill_gremlin_surface_plunge"),
+	DRILL_GREMLIN_UNDERGROUND_PLUNGE (Atlas.ENTITY, "underground_plunge/drill_gremlin_underground_plunge"),
+	DRILL_GREMLIN_SURFACE			 (Atlas.ENTITY, "surface/drill_gremlin_surface"),
+	DRILL_GREMLIN_TUNNEL			 (Atlas.ENTITY, "tunnel/drill_gremlin_tunnel"),
+	
+	// Bird
+	BIRD_IDLE  (Atlas.ENTITY, "idle/bird_idle"),
+	BIRD_FLY   (Atlas.ENTITY, "fly/bird_fly"),
+	BIRD_CRASH (Atlas.ENTITY, "crash/bird_crash"),
+	BIRD_SWOOP (Atlas.ENTITY, "swoop/bird_swoop"),
+	
 	// Particles
 	COIN_EXPLOSION(Atlas.ENTITY, "coin_explosion"),
 	MANA_BOMB_EXPLOSION(Atlas.ENTITY, "mana_bomb_explosion"),

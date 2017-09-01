@@ -9,18 +9,18 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.gui.AnimatedLabel;
+import com.fullspectrum.gui.Container;
+import com.fullspectrum.gui.ImageLabel;
+import com.fullspectrum.gui.KeyAdapter;
+import com.fullspectrum.gui.Label;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.gui.AnimatedLabel;
-import com.fullspectrum.gui.ImageLabel;
-import com.fullspectrum.gui.Label;
-import com.fullspectrum.gui.Window;
 
-public class PickPlayerScreen extends Window{
+public class PickPlayerScreen extends Container {
 
-	private Arena arena;
 	private Texture background;
 	private Label pickPlayerLabel;
 	private ImageLabel arrowLabel;
@@ -32,12 +32,10 @@ public class PickPlayerScreen extends Window{
 	private int index = 0;
 	private EntityIndex selected;
 	
-	public PickPlayerScreen(Arena arena, OrthographicCamera hudCamera) {
-		this.arena = arena;
-		
+	public PickPlayerScreen(final Arena arena, OrthographicCamera hudCamera) {
 		createBackground();
-		setHudCamera(hudCamera);
 		setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_WIDTH);
+		setFocusable(true);
 
 		pickPlayerLabel = new Label("Choose Your Character");
 		pickPlayerLabel.setFont(AssetLoader.getInstance().getFont(AssetLoader.font36));
@@ -76,6 +74,25 @@ public class PickPlayerScreen extends Window{
 		add(rogueLabel);
 		add(monkLabel);
 		add(arrowLabel);
+		
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void onKeyRelease(int keycode) {
+				if(keycode == Keys.RIGHT) {
+					index++;
+				} else if(keycode == Keys.LEFT) {
+					index--;
+				} else if(keycode == Keys.ENTER) {
+					selected = index == 0 ? EntityIndex.KNIGHT : (index == 1 ? EntityIndex.ROGUE : EntityIndex.MONK);
+					arena.switchState(ArenaState.PLAYING);
+				}
+				
+				if(index < 0) index = characters.length - 1;
+				if(index >= characters.length) index = 0;
+				
+				setArrowLabelPos(characters[index]);
+			}
+		});
 	}
 	
 	private void createBackground() {
@@ -94,29 +111,8 @@ public class PickPlayerScreen extends Window{
 	
 	@Override
 	public void render(SpriteBatch batch) {
-		batch.begin();
 		batch.draw(background, 0, 0);
-		batch.end();
 		super.render(batch);
-	}
-	
-	@Override
-	public boolean keyUp(int keycode) {
-		if(keycode == Keys.RIGHT) {
-			index++;
-		} else if(keycode == Keys.LEFT) {
-			index--;
-		} else if(keycode == Keys.ENTER) {
-			selected = index == 0 ? EntityIndex.KNIGHT : (index == 1 ? EntityIndex.ROGUE : EntityIndex.MONK);
-			arena.switchState(ArenaState.PLAYING);
-		}
-		
-		if(index < 0) index = characters.length - 1;
-		if(index >= characters.length) index = 0;
-		
-		setArrowLabelPos(characters[index]);
-		
-		return super.keyUp(keycode);
 	}
 	
 	public EntityIndex getSelectedPlayer() {

@@ -1,9 +1,10 @@
-package com.fullspectrum.gui;
+package com.fullspectrum.editor;
 
 import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.Rectangle;
+import com.fullspectrum.gui.Button;
 import com.fullspectrum.entity.EntityIndex;
 
 public class EnemyIcon extends Button {
@@ -27,7 +28,7 @@ public class EnemyIcon extends Button {
 	public void render(SpriteBatch batch) {
 		Animation<TextureRegion> animation = index.getIdleAnimation();
 		TextureRegion region = animation.getKeyFrame(elapsed);
-		java.awt.Rectangle rect = getBounds();
+		Rectangle rect = getBounds();
 		
 		float w = region.getRegionWidth();
 		float h = region.getRegionHeight();

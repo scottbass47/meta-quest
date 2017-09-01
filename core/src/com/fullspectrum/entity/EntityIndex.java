@@ -237,6 +237,38 @@ public enum EntityIndex {
 		public Rectangle getHitBox() {
 			return new Rectangle(0, 0, 14, 22);
 		}
+	},
+	BIRD {
+		@Override
+		public Entity create(float x, float y) {
+			return EntityFactory.createBird(x, y);
+		}
+
+		@Override
+		public Animation<TextureRegion> getIdleAnimation() {
+			return AssetLoader.getInstance().getAnimation(Asset.BIRD_IDLE);
+		}
+
+		@Override
+		public Rectangle getHitBox() {
+			return new Rectangle(0, 0, 20, 20);
+		}
+	},
+	DRILL_GREMLIN {
+		@Override
+		public Entity create(float x, float y) {
+			return EntityFactory.createDrillGremiln(x, y);
+		}
+
+		@Override
+		public Animation<TextureRegion> getIdleAnimation() {
+			return AssetLoader.getInstance().getAnimation(Asset.DRILL_GREMLIN_IDLE);
+		}
+
+		@Override
+		public Rectangle getHitBox() {
+			return new Rectangle(0, 0, 14, 20);
+		}
 	};
 	
 	// TODO Consider including Input as a needed argument

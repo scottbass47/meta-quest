@@ -26,6 +26,34 @@ public class CollisionFilter {
 		return true;
 	}
 	
+	@Override
+	public int hashCode() {
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((collisionBodyTypes == null) ? 0 : collisionBodyTypes.hashCode());
+		result = prime * result + ((customFilters == null) ? 0 : customFilters.hashCode());
+		result = prime * result + ((entityTypes == null) ? 0 : entityTypes.hashCode());
+		return result;
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) return true;
+		if (obj == null) return false;
+		if (getClass() != obj.getClass()) return false;
+		CollisionFilter other = (CollisionFilter) obj;
+		if (collisionBodyTypes == null) {
+			if (other.collisionBodyTypes != null) return false;
+		} else if (!collisionBodyTypes.equals(other.collisionBodyTypes)) return false;
+		if (customFilters == null) {
+			if (other.customFilters != null) return false;
+		} else if (!customFilters.equals(other.customFilters)) return false;
+		if (entityTypes == null) {
+			if (other.entityTypes != null) return false;
+		} else if (!entityTypes.equals(other.entityTypes)) return false;
+		return true;
+	}
+
 	public static class Builder {
 		
 		private CollisionFilter filter;

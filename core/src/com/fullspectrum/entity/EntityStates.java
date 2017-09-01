@@ -45,6 +45,8 @@ public enum EntityStates implements State{
 	INIT,
 	ATTACK_ANTICIPATION,
 	ATTACK_COOLDOWN,
+	RECOVER,
+	TUNNEL,
 	TRIP;
 	
 	@Override

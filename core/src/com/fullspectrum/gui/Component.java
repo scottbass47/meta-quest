@@ -1,11 +1,11 @@
 package com.fullspectrum.gui;
 
-import java.awt.Rectangle;
 
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
+import com.badlogic.gdx.math.Rectangle;
 
 public abstract class Component {
 
@@ -15,12 +15,15 @@ public abstract class Component {
 	protected int width;
 	protected int height;
 	
-	private Component parent;
+	private Container parent;
 	private boolean visible = true;
 	private boolean enabled = true;
-	private boolean focus = false;
+	private boolean focusable = false;
+	
+	// Listeners
 	private KeyListener keyListener;
 	private MouseListener mouseListener;
+	private FocusListener focusListener;
 	
 	// Debug
 	private boolean debugRender = false;
@@ -43,15 +46,28 @@ public abstract class Component {
 		batch.begin();
 	}
 	
+	/**
+	 * Requests focus from window. If this component hasn't been added to a <code>Window</code> yet,
+	 * the component will NOT receive focus.
+	 */
+	public void requestFocus() {
+		Component comp = parent;
+		while(comp != null && !(comp instanceof Window)) {
+			comp = comp.parent;
+		}
+		if(comp == null) return; // No window was found, do nothing
+		((Window) comp).giveFocus(this);
+	}
+	
 	public Rectangle getBounds() {
 		return new Rectangle(x, y, width, height);
 	}
 	
-	public void setParent(Component parent) {
+	public void setParent(Container parent) {
 		this.parent = parent;
 	}
 	
-	public Component getParent() {
+	public Container getParent() {
 		return parent;
 	}
 	
@@ -105,12 +121,12 @@ public abstract class Component {
 		return enabled;
 	}
 	
-	public void setFocus(boolean focus) {
-		this.focus = focus;
+	public void setFocusable(boolean focus) {
+		this.focusable = focus;
 	}
 	
-	public boolean hasFocus() {
-		return focus;
+	public boolean isFocusable() {
+		return focusable;
 	}
 	
 	public void setDebugRender(boolean debugRender) {
@@ -121,7 +137,7 @@ public abstract class Component {
 		return debugRender;
 	}
 	
-	public void setKeyListener(KeyListener keyListener) {
+	public void addKeyListener(KeyListener keyListener) {
 		this.keyListener = keyListener;
 	}
 	
@@ -129,7 +145,7 @@ public abstract class Component {
 		return keyListener;
 	}
 	
-	public void setMouseListener(MouseListener mouseListener) {
+	public void addMouseListener(MouseListener mouseListener) {
 		this.mouseListener = mouseListener;
 	}
 	
@@ -137,4 +153,11 @@ public abstract class Component {
 		return mouseListener;
 	}
 	
+	public void addFocusListener(FocusListener focusListener) {
+		this.focusListener = focusListener;
+	}
+	
+	public FocusListener getFocusListener() {
+		return focusListener;
+	}
 }

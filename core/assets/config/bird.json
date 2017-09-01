@@ -1,0 +1,17 @@
+{
+	// Movement
+	air_speed: 3.0,
+	
+	// Dive Attack
+	dive_speed: 10.0,
+	dive_height: 3.0,
+	dive_angle: 30.0,
+	dive_damage: 20.0,
+	recover_speed: 5.0,
+	crash_cooldown: 0.5,
+	
+	// Base Stats
+	money: 40.0,
+	health: 100.0,
+	weight: 10.0,
+}

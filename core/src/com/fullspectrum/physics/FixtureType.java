@@ -7,6 +7,7 @@ import static com.fullspectrum.physics.collision.CollisionBodyType.TILE;
 
 import com.badlogic.ashley.core.Entity;
 import com.fullspectrum.component.Mappers;
+import com.fullspectrum.level.FlowField.Direction;
 import com.fullspectrum.physics.collision.FixtureInfo;
 import com.fullspectrum.physics.collision.behavior.DamageOnCollideBehavior;
 import com.fullspectrum.physics.collision.behavior.DeathOnCollideBehavior;
@@ -189,7 +190,7 @@ public enum FixtureType {
 					.allEntityTypes()
 					.build();
 			
-			info.addBehavior(filter, new WallBehavior(true));
+			info.addBehavior(filter, new WallBehavior(Direction.RIGHT));
 			
 			return info;
 		}
@@ -205,9 +206,24 @@ public enum FixtureType {
 					.allEntityTypes()
 					.build();
 			
-			info.addBehavior(filter, new WallBehavior(false));
+			info.addBehavior(filter, new WallBehavior(Direction.LEFT));
 			
 			return info;
+		}
+	},
+	CEILING_SENSOR {
+		@Override
+		public FixtureInfo getDefaultInfo(Entity entity) {
+			FixtureInfo info = new FixtureInfo();
+			
+			CollisionFilter filter = new CollisionFilter.Builder()
+					.addBodyTypes(TILE)
+					.allEntityTypes()
+					.build();
+			
+			info.addBehavior(filter, new WallBehavior(Direction.UP));
+			
+			return info;		
 		}
 	},
 	CONTACT_DAMAGE {

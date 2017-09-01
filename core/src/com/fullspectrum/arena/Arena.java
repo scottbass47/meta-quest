@@ -3,6 +3,8 @@ package com.fullspectrum.arena;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.gui.UIManager;
+import com.fullspectrum.gui.Window;
 import com.fullspectrum.game.GdxGame;
 import com.fullspectrum.level.LevelManager;
 import com.fullspectrum.utils.EntityUtils;
@@ -10,14 +12,17 @@ import com.fullspectrum.utils.EntityUtils;
 public class Arena {
 	
 	private LevelManager levelManager;
+	private Window arenaWindow;
 	private ArenaState state;
 	private PickPlayerScreen playerScreen;
 	private ArenaGame game;
 	private ArenaDeathScreen deathScreen;
 	private boolean stopped = true;
 	
-	public Arena(LevelManager levelManager, OrthographicCamera hudCamera) {
+	public Arena(LevelManager levelManager, OrthographicCamera hudCamera, UIManager ui) {
 		this.levelManager = levelManager;
+		
+		arenaWindow = ui.newWindow("Arena");
 		
 		game = new ArenaGame(this, hudCamera);
 		playerScreen = new PickPlayerScreen(this, hudCamera);
@@ -31,8 +36,6 @@ public class Arena {
 	
 	public void stop() {
 		stopped = true;
-		GdxGame.input.removeInput(playerScreen);
-		GdxGame.input.removeInput(deathScreen);
 		game.reset();
 	}
 	
@@ -47,16 +50,10 @@ public class Arena {
 		if(previousState != null && !onStart) {
 			switch(previousState) {
 			case PICKING_PLAYER:
-				GdxGame.input.removeInput(playerScreen);
 				if(!EntityUtils.isValid(EntityUtils.getPlayer())) {
 					levelManager.spawnPlayer(levelManager.getCurrentLevel());
 				}
 				levelManager.switchPlayer(playerScreen.getSelectedPlayer());
-				break;
-			case PLAYING:
-				break;
-			case DEATH_SCREEN:
-				GdxGame.input.removeInput(deathScreen);
 				break;
 			default:
 				break;
@@ -67,15 +64,17 @@ public class Arena {
 		this.state = state;
 		
 		// Init new state
+		arenaWindow.removeAll();
+
 		switch(state) {
 		case PICKING_PLAYER:
-			GdxGame.input.addFirst(playerScreen);
+			arenaWindow.add(playerScreen);
 			break;
 		case PLAYING:
 			game.start();
 			break;
 		case DEATH_SCREEN:
-			GdxGame.input.addFirst(deathScreen);
+			arenaWindow.add(deathScreen);
 			break;
 		default:
 			break;
@@ -86,14 +85,8 @@ public class Arena {
 		if(stopped) return;
 		
 		switch(state) {
-		case PICKING_PLAYER:
-			playerScreen.update(delta);
-			break;
 		case PLAYING:
 			game.update(delta);
-			break;
-		case DEATH_SCREEN:
-			deathScreen.update(delta);
 			break;
 		default:
 			break;
@@ -104,14 +97,8 @@ public class Arena {
 		if(stopped) return;
 		
 		switch(state) {
-		case PICKING_PLAYER:
-			playerScreen.render(batch);
-			break;
 		case PLAYING:
 			game.renderHUD(batch);
-			break;
-		case DEATH_SCREEN:
-			deathScreen.render(batch);
 			break;
 		default:
 			break;

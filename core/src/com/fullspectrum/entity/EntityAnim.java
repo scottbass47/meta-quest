@@ -46,6 +46,12 @@ public enum EntityAnim implements State{
 	WALK,
 	TRIP,
 	PROJECTILE_ATTACK,
+	DIVE,
+	TUNNEL,
+	SURFACE,
+	SURFACE_PLUNGE,
+	UNDERGROUND_PLUNGE,
+	ATTACK_TRANSITION,
 	
 	// Knight stuff (so ugly!!)
 	SWING_IDLE_ANTIPATION_1,

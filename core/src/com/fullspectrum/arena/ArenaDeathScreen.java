@@ -5,25 +5,23 @@ import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.gui.Container;
+import com.fullspectrum.gui.KeyAdapter;
+import com.fullspectrum.gui.Label;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.gui.Label;
-import com.fullspectrum.gui.Window;
 import com.fullspectrum.utils.RenderUtils;
 
-public class ArenaDeathScreen extends Window{
+public class ArenaDeathScreen extends Container {
 
-	private Arena arena;
 	private Texture background;
 	private Label title;
 	private Label description;
 	
-	public ArenaDeathScreen(Arena arena, OrthographicCamera hudCamera) {
-		this.arena = arena;
-		
-		setHudCamera(hudCamera);
+	public ArenaDeathScreen(final Arena arena, OrthographicCamera hudCamera) {
 		setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
-	
+		setFocusable(true);
+		
 		title = new Label("Slaughtered!");
 		title.setFont(AssetLoader.getInstance().getFont(AssetLoader.font72));
 		title.autoSetSize();
@@ -38,24 +36,21 @@ public class ArenaDeathScreen extends Window{
 	
 		add(title);
 		add(description);
+		
+		addKeyListener(new KeyAdapter() {
+			@Override
+			public void onKeyRelease(int keycode) {
+				if(keycode == Keys.ENTER) {
+					arena.switchState(ArenaState.PICKING_PLAYER);
+				}
+			}
+		});
 	}
 	
 	@Override
 	public void render(SpriteBatch batch) {
-		batch.begin();
 		batch.draw(background, x, y);
-		batch.end();
-		
 		super.render(batch);
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		if(keycode == Keys.ENTER) {
-			arena.switchState(ArenaState.PICKING_PLAYER);
-		}
-		
-		return super.keyUp(keycode);
 	}
 	
 }

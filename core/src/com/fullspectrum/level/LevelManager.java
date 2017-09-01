@@ -9,6 +9,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ObjectSet;
+import com.fullspectrum.gui.UIManager;
 import com.fullspectrum.component.CameraComponent;
 import com.fullspectrum.component.InputComponent;
 import com.fullspectrum.component.Mappers;
@@ -50,7 +51,7 @@ public class LevelManager{
 	private LevelEditor editor;
 	private boolean editorActive = false;
 	
-	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, OrthographicCamera hudCamera, GameInput input){
+	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, OrthographicCamera hudCamera, GameInput input, UIManager ui){
 		this.engine = engine;
 		this.world = world;
 		this.batch = batch;
@@ -62,7 +63,7 @@ public class LevelManager{
 		camera = EntityFactory.createCamera(worldCamera);
 		EntityManager.addEntity(camera);
 		
-		editor = new LevelEditor();
+		editor = new LevelEditor(ui);
 	}
 	
 	// SWITCHING LEVELS
@@ -312,5 +313,6 @@ public class LevelManager{
 		Mappers.camera.get(camera).toFollow = player;
 		input.reset();
 	}
+	
 	
 }

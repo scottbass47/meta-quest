@@ -7,13 +7,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
-import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.gui.ActionEvent;
 import com.fullspectrum.gui.ActionListener;
 import com.fullspectrum.gui.Component;
 import com.fullspectrum.gui.Container;
-import com.fullspectrum.gui.EnemyIcon;
 import com.fullspectrum.gui.TextField;
+import com.fullspectrum.entity.EntityIndex;
 
 public class EnemyPanel extends Container {
 	
@@ -38,7 +37,9 @@ public class EnemyPanel extends Container {
 		textField.setPosition(0, y + height - textField.getHeight());
 		
 		add(textField);
-		giveFocus(textField);
+		
+		// Wont work yet...
+//		textField.requestFocus();
 		
 		drawBackground();
 		initButtons();

@@ -18,6 +18,8 @@ public enum EntityType {
 	ROCKY,
 	GRUNT_GREMLIN,
 	PROJECTILE_GREMLIN,
+	DRILL_GREMLIN,
+	BIRD,
 	
 	// Drops
 	COIN,

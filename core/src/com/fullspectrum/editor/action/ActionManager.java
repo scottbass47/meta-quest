@@ -190,7 +190,6 @@ public class ActionManager implements InputProcessor {
 				placeAction.setPlaceable(new PlaceableTile());
 			}
 		}
-		
 		return false;
 	}
 

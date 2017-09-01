@@ -8,15 +8,15 @@ import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.fullspectrum.assets.AssetLoader;
-import com.fullspectrum.editor.action.ActionManager;
-import com.fullspectrum.editor.action.EditorActions;
 import com.fullspectrum.gui.ActionEvent;
 import com.fullspectrum.gui.ActionListener;
 import com.fullspectrum.gui.Button;
 import com.fullspectrum.gui.Container;
 import com.fullspectrum.gui.Label;
 import com.fullspectrum.gui.TextField;
+import com.fullspectrum.assets.AssetLoader;
+import com.fullspectrum.editor.action.ActionManager;
+import com.fullspectrum.editor.action.EditorActions;
 import com.fullspectrum.level.Level;
 import com.fullspectrum.level.LevelUtils;
 
@@ -91,7 +91,6 @@ public class NewLevelPanel extends Container {
 		add(createButton);
 		add(cancelButton);
 		add(invalidNameLabel);
-		giveFocus(nameField);
 		
 		drawBackground();
 	}
@@ -103,7 +102,7 @@ public class NewLevelPanel extends Container {
 			invalidNameLabel.setText("Invalid name");
 			invalidNameLabel.setVisible(true);
 			invalidNameLabel.autoSetSize();
-			giveFocus(nameField);
+			nameField.requestFocus();
 			return false;
 		} 
 
@@ -111,7 +110,7 @@ public class NewLevelPanel extends Container {
 			invalidNameLabel.setText("Level already exists");
 			invalidNameLabel.setVisible(true);
 			invalidNameLabel.autoSetSize();
-			giveFocus(nameField);
+			nameField.requestFocus();
 			return false;
 		}
 		

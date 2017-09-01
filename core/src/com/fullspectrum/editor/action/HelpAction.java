@@ -1,9 +1,9 @@
 package com.fullspectrum.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.fullspectrum.gui.Window;
 import com.fullspectrum.editor.HelpPanel;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.gui.Window;
 
 public class HelpAction extends Action {
 
@@ -13,32 +13,18 @@ public class HelpAction extends Action {
 	public HelpAction() {
 		helpPanel = new HelpPanel();
 		helpPanel.setPosition(0, 0);
-	
-		helpWindow = new Window();
-		helpWindow.add(helpPanel);
-		helpWindow.giveFocus(helpPanel);
-		helpWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - helpPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - helpPanel.getHeight() / 2);
 	}
 	
 	@Override
 	public void onEnter() {
-		helpWindow.setHudCamera(hudCamera);
-		editor.addProcessor(helpWindow);
+		helpWindow = editor.getUi().newWindow();
+		helpWindow.add(helpPanel);
+		helpWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - helpPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - helpPanel.getHeight() / 2);
 	}
 	
 	@Override
 	public void onExit() {
-		editor.removeInputProcessor(helpWindow);
-	}
-	
-	@Override
-	public void update(float delta) {
-		helpWindow.update(delta);
-	}
-
-	@Override
-	public void render(SpriteBatch batch) {
-		helpWindow.render(batch);
+		helpWindow.destroy();
 	}
 	
 	@Override
@@ -49,6 +35,14 @@ public class HelpAction extends Action {
 	@Override
 	public boolean renderInFront() {
 		return true;
+	}
+
+	@Override
+	public void update(float delta) {
+	}
+
+	@Override
+	public void render(SpriteBatch batch) {
 	}
 
 }

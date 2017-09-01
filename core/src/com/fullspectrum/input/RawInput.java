@@ -28,6 +28,10 @@ public class RawInput implements InputProcessor, ControllerListener{
 		inputProcessors.add(processor);
 	}
 	
+	/**
+	 * InputProcessors at the front of the list have priority in input checking.
+	 * @param processor
+	 */
 	public void addFirst(InputProcessor processor) {
 		inputProcessors.insert(0, processor);
 	}

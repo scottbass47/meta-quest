@@ -40,6 +40,7 @@ import com.badlogic.gdx.ai.btree.Task;
 import com.badlogic.gdx.ai.btree.branch.Selector;
 import com.badlogic.gdx.ai.btree.branch.Sequence;
 import com.badlogic.gdx.ai.btree.decorator.AlwaysSucceed;
+import com.badlogic.gdx.ai.btree.leaf.Wait;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
@@ -49,6 +50,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
@@ -82,12 +84,18 @@ import com.fullspectrum.ability.rogue.HomingKnivesAbility;
 import com.fullspectrum.ability.rogue.VanishAbility;
 import com.fullspectrum.ai.AIController;
 import com.fullspectrum.ai.PathFinder;
+import com.fullspectrum.ai.tasks.AttackTask;
 import com.fullspectrum.ai.tasks.CalculatePathTask;
+import com.fullspectrum.ai.tasks.FlyTask;
 import com.fullspectrum.ai.tasks.FollowPathTask;
 import com.fullspectrum.ai.tasks.InLoSTask;
 import com.fullspectrum.ai.tasks.InRangeTask;
+import com.fullspectrum.ai.tasks.InStateTask;
+import com.fullspectrum.ai.tasks.InRangeTask.RangeTest;
+import com.fullspectrum.ai.tasks.InStateTask.SMType;
 import com.fullspectrum.ai.tasks.OnGroundTask;
 import com.fullspectrum.ai.tasks.OnTileTask;
+import com.fullspectrum.ai.tasks.ReleaseControlsTask;
 import com.fullspectrum.ai.tasks.TargetOnPlatformTask;
 import com.fullspectrum.assets.Asset;
 import com.fullspectrum.assets.AssetLoader;
@@ -164,10 +172,13 @@ import com.fullspectrum.component.TimerComponent;
 import com.fullspectrum.component.VelocityComponent;
 import com.fullspectrum.component.WeightComponent;
 import com.fullspectrum.component.WorldComponent;
+import com.fullspectrum.debug.DebugRender;
+import com.fullspectrum.debug.DebugVars;
 import com.fullspectrum.effects.EffectDef;
 import com.fullspectrum.effects.EffectType;
 import com.fullspectrum.effects.KnockBackDef;
 import com.fullspectrum.entity.CoinType;
+import com.fullspectrum.entity.DelayedAction;
 import com.fullspectrum.entity.DropType;
 import com.fullspectrum.entity.EntityAnim;
 import com.fullspectrum.entity.EntityIndex;
@@ -224,6 +235,7 @@ import com.fullspectrum.physics.collision.filter.PlayerFilter;
 import com.fullspectrum.render.RenderLevel;
 import com.fullspectrum.shader.Shader;
 import com.fullspectrum.utils.EntityUtils;
+import com.fullspectrum.utils.Maths;
 import com.fullspectrum.utils.PhysicsUtils;
 import com.fullspectrum.utils.RenderUtils;
 
@@ -244,6 +256,9 @@ public class EntityFactory {
 	// TODO Refactor shader system to handle layering effects / priorities
 	// BUG Rocky sometimes gets stuck in a loop swinging (can't replicate)
 	// BUG Auto-saving iterator() nested
+	// BUG DamageOnCollide should do a preSolve check
+	// BUG Small glitch in bird ai when entering range for swoop attack
+	// BUG Drill gremlin doesn't stay restricted to platform
 	
 	// ------------
 	// Optimization
@@ -3085,9 +3100,578 @@ public class EntityFactory {
 		return gremlin;
 	}
 	
+	public static Entity createBird(float x, float y) {
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.BIRD);
+		
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.FLYING, assets.getAnimation(Asset.BIRD_FLY));
+		animMap.put(EntityAnim.DIVE,   assets.getAnimation(Asset.BIRD_SWOOP));
+		animMap.put(EntityAnim.SLAM,   assets.getAnimation(Asset.BIRD_CRASH));
+		
+		Rectangle hitbox = EntityIndex.BIRD.getHitBox();
+		float width = hitbox.width;
+		float height = hitbox.height;
+		
+		int sensorWidth = 2;
+		
+		BodyBuilder builder = new BodyBuilder()
+				.gravScale(0.0f)
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, (int)width, (int)height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.RIGHT_WALL)
+					.makeSensor()
+					.boxPixels((int)(width * 0.5f + 1), 0, sensorWidth, (int)height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.LEFT_WALL)
+					.makeSensor()
+					.boxPixels(-(int)(width * 0.5f + 1), 0, sensorWidth, (int)height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.CEILING_SENSOR)
+					.makeSensor()
+					.boxPixels(0, (int)(height * 0.5f + 1), (int)width, sensorWidth)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.makeSensor()
+					.boxPixels(0, -(int)(height * 0.5f + 1), (int)width, sensorWidth)
+					.build();
+		
+		Entity bird = new EntityBuilder(EntityType.BIRD, EntityStatus.ENEMY)
+				.ai(controller)
+				.mob(controller, stats.get("health"), stats.get("weight"), (int)stats.get("money"))
+				.render(true)
+				.animation(animMap)
+				.physics(builder, x, y, true)
+				.build();
+		bird.add(engine.createComponent(PropertyComponent.class));
+		
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Bird ESM", engine, bird)
+				.build();
+		
+		Movement fly = new Movement() {
+			@Override
+			public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
+				Vector2 vel = new Vector2();
+				float speed = Mappers.speed.get(entity).maxSpeed;
+				
+				AIController controller = Mappers.aiController.get(entity).controller;
+				float right = controller.getValue(Actions.MOVE_RIGHT);
+				float left  = controller.getValue(Actions.MOVE_LEFT);
+				float up 	= controller.getValue(Actions.MOVE_UP);
+				float down  = controller.getValue(Actions.MOVE_DOWN);
+				
+				vel.x = speed * (right - left);
+				vel.y = speed * (up - down);
+				
+				Movement bob = Mappers.controlledMovement.get(entity).getMovement(1);
+				return vel.add(bob.getVelocity(entity, elapsed, delta));
+			}
+		};
+		
+		Movement bob = new Movement() {
+			@Override
+			public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
+				// y = A sin (2*pi*f * t)
+				// dy = A * [cos (2*pi*f *t) * 2*pi*f
+				
+				float amp = 0.25f;
+				float pi2 = MathUtils.PI2;
+				float freq = 1 / (GameVars.ANIM_FRAME * 7);
+				
+				return new Vector2(0, amp * pi2 * freq * MathUtils.sin(pi2 * freq * elapsed));
+			}
+		};
+		
+		esm.createState(EntityStates.FLYING)
+			.add(engine.createComponent(SpeedComponent.class).set(stats.get("air_speed")))
+			.add(engine.createComponent(ControlledMovementComponent.class).addAll(fly, bob))
+			.addAnimation(EntityAnim.FLYING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					// TEMPORARY Flip direction
+					Mappers.facing.get(entity).facingRight = !Mappers.facing.get(entity).facingRight;
+				}
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					
+				}
+			});
+		
+		final CollisionFilter damageOnCollideFilter = new CollisionFilter.Builder()
+				.addBodyTypes(MOB)
+				.addEntityTypes(FRIENDLY)
+				.build();
+		
+		Movement dive = new Movement() {
+			@Override
+			public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
+				boolean right = Mappers.facing.get(entity).facingRight;
+				float angle = stats.get("dive_angle");
+				float cos = MathUtils.cosDeg(angle);
+				float sin = MathUtils.sinDeg(angle);
+				float speed = Mappers.speed.get(entity).maxSpeed;
+				
+				return new Vector2(right ? speed * cos : -speed * cos, -speed * sin);
+			}
+		};
+
+		Movement recover = new Movement() {
+			@Override
+			public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
+//				boolean right = Mappers.facing.get(entity).facingRight;
+//				
+//				float deriv = 2 * elapsed; // 2t b/c func is t^2
+//				float angle = (float) Math.toDegrees(Math.atan(deriv));
+//				
+//				angle = right ? angle : 180 - angle;
+//				float speed = Mappers.speed.get(entity).maxSpeed;
+//				float cos = MathUtils.cosDeg(angle);
+//				float sin = MathUtils.sinDeg(angle); 
+//				
+//				return new Vector2(speed * cos, speed * sin);
+				
+				boolean right = Mappers.facing.get(entity).facingRight;
+				float angle = stats.get("dive_angle");
+				float cos = MathUtils.cosDeg(angle);
+				float sin = MathUtils.sinDeg(angle);
+				float speed = Mappers.speed.get(entity).maxSpeed;
+				
+				return new Vector2(right ? speed * cos : -speed * cos, speed * sin);
+			}
+		};
+		
+		esm.createState(EntityStates.DIVING)
+			.add(engine.createComponent(SpeedComponent.class).set(stats.get("dive_speed")))
+			.add(engine.createComponent(ControlledMovementComponent.class).set(dive))
+			.add(engine.createComponent(DamageComponent.class).set(stats.get("dive_damage")))
+			.addAnimation(EntityAnim.DIVE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.facing.get(entity).locked = true;
+					Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+					
+					CollisionData data = Mappers.collisionListener.get(entity).collisionData;
+					FixtureInfo info = data.getFixtureInfo(FixtureType.BODY);
+					info.addBehavior(damageOnCollideFilter, new DamageOnCollideBehavior());
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.facing.get(entity).locked = false;
+					Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+					
+					CollisionData data = Mappers.collisionListener.get(entity).collisionData;
+					FixtureInfo info = data.getFixtureInfo(FixtureType.BODY);
+					info.removeBehaviors(damageOnCollideFilter);
+				}
+			});
+		
+		esm.createState(EntityStates.RECOVER)
+			.add(engine.createComponent(ControlledMovementComponent.class).set(recover))
+			.add(engine.createComponent(SpeedComponent.class).set(stats.get("recover_speed")))
+			.addAnimation(EntityAnim.FLYING)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.facing.get(entity).locked = true;
+					Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+				}
+				
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.facing.get(entity).locked = false;
+					Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+				}
+			});
+		
+		esm.createState(EntityStates.SLAM)
+			.add(engine.createComponent(NoMovementComponent.class))
+			.addAnimation(EntityAnim.SLAM);
+		
+		CollisionTransitionData leftWall  = new CollisionTransitionData(CollisionType.LEFT_WALL, true);
+		CollisionTransitionData rightWall = new CollisionTransitionData(CollisionType.RIGHT_WALL, true);
+		CollisionTransitionData ground    = new CollisionTransitionData(CollisionType.GROUND, true);
+		CollisionTransitionData ceiling   = new CollisionTransitionData(CollisionType.CEILING, true);
+
+		MultiTransition crashTransition = new MultiTransition(
+					Transitions.COLLISION, leftWall)
+				.or(Transitions.COLLISION, rightWall)
+				.or(Transitions.COLLISION, ground)
+				.or(Transitions.COLLISION, ceiling
+		);
+		
+		// sin = opp / hyp
+		// hyp = opp / sin
+		final float diveHeight = stats.get("dive_height");
+		final float diveAngle  = stats.get("dive_angle");
+		final float diveSpeed  = stats.get("dive_speed");
+		float hyp = diveHeight / MathUtils.sinDeg(diveAngle);
+		float diveTime = hyp / diveSpeed;
+		
+		float recoverSpeed = stats.get("recover_speed");
+		float recoverTime = hyp / recoverSpeed;
+		
+		TimeTransitionData diveTimeData = new TimeTransitionData(diveTime);
+		TimeTransitionData recoverTimeData = new TimeTransitionData(recoverTime);
+		
+		esm.addTransition(EntityStates.FLYING, Transitions.INPUT, InputFactory.attack(), EntityStates.DIVING);
+		esm.addTransition(EntityStates.DIVING, crashTransition, EntityStates.SLAM);
+		esm.addTransition(EntityStates.DIVING, Transitions.TIME, diveTimeData, EntityStates.RECOVER);
+		esm.addTransition(EntityStates.RECOVER, Transitions.TIME, recoverTimeData, EntityStates.FLYING);
+		esm.addTransition(EntityStates.SLAM, Transitions.TIME, new TimeTransitionData(stats.get("crash_cooldown")), EntityStates.FLYING);
+
+		LeafTask<Entity> calcFlyAngle = new LeafTask<Entity>() {
+			@Override
+			public Status execute() {
+				Entity entity = getObject();
+				
+				TargetComponent targetComp = Mappers.target.get(entity);
+				if(targetComp == null || !EntityUtils.isTargetable(targetComp.target)) return Status.FAILED;
+				
+				Entity target = targetComp.target;
+
+				Vector2 targetPos = PhysicsUtils.getPos(target).add(new Vector2(0, 0.5f));
+				Vector2 myPos = PhysicsUtils.getPos(entity);
+				
+				float ang = myPos.x > targetPos.x ? diveAngle : 180 - diveAngle;
+				Vector2 offset = new Vector2(diveHeight * (MathUtils.cosDeg(ang) / MathUtils.sinDeg(ang)), diveHeight);
+				Vector2 toPos = new Vector2(offset.x + targetPos.x, offset.y + targetPos.y);
+				
+				// Check toPos for tile collision
+				Level level = Mappers.level.get(entity).level;
+				
+				boolean success = true;
+				if(!level.isValidPoint(toPos.x, toPos.y, Mappers.body.get(entity).getAABB())) {
+					ang = 180 - ang;
+					offset = new Vector2(diveHeight * (MathUtils.cosDeg(ang) / MathUtils.sinDeg(ang)), diveHeight);
+					toPos = new Vector2(offset.x + targetPos.x, offset.y + targetPos.y);
+					success = level.isValidPoint(toPos.x, toPos.y, Mappers.body.get(entity).getAABB());
+				}
+				
+				Mappers.property.get(entity).setProperty("fly_angle", MathUtils.radDeg * MathUtils.atan2(toPos.y - myPos.y, toPos.x - myPos.x));
+				
+				return success ? Status.SUCCEEDED : Status.FAILED;
+			}
+
+			@Override
+			protected Task<Entity> copyTo(Task<Entity> task) {
+				return task;
+			}
+		};
+		
+		RangeTest rangeTest = new InRangeTask.RangeTest() {
+			@Override
+			public boolean inRange(Entity me, Entity other) {
+				// Check two circles
+				float bigRadius = diveHeight / MathUtils.sinDeg(diveAngle);
+				float smallRadius = 1.0f;
+				
+				float ang1 = diveAngle;
+				float ang2 = 180 - diveAngle;
+				float cos1 = MathUtils.cosDeg(ang1);
+				float cos2 = MathUtils.cosDeg(ang2);
+				float sin = MathUtils.sinDeg(ang1); // sin is the same for both
+				
+				Vector2 targetPos = PhysicsUtils.getPos(other).add(new Vector2(0, 0.5f));
+				Vector2 myPos = PhysicsUtils.getPos(me);
+				
+				// First centroid
+				Vector2 centroid1 = new Vector2(targetPos.x + bigRadius * cos1, targetPos.y + bigRadius * sin);
+				Vector2 centroid2 = new Vector2(targetPos.x + bigRadius * cos2, targetPos.y + bigRadius * sin);
+				
+				if(DebugVars.RANGES_ON) {
+					DebugRender.setColor(Color.PURPLE);
+					DebugRender.setType(ShapeType.Line);
+					DebugRender.circle(centroid1.x, centroid1.y, smallRadius);
+					DebugRender.circle(centroid2.x, centroid2.y, smallRadius);
+				}
+				
+				return inCircle(myPos, centroid1, smallRadius) || inCircle(myPos, centroid2, smallRadius);
+			}
+			
+			private boolean inCircle(Vector2 pos, Vector2 center, float radius) {
+				float dx = pos.x - center.x;
+				float dy = pos.y - center.y;
+				
+				return (dx * dx) + (dy * dy) <= radius * radius;
+			}
+		};
+		
+		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(bird);
+
+		Selector<Entity> selector = new Selector<Entity>();
+		
+		Sequence<Entity> attackSequence = new Sequence<Entity>();
+		attackSequence.addChild(new InLoSTask());
+		attackSequence.addChild(new InRangeTask(rangeTest));
+		attackSequence.addChild(BTFactory.turnWhenTargetBehind());
+		attackSequence.addChild(new Wait<Entity>(1.0f));
+		attackSequence.addChild(BTFactory.attack(Actions.ATTACK));
+		
+		Sequence<Entity> chaseSequence = new Sequence<Entity>();
+		chaseSequence.addChild(new InLoSTask());
+		chaseSequence.addChild(calcFlyAngle);
+		chaseSequence.addChild(new ReleaseControlsTask());
+		chaseSequence.addChild(new FlyTask(true));
+		
+		Sequence<Entity> doNothing = new Sequence<Entity>();
+		doNothing.addChild(new ReleaseControlsTask());
+
+		selector.addChild(attackSequence);
+		selector.addChild(chaseSequence);
+		selector.addChild(doNothing);
+		
+		tree.addChild(selector);
+		
+		bird.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		esm.changeState(EntityStates.FLYING);
+		
+		return bird;
+	}
+	
+	public static Entity createDrillGremiln(float x, float y) {
+		AIController controller = new AIController();
+		final EntityStats stats = EntityLoader.get(EntityIndex.DRILL_GREMLIN);
+		
+		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
+		animMap.put(EntityAnim.TUNNEL, 			   assets.getAnimation(Asset.DRILL_GREMLIN_TUNNEL));
+		animMap.put(EntityAnim.SURFACE_PLUNGE,     assets.getAnimation(Asset.DRILL_GREMLIN_SURFACE_PLUNGE));
+		animMap.put(EntityAnim.UNDERGROUND_PLUNGE, assets.getAnimation(Asset.DRILL_GREMLIN_UNDERGROUND_PLUNGE));
+		animMap.put(EntityAnim.SURFACE, 		   assets.getAnimation(Asset.DRILL_GREMLIN_SURFACE));
+		animMap.put(EntityAnim.RUN, 			   assets.getAnimation(Asset.DRILL_GREMLIN_WALK));
+		animMap.put(EntityAnim.IDLE, 			   assets.getAnimation(Asset.DRILL_GREMLIN_IDLE));
+		animMap.put(EntityAnim.ATTACK, 			   assets.getAnimation(Asset.DRILL_GREMLIN_ATTACK));
+		
+		final Rectangle hitbox = EntityIndex.DRILL_GREMLIN.getHitBox();
+		BodyBuilder builder = new BodyBuilder()
+				.pos(x, y)
+				.type(BodyType.DynamicBody, CollisionBodyType.MOB)
+				.addFixture()
+					.fixtureType(FixtureType.BODY)
+					.boxPixels(0, 0, (int) hitbox.width, (int) hitbox.height)
+					.build()
+				.addFixture()
+					.fixtureType(FixtureType.FEET)
+					.boxPixels(0, -(int)(hitbox.height * 0.5f), (int)hitbox.width - 1, 2)
+					.makeSensor()
+					.build();
+				
+		Entity gremlin = new EntityBuilder(EntityType.DRILL_GREMLIN, EntityStatus.ENEMY)
+				.ai(controller)
+				.animation(animMap)
+				.mob(controller, stats.get("health"), stats.get("weight"), (int) stats.get("money"))
+				.physics(builder, x, y, true)
+				.render(true)
+				.build();
+		gremlin.add(engine.createComponent(PropertyComponent.class));
+		
+		EntityStateMachine esm = StateFactory.createBaseBipedalNoJump(gremlin, stats);
+		
+		final CollisionFilter tileFilter = new CollisionFilter.Builder()
+				.addBodyTypes(CollisionBodyType.TILE)
+				.allEntityTypes()
+				.build();
+		
+		final CollisionFilter mobFilter = new CollisionFilter.Builder()
+				.addBodyTypes(CollisionBodyType.MOB)
+				.addEntityTypes(EntityStatus.FRIENDLY)
+				.build();
+		
+		// Diving Calculations
+		final float percentAbove = 0.75f;
+		
+		esm.createState(EntityStates.DIVING)
+			.add(engine.createComponent(FrameMovementComponent.class))
+			.addTag(TransitionTag.STATIC_STATE)
+			.addAnimation(EntityAnim.SURFACE_PLUNGE)
+			.addAnimation(EntityAnim.UNDERGROUND_PLUNGE)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					boolean fromGround = prevState == EntityStates.BASE_ATTACK;
+					Mappers.property.get(entity).setProperty("from_ground", fromGround);
+					Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+					Mappers.frameMovement.get(entity).set(fromGround ? "drill_gremlin/frames_underground_plunge" : "drill_gremlin/frames_surface_plunge", false);
+					
+					CollisionData data = Mappers.collisionListener.get(entity).collisionData;
+					FixtureInfo info = data.getFixtureInfo(FixtureType.BODY);
+					info.removeAllBehaviors();
+					info.addBehavior(tileFilter, new SensorBehavior());
+					info.addBehavior(mobFilter, new SensorBehavior());
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+				}
+			});
+		
+		esm.getState(EntityStates.DIVING)
+			.getASM()
+			.getState(EntityAnim.SURFACE_PLUNGE)
+			.setChangeResolver(new StateChangeResolver() {
+				@Override
+				public State resolve(Entity entity, State oldState) {
+					return Mappers.property.get(entity).getBoolean("from_ground") ? EntityAnim.UNDERGROUND_PLUNGE : EntityAnim.SURFACE_PLUNGE;
+				}
+			});
+		
+		final float aboveGround = hitbox.height * percentAbove * GameVars.PPM_INV;
+		
+		esm.createState(EntityStates.BASE_ATTACK)
+			.addTag(TransitionTag.STATIC_STATE)
+			.add(engine.createComponent(NoMovementComponent.class))
+			.add(engine.createComponent(DamageComponent.class).set(stats.get("attack_damage")))
+			.addAnimation(EntityAnim.SURFACE)
+			.addAnimation(EntityAnim.ATTACK)
+			.addAnimTransition(EntityAnim.SURFACE, Transitions.ANIMATION_FINISHED, EntityAnim.ATTACK)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					
+					Vector2 pos = PhysicsUtils.getPos(entity);
+					bodyComp.body.setTransform(pos.x, pos.y + aboveGround, 0.0f);
+					
+					Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+					
+					CollisionData data = Mappers.collisionListener.get(entity).collisionData;
+					FixtureInfo info = data.getFixtureInfo(FixtureType.BODY);
+					info.addBehavior(mobFilter, new DamageOnCollideBehavior(new KnockBackDef(entity, stats.get("attack_knockback"), stats.get("attack_knockback_angle")))); // TODO Add knockback
+				}
+				
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+					
+					CollisionData data = Mappers.collisionListener.get(entity).collisionData;
+					FixtureInfo info = data.getFixtureInfo(FixtureType.BODY);
+					info.removeBehaviors(mobFilter); 
+				}
+			});
+		
+		Movement tunnel = new Movement() {
+			@Override
+			public Vector2 getVelocity(Entity entity, float elapsed, float delta) {
+				float speed = Mappers.speed.get(entity).maxSpeed;
+				AIController controller = Mappers.aiController.get(entity).controller;
+				float velX = speed * (controller.getValue(Actions.MOVE_RIGHT) - controller.getValue(Actions.MOVE_LEFT));
+				
+				return new Vector2(velX, 0.0f);
+			}
+		};
+		////////////////////////////////////////////////////////////////////////////
+		//    BEHAVIOR TREES
+		////////////////////////////////////////////////////////////////////////////
+
+		
+		// Tunneling Behavior Tree
+		final BehaviorTree<Entity> tunnelTree = new BehaviorTree<Entity>();
+		tunnelTree.setObject(gremlin);
+		
+		Selector<Entity> tunnelSelector = new Selector<Entity>();
+		
+		Sequence<Entity> follow = new Sequence<Entity>();
+		follow.addChild(new InStateTask(EntityStates.TUNNEL, SMType.ESM));
+		follow.addChild(BTFactory.followOnPlatform(0.5f));
+		
+		tunnelSelector.addChild(follow);
+		tunnelTree.addChild(tunnelSelector);
+		
+		////////////////////////////////////////////////////////////////////////////
+		
+		// Main Behavior Tree
+		final BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
+		tree.setObject(gremlin);
+		
+		Selector<Entity> selector = new Selector<Entity>();
+
+		Sequence<Entity> diveSequence = new Sequence<Entity>();
+		diveSequence.addChild(new OnGroundTask());
+		diveSequence.addChild(new TargetOnPlatformTask());
+		diveSequence.addChild(new ReleaseControlsTask());
+		diveSequence.addChild(new Wait<Entity>(0.1f));
+		diveSequence.addChild(new AttackTask(Actions.ATTACK)); // Diving is attack 1
+		
+		selector.addChild(diveSequence);
+		selector.addChild(BTFactory.patrol(1.0f));
+		
+		tree.addChild(selector);
+		gremlin.add(engine.createComponent(BTComponent.class).set(tree));
+		
+		////////////////////////////////////////////////////////////////////////////
+		
+		esm.createState(EntityStates.TUNNEL)
+			.addTag(TransitionTag.STATIC_STATE)
+			.add(engine.createComponent(SpeedComponent.class).set(stats.get("tunnel_speed")))
+			.add(engine.createComponent(ControlledMovementComponent.class).set(tunnel))
+			.addAnimation(EntityAnim.TUNNEL)
+			.addChangeListener(new StateChangeListener() {
+				@Override
+				public void onEnter(State prevState, Entity entity) {
+					Mappers.bt.get(entity).set(tunnelTree);
+					Mappers.inviciblity.get(entity).add(InvincibilityType.ALL);
+					Mappers.immune.get(entity).add(EffectType.KNOCKBACK);
+					
+					// Adjustment to account for errors
+					BodyComponent bodyComp = Mappers.body.get(entity);
+					Rectangle aabb = bodyComp.getAABB();
+					Vector2 pos = PhysicsUtils.getPos(entity);
+					
+					int row = Maths.toGridCoord(pos.y - aabb.height * 0.5f - 0.05f);
+					float wanted = row + 1 - aabb.height * 0.5f - 0.05f;
+					
+					bodyComp.body.setTransform(pos.x, wanted, 0.0f);
+
+					EntityManager.addDelayedAction(new DelayedAction(entity) {
+						@Override
+						public void onAction() {
+							Mappers.body.get(getEntity()).body.setGravityScale(0.0f);
+						}
+					});
+				}
+
+				@Override
+				public void onExit(State nextState, Entity entity) {
+					Mappers.bt.get(entity).set(tree);
+					Mappers.inviciblity.get(entity).remove(InvincibilityType.ALL);
+					Mappers.immune.get(entity).remove(EffectType.KNOCKBACK);
+				}
+			});
+		
+		TimeTransitionData tunnelData = new TimeTransitionData(stats.get("tunnel_time"));
+		TimeTransitionData attackData = new TimeTransitionData(stats.get("attack_time"));
+		
+		esm.addTransition(esm.all(TransitionTag.GROUND_STATE), Transitions.INPUT, InputFactory.attack(Actions.ATTACK), EntityStates.DIVING);
+		esm.addTransition(EntityStates.DIVING, Transitions.ANIMATION_FINISHED, EntityStates.TUNNEL);
+		esm.addTransition(EntityStates.TUNNEL, Transitions.TIME, tunnelData, EntityStates.BASE_ATTACK);
+		esm.addTransition(EntityStates.BASE_ATTACK, Transitions.TIME, attackData, EntityStates.DIVING);
+		
+		// Idling / Running -> Diving
+		// Diving -> Tunneling (Animation Finished)
+		// Tunneling -> Attack
+		// Attack -> Tunneling
+		
+		esm.changeState(EntityStates.IDLING);
+		
+		return gremlin;
+	}
+	
 	// ---------------------------------------------
 	// -                   DROPS                   -
-	// ---------------------------------------------
+	// -------- 	-------------------------------------
 	public static Entity createCoin(float x, float y, float fx, float fy, int amount){
 		Animation<TextureRegion> animation = null;
 		CoinType coinType = CoinType.getCoin(amount);

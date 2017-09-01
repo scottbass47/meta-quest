@@ -21,6 +21,9 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.fullspectrum.gui.Label;
+import com.fullspectrum.gui.UIManager;
+import com.fullspectrum.gui.Window;
 import com.fullspectrum.assets.AssetLoader;
 import com.fullspectrum.editor.action.ActionManager;
 import com.fullspectrum.editor.action.EditorActions;
@@ -32,8 +35,6 @@ import com.fullspectrum.editor.command.ResizeMapCommand.Direction;
 import com.fullspectrum.editor.command.UpdateSurroundingTilesCommand;
 import com.fullspectrum.entity.EntityIndex;
 import com.fullspectrum.game.GameVars;
-import com.fullspectrum.gui.Label;
-import com.fullspectrum.gui.Window;
 import com.fullspectrum.level.ExpandableGrid;
 import com.fullspectrum.level.GridPoint;
 import com.fullspectrum.level.Level;
@@ -84,6 +85,7 @@ public class LevelEditor extends InputMultiplexer{
 	private boolean discardTileChanges = false;
 	
 	// UI
+	private UIManager ui;
 	private Window editorWindow;
 	private Label saveLabel;
 	private Label actionLabel;
@@ -94,7 +96,9 @@ public class LevelEditor extends InputMultiplexer{
 	private ArrayMap<Integer, Boolean> entityAdded;
 	private int nextID = 0;
 	
-	public LevelEditor() {
+	public LevelEditor(UIManager ui) {
+		this.ui = ui;
+		
 		tilePanel = new TilePanel();
 		tilePanel.setX(0.0f);
 		tilePanel.setY(0.0f);
@@ -111,9 +115,10 @@ public class LevelEditor extends InputMultiplexer{
 		history = new Stack<Command>();
 		tileHistory = new Stack<TileChanges>();
 		
-		editorWindow = new Window();
+		editorWindow = ui.newWindow("Level Editor");
 		editorWindow.setPosition(0, 0);
 		editorWindow.setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
+		editorWindow.setVisible(false);
 		
 		BitmapFont font = AssetLoader.getInstance().getFont(AssetLoader.font18);
 		
@@ -278,7 +283,6 @@ public class LevelEditor extends InputMultiplexer{
 	public void setHudCamera(OrthographicCamera hudCamera) {
 		this.hudCamera = hudCamera;
 		actionManager.setHudCamera(hudCamera);
-		editorWindow.setHudCamera(hudCamera);
 	}
 	
 	public void update(float delta) {
@@ -305,7 +309,7 @@ public class LevelEditor extends InputMultiplexer{
 		actionLabel.autoSetSize();
 		actionLabel.setPosition(autoTileLabel.getX() + autoTileLabel.getWidth() + 30, saveLabel.getY());
 		
-		editorWindow.update(delta);
+//		editorWindow.update(delta);
 	}
 	
 	private void moveCamera(float delta) {
@@ -410,12 +414,12 @@ public class LevelEditor extends InputMultiplexer{
 		batch.end();
 		
 		if(actionManager.renderInFront()) {
-			editorWindow.render(batch);
+//			editorWindow.render(batch);
 			tilePanel.render(hudCamera, batch);
 			actionManager.render(batch);
 		} else {
 			actionManager.render(batch);
-			editorWindow.render(batch);
+//			editorWindow.render(batch);
 			tilePanel.render(hudCamera, batch);
 		}
 		
@@ -691,10 +695,12 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void onEnter(){
+		editorWindow.setVisible(true);
 		open = true;
 	}
 	
 	public void onExit() {
+		editorWindow.setVisible(false);
 		if(actionManager.getCurrentAction() == EditorActions.MOVE) {
 			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
 			moveAction.move();
@@ -790,5 +796,9 @@ public class LevelEditor extends InputMultiplexer{
 //		
 //		System.out.println("\nTile History");
 //		System.out.println(tileHistory);
+	}
+	
+	public UIManager getUi() {
+		return ui;
 	}
 }

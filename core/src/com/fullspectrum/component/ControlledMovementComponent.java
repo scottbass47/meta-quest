@@ -27,6 +27,11 @@ public class ControlledMovementComponent implements Component, Poolable{
 		elapsed = 0;
 	}
 	
+	public Movement getMovement(int index){
+		if(index < 0 || index >= movements.size) throw new IndexOutOfBoundsException();
+		return movements.get(index);
+	}
+	
 	public ControlledMovementComponent add(Movement movement){
 		movements.add(movement);
 		return this;

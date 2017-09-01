@@ -27,6 +27,7 @@ public class Maths {
 		return getQuad(angle) == quad;
 	}
 	
+	/** Returns what quadrant the angle is in (int from 1-4) */
 	public static int getQuad(float angle){
 		angle = normaliseAngle(angle);
 		if(angle <= 90 && angle >= 0) return 1;

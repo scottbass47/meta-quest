@@ -40,6 +40,7 @@ public class Button extends Component implements MouseListener{
 		
 		shape = new ShapeRenderer();
 		listeners = new Array<ActionListener>();
+		addMouseListener(this);
 	}
 	
 	@Override

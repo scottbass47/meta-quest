@@ -23,6 +23,7 @@ public class TextField extends Component implements KeyListener {
 	private String text = "";
 	private float cursorX = padding;
 	private GlyphLayout layout;
+	private boolean hasFocus = false;
 	
 	public TextField() {
 		shape = new ShapeRenderer();
@@ -35,8 +36,21 @@ public class TextField extends Component implements KeyListener {
 		pix.dispose();
 		
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);
-		
 		layout = new GlyphLayout();
+		
+		setFocusable(true);
+		addFocusListener(new FocusListener() {
+			@Override
+			public void focusLost(FocusEvent ev) {
+				hasFocus = false;
+			}
+			
+			@Override
+			public void focusGained(FocusEvent ev) {
+				hasFocus = true;
+			}
+		});
+		addKeyListener(this);
 	}
 	
 	@Override
@@ -56,7 +70,7 @@ public class TextField extends Component implements KeyListener {
 		
 		batch.begin();
 		
-		if((int)(elapsed * 0.05f * GameVars.UPS) % 2 == 0 && hasFocus()) {
+		if((int)(elapsed * 0.05f * GameVars.UPS) % 2 == 0 && hasFocus) {
 			batch.draw(cursor, x + cursorX, y + padding);
 		}
 		

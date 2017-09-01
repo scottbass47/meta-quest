@@ -60,6 +60,7 @@ import com.fullspectrum.fsm.StateMachineSystem;
 import com.fullspectrum.fsm.transition.RangeTransitionData;
 import com.fullspectrum.fsm.transition.TransitionObject;
 import com.fullspectrum.fsm.transition.Transitions;
+import com.fullspectrum.gui.UIManager;
 import com.fullspectrum.input.GameInput;
 import com.fullspectrum.input.Mouse;
 import com.fullspectrum.level.LevelManager;
@@ -140,8 +141,9 @@ public class GameScreen extends AbstractScreen {
 	// Arean
 	private Arena arena;
 	
-//	private int ups = 0;
-
+	// UI
+	private UIManager uiManager;
+	
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
 		assets = AssetLoader.getInstance();
@@ -156,6 +158,9 @@ public class GameScreen extends AbstractScreen {
 		assets.loadFont();
 		assets.loadSounds();
 		font = assets.getFont(AssetLoader.font28);
+		
+		uiManager = new UIManager(hudCamera);
+		input.getRawInput().addFirst(uiManager);
 		
 		// Setup Debug Console
 //		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
@@ -253,7 +258,7 @@ public class GameScreen extends AbstractScreen {
 
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
-		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input);
+		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input, uiManager);
 		levelManager.switchLevel("grassy-hub");
 //		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 		
@@ -266,8 +271,9 @@ public class GameScreen extends AbstractScreen {
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
 		
-		arena = new Arena(levelManager, hudCamera);
+		arena = new Arena(levelManager, hudCamera, uiManager);
 		arena.load(Gdx.files.internal("config/arena.json"));
+		
 //		arena.start();
 //		
 //		arena.stop();
@@ -292,6 +298,8 @@ public class GameScreen extends AbstractScreen {
 		if(console.isVisible()){
 			return;
 		}
+		
+		uiManager.update(delta); // Don't know if this is a good location, order shouldn't matter too much though
 		
 		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW) && !editorOpen){
 			pauseMenuOpen = !pauseMenuOpen;
@@ -572,6 +580,8 @@ public class GameScreen extends AbstractScreen {
 			batch.end();
 			font.getData().setScale(1.0f);
 		}
+		
+		uiManager.render(batch);
 		
 		if(pauseMenuOpen){
 			pauseMenu.render(batch);
