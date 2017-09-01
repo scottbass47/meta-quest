@@ -254,6 +254,7 @@ public class EntityFactory {
 	// Entity
 	// TODO Make muzzle flash a separate particle
 	// TODO Refactor shader system to handle layering effects / priorities
+	// TODO Make time underground +/- random amount 
 	// BUG Rocky sometimes gets stuck in a loop swinging (can't replicate)
 	// BUG Auto-saving iterator() nested
 	// BUG DamageOnCollide should do a preSolve check
