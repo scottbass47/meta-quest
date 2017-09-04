@@ -7,15 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
-import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.cpubrew.assets.AssetLoader;
-import com.cpubrew.game.GameVars;
 
 public class TextField extends Component implements KeyListener {
 
-	private Color backgroundColor;
-	private ShapeRenderer shape;
 	private Texture cursor;
 	private float padding = 3.0f;
 	private float elapsed = 0.0f;
@@ -26,8 +21,6 @@ public class TextField extends Component implements KeyListener {
 	private boolean hasFocus = false;
 	
 	public TextField() {
-		shape = new ShapeRenderer();
-		
 		Pixmap pix = new Pixmap(4, 25, Format.RGBA8888);
 		pix.setColor(Color.WHITE);
 		pix.fill();
@@ -35,9 +28,12 @@ public class TextField extends Component implements KeyListener {
 		cursor = new Texture(pix);
 		pix.dispose();
 		
+		backgroundColor = Color.BLACK;
+		
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);
 		layout = new GlyphLayout();
 		
+		setBackgroundColor(Color.BLACK);
 		setFocusable(true);
 		addFocusListener(new FocusListener() {
 			@Override
@@ -60,22 +56,11 @@ public class TextField extends Component implements KeyListener {
 	
 	@Override
 	public void render(SpriteBatch batch) {
-		batch.end();
-		
-		shape.setProjectionMatrix(batch.getProjectionMatrix());
-		shape.setColor(backgroundColor);
-		shape.begin(ShapeType.Filled);
-		shape.rect(x, y, width, height);
-		shape.end();
-		
-		batch.begin();
-		
-		if((int)(elapsed * 0.05f * GameVars.UPS) % 2 == 0 && hasFocus) {
-			batch.draw(cursor, x + cursorX, y + padding);
+		if((int)(elapsed / 0.5f) % 2 == 0 && hasFocus) {
+			batch.draw(cursor, x + cursorX, y + height / 2 - cursor.getHeight() / 2);
 		}
 		
 		font.setColor(Color.WHITE);
-		font.getData().setScale(1.0f);
 		font.draw(batch, text, x + padding, y + height - height * 0.5f + layout.height * 0.5f);
 	}
 
@@ -99,14 +84,6 @@ public class TextField extends Component implements KeyListener {
 		}
 		layout.setText(font, text);
 		cursorX = layout.width + padding;
-	}
-	
-	public void setBackgroundColor(Color backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-	
-	public Color getBackgroundColor() {
-		return backgroundColor;
 	}
 	
 	public void setFont(BitmapFont font) {

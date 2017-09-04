@@ -1,11 +1,12 @@
 package com.cpubrew.editor.action;
 
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.LevelEditor;
+import com.cpubrew.gui.KeyListener;
+import com.cpubrew.gui.MouseListener;
 
-public abstract class Action implements InputProcessor {
+public abstract class EditorAction implements KeyListener, MouseListener {
 
 	protected LevelEditor editor;
 	protected OrthographicCamera worldCamera;
@@ -41,45 +42,40 @@ public abstract class Action implements InputProcessor {
 	public void setActionManager(ActionManager actionManager) {
 		this.actionManager = actionManager;
 	}
+
+	@Override
+	public void onKeyPress(int keycode) {
+	}
+
+	@Override
+	public void onKeyRelease(int keycode) {
+	}
+
+	@Override
+	public void onKeyType(char character) {
+	}
+
+	@Override
+	public void onMouseDown(int x, int y, int button) {
+	}
+
+	@Override
+	public void onMouseUp(int x, int y, int button) {
+	}
 	
 	@Override
-	public boolean keyDown(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		return false;
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		return false;
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		return false;
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-		return false;
+	public void onMouseMove(int x, int y) {
 	}
 	
+	@Override
+	public void onMouseDrag(int x, int y) {
+	}
+	
+	@Override
+	public void onMouseEnter(int x, int y) {
+	}
+	
+	@Override
+	public void onMouseExit(int x, int y) {
+	}
 }

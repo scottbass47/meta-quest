@@ -6,18 +6,17 @@ import com.cpubrew.editor.PlaceableSpawnpoint;
 import com.cpubrew.editor.SelectListener;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
-import com.cpubrew.gui.Window;
 
-public class SelectEnemyAction extends Action {
+public class SelectEnemyAction extends EditorAction {
 
-	private Window enemyWindow;
+//	private Window enemyWindow;
 	private EnemyPanel enemyPanel;
 	private EntityIndex selectedEntity;
 	
 	public SelectEnemyAction() {
 		enemyPanel = new EnemyPanel();
-		enemyPanel.setPosition(0, 0);
-	
+		enemyPanel.setPosition(GameVars.SCREEN_WIDTH / 2 - enemyPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - enemyPanel.getHeight() / 2);
+
 		enemyPanel.addListener(new SelectListener() {
 			@Override
 			public void onSelect(EntityIndex index) {
@@ -31,14 +30,17 @@ public class SelectEnemyAction extends Action {
 	
 	@Override
 	public void onEnter() {
-		enemyWindow = editor.getUi().newWindow();
-		enemyWindow.add(enemyPanel);
-		enemyWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - enemyPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - enemyPanel.getHeight() / 2);
+		editor.getEditorWindow().add(enemyPanel);
+//		enemyWindow = new Window("Select Enemey");
+//		enemyWindow.add(enemyPanel);
+//		enemyWindow.setPosition(GameVars.SCREEN_WIDTH / 2 - enemyPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - enemyPanel.getHeight() / 2);
+//		enemyWindow.setVisible(true);
+//		enemyWindow.setRenderBackground(false);
 	}
 	
 	@Override
 	public void onExit() {
-		enemyWindow.destroy();
+		editor.getEditorWindow().remove(enemyPanel);
 	}
 	
 	public EntityIndex getSelectedEntity() {

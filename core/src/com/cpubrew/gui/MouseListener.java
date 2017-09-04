@@ -1,6 +1,6 @@
 package com.cpubrew.gui;
 
-public interface MouseListener {
+public interface MouseListener extends EventListener {
 
 	public void onMouseMove(int x, int y);
 	public void onMouseDrag(int x, int y);

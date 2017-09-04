@@ -26,6 +26,11 @@ public class ImageLabel extends Component {
 	}
 
 	@Override
+	public void renderBackground(SpriteBatch batch) {
+		// Do nothing here
+	}
+	
+	@Override
 	public void render(SpriteBatch batch) {
 		batch.draw(region, x, y, 0.0f, 0.0f, region.getRegionWidth(), region.getRegionHeight(), scale, scale, 0.0f);
 	}

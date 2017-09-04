@@ -7,7 +7,7 @@ import com.cpubrew.editor.command.EraseCommand;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.utils.Maths;
 
-public class EraseAction extends Action {
+public class EraseAction extends EditorAction {
 
 	private float mouseX;
 	private float mouseY;
@@ -47,19 +47,15 @@ public class EraseAction extends Action {
 	}
 	
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		Vector2 mouseCoords = editor.toHudCoords(screenX, screenY);
-		mouseX = mouseCoords.x;
-		mouseY = mouseCoords.y;
-		return false;
+	public void onMouseDrag(int x, int y) {
+		mouseX = x;
+		mouseY = y;
 	}
 	
 	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		Vector2 mouseCoords = editor.toHudCoords(screenX, screenY);
-		mouseX = mouseCoords.x;
-		mouseY = mouseCoords.y;
-		return false;
+	public void onMouseMove(int x, int y) {
+		mouseX = x;
+		mouseY = y;
 	}
 
 }

@@ -138,11 +138,8 @@ public class GameScreen extends AbstractScreen {
 	private PauseMenu pauseMenu;
 	private boolean editorOpen = false;
 	
-	// Arean
+	// Arena
 	private Arena arena;
-	
-	// UI
-	private UIManager uiManager;
 	
 	public GameScreen(OrthographicCamera worldCamera, OrthographicCamera hudCamera, Game game, ArrayMap<ScreenState, Screen> screens, GameInput input) {
 		super(worldCamera, hudCamera, game, screens, input);
@@ -159,8 +156,8 @@ public class GameScreen extends AbstractScreen {
 		assets.loadSounds();
 		font = assets.getFont(AssetLoader.font28);
 		
-		uiManager = new UIManager(hudCamera);
-		input.getRawInput().addFirst(uiManager);
+		UIManager.setHudCamera(hudCamera);
+		input.getRawInput().addFirst(UIManager.getInputProcessor());
 		
 		// Setup Debug Console
 //		int width = (int)(GameVars.SCREEN_WIDTH * 0.5f);
@@ -258,7 +255,7 @@ public class GameScreen extends AbstractScreen {
 
 		// Setup and Load Level
 		batch.setProjectionMatrix(worldCamera.combined);
-		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input, uiManager);
+		levelManager = new LevelManager(engine, world, batch, worldCamera, hudCamera, input);
 		levelManager.switchLevel("grassy-hub");
 //		levelManager.switchLevel(Theme.GRASSY, 1, 1);
 		
@@ -271,7 +268,7 @@ public class GameScreen extends AbstractScreen {
 		PauseMenu.setPlayer(levelManager.getPlayer());
 		pauseMenu = new PauseMenu(hudCamera);
 		
-		arena = new Arena(levelManager, hudCamera, uiManager);
+		arena = new Arena(levelManager, hudCamera);
 		arena.load(Gdx.files.internal("config/arena.json"));
 		
 //		arena.start();
@@ -299,7 +296,7 @@ public class GameScreen extends AbstractScreen {
 			return;
 		}
 		
-		uiManager.update(delta); // Don't know if this is a good location, order shouldn't matter too much though
+		UIManager.update(delta); // Don't know if this is a good location, order shouldn't matter too much though
 		
 		if(DebugInput.isJustPressed(DebugKeys.PAUSE_WINDOW) && !editorOpen){
 			pauseMenuOpen = !pauseMenuOpen;
@@ -581,7 +578,7 @@ public class GameScreen extends AbstractScreen {
 			font.getData().setScale(1.0f);
 		}
 		
-		uiManager.render(batch);
+		UIManager.render(batch);
 		
 		if(pauseMenuOpen){
 			pauseMenu.render(batch);

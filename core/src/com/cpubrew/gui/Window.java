@@ -3,29 +3,33 @@ package com.cpubrew.gui;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
+import com.badlogic.gdx.utils.Array;
 
 public final class Window extends Container implements InputProcessor {
 
 	private OrthographicCamera hudCamera;
-	private UIManager manager;
 	private Component focusedComponent;
 	private Component mouseComponent;
 	private String title;
 	
-	protected Window(String title) {
+	public Window(String title) {
 		this.title = title;
 		setFocusable(true);
+		setVisible(false);
+		UIManager.addWindow(this);
+		setHudCamera(UIManager.getHudCamera());
 	}
 	
-	protected Window() {
+	public Window() {
 		this("");
 	}
 	
 	@Override
 	public void render(SpriteBatch batch) {
-		if(components.size == 0) return;
 		batch.setProjectionMatrix(hudCamera.combined);
 		batch.begin();
+		if(isDebugRender()) debugRender(batch);
+		if(components.size == 0) return;
 		super.render(batch);
 		batch.end();
 	}
@@ -36,16 +40,11 @@ public final class Window extends Container implements InputProcessor {
 		setSize(Math.max(width, component.getX() + component.getWidth()), Math.max(height, component.getY() + component.getHeight()));
 	}
 	
-	public void setManager(UIManager manager) {
-		this.manager = manager;
-	}
-	
-	public UIManager getManager() {
-		return manager;
-	}
-	
-	public void destroy() {
-		manager.removeWindow(this);
+	public void close() {
+		for(WindowListener listener : getWindowListeners()) {
+			listener.windowClosed(new WindowEvent(this));
+		}
+		UIManager.removeWindow(this);
 	}
 	
 	public void setHudCamera(OrthographicCamera hudCamera) {
@@ -59,8 +58,7 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean keyDown(int keycode) {
 		if(interactable(focusedComponent)) {
-			KeyListener listener = focusedComponent.getKeyListener();
-			if(listener != null) {
+			for(KeyListener listener : focusedComponent.getKeyListeners()) {
 				listener.onKeyPress(keycode);
 			}
 		}
@@ -70,8 +68,7 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean keyUp(int keycode) {
 		if(interactable(focusedComponent)) {
-			KeyListener listener = focusedComponent.getKeyListener();
-			if(listener != null) {
+			for(KeyListener listener : focusedComponent.getKeyListeners()) {
 				listener.onKeyRelease(keycode);
 			}
 		}
@@ -81,8 +78,7 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean keyTyped(char character) {
 		if(interactable(focusedComponent)) {
-			KeyListener listener = focusedComponent.getKeyListener();
-			if(listener != null) {
+			for(KeyListener listener : focusedComponent.getKeyListeners()) {
 				listener.onKeyType(character);
 			}
 		}
@@ -92,8 +88,7 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		Component comp = getFirstComponentAt(screenX, screenY);
-		MouseListener listener = comp.getMouseListener();
-		if(listener != null){
+		for(MouseListener listener : comp.getMouseListeners()) {
 			listener.onMouseDown(screenX - comp.getX(), screenY - comp.getY(), button);
 		}
 		return true;
@@ -102,9 +97,7 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		Component comp = getFirstComponentAt(screenX, screenY);
-		MouseListener listener = comp.getMouseListener();
-		
-		if(listener != null) {
+		for(MouseListener listener : comp.getMouseListeners()) {
 			listener.onMouseUp(screenX - comp.getX(), screenY - comp.getY(), button);
 		}
 		
@@ -115,24 +108,20 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean touchDragged(int screenX, int screenY, int pointer) {
 		Component comp = getFirstComponentAt(screenX, screenY);
-		MouseListener listener = comp.getMouseListener();
-		
-		if(listener != null) {
+		for(MouseListener listener : comp.getMouseListeners()) {
 			listener.onMouseDrag(screenX - comp.getX(), screenY - comp.getY());
 		}
 		
 		// If the mouse is on a new component, do mouse enter / exit
 		if(!same(comp, mouseComponent)) {
 			if(mouseComponent != null) {
-				MouseListener oldListener = mouseComponent.getMouseListener();
-				if(oldListener != null) {
-					oldListener.onMouseExit(screenX - mouseComponent.getX(), screenY - mouseComponent.getY());
+				for(MouseListener listener : mouseComponent.getMouseListeners()) {
+					listener.onMouseExit(screenX - comp.getX(), screenY - comp.getY());
 				}
 			}
 			
-			MouseListener newListener = comp.getMouseListener();
-			if(newListener != null) {
-				newListener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
+			for(MouseListener listener : comp.getMouseListeners()) {
+				listener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
 			}
 			
 			mouseComponent = comp;
@@ -144,24 +133,20 @@ public final class Window extends Container implements InputProcessor {
 	@Override
 	public final boolean mouseMoved(int screenX, int screenY) {
 		Component comp = getFirstComponentAt(screenX, screenY);
-		MouseListener listener = comp.getMouseListener();
-		
-		if(listener != null) {
+		for(MouseListener listener : comp.getMouseListeners()) {
 			listener.onMouseMove(screenX - comp.getX(), screenY - comp.getY());
 		}
 		
 		// If the mouse is on a new component, do mouse enter / exit
 		if(!same(comp, mouseComponent)) {
 			if(mouseComponent != null) {
-				MouseListener oldListener = mouseComponent.getMouseListener();
-				if(oldListener != null) {
-					oldListener.onMouseExit(screenX - mouseComponent.getX(), screenY - mouseComponent.getY());
+				for(MouseListener listener : mouseComponent.getMouseListeners()) {
+					listener.onMouseExit(screenX - comp.getX(), screenY - comp.getY());
 				}
 			}
 			
-			MouseListener newListener = comp.getMouseListener();
-			if(newListener != null) {
-				newListener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
+			for(MouseListener listener : comp.getMouseListeners()) {
+				listener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
 			}
 			
 			mouseComponent = comp;
@@ -208,18 +193,20 @@ public final class Window extends Container implements InputProcessor {
 
 		// Fire event for focus lost
 		if(focusedComponent != null) {
-			FocusListener listener = focusedComponent.getFocusListener();
-			if(listener != null) {
+			for(FocusListener listener : focusedComponent.getFocusListeners()) {
 				listener.focusLost(new FocusEvent(component));
 			}
 		}
 		
-		FocusListener listener = component.getFocusListener();
-		if(listener != null) {
+		for(FocusListener listener : component.getFocusListeners()) {
 			listener.focusGained(new FocusEvent(focusedComponent));
 		}
-
+		
 		focusedComponent = component;
+	}
+	
+	public Component getFocusedComponent() {
+		return focusedComponent;
 	}
 	
 	public void setTitle(String title) {
@@ -228,6 +215,32 @@ public final class Window extends Container implements InputProcessor {
 	
 	public String getTitle() {
 		return title;
+	}
+	
+	public void addWindowListener(WindowListener listener) {
+		listeners.addListener(WindowListener.class, listener);
+	}
+	
+	public void removeWindowListener(WindowListener listener) {
+		listeners.removeListener(listener);
+	}
+	
+	public Array<WindowListener> getWindowListeners() {
+		return listeners.getListeners(WindowListener.class);
+	}
+	
+	@Override
+	public void setVisible(boolean visible) {
+		super.setVisible(visible);
+		for(WindowListener listener : getWindowListeners()) {
+			if(visible) listener.windowOpened(new WindowEvent(this));
+			else listener.windowHidden(new WindowEvent(this));
+		}
+	}
+	
+	@Override
+	public Window getWindow() {
+		return this;
 	}
 	
 	@Override

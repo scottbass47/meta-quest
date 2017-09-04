@@ -5,7 +5,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.cpubrew.editor.Placeable;
 import com.cpubrew.editor.command.Command;
 
-public class PlaceAction extends Action {
+public class PlaceAction extends EditorAction {
 
 	private Placeable activePlaceable;
 	
@@ -37,24 +37,21 @@ public class PlaceAction extends Action {
 	}
 	
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		if(!editor.isMouseOnMap()) return false;
-		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
+	public void onMouseDrag(int x, int y) {
+		if(!editor.isMouseOnMap()) return;
+		Vector2 mousePos = editor.toWorldCoords(x, y);
 		if(!activePlaceable.placeOnClick()) {
 			Command command = activePlaceable.onClick(mousePos, editor);
 			editor.executeCommand(command);
 		}
-		
-		return false;
 	}
 	
 	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		if(!editor.isMouseOnMap()) return false;
-		Vector2 mousePos = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
+	public void onMouseUp(int x, int y, int button) {
+		if(!editor.isMouseOnMap()) return;
+		Vector2 mousePos = editor.toWorldCoords(x, y);
 		Command command = activePlaceable.onClick(mousePos, editor);
 		editor.executeCommand(command);
-		return false;
 	}
 
 }

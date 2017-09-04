@@ -1,10 +1,6 @@
 package com.cpubrew.editor;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
 import com.cpubrew.entity.EntityIndex;
@@ -17,7 +13,6 @@ import com.cpubrew.gui.TextField;
 public class EnemyPanel extends Container {
 	
 	private boolean panelOpen;
-	private Texture background;
 	private ArrayMap<EntityIndex, EnemyIcon> iconMap;
 	private Array<SelectListener> listeners;
 	private TextField textField;
@@ -34,24 +29,18 @@ public class EnemyPanel extends Container {
 		textField = new TextField();
 		textField.setBackgroundColor(Color.BLACK);
 		textField.setSize(width, 30);
-		textField.setPosition(0, y + height - textField.getHeight());
+		textField.setPosition(0, height - textField.getHeight());
 		
 		add(textField);
+		
+		Color color = new Color(Color.BLACK);
+		color.mul(1.0f, 1.0f, 1.0f, 0.65f);
+		setBackgroundColor(color);
 		
 		// Wont work yet...
 //		textField.requestFocus();
 		
-		drawBackground();
 		initButtons();
-	}
-	
-	private void drawBackground() {
-		Pixmap pix = new Pixmap(width, height, Format.RGBA8888);
-		pix.setColor(new Color(Color.BLACK).mul(1.0f, 1.0f, 1.0f, 0.9f));
-		pix.fill();
-		
-		background = new Texture(pix);
-		pix.dispose();
 	}
 	
 	private void initButtons() {
@@ -92,8 +81,8 @@ public class EnemyPanel extends Container {
 		
 		ArrayMap<EntityIndex, EnemyIcon> row = new ArrayMap<EntityIndex, EnemyIcon>();
 		
-		float xx = x + horizPadding * scale;
-		float yy = y + height - textField.getHeight() - vertPadding * scale;
+		float xx = horizPadding * scale;
+		float yy = height - textField.getHeight() - vertPadding * scale;
 		float height = 0;
 		
 		for(EntityIndex index : iconMap.keys()) {
@@ -102,7 +91,7 @@ public class EnemyPanel extends Container {
 			if(!index.name().toLowerCase().startsWith(filter)) continue;
 
 			// Need to create a new row
-			if(icon.getWidth() + xx > x + width) {
+			if(icon.getWidth() + xx > width) {
 				for(EntityIndex idx : row.keys()) {
 					EnemyIcon ei = row.get(idx);
 					ei.setY((int)(yy - (height * 0.5f) - ei.getHeight() * 0.5f));
@@ -110,7 +99,7 @@ public class EnemyPanel extends Container {
 				}
 				row.clear();
 				yy -= height + vertPadding * scale;
-				xx = x + horizPadding * scale;
+				xx = horizPadding * scale;
 				height = 0;
 			} 
 			
@@ -127,14 +116,6 @@ public class EnemyPanel extends Container {
 			ei.setY((int)(yy - (height * 0.5f) - ei.getHeight() * 0.5f));
 			add(ei);
 		}
-	}
-	
-	@Override
-	public void render(SpriteBatch batch) {
-		batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		batch.draw(background, x, y);
-
-		super.render(batch);
 	}
 	
 	public void show() {

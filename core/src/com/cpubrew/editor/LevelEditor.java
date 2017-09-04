@@ -1,12 +1,9 @@
 package com.cpubrew.editor;
 
-import java.util.Iterator;
 import java.util.Stack;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputMultiplexer;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
@@ -28,27 +25,31 @@ import com.cpubrew.editor.action.MoveAction;
 import com.cpubrew.editor.action.SelectAction;
 import com.cpubrew.editor.command.Command;
 import com.cpubrew.editor.command.ResizeMapCommand;
-import com.cpubrew.editor.command.UpdateSurroundingTilesCommand;
 import com.cpubrew.editor.command.ResizeMapCommand.Direction;
+import com.cpubrew.editor.command.UpdateSurroundingTilesCommand;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
+import com.cpubrew.gui.KeyBoardManager;
+import com.cpubrew.gui.KeyListener;
 import com.cpubrew.gui.Label;
-import com.cpubrew.gui.UIManager;
+import com.cpubrew.gui.MouseListener;
+import com.cpubrew.gui.ScrollListener;
 import com.cpubrew.gui.Window;
+import com.cpubrew.input.Mouse;
 import com.cpubrew.level.ExpandableGrid;
 import com.cpubrew.level.GridPoint;
 import com.cpubrew.level.Level;
+import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.LevelUtils;
 import com.cpubrew.level.MapRenderer;
-import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
+import com.cpubrew.level.tiles.MapTile.Side;
+import com.cpubrew.level.tiles.MapTile.TileType;
 import com.cpubrew.level.tiles.TileSlot;
 import com.cpubrew.level.tiles.Tileset;
 import com.cpubrew.level.tiles.TilesetTile;
-import com.cpubrew.level.tiles.MapTile.Side;
-import com.cpubrew.level.tiles.MapTile.TileType;
 
-public class LevelEditor extends InputMultiplexer{
+public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 
 	// Level
 	private Level currentLevel;
@@ -67,14 +68,11 @@ public class LevelEditor extends InputMultiplexer{
 	private boolean mouseOnMap = false;
 	private Vector2 mousePos;
 	private boolean mouseDown = false;
-	private int ctrlCount = 0;
-	private int shiftCount = 0;
 	private float animTime;
 	private boolean unsavedEdits = false;
 	private boolean autoTiling = false;
 	private int autoSaveInterval = 1000;
 	private boolean open = false;
-	private Array<InputProcessor> toRemove;
 	
 	// Commands
 	private Stack<Command> history;
@@ -85,7 +83,6 @@ public class LevelEditor extends InputMultiplexer{
 	private boolean discardTileChanges = false;
 	
 	// UI
-	private UIManager ui;
 	private Window editorWindow;
 	private Label saveLabel;
 	private Label actionLabel;
@@ -96,9 +93,7 @@ public class LevelEditor extends InputMultiplexer{
 	private ArrayMap<Integer, Boolean> entityAdded;
 	private int nextID = 0;
 	
-	public LevelEditor(UIManager ui) {
-		this.ui = ui;
-		
+	public LevelEditor() {
 		tilePanel = new TilePanel();
 		tilePanel.setX(0.0f);
 		tilePanel.setY(0.0f);
@@ -109,16 +104,12 @@ public class LevelEditor extends InputMultiplexer{
 
 		setupTextures();
 
-		actionManager = new ActionManager(this);
-		addProcessor(actionManager);
-		
 		history = new Stack<Command>();
 		tileHistory = new Stack<TileChanges>();
 		
-		editorWindow = ui.newWindow("Level Editor");
+		editorWindow = new Window("Level Editor");
 		editorWindow.setPosition(0, 0);
 		editorWindow.setSize(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
-		editorWindow.setVisible(false);
 		
 		BitmapFont font = AssetLoader.getInstance().getFont(AssetLoader.font18);
 		
@@ -140,9 +131,15 @@ public class LevelEditor extends InputMultiplexer{
 		editorWindow.add(saveLabel);
 		editorWindow.add(autoTileLabel);
 		editorWindow.add(actionLabel);
+		editorWindow.setRenderBackground(false);
+		
+		editorWindow.addKeyListener(this);
+		editorWindow.addMouseListener(this);
 		
 		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
 		entityAdded = new ArrayMap<Integer, Boolean>();
+		
+		actionManager = new ActionManager(this);
 		
 		Thread saveThread = new Thread(new Runnable() {
 			@Override
@@ -168,8 +165,6 @@ public class LevelEditor extends InputMultiplexer{
 		}, "Editor Auto-Save");
 		saveThread.setDaemon(true);
 		saveThread.start();
-		
-		toRemove = new Array<InputProcessor>();
 	}
 	
 	private void setupTextures() {
@@ -286,11 +281,6 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void update(float delta) {
-		for(Iterator<InputProcessor> iter = toRemove.iterator(); iter.hasNext();) {
-			removeProcessor(iter.next());
-			iter.remove();
-		}
-
 		animTime += delta;
 		
 		actionManager.update(delta);
@@ -313,7 +303,7 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	private void moveCamera(float delta) {
-		if(ctrlDown() || shiftDown() || actionManager.isBlocking()){
+		if(KeyBoardManager.isControlDown() || KeyBoardManager.isShiftDown() || actionManager.isBlocking()){
 			return;
 		}
 		if(Gdx.input.isKeyPressed(Keys.W)) {
@@ -334,7 +324,7 @@ public class LevelEditor extends InputMultiplexer{
 		// Adding rows/cols
 		if(actionManager.isBlocking()) return;
 		
-		if (ctrlDown()) {
+		if (KeyBoardManager.isControlDown()) {
 			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 				executeCommand(new ResizeMapCommand(Direction.UP, true));
 			}
@@ -350,7 +340,7 @@ public class LevelEditor extends InputMultiplexer{
 		}
 
 		// Removing rows/cols
-		if (shiftDown()) {
+		if (KeyBoardManager.isShiftDown()) {
 			if (Gdx.input.isKeyJustPressed(Keys.UP)) {
 				if(tileMap.rowAllEmpty(false)) executeCommand(new ResizeMapCommand(Direction.UP, false));
 			}
@@ -590,77 +580,64 @@ public class LevelEditor extends InputMultiplexer{
 	////////////////////////
 	
 	@Override
-	public boolean keyDown(int keycode) {
-//		actionManager.keyDown(keycode);
-		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
-			shiftCount++;
-		}
-		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
-			ctrlCount++;
-		}
-		return super.keyDown(keycode);
-	}
-
-	@Override
-	public boolean keyUp(int keycode) {
-//		actionManager.keyUp(keycode);
-		if(keycode == Keys.SHIFT_LEFT || keycode == Keys.SHIFT_RIGHT) {
-			shiftCount--;
-		}
-		if(keycode == Keys.CONTROL_LEFT || keycode == Keys.CONTROL_RIGHT) {
-			ctrlCount--;
-		}
-		return super.keyUp(keycode);
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-//		actionManager.keyTyped(character);
-		return super.keyTyped(character);
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//		actionManager.touchDown(screenX, screenY, pointer, button);
-		mouseDown = true;
-		return super.touchDown(screenX, screenY, pointer, button);
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-//		actionManager.touchUp(screenX, screenY, pointer, button);
-		mouseDown = false;
-		return super.touchUp(screenX, screenY, pointer, button);
-	}
-
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-//		actionManager.touchDragged(screenX, screenY, pointer);
-		mousePos = toHudCoords(screenX, screenY);
+	public void onMouseMove(int x, int y) {
+		mousePos = new Vector2(x, y);
 		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
-		return super.touchDragged(screenX, screenY, pointer);
-	}
-
-	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-//		actionManager.mouseMoved(screenX, screenY);
-		mousePos = toHudCoords(screenX, screenY);
-		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
-		return super.mouseMoved(screenX, screenY);
-	}
-
-	@Override
-	public boolean scrolled(int amount) {
-//		actionManager.scrolled(amount);
-		if(actionManager.isBlocking()) return super.scrolled(amount);
-		worldCamera.zoom += amount * 0.02f;
-		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
-		return super.scrolled(amount);
 	}
 	
-	public void removeInputProcessor(InputProcessor processor) {
-		toRemove.add(processor);
+	@Override
+	public void onMouseDrag(int x, int y) {
+		mousePos = new Vector2(x, y);
+		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
 	}
+	
+	@Override
+	public void onMouseUp(int x, int y, int button) {
+		mouseDown = false;
+	}
+	
+	@Override
+	public void onMouseDown(int x, int y, int button) {
+		mouseDown = true;
+	}
+	
+	@Override
+	public void onMouseEnter(int x, int y) {
+		
+	}
+	
+	@Override
+	public void onMouseExit(int x, int y) {
+		
+	}
+	
+	@Override
+	public void onKeyPress(int keycode) {
+	}
+	
+	@Override
+	public void onKeyRelease(int keycode) {
+	}
+	
+	@Override
+	public void onKeyType(char character) {
+	}
+
+	@Override
+	public void onScroll(int amount) {
+		if(actionManager.isBlocking()) return;
+		worldCamera.zoom += amount * 0.02f;
+		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
+	}
+	
+//
+//	@Override
+//	public boolean scrolled(int amount) {
+//		if(actionManager.isBlocking()) return super.scrolled(amount);
+//		worldCamera.zoom += amount * 0.02f;
+//		worldCamera.zoom = MathUtils.clamp(worldCamera.zoom, 0.25f, 2.0f);
+//		return super.scrolled(amount);
+//	}
 	
 	public boolean onTilePanel(float screenX, float screenY) {
 		return screenX >= tilePanel.getX() && screenX <= tilePanel.getX() + tilePanel.getWidth() &&
@@ -695,11 +672,13 @@ public class LevelEditor extends InputMultiplexer{
 	}
 	
 	public void onEnter(){
+		Mouse.addScrollListener(this);
 		editorWindow.setVisible(true);
 		open = true;
 	}
 	
 	public void onExit() {
+		Mouse.removeScrollListener(this);
 		editorWindow.setVisible(false);
 		if(actionManager.getCurrentAction() == EditorActions.MOVE) {
 			MoveAction moveAction = (MoveAction) actionManager.getCurrentActionInstance();
@@ -707,14 +686,6 @@ public class LevelEditor extends InputMultiplexer{
 		}
 		open = false;
 		updateLevelSpawns();
-	}
-	
-	public boolean shiftDown() {
-		return shiftCount > 0;
-	}
-	
-	public boolean ctrlDown() {
-		return ctrlCount > 0;
 	}
 	
 	public boolean isMouseOnMap() {
@@ -798,7 +769,7 @@ public class LevelEditor extends InputMultiplexer{
 //		System.out.println(tileHistory);
 	}
 	
-	public UIManager getUi() {
-		return ui;
+	public Window getEditorWindow() {
+		return editorWindow;
 	}
 }

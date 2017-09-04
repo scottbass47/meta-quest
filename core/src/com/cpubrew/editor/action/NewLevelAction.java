@@ -3,23 +3,24 @@ package com.cpubrew.editor.action;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.NewLevelPanel;
 import com.cpubrew.game.GameVars;
-import com.cpubrew.gui.Window;
 
-public class NewLevelAction extends Action {
+public class NewLevelAction extends EditorAction {
 
-	private Window window;
+//	private Window window;
 	private NewLevelPanel newLevelPanel;
 	
 	@Override
 	public void onEnter() {
 		newLevelPanel = new NewLevelPanel(actionManager);
-		newLevelPanel.setPosition(0, 0);
+		newLevelPanel.setPosition(GameVars.SCREEN_WIDTH / 2 - newLevelPanel.getWidth() / 2, 450);
 		
-		window = editor.getUi().newWindow();
-		window.setPosition(GameVars.SCREEN_WIDTH / 2 - newLevelPanel.getWidth() / 2, 450);
+		editor.getEditorWindow().add(newLevelPanel);
 		
-		window.add(newLevelPanel);
-		window.setHudCamera(hudCamera);
+//		window = new Window("New Level");
+//		window.setPosition(GameVars.SCREEN_WIDTH / 2 - newLevelPanel.getWidth() / 2, 450);
+//		
+//		window.add(newLevelPanel);
+//		window.setVisible(true);
 	}
 	
 	@Override
@@ -32,7 +33,8 @@ public class NewLevelAction extends Action {
 
 	@Override
 	public void onExit() {
-		window.destroy();
+		editor.getEditorWindow().remove(newLevelPanel);
+//		window.close();
 	}
 
 	@Override

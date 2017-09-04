@@ -4,7 +4,7 @@ public enum EditorActions {
 
 	ERASE {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new EraseAction();
 		}
 
@@ -19,7 +19,7 @@ public enum EditorActions {
 		}
 	},
 	SELECT {
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new SelectAction();
 		}
 
@@ -35,7 +35,7 @@ public enum EditorActions {
 	},
 	PLACE {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new PlaceAction();
 		}
 
@@ -51,7 +51,7 @@ public enum EditorActions {
 	},
 	FILL {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new FillAction();
 		}
 
@@ -67,7 +67,7 @@ public enum EditorActions {
 	},
 	SELECT_ENEMY {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new SelectEnemyAction();
 		}
 
@@ -83,7 +83,7 @@ public enum EditorActions {
 	},
 	LEVEL_TRIGGER {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return null;
 		}
 
@@ -99,7 +99,7 @@ public enum EditorActions {
 	},
 	MOVE {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new MoveAction();
 		}
 
@@ -116,7 +116,7 @@ public enum EditorActions {
 	HELP {
 
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new HelpAction();
 		}
 
@@ -132,7 +132,7 @@ public enum EditorActions {
 	},
 	NEW_LEVEL {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new NewLevelAction();
 		}
 
@@ -148,7 +148,7 @@ public enum EditorActions {
 	},
 	OPEN_LEVEL {
 		@Override
-		public Action getActionInstance() {
+		public EditorAction getActionInstance() {
 			return new OpenLevelAction();
 		}
 
@@ -163,7 +163,7 @@ public enum EditorActions {
 		}
 	};
 	
-	public abstract Action getActionInstance();
+	public abstract EditorAction getActionInstance();
 	public abstract String getShortcut();
 	public abstract String getDisplayName();
 	

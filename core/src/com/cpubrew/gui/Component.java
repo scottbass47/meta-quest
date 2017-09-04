@@ -1,11 +1,15 @@
 package com.cpubrew.gui;
 
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.utils.Array;
+import com.badlogic.gdx.utils.ArrayMap;
 
 public abstract class Component {
 
@@ -21,13 +25,24 @@ public abstract class Component {
 	private boolean focusable = false;
 	
 	// Listeners
-	private KeyListener keyListener;
-	private MouseListener mouseListener;
-	private FocusListener focusListener;
+	protected EventListeners listeners;
 	
 	// Debug
 	private boolean debugRender = false;
-	private final ShapeRenderer shape = new ShapeRenderer();
+	protected final ShapeRenderer shape = new ShapeRenderer();
+	
+	// Key Binds
+	private ArrayMap<KeyBind, Action> inputMap;
+	
+	// Color
+	private boolean renderBackground = true;
+	protected Color backgroundColor = Color.WHITE;
+	protected Color foregroundColor = Color.BLACK;
+	
+	public Component() {
+		listeners = new EventListeners();
+		inputMap = new ArrayMap<KeyBind, Action>();
+	}
 	
 	public abstract void update(float delta);
 	
@@ -46,17 +61,31 @@ public abstract class Component {
 		batch.begin();
 	}
 	
+	public void renderBackground(SpriteBatch batch) {
+		batch.end();
+		
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
+		
+		shape.setProjectionMatrix(batch.getProjectionMatrix());
+		shape.begin(ShapeType.Filled);
+		shape.setColor(backgroundColor);
+		shape.rect(x, y, width, height);
+		shape.end();
+		
+		Gdx.gl.glDisable(GL20.GL_BLEND);
+		
+		batch.begin();
+	}
+	
 	/**
 	 * Requests focus from window. If this component hasn't been added to a <code>Window</code> yet,
 	 * the component will NOT receive focus.
 	 */
 	public void requestFocus() {
-		Component comp = parent;
-		while(comp != null && !(comp instanceof Window)) {
-			comp = comp.parent;
-		}
-		if(comp == null) return; // No window was found, do nothing
-		((Window) comp).giveFocus(this);
+		Window window = getWindow();
+		if(window == null) return;
+		window.giveFocus(this);
 	}
 	
 	public Rectangle getBounds() {
@@ -138,26 +167,93 @@ public abstract class Component {
 	}
 	
 	public void addKeyListener(KeyListener keyListener) {
-		this.keyListener = keyListener;
+		listeners.addListener(KeyListener.class, keyListener);
 	}
 	
-	public KeyListener getKeyListener() {
-		return keyListener;
+	public Array<KeyListener> getKeyListeners() {
+		return listeners.getListeners(KeyListener.class);
+	}
+	
+	public void removeKeyListener(KeyListener keyListener) {
+		listeners.removeListener(keyListener);
 	}
 	
 	public void addMouseListener(MouseListener mouseListener) {
-		this.mouseListener = mouseListener;
+		listeners.addListener(MouseListener.class, mouseListener);
 	}
 	
-	public MouseListener getMouseListener() {
-		return mouseListener;
+	public Array<MouseListener> getMouseListeners() {
+		return listeners.getListeners(MouseListener.class);
+	}
+	
+	public void removeMouseListener(MouseListener mouseListener) {
+		listeners.removeListener(mouseListener);
 	}
 	
 	public void addFocusListener(FocusListener focusListener) {
-		this.focusListener = focusListener;
+		listeners.addListener(FocusListener.class, focusListener);
 	}
 	
-	public FocusListener getFocusListener() {
-		return focusListener;
+	public Array<FocusListener> getFocusListeners() {
+		return listeners.getListeners(FocusListener.class);
 	}
+	
+	public void removeFocusListener(FocusListener focusListener) {
+		listeners.removeListener(focusListener);
+	}
+	
+	public void addKeyBind(KeyBind bind, Action action) {
+		if(action == null || bind == null) throw new IllegalArgumentException("Keybinds and Actions must have non-null values.");
+		inputMap.put(bind, action);
+	}
+	
+	public void removeKeyBind(KeyBind bind) {
+		inputMap.removeKey(bind);
+	}
+
+	public Action getAction(KeyBind bind) {
+		return inputMap.get(bind);
+	}
+	
+	public ArrayMap<KeyBind, Action> getInputMap() {
+		return inputMap;
+	}
+	
+	/**
+	 * Gets the <code>Window</code> that contains this component. Returns null if the component hasn't been added to a window yet.
+	 * @return
+	 */
+	public Window getWindow() {
+		Component comp = parent;
+		while(comp != null && !(comp instanceof Window)) {
+			comp = comp.parent;
+		}
+		if(comp == null) return null;
+		return (Window) comp;
+	}
+	
+	public void setBackgroundColor(Color backgroundColor) {
+		this.backgroundColor = backgroundColor;
+	}
+	
+	public Color getBackgroundColor() {
+		return backgroundColor;
+	}
+	
+	public void setForegroundColor(Color foregroundColor) {
+		this.foregroundColor = foregroundColor;
+	}
+	
+	public Color getForegroundColor() {
+		return foregroundColor;
+	}
+	
+	public void setRenderBackground(boolean renderBackground) {
+		this.renderBackground = renderBackground;
+	}
+	
+	public boolean renderingBackground() {
+		return renderBackground;
+	}
+	
 }

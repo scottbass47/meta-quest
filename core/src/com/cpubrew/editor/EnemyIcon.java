@@ -16,6 +16,7 @@ public class EnemyIcon extends Button {
 	public EnemyIcon(EntityIndex index, float scale) {
 		this.index = index;
 		setScale(scale);
+		setRenderBackground(false);
 	}
 	
 	@Override

@@ -19,7 +19,6 @@ import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.badlogic.gdx.utils.viewport.Viewport;
 import com.cpubrew.audio.AudioHandler;
 import com.cpubrew.audio.AudioLocator;
-import com.cpubrew.audio.NullAudio;
 import com.cpubrew.audio.StandardAudio;
 import com.cpubrew.debug.DebugVars;
 import com.cpubrew.input.GameInput;

@@ -1,30 +1,98 @@
 package com.cpubrew.editor.action;
 
 import com.badlogic.gdx.Input.Keys;
-import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.cpubrew.editor.LevelEditor;
 import com.cpubrew.editor.PlaceableTile;
+import com.cpubrew.gui.Action;
+import com.cpubrew.gui.Component;
+import com.cpubrew.gui.KeyBind;
+import com.cpubrew.gui.KeyBind.FocusType;
+import com.cpubrew.gui.KeyBind.Modifiers;
+import com.cpubrew.gui.KeyListener;
+import com.cpubrew.gui.MouseListener;
+import com.cpubrew.gui.Window;
 import com.cpubrew.level.Level;
 import com.cpubrew.level.LevelUtils;
 import com.cpubrew.level.tiles.TilesetTile;
 
-public class ActionManager implements InputProcessor {
+public class ActionManager implements KeyListener, MouseListener {
 
 	private EditorActions currentAction;
 	private EditorActions previousAction;
-	private Action currentActionInstance;
-	private Action previousActionInstance;
+	private EditorAction currentActionInstance;
+	private EditorAction previousActionInstance;
 	
 	private LevelEditor editor;
 	private OrthographicCamera worldCamera;
 	private OrthographicCamera hudCamera;
 
-	public ActionManager(LevelEditor editor) {
+	public ActionManager(final LevelEditor editor) {
 		this.editor = editor;
 		switchAction(EditorActions.SELECT);
+		
+		Window window = editor.getEditorWindow();
+		
+		// Escape
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.ESCAPE), new SwitchBind(this, EditorActions.SELECT, true));
+
+		// Erase
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.E, Modifiers.CTRL), new SwitchBind(this, EditorActions.ERASE));
+		
+		// Select Enemy
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.Q, Modifiers.CTRL), new SwitchBind(this, EditorActions.SELECT_ENEMY));
+		
+		// Fill
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.F, Modifiers.CTRL), new Action() {
+			@Override
+			public void onAction(Component source) {
+				if(isBlocking() || editor.getTilePanel().getActiveTile() == null) return;
+				switchAction(EditorActions.ERASE);
+			}
+		});
+		
+		// Help
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.H, Modifiers.CTRL), new SwitchBind(this, EditorActions.HELP));
+		
+		// Open level
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.O, Modifiers.CTRL), new SwitchBind(this, EditorActions.OPEN_LEVEL));
+		
+		// New Level
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.N, Modifiers.CTRL), new SwitchBind(this, EditorActions.NEW_LEVEL));
+		
+		// Undo
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.Z, Modifiers.CTRL), new Action() {
+			@Override
+			public void onAction(Component source) {
+				if(isBlocking()) return;
+				editor.undo();
+			}
+		});
+		
+		// Auto tile
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.A, Modifiers.CTRL), new Action() {
+			@Override
+			public void onAction(Component source) {
+				if(isBlocking()) return;
+				editor.setAutoTiling(!editor.isAutoTiling());
+			}
+		});
+		
+		// Save
+		window.addKeyBind(new KeyBind(FocusType.WINDOW_FOCUS, Keys.X, Modifiers.CTRL), new Action() {
+			@Override
+			public void onAction(Component source) {
+				if(isBlocking()) return;
+				Level currentLevel = editor.getCurrentLevel();
+				System.out.println("Saving level " + currentLevel.getName());
+				LevelUtils.saveLevel(currentLevel);
+				editor.saved();
+			}
+		});
+		
+		window.addKeyListener(this);
+		window.addMouseListener(this);
 	}
 
 	public void update(float delta) {
@@ -67,11 +135,11 @@ public class ActionManager implements InputProcessor {
 		return previousAction;
 	}
 
-	public Action getCurrentActionInstance() {
+	public EditorAction getCurrentActionInstance() {
 		return currentActionInstance;
 	}
 
-	public Action getPreviousActionInstance() {
+	public EditorAction getPreviousActionInstance() {
 		return previousActionInstance;
 	}
 	
@@ -102,87 +170,21 @@ public class ActionManager implements InputProcessor {
 	}
 
 	@Override
-	public boolean keyDown(int keycode) {
-		currentActionInstance.keyDown(keycode);
-		return false;
+	public void onMouseMove(int x, int y) {
+		currentActionInstance.onMouseMove(x, y);
 	}
 
 	@Override
-	public boolean keyUp(int keycode) {
-		currentActionInstance.keyUp(keycode);
+	public void onMouseDrag(int x, int y) {
+		currentActionInstance.onMouseDrag(x, y);
+	}
 
-		if(keycode == Keys.ESCAPE) {
-			switchAction(EditorActions.SELECT);
-		}
+	@Override
+	public void onMouseUp(int x, int y, int button) {
+		currentActionInstance.onMouseUp(x, y, button);
 		
-		if (editor.ctrlDown() && !currentActionInstance.isBlocking()) {
-			// Save
-			if (keycode == Keys.X) {
-				Level currentLevel = editor.getCurrentLevel();
-				System.out.println("Saving level " + currentLevel.getName());
-				LevelUtils.saveLevel(currentLevel);
-				editor.saved();
-			} 
-			// Erase
-			else if(keycode == Keys.E) {
-				switchAction(EditorActions.ERASE);
-			}
-			// Auto Tile
-			else if(keycode == Keys.A) {
-				editor.setAutoTiling(!editor.isAutoTiling());
-			}
-			// Enemy Panel
-			else if(keycode == Keys.Q) {
-				switchAction(EditorActions.SELECT_ENEMY);
-			}
-			// Level Trigger Panel
-			else if(keycode == Keys.W) {
-				
-			}
-			// Undo
-			else if(keycode == Keys.Z) {
-				editor.undo();
-			}
-			// Fill
-			else if(keycode == Keys.F && editor.getTilePanel().getActiveTile() != null) {
-				switchAction(EditorActions.FILL);
-			}
-			// Help
-			else if(keycode == Keys.H) {
-				switchAction(EditorActions.HELP);
-			}
-			// New Level
-			else if(keycode == Keys.N) {
-				switchAction(EditorActions.NEW_LEVEL);
-			}
-			// Open Level
-			else if(keycode == Keys.O) {
-				switchAction(EditorActions.OPEN_LEVEL);
-			}
-		}
-
-		return false;
-	}
-
-	@Override
-	public boolean keyTyped(char character) {
-		currentActionInstance.keyTyped(character);
-		return false;
-	}
-
-	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		currentActionInstance.touchDown(screenX, screenY, pointer, button);
-		return false;
-	}
-
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		currentActionInstance.touchUp(screenX, screenY, pointer, button);
-		
-		Vector2 mousePos = editor.toHudCoords(screenX, screenY);
-		if(editor.onTilePanel(mousePos.x, mousePos.y) && !currentActionInstance.isBlocking()) {
-			TilesetTile tile = editor.getTilePanel().getTileAt(mousePos.x, mousePos.y);
+		if(editor.onTilePanel(x, y) && !currentActionInstance.isBlocking()) {
+			TilesetTile tile = editor.getTilePanel().getTileAt(x, y);
 			if(tile != null) {
 				editor.getTilePanel().setActiveTile(tile);
 				switchAction(EditorActions.PLACE);
@@ -190,24 +192,35 @@ public class ActionManager implements InputProcessor {
 				placeAction.setPlaceable(new PlaceableTile());
 			}
 		}
-		return false;
 	}
 
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		currentActionInstance.touchDragged(screenX, screenY, pointer);
-		return false;
+	public void onMouseDown(int x, int y, int button) {
+		currentActionInstance.onMouseDown(x, y, button);
 	}
 
 	@Override
-	public boolean mouseMoved(int screenX, int screenY) {
-		currentActionInstance.mouseMoved(screenX, screenY);
-		return false;
+	public void onMouseEnter(int x, int y) {
+		currentActionInstance.onMouseEnter(x, y);
 	}
 
 	@Override
-	public boolean scrolled(int amount) {
-		currentActionInstance.scrolled(amount);
-		return false;
+	public void onMouseExit(int x, int y) {
+		currentActionInstance.onMouseExit(x, y);
+	}
+
+	@Override
+	public void onKeyPress(int keycode) {
+		currentActionInstance.onKeyPress(keycode);
+	}
+
+	@Override
+	public void onKeyRelease(int keycode) {
+		currentActionInstance.onKeyRelease(keycode);
+	}
+
+	@Override
+	public void onKeyType(char character) {
+		currentActionInstance.onKeyType(character);
 	}
 }

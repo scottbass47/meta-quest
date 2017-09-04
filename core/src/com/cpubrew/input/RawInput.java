@@ -175,6 +175,7 @@ public class RawInput implements InputProcessor, ControllerListener{
 
 	@Override
 	public boolean scrolled(int amount) {
+		Mouse.scrolled(amount);
 		for(InputProcessor input : inputProcessors){
 			input.scrolled(amount);
 		}

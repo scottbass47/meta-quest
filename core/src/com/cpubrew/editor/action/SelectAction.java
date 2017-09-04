@@ -20,11 +20,12 @@ import com.cpubrew.editor.command.DeleteCommand;
 import com.cpubrew.editor.command.PasteCommand;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
+import com.cpubrew.gui.KeyBoardManager;
 import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.utils.Maths;
 
-public class SelectAction extends Action {
+public class SelectAction extends EditorAction {
 	
 	private ShapeRenderer shape;
 	private Array<Selectable<?>> selected;
@@ -174,18 +175,18 @@ public class SelectAction extends Action {
 	}
 	
 	@Override
-	public boolean keyUp(int keycode) {
+	public void onKeyRelease(int keycode) {
 		if(keycode == Keys.DEL) {
 			DeleteCommand delete = new DeleteCommand(selected);
 			editor.executeCommand(delete);
 			selected.clear();
 			areaSelected = false;
-		} else if(editor.ctrlDown() && keycode == Keys.C) {
+		} else if(KeyBoardManager.isControlDown() && keycode == Keys.C) {
 			clipboard.clear();
 			for(Selectable<?> select : selected) {
 				clipboard.add(select);
 			}
-		} else if(editor.ctrlDown() && keycode == Keys.V && clipboard.size > 0) {
+		} else if(KeyBoardManager.isControlDown() && keycode == Keys.V && clipboard.size > 0) {
 //			copied = true;
 			selected.clear();
 			
@@ -193,19 +194,18 @@ public class SelectAction extends Action {
 			editor.executeCommand(paste);
 			selected.addAll(paste.getSelected());
 		}
-		return false;
 	}
 	
+
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		currentCoords.set(editor.toWorldCoords(editor.toHudCoords(screenX, screenY)));
+	public void onMouseDrag(int x, int y) {
+		currentCoords.set(editor.toWorldCoords(x, y));
 		selectRect = getSelectRect(startCoords, currentCoords, tiles);
-		return false;
 	}
 	
 	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-		Vector2 coords = editor.toHudCoords(screenX, screenY);
+	public void onMouseDown(int x, int y, int button) {
+		Vector2 coords = new Vector2(x, y);
 		Vector2 worldCoords = editor.toWorldCoords(coords);
 		startCoords = editor.toWorldCoords(coords.x, coords.y);
 		currentCoords.set(startCoords);
@@ -238,26 +238,24 @@ public class SelectAction extends Action {
 			selected.clear();
 			mouseDown = true;
 			areaSelected = false;
-			tiles = editor.shiftDown();
+			tiles = KeyBoardManager.isShiftDown();
 			magicSelect = false;
 			selectRect.x = startCoords.x;
 			selectRect.y = startCoords.y;
 			selectRect.width = 0.0f;
 			selectRect.height = 0.0f;
 		}		
-		
-		return false;
 	}
-	
+		
 	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		Vector2 hudCoords = editor.toHudCoords(screenX, screenY);
+	public void onMouseUp(int x, int y, int button) {
+		Vector2 hudCoords = new Vector2(x, y);
 		Vector2 endCoords = editor.toWorldCoords(hudCoords.x, hudCoords.y);
 		
 		selectRect = getSelectRect(startCoords, endCoords, tiles);
 		
 		// Select tiles
-		if(editor.ctrlDown()) {
+		if(KeyBoardManager.isControlDown()) {
 			magicSelect = true;
 			int row = Maths.toGridCoord(endCoords.y);
 			int col = Maths.toGridCoord(endCoords.x);
@@ -296,7 +294,6 @@ public class SelectAction extends Action {
 		}
 		areaSelected = selected.size > 0;
 		mouseDown = false;
-		return false;
 	}
 	
 	private void magicSelectTiles(int row, int col) {

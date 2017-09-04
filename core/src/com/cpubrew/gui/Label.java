@@ -6,12 +6,10 @@ import com.badlogic.gdx.graphics.g2d.GlyphLayout;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.assets.AssetLoader;
 
-public class Label extends Component{
+public class Label extends Component {
 
 	private String text;
 	private GlyphLayout layout;
-	private Color backgroundColor;
-	private Color fontColor;
 	private BitmapFont font;
 	
 	public Label() {
@@ -23,7 +21,8 @@ public class Label extends Component{
 		font = AssetLoader.getInstance().getFont(AssetLoader.font18);
 		layout = new GlyphLayout();
 		backgroundColor = Color.BLACK;
-		fontColor = Color.WHITE;
+		foregroundColor = Color.WHITE;
+		setRenderBackground(false);
 	}
 	
 	@Override
@@ -34,7 +33,7 @@ public class Label extends Component{
 	public void render(SpriteBatch batch) {
 		layout.setText(font, text);
 		
-		font.setColor(fontColor);
+		font.setColor(foregroundColor);
 		font.draw(batch, text, x + width * 0.5f - layout.width * 0.5f, y + height * 0.5f + layout.height * 0.5f);
 		font.setColor(Color.WHITE);
 	}
@@ -45,22 +44,6 @@ public class Label extends Component{
 
 	public void setText(String text) {
 		this.text = text;
-	}
-
-	public Color getBackgroundColor() {
-		return backgroundColor;
-	}
-
-	public void setBackgroundColor(Color backgroundColor) {
-		this.backgroundColor = backgroundColor;
-	}
-
-	public Color getFontColor() {
-		return fontColor;
-	}
-
-	public void setFontColor(Color fontColor) {
-		this.fontColor = fontColor;
 	}
 
 	public BitmapFont getFont() {

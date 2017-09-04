@@ -3,8 +3,6 @@ package com.cpubrew.arena;
 import com.badlogic.gdx.files.FileHandle;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.cpubrew.game.GdxGame;
-import com.cpubrew.gui.UIManager;
 import com.cpubrew.gui.Window;
 import com.cpubrew.level.LevelManager;
 import com.cpubrew.utils.EntityUtils;
@@ -19,10 +17,10 @@ public class Arena {
 	private ArenaDeathScreen deathScreen;
 	private boolean stopped = true;
 	
-	public Arena(LevelManager levelManager, OrthographicCamera hudCamera, UIManager ui) {
+	public Arena(LevelManager levelManager, OrthographicCamera hudCamera) {
 		this.levelManager = levelManager;
 		
-		arenaWindow = ui.newWindow("Arena");
+		arenaWindow = new Window("Arena");
 		
 		game = new ArenaGame(this, hudCamera);
 		playerScreen = new PickPlayerScreen(this, hudCamera);

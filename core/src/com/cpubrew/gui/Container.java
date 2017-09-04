@@ -50,6 +50,8 @@ public class Container extends Component {
 	@Override
 	public void render(SpriteBatch batch) {
 		if(!isVisible()) return;
+		if(renderingBackground()) renderBackground(batch);
+
 		batch.end();
 		Matrix4 old = batch.getProjectionMatrix();
 		
@@ -57,17 +59,23 @@ public class Container extends Component {
 		matrix.translate(x, y, 0);
 		batch.setProjectionMatrix(matrix);
 		batch.begin();
+		
+		
 		for(Component component : components) {
 			if(!component.isVisible()) return;
+			if(component.renderingBackground()) component.renderBackground(batch);
+			component.render(batch);
 			if(component.isDebugRender()) {
 				component.debugRender(batch);
 			}
-			component.render(batch);
 		}
+		
 		batch.end();
 		
 		batch.setProjectionMatrix(old);
 		batch.begin();
+
+		if(isDebugRender()) debugRender(batch);
 	}
 	
 	public Component getFirstComponentAt(int x, int y) {

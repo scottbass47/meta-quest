@@ -7,7 +7,7 @@ import com.cpubrew.editor.LevelEditor;
 import com.cpubrew.editor.Selectable;
 import com.cpubrew.editor.command.MoveCommand;
 
-public class MoveAction extends Action{
+public class MoveAction extends EditorAction{
 
 	private Array<Selectable<?>> selected;
 	private Vector2 offset;
@@ -58,16 +58,14 @@ public class MoveAction extends Action{
 	}
 	
 	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		Vector2 worldCoords = editor.toWorldCoords(editor.toHudCoords(screenX, screenY));
+	public void onMouseDrag(int x, int y) {
+		Vector2 worldCoords = editor.toWorldCoords(x, y);
 		offset = worldCoords.sub(start);
-		return false;
 	}
-	
+
 	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+	public void onMouseUp(int x, int y, int button) {
 		move();
-		return false;
 	}
 	
 	public void setStart(Vector2 start) {

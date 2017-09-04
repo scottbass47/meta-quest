@@ -2,10 +2,9 @@ package com.cpubrew.editor;
 
 import java.util.Iterator;
 
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
@@ -96,8 +95,8 @@ public class TilePanel {
 	}
 	
 	public void render(OrthographicCamera hudCamera, SpriteBatch batch) {
-		Gdx.gl.glEnable(GL11.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
+		Gdx.gl.glEnable(GL20.GL_BLEND);
+	    Gdx.gl.glBlendFunc(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
 		
 		shapeRenderer.setProjectionMatrix(hudCamera.combined);
 		
@@ -112,10 +111,12 @@ public class TilePanel {
 		renderTileset(batch);
 		batch.setProjectionMatrix(old);
 		
-		Gdx.gl.glDisable(GL11.GL_BLEND);
+		Gdx.gl.glDisable(GL20.GL_BLEND);
 	}
 
 	private void renderTileset(SpriteBatch batch) {
+		
+	    
 		batch.begin();
 		
 		for(Rectangle rect : tileMap.keys()) {

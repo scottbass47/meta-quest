@@ -23,7 +23,6 @@ import com.cpubrew.entity.EntityLoader;
 import com.cpubrew.entity.EntityManager;
 import com.cpubrew.factory.EntityFactory;
 import com.cpubrew.game.PauseMenu;
-import com.cpubrew.gui.UIManager;
 import com.cpubrew.input.GameInput;
 import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
@@ -51,7 +50,7 @@ public class LevelManager{
 	private LevelEditor editor;
 	private boolean editorActive = false;
 	
-	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, OrthographicCamera hudCamera, GameInput input, UIManager ui){
+	public LevelManager(Engine engine, World world, SpriteBatch batch, OrthographicCamera worldCamera, OrthographicCamera hudCamera, GameInput input){
 		this.engine = engine;
 		this.world = world;
 		this.batch = batch;
@@ -63,7 +62,7 @@ public class LevelManager{
 		camera = EntityFactory.createCamera(worldCamera);
 		EntityManager.addEntity(camera);
 		
-		editor = new LevelEditor(ui);
+		editor = new LevelEditor();
 	}
 	
 	// SWITCHING LEVELS
@@ -170,7 +169,6 @@ public class LevelManager{
 		editor.setCurrentLevel(currentLevel);
 		editor.setWorldCamera(worldCamera);
 		editor.setHudCamera(hudCamera);
-		input.getRawInput().addInput(editor);
 		
 		editorActive = true;
 		DebugInput.disable();
@@ -180,7 +178,6 @@ public class LevelManager{
 	public void switchToPlayMode() {
 		editor.onExit();
 		editorActive = false;
-		input.getRawInput().removeInput(editor);
 		switchLevel(editor.getCurrentLevel().getName());
 		DebugInput.enable();
 	}

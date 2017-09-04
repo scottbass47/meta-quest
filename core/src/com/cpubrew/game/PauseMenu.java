@@ -1,9 +1,6 @@
 package com.cpubrew.game;
 
-import org.lwjgl.opengl.GL11;
-
 import com.badlogic.ashley.core.Entity;
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
@@ -91,8 +88,6 @@ public class PauseMenu {
 	
 	public void render(SpriteBatch batch){
 		// Begin
-		Gdx.gl.glEnable(GL11.GL_BLEND);
-		Gdx.gl.glBlendFunc(GL11.GL_SRC_ALPHA, GL11.GL_ONE_MINUS_SRC_ALPHA);
 		renderer.setProjectionMatrix(batch.getProjectionMatrix());
 		renderer.begin(ShapeType.Filled);
 		
@@ -126,7 +121,6 @@ public class PauseMenu {
 		}
 		batch.setColor(Color.WHITE);
 		batch.end();
-		Gdx.gl.glDisable(GL11.GL_BLEND);
 	}
 	
 	public static void setPlayer(Entity p){

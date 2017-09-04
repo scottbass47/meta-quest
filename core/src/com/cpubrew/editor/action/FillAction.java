@@ -12,7 +12,7 @@ import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.level.tiles.MapTile.TileType;
 import com.cpubrew.utils.Maths;
 
-public class FillAction extends Action {
+public class FillAction extends EditorAction {
 
 	private GridPoint currTile;
 	private Array<GridPoint> fillTiles;
@@ -53,10 +53,9 @@ public class FillAction extends Action {
 	}
 	
 	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+	public void onMouseUp(int x, int y, int button) {
 		TilePanel tilePanel = editor.getTilePanel();
 		editor.executeCommand(new FillCommand(fillTiles, tilePanel.getActiveTile().getID(), TileType.GROUND));
-		return false;
 	}
 	
 	private void brushFire(int row, int col) {
