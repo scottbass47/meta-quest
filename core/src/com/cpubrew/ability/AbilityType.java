@@ -1,0 +1,33 @@
+package com.cpubrew.ability;
+
+public enum AbilityType {
+
+	// Knight
+	ANTI_MAGNETIC_ARMOR,
+	PARRY,
+	KICK,
+	OVERHEAD_SWING,
+	SLAM,
+	BLACKSMITH,
+	TORNADO,
+	SPIN_SLICE,
+	DASH_SLASH,
+	
+	// Rogue
+	DYNAMITE,
+	HOMING_KNIVES,
+	VANISH,
+	DASH,
+	BOOMERANG,
+	EXECUTE,
+	BOW,
+	FLASH_POWDER,
+	BALLOON_TRAP,
+	
+	// Monk
+	WIND_BURST,
+	POISON_DEBUFF,
+	INSTA_WALL
+	
+	
+}
