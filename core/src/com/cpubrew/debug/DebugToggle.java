@@ -1,5 +1,10 @@
 package com.cpubrew.debug;
 
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.Graphics.DisplayMode;
+import com.badlogic.gdx.Graphics.Monitor;
+import com.cpubrew.game.GameVars;
+
 public enum DebugToggle {
 
 	FPS('p') {
@@ -66,6 +71,14 @@ public enum DebugToggle {
 		@Override
 		public void onToggle() {
 			DebugVars.FULLSCREEN_MODE = !DebugVars.FULLSCREEN_MODE;
+			
+			if(DebugVars.FULLSCREEN_MODE) {
+				Monitor monitor = Gdx.graphics.getMonitor();
+				DisplayMode displayMode = Gdx.graphics.getDisplayMode(monitor);
+				Gdx.graphics.setFullscreenMode(displayMode);
+			} else {
+				Gdx.graphics.setWindowedMode(GameVars.SCREEN_WIDTH, GameVars.SCREEN_HEIGHT);
+			}
 		}
 	};
 	
