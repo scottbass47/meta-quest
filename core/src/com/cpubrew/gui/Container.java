@@ -4,16 +4,15 @@ package com.cpubrew.gui;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Matrix4;
 import com.badlogic.gdx.math.Rectangle;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 
 public class Container extends Component {
 
 	protected Array<Component> components;
-	private Matrix4 matrix;
 	
 	public Container() {
 		components = new Array<Component>();
-		matrix = new Matrix4();
 	}
 	
 	public void add(Component component) {
@@ -54,12 +53,11 @@ public class Container extends Component {
 
 		batch.end();
 		Matrix4 old = batch.getProjectionMatrix();
+		Vector3 translation = new Vector3(x, y, 0);
+		old.translate(translation);
 		
-		matrix.set(old);
-		matrix.translate(x, y, 0);
-		batch.setProjectionMatrix(matrix);
+		batch.setProjectionMatrix(old);
 		batch.begin();
-		
 		
 		for(Component component : components) {
 			if(!component.isVisible()) return;
@@ -71,6 +69,8 @@ public class Container extends Component {
 		}
 		
 		batch.end();
+		
+		old.translate(new Vector3().sub(translation));
 		
 		batch.setProjectionMatrix(old);
 		batch.begin();

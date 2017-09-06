@@ -10,12 +10,12 @@ import static com.cpubrew.entity.EntityType.BASE_TILE;
 import static com.cpubrew.entity.EntityType.BOOMERANG;
 import static com.cpubrew.entity.EntityType.BULLET;
 import static com.cpubrew.entity.EntityType.CAMERA;
+import static com.cpubrew.entity.EntityType.CLUB_GREMLIN;
 import static com.cpubrew.entity.EntityType.COIN;
 import static com.cpubrew.entity.EntityType.DAMAGE_TEXT;
 import static com.cpubrew.entity.EntityType.DYNAMITE;
 import static com.cpubrew.entity.EntityType.EXPLOSION;
 import static com.cpubrew.entity.EntityType.EXPLOSIVE_PARTICLE;
-import static com.cpubrew.entity.EntityType.GOAT;
 import static com.cpubrew.entity.EntityType.HOMING_KNIFE;
 import static com.cpubrew.entity.EntityType.KNIGHT;
 import static com.cpubrew.entity.EntityType.LEVEL_TRIGGER;
@@ -90,13 +90,13 @@ import com.cpubrew.ai.tasks.FlyTask;
 import com.cpubrew.ai.tasks.FollowPathTask;
 import com.cpubrew.ai.tasks.InLoSTask;
 import com.cpubrew.ai.tasks.InRangeTask;
+import com.cpubrew.ai.tasks.InRangeTask.RangeTest;
 import com.cpubrew.ai.tasks.InStateTask;
+import com.cpubrew.ai.tasks.InStateTask.SMType;
 import com.cpubrew.ai.tasks.OnGroundTask;
 import com.cpubrew.ai.tasks.OnTileTask;
 import com.cpubrew.ai.tasks.ReleaseControlsTask;
 import com.cpubrew.ai.tasks.TargetOnPlatformTask;
-import com.cpubrew.ai.tasks.InRangeTask.RangeTest;
-import com.cpubrew.ai.tasks.InStateTask.SMType;
 import com.cpubrew.assets.Asset;
 import com.cpubrew.assets.AssetLoader;
 import com.cpubrew.audio.AudioLocator;
@@ -118,7 +118,9 @@ import com.cpubrew.component.CombustibleComponent;
 import com.cpubrew.component.ControlledMovementComponent;
 import com.cpubrew.component.DamageComponent;
 import com.cpubrew.component.DeathComponent;
+import com.cpubrew.component.DeathComponent.DeathBehavior;
 import com.cpubrew.component.DirectionComponent;
+import com.cpubrew.component.DirectionComponent.Direction;
 import com.cpubrew.component.DropComponent;
 import com.cpubrew.component.DropMovementComponent;
 import com.cpubrew.component.ESMComponent;
@@ -133,6 +135,7 @@ import com.cpubrew.component.HealthComponent;
 import com.cpubrew.component.ImmuneComponent;
 import com.cpubrew.component.InputComponent;
 import com.cpubrew.component.InvincibilityComponent;
+import com.cpubrew.component.InvincibilityComponent.InvincibilityType;
 import com.cpubrew.component.JumpComponent;
 import com.cpubrew.component.KnightComponent;
 import com.cpubrew.component.LevelComponent;
@@ -161,6 +164,7 @@ import com.cpubrew.component.StateComponent;
 import com.cpubrew.component.StatusComponent;
 import com.cpubrew.component.SwingComponent;
 import com.cpubrew.component.TargetComponent;
+import com.cpubrew.component.TargetComponent.TargetBehavior;
 import com.cpubrew.component.TextRenderComponent;
 import com.cpubrew.component.TextureComponent;
 import com.cpubrew.component.TimeListener;
@@ -168,10 +172,6 @@ import com.cpubrew.component.TimerComponent;
 import com.cpubrew.component.VelocityComponent;
 import com.cpubrew.component.WeightComponent;
 import com.cpubrew.component.WorldComponent;
-import com.cpubrew.component.DeathComponent.DeathBehavior;
-import com.cpubrew.component.DirectionComponent.Direction;
-import com.cpubrew.component.InvincibilityComponent.InvincibilityType;
-import com.cpubrew.component.TargetComponent.TargetBehavior;
 import com.cpubrew.debug.DebugRender;
 import com.cpubrew.debug.DebugVars;
 import com.cpubrew.effects.EffectDef;
@@ -201,15 +201,15 @@ import com.cpubrew.fsm.StateMachine;
 import com.cpubrew.fsm.StateObject;
 import com.cpubrew.fsm.StateObjectCreator;
 import com.cpubrew.fsm.transition.CollisionTransitionData;
+import com.cpubrew.fsm.transition.CollisionTransitionData.CollisionType;
 import com.cpubrew.fsm.transition.InputTransitionData;
+import com.cpubrew.fsm.transition.InputTransitionData.Type;
 import com.cpubrew.fsm.transition.RandomTransitionData;
 import com.cpubrew.fsm.transition.TimeTransitionData;
 import com.cpubrew.fsm.transition.Transition;
 import com.cpubrew.fsm.transition.TransitionObject;
 import com.cpubrew.fsm.transition.TransitionTag;
 import com.cpubrew.fsm.transition.Transitions;
-import com.cpubrew.fsm.transition.CollisionTransitionData.CollisionType;
-import com.cpubrew.fsm.transition.InputTransitionData.Type;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.input.Actions;
 import com.cpubrew.input.Input;
@@ -258,8 +258,6 @@ public class EntityFactory {
 	// BUG Rocky sometimes gets stuck in a loop swinging (can't replicate)
 	// BUG Auto-saving iterator() nested
 	// BUG DamageOnCollide should do a preSolve check
-	// BUG Small glitch in bird ai when entering range for swoop attack
-	// BUG Drill gremlin doesn't stay restricted to platform
 	
 	// ------------
 	// Optimization
@@ -2103,30 +2101,30 @@ public class EntityFactory {
 	// ---------------------------------------------
 	// -                 ENEMIES                   -
 	// ---------------------------------------------
-	public static Entity createGoat(float x, float y) {
+	public static Entity createClubGremlin(float x, float y) {
 		// Stats
-		EntityStats stats = EntityLoader.get(EntityIndex.GOAT);
+		EntityStats stats = EntityLoader.get(EntityIndex.CLUB_GREMLIN);
 		
 		// Setup Animations
 		ArrayMap<State, Animation<TextureRegion>> animMap = new ArrayMap<State, Animation<TextureRegion>>();
-		animMap.put(EntityAnim.IDLE, assets.getAnimation(Asset.GOAT_IDLE));
-		animMap.put(EntityAnim.RUN, assets.getAnimation(Asset.GOAT_WALK));
-		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.GOAT_SWING_ATTACK));
+		animMap.put(EntityAnim.IDLE,  assets.getAnimation(Asset.CLUB_GREMLIN_IDLE));
+		animMap.put(EntityAnim.RUN,   assets.getAnimation(Asset.CLUB_GREMLIN_WALK));
+		animMap.put(EntityAnim.SWING, assets.getAnimation(Asset.CLUB_GREMLIN_SWING_ATTACK));
 		
 		// Controller
 		AIController controller = new AIController();
 		
 		// Setup Player
-		Entity goat = new EntityBuilder(GOAT, ENEMY)
+		Entity clubGremlin = new EntityBuilder(CLUB_GREMLIN, ENEMY)
 				.ai(controller)
 				.animation(animMap)
 				.mob(controller, stats.get("health"), stats.get("weight"))
-				.physics("goat.json", x, y, true)
+				.physics("club_gremlin.json", x, y, true)
 				.render(true)
 				.build();
-		goat.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
+		clubGremlin.add(engine.createComponent(MoneyComponent.class).set((int)stats.get("money")));
 
-		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Goat ESM", engine, goat)
+		EntityStateMachine esm = new StateFactory.EntityStateBuilder("Club Gremlin ESM", engine, clubGremlin)
 				.idle()
 				.run(stats.get("ground_speed"))
 				.build();
@@ -2139,8 +2137,8 @@ public class EntityFactory {
 			.addTag(TransitionTag.AIR_STATE);
 		
 		esm.createState(EntityStates.SWING_ATTACK)
-			.add(engine.createComponent(FrameMovementComponent.class).set("goat/frames_overhead_swing", true))
-			.add(engine.createComponent(SwingComponent.class).set(2.0f, 2.0f, 120, -60, GameVars.ANIM_FRAME * 5, stats.get("sword_damage"), stats.get("sword_knockback")))
+			.add(engine.createComponent(NoMovementComponent.class))
+			.add(engine.createComponent(SwingComponent.class).set(2.0f, 2.0f, 120, -60, GameVars.ANIM_FRAME * 8, stats.get("sword_damage"), stats.get("sword_knockback")))
 			.addAnimation(EntityAnim.SWING)
 			.addTag(TransitionTag.STATIC_STATE)
 			.addChangeListener(new StateChangeListener() {
@@ -2173,7 +2171,7 @@ public class EntityFactory {
 		esm.changeState(EntityStates.IDLING);
 		
 		BehaviorTree<Entity> tree = new BehaviorTree<Entity>();
-		tree.setObject(goat);
+		tree.setObject(clubGremlin);
 
 		Selector<Entity> rootSelector = new Selector<Entity>();
 		
@@ -2191,9 +2189,9 @@ public class EntityFactory {
 		rootSelector.addChild(BTFactory.patrol(1.25f));
 		
 		tree.addChild(rootSelector);
-		goat.add(engine.createComponent(BTComponent.class).set(tree));
+		clubGremlin.add(engine.createComponent(BTComponent.class).set(tree));
 		
-		return goat;
+		return clubGremlin;
 	}
 	
 	public static Entity createSpawner(float x, float y){

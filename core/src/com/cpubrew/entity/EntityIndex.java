@@ -109,15 +109,15 @@ public enum EntityIndex {
 	},
 	
 	// Enemies
-	GOAT {
+	CLUB_GREMLIN {
 		@Override
 		public Entity create(float x, float y) {
-			return EntityFactory.createGoat(x, y);
+			return EntityFactory.createClubGremlin(x, y);
 		}
 
 		@Override
 		public Animation<TextureRegion> getIdleAnimation() {
-			return AssetLoader.getInstance().getAnimation(Asset.GOAT_IDLE);
+			return AssetLoader.getInstance().getAnimation(Asset.CLUB_GREMLIN_IDLE);
 		}
 
 		@Override

@@ -10,7 +10,7 @@ public enum EntityType {
 	MONK,
 	
 	// Enemies
-	GOAT,
+	CLUB_GREMLIN,
 	WINGS,
 	SPAWNER,
 	BOAR,

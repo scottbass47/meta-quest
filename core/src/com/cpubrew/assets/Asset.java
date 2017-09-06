@@ -126,10 +126,10 @@ public enum Asset {
 	BOAR_CHARGE_ANTICIPATION(Atlas.ENTITY, "charge_anticipation/boar_charge_anticipation"),
 	BOAR_CHARGE_COOLDOWN(Atlas.ENTITY, "charge_cooldown/boar_charge_cooldown"),
 	
-	// Goat
-	GOAT_IDLE(Atlas.ENTITY, "idle/goat_idle"),
-	GOAT_WALK(Atlas.ENTITY, "walk/goat_walk"),
-	GOAT_SWING_ATTACK(Atlas.ENTITY, "swing/goat_swing"),
+	// Club Gremlin
+	CLUB_GREMLIN_IDLE		  (Atlas.ENTITY, "idle/club_gremlin_idle"),
+	CLUB_GREMLIN_WALK		  (Atlas.ENTITY, "walk/club_gremlin_walk"),
+	CLUB_GREMLIN_SWING_ATTACK (Atlas.ENTITY, "swing/club_gremlin_swing"),
 	
 	// Gun Gremlin
 	GUN_GREMLIN_IDLE         (Atlas.ENTITY, "idle/gun_gremlin_idle"),
