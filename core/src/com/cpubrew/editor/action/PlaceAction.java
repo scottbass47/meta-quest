@@ -4,6 +4,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.cpubrew.editor.Placeable;
 import com.cpubrew.editor.command.Command;
+import com.cpubrew.gui.MouseEvent;
 
 public class PlaceAction extends EditorAction {
 
@@ -37,9 +38,9 @@ public class PlaceAction extends EditorAction {
 	}
 	
 	@Override
-	public void onMouseDrag(int x, int y) {
+	public void onMouseDrag(MouseEvent ev) {
 		if(!editor.isMouseOnMap()) return;
-		Vector2 mousePos = editor.toWorldCoords(x, y);
+		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
 		if(!activePlaceable.placeOnClick()) {
 			Command command = activePlaceable.onClick(mousePos, editor);
 			editor.executeCommand(command);
@@ -47,9 +48,9 @@ public class PlaceAction extends EditorAction {
 	}
 	
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 		if(!editor.isMouseOnMap()) return;
-		Vector2 mousePos = editor.toWorldCoords(x, y);
+		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
 		Command command = activePlaceable.onClick(mousePos, editor);
 		editor.executeCommand(command);
 	}

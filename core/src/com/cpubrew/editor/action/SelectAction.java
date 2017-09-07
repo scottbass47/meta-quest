@@ -21,6 +21,8 @@ import com.cpubrew.editor.command.PasteCommand;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.gui.KeyBoardManager;
+import com.cpubrew.gui.KeyEvent;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.utils.Maths;
@@ -175,7 +177,8 @@ public class SelectAction extends EditorAction {
 	}
 	
 	@Override
-	public void onKeyRelease(int keycode) {
+	public void onKeyRelease(KeyEvent ev) {
+		int keycode = ev.getKey();
 		if(keycode == Keys.DEL) {
 			DeleteCommand delete = new DeleteCommand(selected);
 			editor.executeCommand(delete);
@@ -198,14 +201,14 @@ public class SelectAction extends EditorAction {
 	
 
 	@Override
-	public void onMouseDrag(int x, int y) {
-		currentCoords.set(editor.toWorldCoords(x, y));
+	public void onMouseDrag(MouseEvent ev) {
+		currentCoords.set(editor.toWorldCoords(ev.getX(), ev.getY()));
 		selectRect = getSelectRect(startCoords, currentCoords, tiles);
 	}
 	
 	@Override
-	public void onMouseDown(int x, int y, int button) {
-		Vector2 coords = new Vector2(x, y);
+	public void onMouseDown(MouseEvent ev) {
+		Vector2 coords = new Vector2(ev.getX(), ev.getY());
 		Vector2 worldCoords = editor.toWorldCoords(coords);
 		startCoords = editor.toWorldCoords(coords.x, coords.y);
 		currentCoords.set(startCoords);
@@ -248,8 +251,8 @@ public class SelectAction extends EditorAction {
 	}
 		
 	@Override
-	public void onMouseUp(int x, int y, int button) {
-		Vector2 hudCoords = new Vector2(x, y);
+	public void onMouseUp(MouseEvent ev) {
+		Vector2 hudCoords = new Vector2(ev.getX(), ev.getY());
 		Vector2 endCoords = editor.toWorldCoords(hudCoords.x, hudCoords.y);
 		
 		selectRect = getSelectRect(startCoords, endCoords, tiles);

@@ -3,7 +3,9 @@ package com.cpubrew.editor.action;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.LevelEditor;
+import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.KeyListener;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.gui.MouseListener;
 
 public abstract class EditorAction implements KeyListener, MouseListener {
@@ -44,38 +46,38 @@ public abstract class EditorAction implements KeyListener, MouseListener {
 	}
 
 	@Override
-	public void onKeyPress(int keycode) {
+	public void onKeyPress(KeyEvent ev) {
 	}
 
 	@Override
-	public void onKeyRelease(int keycode) {
+	public void onKeyRelease(KeyEvent ev) {
 	}
 
 	@Override
-	public void onKeyType(char character) {
+	public void onKeyType(KeyEvent ev) {
 	}
 
 	@Override
-	public void onMouseDown(int x, int y, int button) {
+	public void onMouseDown(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 	}
 	
 	@Override
-	public void onMouseMove(int x, int y) {
+	public void onMouseMove(MouseEvent ev) {
 	}
 	
 	@Override
-	public void onMouseDrag(int x, int y) {
+	public void onMouseDrag(MouseEvent ev) {
 	}
 	
 	@Override
-	public void onMouseEnter(int x, int y) {
+	public void onMouseEnter(MouseEvent ev) {
 	}
 	
 	@Override
-	public void onMouseExit(int x, int y) {
+	public void onMouseExit(MouseEvent ev) {
 	}
 }

@@ -5,6 +5,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.cpubrew.editor.command.EraseCommand;
 import com.cpubrew.game.GameVars;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.utils.Maths;
 
 public class EraseAction extends EditorAction {
@@ -47,15 +48,15 @@ public class EraseAction extends EditorAction {
 	}
 	
 	@Override
-	public void onMouseDrag(int x, int y) {
-		mouseX = x;
-		mouseY = y;
+	public void onMouseDrag(MouseEvent ev) {
+		mouseX = ev.getX();
+		mouseY = ev.getY();
 	}
 	
 	@Override
-	public void onMouseMove(int x, int y) {
-		mouseX = x;
-		mouseY = y;
+	public void onMouseMove(MouseEvent ev) {
+		mouseX = ev.getX();
+		mouseY = ev.getY();
 	}
 
 }

@@ -53,17 +53,17 @@ public class Button extends Component implements MouseListener{
 	
 
 	@Override
-	public void onMouseMove(int x, int y) {
+	public void onMouseMove(MouseEvent ev) {
 		backgroundColor = hoverColor;
 	}
 
 	@Override
-	public void onMouseDrag(int x, int y) {
+	public void onMouseDrag(MouseEvent ev) {
 		backgroundColor = pressColor;
 	}
 
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 		for(ActionListener listener : listeners) {
 			listener.onAction(new ActionEvent(this));
 		}
@@ -71,17 +71,17 @@ public class Button extends Component implements MouseListener{
 	}
 
 	@Override
-	public void onMouseDown(int x, int y, int button) {
+	public void onMouseDown(MouseEvent ev) {
 		backgroundColor = pressColor;
 	}
 	
 	@Override
-	public void onMouseEnter(int x, int y) {
+	public void onMouseEnter(MouseEvent ev) {
 		backgroundColor = hoverColor;
 	}
 
 	@Override
-	public void onMouseExit(int x, int y) {
+	public void onMouseExit(MouseEvent ev) {
 		backgroundColor = noActionColor;
 	}
 	

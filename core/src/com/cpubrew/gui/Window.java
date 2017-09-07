@@ -28,7 +28,6 @@ public final class Window extends Container implements InputProcessor {
 	public void render(SpriteBatch batch) {
 		batch.setProjectionMatrix(hudCamera.combined);
 		batch.begin();
-		if(isDebugRender()) debugRender(batch);
 		if(components.size == 0) return;
 		super.render(batch);
 		batch.end();
@@ -59,7 +58,7 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean keyDown(int keycode) {
 		if(interactable(focusedComponent)) {
 			for(KeyListener listener : focusedComponent.getKeyListeners()) {
-				listener.onKeyPress(keycode);
+				listener.onKeyPress(new KeyEvent(focusedComponent, keycode));
 			}
 		}
 		return true;
@@ -69,7 +68,7 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean keyUp(int keycode) {
 		if(interactable(focusedComponent)) {
 			for(KeyListener listener : focusedComponent.getKeyListeners()) {
-				listener.onKeyRelease(keycode);
+				listener.onKeyRelease(new KeyEvent(focusedComponent, keycode));
 			}
 		}
 		return true;
@@ -79,7 +78,7 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean keyTyped(char character) {
 		if(interactable(focusedComponent)) {
 			for(KeyListener listener : focusedComponent.getKeyListeners()) {
-				listener.onKeyType(character);
+				listener.onKeyType(new KeyEvent(focusedComponent, character));
 			}
 		}
 		return true;
@@ -89,7 +88,7 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		Component comp = getFirstComponentAt(screenX, screenY);
 		for(MouseListener listener : comp.getMouseListeners()) {
-			listener.onMouseDown(screenX - comp.getX(), screenY - comp.getY(), button);
+			listener.onMouseDown(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY(), button));
 		}
 		return true;
 	}
@@ -98,7 +97,7 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean touchUp(int screenX, int screenY, int pointer, int button) {
 		Component comp = getFirstComponentAt(screenX, screenY);
 		for(MouseListener listener : comp.getMouseListeners()) {
-			listener.onMouseUp(screenX - comp.getX(), screenY - comp.getY(), button);
+			listener.onMouseUp(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY(), button));
 		}
 		
 		giveFocus(comp);
@@ -109,19 +108,19 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean touchDragged(int screenX, int screenY, int pointer) {
 		Component comp = getFirstComponentAt(screenX, screenY);
 		for(MouseListener listener : comp.getMouseListeners()) {
-			listener.onMouseDrag(screenX - comp.getX(), screenY - comp.getY());
+			listener.onMouseDrag(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 		}
 		
 		// If the mouse is on a new component, do mouse enter / exit
 		if(!same(comp, mouseComponent)) {
 			if(mouseComponent != null) {
 				for(MouseListener listener : mouseComponent.getMouseListeners()) {
-					listener.onMouseExit(screenX - comp.getX(), screenY - comp.getY());
+					listener.onMouseExit(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 				}
 			}
 			
 			for(MouseListener listener : comp.getMouseListeners()) {
-				listener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
+				listener.onMouseEnter(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 			}
 			
 			mouseComponent = comp;
@@ -134,19 +133,19 @@ public final class Window extends Container implements InputProcessor {
 	public final boolean mouseMoved(int screenX, int screenY) {
 		Component comp = getFirstComponentAt(screenX, screenY);
 		for(MouseListener listener : comp.getMouseListeners()) {
-			listener.onMouseMove(screenX - comp.getX(), screenY - comp.getY());
+			listener.onMouseMove(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 		}
 		
 		// If the mouse is on a new component, do mouse enter / exit
 		if(!same(comp, mouseComponent)) {
 			if(mouseComponent != null) {
 				for(MouseListener listener : mouseComponent.getMouseListeners()) {
-					listener.onMouseExit(screenX - comp.getX(), screenY - comp.getY());
+					listener.onMouseExit(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 				}
 			}
 			
 			for(MouseListener listener : comp.getMouseListeners()) {
-				listener.onMouseEnter(screenX - comp.getX(), screenY - comp.getY());
+				listener.onMouseEnter(new MouseEvent(comp, screenX - comp.getX(), screenY - comp.getY()));
 			}
 			
 			mouseComponent = comp;

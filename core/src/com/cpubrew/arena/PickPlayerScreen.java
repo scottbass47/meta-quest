@@ -17,6 +17,7 @@ import com.cpubrew.gui.AnimatedLabel;
 import com.cpubrew.gui.Container;
 import com.cpubrew.gui.ImageLabel;
 import com.cpubrew.gui.KeyAdapter;
+import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.Label;
 
 public class PickPlayerScreen extends Container {
@@ -77,7 +78,8 @@ public class PickPlayerScreen extends Container {
 		
 		addKeyListener(new KeyAdapter() {
 			@Override
-			public void onKeyRelease(int keycode) {
+			public void onKeyRelease(KeyEvent ev) {
+				int keycode = ev.getKey();
 				if(keycode == Keys.RIGHT) {
 					index++;
 				} else if(keycode == Keys.LEFT) {

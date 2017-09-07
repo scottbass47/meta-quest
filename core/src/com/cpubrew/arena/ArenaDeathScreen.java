@@ -9,6 +9,7 @@ import com.cpubrew.assets.AssetLoader;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.gui.Container;
 import com.cpubrew.gui.KeyAdapter;
+import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.Label;
 import com.cpubrew.utils.RenderUtils;
 
@@ -39,8 +40,8 @@ public class ArenaDeathScreen extends Container {
 		
 		addKeyListener(new KeyAdapter() {
 			@Override
-			public void onKeyRelease(int keycode) {
-				if(keycode == Keys.ENTER) {
+			public void onKeyRelease(KeyEvent ev) {
+				if(ev.getKey() == Keys.ENTER) {
 					arena.switchState(ArenaState.PICKING_PLAYER);
 				}
 			}

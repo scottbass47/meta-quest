@@ -4,25 +4,24 @@ import com.badlogic.gdx.math.MathUtils;
 
 public class DragHandler extends MouseAdapter {
 
-	private Component component;
 	private int x;
 	private int y;
 	
-	public DragHandler(Component component) {
-		this.component = component;
+	@Override
+	public void onMouseDown(MouseEvent ev) {
+		this.x = ev.getX(); 
+		this.y = ev.getY();
 	}
 	
 	@Override
-	public void onMouseDown(int x, int y, int button) {
-		this.x = x; 
-		this.y = y;
-	}
-	
-	@Override
-	public void onMouseDrag(int x, int y) {
+	public void onMouseDrag(MouseEvent ev) {
+		int x = ev.getX();
+		int y = ev.getY();
+		
 		int dx = x - this.x;
 		int dy = y - this.y;
 		
+		Component component = ev.getSource();
 		int newX = MathUtils.clamp(dx + component.getX(), 0, component.getParent().getWidth() - component.getWidth());
 		int newY = MathUtils.clamp(dy + component.getY(), 0, component.getParent().getHeight() - component.getHeight());
 		
@@ -30,8 +29,8 @@ public class DragHandler extends MouseAdapter {
 	}
 	
 	@Override
-	public void onMouseEnter(int x, int y) {
-		this.x = x;
-		this.y = y;
+	public void onMouseEnter(MouseEvent ev) {
+		this.x = ev.getX();
+		this.y = ev.getY();
 	}
 }

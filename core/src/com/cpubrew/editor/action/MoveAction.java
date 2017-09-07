@@ -6,6 +6,7 @@ import com.badlogic.gdx.utils.Array;
 import com.cpubrew.editor.LevelEditor;
 import com.cpubrew.editor.Selectable;
 import com.cpubrew.editor.command.MoveCommand;
+import com.cpubrew.gui.MouseEvent;
 
 public class MoveAction extends EditorAction{
 
@@ -58,13 +59,13 @@ public class MoveAction extends EditorAction{
 	}
 	
 	@Override
-	public void onMouseDrag(int x, int y) {
-		Vector2 worldCoords = editor.toWorldCoords(x, y);
+	public void onMouseDrag(MouseEvent ev) {
+		Vector2 worldCoords = editor.toWorldCoords(ev.getX(), ev.getY());
 		offset = worldCoords.sub(start);
 	}
 
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 		move();
 	}
 	

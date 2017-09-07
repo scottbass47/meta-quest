@@ -10,7 +10,9 @@ import com.cpubrew.gui.Component;
 import com.cpubrew.gui.KeyBind;
 import com.cpubrew.gui.KeyBind.FocusType;
 import com.cpubrew.gui.KeyBind.Modifiers;
+import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.KeyListener;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.gui.MouseListener;
 import com.cpubrew.gui.Window;
 import com.cpubrew.level.Level;
@@ -170,18 +172,21 @@ public class ActionManager implements KeyListener, MouseListener {
 	}
 
 	@Override
-	public void onMouseMove(int x, int y) {
-		currentActionInstance.onMouseMove(x, y);
+	public void onMouseMove(MouseEvent ev) {
+		currentActionInstance.onMouseMove(ev);
 	}
 
 	@Override
-	public void onMouseDrag(int x, int y) {
-		currentActionInstance.onMouseDrag(x, y);
+	public void onMouseDrag(MouseEvent ev) {
+		currentActionInstance.onMouseDrag(ev);
 	}
 
 	@Override
-	public void onMouseUp(int x, int y, int button) {
-		currentActionInstance.onMouseUp(x, y, button);
+	public void onMouseUp(MouseEvent ev) {
+		currentActionInstance.onMouseUp(ev);
+		
+		int x = ev.getX();
+		int y = ev.getY();
 		
 		if(editor.onTilePanel(x, y) && !currentActionInstance.isBlocking()) {
 			TilesetTile tile = editor.getTilePanel().getTileAt(x, y);
@@ -195,32 +200,32 @@ public class ActionManager implements KeyListener, MouseListener {
 	}
 
 	@Override
-	public void onMouseDown(int x, int y, int button) {
-		currentActionInstance.onMouseDown(x, y, button);
+	public void onMouseDown(MouseEvent ev) {
+		currentActionInstance.onMouseDown(ev);
 	}
 
 	@Override
-	public void onMouseEnter(int x, int y) {
-		currentActionInstance.onMouseEnter(x, y);
+	public void onMouseEnter(MouseEvent ev) {
+		currentActionInstance.onMouseEnter(ev);
 	}
 
 	@Override
-	public void onMouseExit(int x, int y) {
-		currentActionInstance.onMouseExit(x, y);
+	public void onMouseExit(MouseEvent ev) {
+		currentActionInstance.onMouseExit(ev);
 	}
 
 	@Override
-	public void onKeyPress(int keycode) {
-		currentActionInstance.onKeyPress(keycode);
+	public void onKeyPress(KeyEvent ev) {
+		currentActionInstance.onKeyPress(ev);
 	}
 
 	@Override
-	public void onKeyRelease(int keycode) {
-		currentActionInstance.onKeyRelease(keycode);
+	public void onKeyRelease(KeyEvent ev) {
+		currentActionInstance.onKeyRelease(ev);
 	}
 
 	@Override
-	public void onKeyType(char character) {
-		currentActionInstance.onKeyType(character);
+	public void onKeyType(KeyEvent ev) {
+		currentActionInstance.onKeyType(ev);
 	}
 }

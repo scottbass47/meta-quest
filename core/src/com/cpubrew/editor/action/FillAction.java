@@ -7,6 +7,7 @@ import com.badlogic.gdx.utils.ObjectSet;
 import com.cpubrew.editor.TilePanel;
 import com.cpubrew.editor.command.FillCommand;
 import com.cpubrew.game.GameVars;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.level.GridPoint;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.level.tiles.MapTile.TileType;
@@ -53,7 +54,7 @@ public class FillAction extends EditorAction {
 	}
 	
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 		TilePanel tilePanel = editor.getTilePanel();
 		editor.executeCommand(new FillCommand(fillTiles, tilePanel.getActiveTile().getID(), TileType.GROUND));
 	}

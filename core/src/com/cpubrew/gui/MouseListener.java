@@ -2,10 +2,10 @@ package com.cpubrew.gui;
 
 public interface MouseListener extends EventListener {
 
-	public void onMouseMove(int x, int y);
-	public void onMouseDrag(int x, int y);
-	public void onMouseUp(int x, int y, int button);
-	public void onMouseDown(int x, int y, int button);
-	public void onMouseEnter(int x, int y);
-	public void onMouseExit(int x, int y);
+	public void onMouseMove(MouseEvent ev);
+	public void onMouseDrag(MouseEvent ev);
+	public void onMouseUp(MouseEvent ev);
+	public void onMouseDown(MouseEvent ev);
+	public void onMouseEnter(MouseEvent ev);
+	public void onMouseExit(MouseEvent ev);
 }

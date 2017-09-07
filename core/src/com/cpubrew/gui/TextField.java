@@ -65,16 +65,17 @@ public class TextField extends Component implements KeyListener {
 	}
 
 	@Override
-	public void onKeyPress(int keycode) {
+	public void onKeyPress(KeyEvent ev) {
 	}
 
 	@Override
-	public void onKeyRelease(int keycode) {
+	public void onKeyRelease(KeyEvent ev) {
 		
 	}
 
 	@Override
-	public void onKeyType(char character) {
+	public void onKeyType(KeyEvent ev) {
+		char character = ev.getCharacter();
 		if(character == '\b') {
 			if(text.length() > 0) {
 				text = text.substring(0, text.length() - 1);

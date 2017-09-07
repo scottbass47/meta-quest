@@ -30,8 +30,10 @@ import com.cpubrew.editor.command.UpdateSurroundingTilesCommand;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.gui.KeyBoardManager;
+import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.KeyListener;
 import com.cpubrew.gui.Label;
+import com.cpubrew.gui.MouseEvent;
 import com.cpubrew.gui.MouseListener;
 import com.cpubrew.gui.ScrollListener;
 import com.cpubrew.gui.Window;
@@ -580,47 +582,47 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	////////////////////////
 	
 	@Override
-	public void onMouseMove(int x, int y) {
-		mousePos = new Vector2(x, y);
+	public void onMouseMove(MouseEvent ev) {
+		mousePos = new Vector2(ev.getX(), ev.getY());
 		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
 	}
 	
 	@Override
-	public void onMouseDrag(int x, int y) {
-		mousePos = new Vector2(x, y);
+	public void onMouseDrag(MouseEvent ev) {
+		mousePos = new Vector2(ev.getX(), ev.getY());
 		mouseOnMap = !onTilePanel(mousePos.x, mousePos.y);
 	}
 	
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 		mouseDown = false;
 	}
 	
 	@Override
-	public void onMouseDown(int x, int y, int button) {
+	public void onMouseDown(MouseEvent ev) {
 		mouseDown = true;
 	}
 	
 	@Override
-	public void onMouseEnter(int x, int y) {
+	public void onMouseEnter(MouseEvent ev) {
 		
 	}
 	
 	@Override
-	public void onMouseExit(int x, int y) {
+	public void onMouseExit(MouseEvent ev) {
 		
 	}
 	
 	@Override
-	public void onKeyPress(int keycode) {
+	public void onKeyPress(KeyEvent ev) {
 	}
 	
 	@Override
-	public void onKeyRelease(int keycode) {
+	public void onKeyRelease(KeyEvent ev) {
 	}
 	
 	@Override
-	public void onKeyType(char character) {
+	public void onKeyType(KeyEvent ev) {
 	}
 
 	@Override

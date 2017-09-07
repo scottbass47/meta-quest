@@ -3,26 +3,26 @@ package com.cpubrew.gui;
 public abstract class MouseAdapter implements MouseListener{
 
 	@Override
-	public void onMouseMove(int x, int y) {
+	public void onMouseMove(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseDrag(int x, int y) {
+	public void onMouseDrag(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseUp(int x, int y, int button) {
+	public void onMouseUp(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseDown(int x, int y, int button) {
+	public void onMouseDown(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseEnter(int x, int y) {
+	public void onMouseEnter(MouseEvent ev) {
 	}
 
 	@Override
-	public void onMouseExit(int x, int y) {
+	public void onMouseExit(MouseEvent ev) {
 	}
 }

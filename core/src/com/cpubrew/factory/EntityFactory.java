@@ -258,6 +258,7 @@ public class EntityFactory {
 	// BUG Rocky sometimes gets stuck in a loop swinging (can't replicate)
 	// BUG Auto-saving iterator() nested
 	// BUG DamageOnCollide should do a preSolve check
+	// BUG Rogue lower body state machine doesn't go to idle when attacking
 	
 	// ------------
 	// Optimization
