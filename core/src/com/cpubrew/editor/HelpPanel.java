@@ -1,11 +1,7 @@
 package com.cpubrew.editor;
 
 import com.badlogic.gdx.graphics.Color;
-import com.badlogic.gdx.graphics.Pixmap;
-import com.badlogic.gdx.graphics.Pixmap.Format;
-import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.assets.AssetLoader;
 import com.cpubrew.editor.action.EditorActions;
 import com.cpubrew.gui.Container;
@@ -14,14 +10,16 @@ import com.cpubrew.gui.Label;
 public class HelpPanel extends Container {
 	
 	private boolean panelOpen;
-	private Texture background;
 	
 	private int padding = 10;
 	
 	public HelpPanel() {
 		setSize(500, 500);
 		initLabels();
-		drawBackground();
+		
+		Color color = new Color(Color.BLACK);
+		color.mul(1.0f, 1.0f, 1.0f, 0.65f);
+		setBackgroundColor(color);
 	}
 	
 	private void initLabels() {
@@ -58,23 +56,6 @@ public class HelpPanel extends Container {
 		}
 	}
 
-	private void drawBackground() {
-		Pixmap pix = new Pixmap(width, height, Format.RGBA8888);
-		pix.setColor(new Color(Color.BLACK).mul(1.0f, 1.0f, 1.0f, 0.9f));
-		pix.fill();
-		
-		background = new Texture(pix);
-		pix.dispose();
-	}
-	
-	@Override
-	public void render(SpriteBatch batch) {
-		batch.setColor(1.0f, 1.0f, 1.0f, 1.0f);
-		batch.draw(background, x, y);
-
-		super.render(batch);
-	}
-	
 	public void show() {
 		panelOpen = true;
 	}

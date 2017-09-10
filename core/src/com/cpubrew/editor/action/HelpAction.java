@@ -2,6 +2,7 @@ package com.cpubrew.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.HelpPanel;
+import com.cpubrew.game.GameVars;
 
 public class HelpAction extends EditorAction {
 
@@ -11,7 +12,7 @@ public class HelpAction extends EditorAction {
 	@Override
 	public void onEnter() {
 		helpPanel = new HelpPanel();
-		helpPanel.setPosition(0, 0);
+		helpPanel.setPosition(GameVars.SCREEN_WIDTH / 2 - helpPanel.getWidth() / 2, GameVars.SCREEN_HEIGHT / 2 - helpPanel.getHeight() / 2);
 		
 		editor.getEditorWindow().add(helpPanel);
 		
