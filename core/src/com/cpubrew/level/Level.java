@@ -19,12 +19,15 @@ import com.badlogic.gdx.utils.ArrayMap;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.cpubrew.component.Mappers;
 import com.cpubrew.debug.DebugRender;
+import com.cpubrew.editor.mapobject.MapObject;
+import com.cpubrew.editor.mapobject.MapObjectType;
+import com.cpubrew.editor.mapobject.data.SpawnpointData;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.factory.EntityFactory;
 import com.cpubrew.level.tiles.MapTile;
-import com.cpubrew.level.tiles.TilesetLoader;
 import com.cpubrew.level.tiles.MapTile.Side;
 import com.cpubrew.level.tiles.MapTile.TileType;
+import com.cpubrew.level.tiles.TilesetLoader;
 import com.cpubrew.utils.Maths;
 import com.cpubrew.utils.PhysicsUtils;
 import com.esotericsoftware.kryo.Kryo;
@@ -48,8 +51,12 @@ public class Level {
 	// private Array<Tile> ladders;
 
 	// Spawns
-	private EntitySpawn playerSpawn;
-	private Array<EntitySpawn> entitySpawns;
+//	private EntitySpawn playerSpawn;
+//	private Array<EntitySpawn> entitySpawns;
+	
+	// Map Objects
+	private int currentID;
+	private Array<MapObject> mapObjects;
 
 	// Level Info
 	private LevelManager manager;
@@ -68,7 +75,8 @@ public class Level {
 	public Level(LevelManager manager) {
 		this.manager = manager;
 
-		entitySpawns = new Array<EntitySpawn>();
+//		entitySpawns = new Array<EntitySpawn>();
+		mapObjects = new Array<MapObject>();
 		bodies = new Array<Body>();
 		meshes = new ObjectSet<EntityIndex>();
 		tileMap = new ExpandableGrid<MapTile>();
@@ -101,8 +109,9 @@ public class Level {
 	 */
 	public void init() {
 		// Load meshes
-		for (EntitySpawn spawn : entitySpawns) {
-			EntityIndex index = spawn.getIndex();
+		for (MapObject obj : mapObjects) {
+			if(obj.getType() != MapObjectType.SPAWNPOINT) continue;
+			EntityIndex index = ((SpawnpointData) obj.getData()).getIndex()	;
 
 			if (NavMesh.usesNavMesh(index)) {
 				meshes.add(index);
@@ -618,30 +627,51 @@ public class Level {
 			iter.remove();
 		}
 	}
-
-	public void addEntitySpawn(EntityIndex index, Vector2 pos, boolean facingRight) {
-		EntitySpawn spawn = new EntitySpawn();
-		spawn.setIndex(index);
-		spawn.setPos(pos);
-		spawn.setFacingRight(facingRight);
-		entitySpawns.add(spawn);
+	
+	public void setCurrentID(int currentID) {
+		this.currentID = currentID;
 	}
 	
-	public void addEntitySpawn(EntitySpawn spawn) {
-		entitySpawns.add(spawn);
+	/** Returns the current MapObject ID */
+	public int getCurrentID() {
+		return currentID;
+	}
+	
+	public void addMapObject(MapObject mobj) {
+		mapObjects.add(mobj);
+	}
+	
+	public Array<MapObject> getMapObjects() {
+		return mapObjects;
+	}
+	
+	public void removeAllMapObjects() {
+		mapObjects.clear();
 	}
 
-	public Array<EntitySpawn> getEntitySpawns() {
-		return entitySpawns;
-	}
-
-	public void removeSpawn(EntitySpawn spawn) {
-		entitySpawns.removeValue(spawn, false);
-	}
-
-	public void removeAllSpawns(){
-		entitySpawns.clear();
-	}
+//	public void addEntitySpawn(EntityIndex index, Vector2 pos, boolean facingRight) {
+//		EntitySpawn spawn = new EntitySpawn();
+//		spawn.setIndex(index);
+//		spawn.setPos(pos);
+//		spawn.setFacingRight(facingRight);
+//		entitySpawns.add(spawn);
+//	}
+//	
+//	public void addEntitySpawn(EntitySpawn spawn) {
+//		entitySpawns.add(spawn);
+//	}
+//
+//	public Array<EntitySpawn> getEntitySpawns() {
+//		return entitySpawns;
+//	}
+//
+//	public void removeSpawn(EntitySpawn spawn) {
+//		entitySpawns.removeValue(spawn, false);
+//	}
+//
+//	public void removeAllSpawns(){
+//		entitySpawns.clear();
+//	}
 	
 	public boolean isLadder(int row, int col) {
 		MapTile tile = tileAt(row, col);
@@ -790,17 +820,17 @@ public class Level {
 		this.tileMap = tileMap;
 	}
 
-	public EntitySpawn getPlayerSpawn() {
-		return playerSpawn;
-	}
-
-	public void setPlayerSpawn(EntitySpawn playerSpawn) {
-		this.playerSpawn = playerSpawn;
-	}
-
-	public void setEntitySpawns(Array<EntitySpawn> entitySpawns) {
-		this.entitySpawns = entitySpawns;
-	}
+//	public EntitySpawn getPlayerSpawn() {
+//		return playerSpawn;
+//	}
+//
+//	public void setPlayerSpawn(EntitySpawn playerSpawn) {
+//		this.playerSpawn = playerSpawn;
+//	}
+//
+//	public void setEntitySpawns(Array<EntitySpawn> entitySpawns) {
+//		this.entitySpawns = entitySpawns;
+//	}
 
 	@Override
 	public int hashCode() {

@@ -26,7 +26,7 @@ public class PlaceableSpawnpoint implements Placeable{
 	}
 	
 	@Override
-	public Command onClick(Vector2 mousePos, LevelEditor editor) {
+	public Command onPlace(Vector2 mousePos, LevelEditor editor) {
 		Rectangle rect = entityIndex.getHitBox();
 
 		int row = Maths.toGridCoord(mousePos.y);
@@ -46,7 +46,7 @@ public class PlaceableSpawnpoint implements Placeable{
 	@Override
 	public void render(Vector2 mousePos, SpriteBatch batch, LevelEditor editor) {
 		// We handle input in the render method because update doesn't get called frequently enough to
-		/// catch just pressed keyboard events
+		// catch just pressed keyboard events
 		if(Gdx.input.isKeyJustPressed(Keys.R)) {
 			facingRight = !facingRight;
 		}

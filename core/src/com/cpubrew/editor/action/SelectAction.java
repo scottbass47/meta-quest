@@ -13,25 +13,24 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
-import com.cpubrew.editor.Selectable;
+import com.cpubrew.editor.Interactable;
 import com.cpubrew.editor.SelectableSpawnpoint;
 import com.cpubrew.editor.SelectableTile;
 import com.cpubrew.editor.command.DeleteCommand;
 import com.cpubrew.editor.command.PasteCommand;
-import com.cpubrew.entity.EntityIndex;
+import com.cpubrew.editor.mapobject.MapObject;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.gui.KeyBoardManager;
 import com.cpubrew.gui.KeyEvent;
 import com.cpubrew.gui.MouseEvent;
-import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.utils.Maths;
 
 public class SelectAction extends EditorAction {
 	
 	private ShapeRenderer shape;
-	private Array<Selectable<?>> selected;
-	private Array<Selectable<?>> clipboard;
+	private Array<Interactable<?>> selected;
+	private Array<Interactable<?>> clipboard;
 	private Vector2 startCoords;
 	private Vector2 currentCoords;
 	private Rectangle selectRect;
@@ -49,8 +48,8 @@ public class SelectAction extends EditorAction {
 		startCoords = new Vector2();
 		currentCoords = new Vector2();
 		shape = new ShapeRenderer();
-		selected = new Array<Selectable<?>>();
-		clipboard = new Array<Selectable<?>>();
+		selected = new Array<Interactable<?>>();
+		clipboard = new Array<Interactable<?>>();
 		selectRect = new Rectangle();
 	}
 	
@@ -68,8 +67,8 @@ public class SelectAction extends EditorAction {
 		
 		// HACK ughhhh...
 		// Removed bad spawns
-		for(Iterator<Selectable<?>> iter = selected.iterator(); iter.hasNext(); ) {
-			Selectable<?> select = iter.next();
+		for(Iterator<Interactable<?>> iter = selected.iterator(); iter.hasNext(); ) {
+			Interactable<?> select = iter.next();
 			if(select instanceof SelectableSpawnpoint) {
 				SelectableSpawnpoint spawnpoint = (SelectableSpawnpoint) select;
 				if(spawnpoint.disabled()) iter.remove();
@@ -83,7 +82,7 @@ public class SelectAction extends EditorAction {
 			if(magicSelect) {
 				batch.setProjectionMatrix(worldCamera.combined);
 				batch.begin();
-				for(Selectable<?> select : selected) {
+				for(Interactable<?> select : selected) {
 					SelectableTile selTile = (SelectableTile) select;
 					batch.draw(editor.getSelectTexture(), selTile.getTile().getCol(), selTile.getTile().getRow(), 0.0f, 0.0f, 16.0f, 16.0f, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f, 0, 0, 16, 16, false, false);
 				}
@@ -166,11 +165,11 @@ public class SelectAction extends EditorAction {
 		}
 	}
 	
-	public boolean isSelected(EntitySpawn spawn) {
-		for(Selectable<?> sel : selected) {
-			if(sel instanceof SelectableSpawnpoint) {
-				SelectableSpawnpoint selSpawn = (SelectableSpawnpoint) sel;
-				if(selSpawn.contentsEqual(spawn)) return true;
+	public boolean isSelected(MapObject mobj) {
+		for(Interactable<?> sel : selected) {
+			if(sel instanceof MapObject) {
+				MapObject selSpawn = (MapObject) sel;
+				if(selSpawn.contentsEqual(mobj)) return true;
 			}
 		}
 		return false;
@@ -186,7 +185,7 @@ public class SelectAction extends EditorAction {
 			areaSelected = false;
 		} else if(KeyBoardManager.isControlDown() && keycode == Keys.C) {
 			clipboard.clear();
-			for(Selectable<?> select : selected) {
+			for(Interactable<?> select : selected) {
 				clipboard.add(select);
 			}
 		} else if(KeyBoardManager.isControlDown() && keycode == Keys.V && clipboard.size > 0) {
@@ -216,7 +215,7 @@ public class SelectAction extends EditorAction {
 		// On the selected region
 		boolean onSelection = false;
 		if(magicSelect) {
-			for(Selectable<?> select : selected) {
+			for(Interactable<?> select : selected) {
 				SelectableTile selTile = (SelectableTile) select;
 				MapTile tile = selTile.getTile();
 				int row = Maths.toGridCoord(worldCoords.y);
@@ -278,12 +277,9 @@ public class SelectAction extends EditorAction {
 			}
 			
 		} else {
-			for(int id = 0; id < editor.nextID(); id++) {
-				if(!editor.isEnabled(id)) continue;
-				EntitySpawn spawn = editor.getSpawn(id);
-				Vector2 spawnPoint = spawn.getPos();
-				EntityIndex index = spawn.getIndex();
-				Rectangle hitbox = Maths.scl(index.getHitBox(), GameVars.PPM_INV);
+			for(MapObject mobj : editor.getEnabledMapObjects()) {
+				Vector2 spawnPoint = mobj.getPos();
+				Rectangle hitbox = mobj.getHitbox();
 				
 				float lowerX = spawnPoint.x - hitbox.width * 0.5f;
 				float lowerY = spawnPoint.y - hitbox.height * 0.5f;
@@ -291,7 +287,7 @@ public class SelectAction extends EditorAction {
 				Rectangle collision = new Rectangle(lowerX, lowerY, hitbox.width, hitbox.height);
 				
 				if(selectRect.overlaps(collision)) {
-					selected.add(new SelectableSpawnpoint(editor, id));
+					selected.add(mobj);
 				}
 			}
 		}

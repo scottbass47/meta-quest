@@ -2,13 +2,13 @@ package com.cpubrew.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
-import com.cpubrew.editor.Placeable;
+import com.cpubrew.editor.Interactable;
 import com.cpubrew.editor.command.Command;
 import com.cpubrew.gui.MouseEvent;
 
 public class PlaceAction extends EditorAction {
 
-	private Placeable activePlaceable;
+	private Interactable<?> activePlaceable;
 	
 	@Override
 	public void onEnter() {
@@ -20,7 +20,7 @@ public class PlaceAction extends EditorAction {
 	
 	@Override
 	public void update(float delta) {
-		activePlaceable.update(delta);
+		activePlaceable.update(delta, editor);
 	}
 
 	@Override
@@ -28,12 +28,12 @@ public class PlaceAction extends EditorAction {
 		if (editor.isMouseOnMap()) {
 			batch.setProjectionMatrix(worldCamera.combined);
 			batch.begin();
-			activePlaceable.render(editor.toWorldCoords(editor.getMousePos()), batch, editor);
+			activePlaceable.render(batch, editor.toWorldCoords(editor.getMousePos()), editor);
 			batch.end();
 		}
 	}
 	
-	public void setPlaceable(Placeable placeable) {
+	public void setPlaceable(Interactable<?> placeable) {
 		this.activePlaceable = placeable;
 	}
 	
@@ -42,7 +42,7 @@ public class PlaceAction extends EditorAction {
 		if(!editor.isMouseOnMap()) return;
 		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
 		if(!activePlaceable.placeOnClick()) {
-			Command command = activePlaceable.onClick(mousePos, editor);
+			Command command = activePlaceable.onPlace(mousePos, editor);
 			editor.executeCommand(command);
 		}
 	}
@@ -51,7 +51,7 @@ public class PlaceAction extends EditorAction {
 	public void onMouseUp(MouseEvent ev) {
 		if(!editor.isMouseOnMap()) return;
 		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
-		Command command = activePlaceable.onClick(mousePos, editor);
+		Command command = activePlaceable.onPlace(mousePos, editor);
 		editor.executeCommand(command);
 	}
 

@@ -4,13 +4,13 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.cpubrew.editor.LevelEditor;
-import com.cpubrew.editor.Selectable;
+import com.cpubrew.editor.Interactable;
 import com.cpubrew.editor.command.MoveCommand;
 import com.cpubrew.gui.MouseEvent;
 
 public class MoveAction extends EditorAction{
 
-	private Array<Selectable<?>> selected;
+	private Array<Interactable<?>> selected;
 	private Vector2 offset;
 	private Vector2 start;
 	private Vector2 randStart;
@@ -27,7 +27,7 @@ public class MoveAction extends EditorAction{
 	
 	@Override
 	public void update(float delta) {
-		for(Selectable<?> select : selected) {
+		for(Interactable<?> select : selected) {
 			select.update(delta, editor);
 		}
 	}
@@ -36,22 +36,22 @@ public class MoveAction extends EditorAction{
 	public void render(SpriteBatch batch) {
 		batch.setProjectionMatrix(worldCamera.combined);
 		batch.begin();
-		for(Selectable<?> select : selected) {
+		for(Interactable<?> select : selected) {
 			select.render(batch, select.getPosition(offset), editor);
 		}
 		batch.end();
 	}
 
-	public Array<Selectable<?>> getSelected() {
+	public Array<Interactable<?>> getSelected() {
 		return selected;
 	}
 
 	// Entry point for move command
-	public void setSelected(Array<Selectable<?>> selected, LevelEditor editor, SelectAction selectAction, boolean copied) {
+	public void setSelected(Array<Interactable<?>> selected, LevelEditor editor, SelectAction selectAction, boolean copied) {
 		this.selected = selected;
 		this.selectAction = selectAction;
 		if(!copied) {
-			for(Selectable<?> select : selected) {
+			for(Interactable<?> select : selected) {
 				select.remove(editor);
 			}
 		}

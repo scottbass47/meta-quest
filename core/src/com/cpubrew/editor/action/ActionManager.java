@@ -4,7 +4,7 @@ import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.LevelEditor;
-import com.cpubrew.editor.PlaceableTile;
+import com.cpubrew.editor.SelectableTile;
 import com.cpubrew.gui.Action;
 import com.cpubrew.gui.Component;
 import com.cpubrew.gui.KeyBind;
@@ -194,7 +194,7 @@ public class ActionManager implements KeyListener, MouseListener {
 				editor.getTilePanel().setActiveTile(tile);
 				switchAction(EditorActions.PLACE);
 				PlaceAction placeAction = (PlaceAction) getCurrentActionInstance();
-				placeAction.setPlaceable(new PlaceableTile());
+				placeAction.setPlaceable(new SelectableTile(null));
 			}
 		}
 	}

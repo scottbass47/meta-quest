@@ -9,15 +9,14 @@ import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
-import com.badlogic.gdx.graphics.g2d.Animation;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.graphics.g2d.TextureRegion;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ArrayMap;
+import com.badlogic.gdx.utils.ObjectSet;
 import com.cpubrew.assets.AssetLoader;
 import com.cpubrew.editor.action.ActionManager;
 import com.cpubrew.editor.action.EditorActions;
@@ -27,7 +26,7 @@ import com.cpubrew.editor.command.Command;
 import com.cpubrew.editor.command.ResizeMapCommand;
 import com.cpubrew.editor.command.ResizeMapCommand.Direction;
 import com.cpubrew.editor.command.UpdateSurroundingTilesCommand;
-import com.cpubrew.entity.EntityIndex;
+import com.cpubrew.editor.mapobject.MapObject;
 import com.cpubrew.game.GameVars;
 import com.cpubrew.gui.KeyBoardManager;
 import com.cpubrew.gui.KeyEvent;
@@ -41,7 +40,6 @@ import com.cpubrew.input.Mouse;
 import com.cpubrew.level.ExpandableGrid;
 import com.cpubrew.level.GridPoint;
 import com.cpubrew.level.Level;
-import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.LevelUtils;
 import com.cpubrew.level.MapRenderer;
 import com.cpubrew.level.tiles.MapTile;
@@ -91,9 +89,15 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	private Label autoTileLabel;
 
 	// Entity Spawns
-	private ArrayMap<Integer, EntitySpawn> spawnMap; // 0 is reserved for the player
-	private ArrayMap<Integer, Boolean> entityAdded;
-	private int nextID = 0;
+//	private ArrayMap<Integer, EntitySpawn> spawnMap; // 0 is reserved for the player
+//	private ArrayMap<Integer, Boolean> entityAdded;
+//	private int nextID = 0;
+	
+	// Map Objects
+	private ArrayMap<Integer, MapObject> objectMap;
+	private ArrayMap<Integer, Boolean> enabledMap;
+	private int id; // Represents the NEXT id that is open
+	private ObjectSet<Integer> unusedID;
 	
 	public LevelEditor() {
 		tilePanel = new TilePanel();
@@ -138,8 +142,12 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 		editorWindow.addKeyListener(this);
 		editorWindow.addMouseListener(this);
 		
-		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
-		entityAdded = new ArrayMap<Integer, Boolean>();
+//		spawnMap = new ArrayMap<Integer, Level.EntitySpawn>();
+//		entityAdded = new ArrayMap<Integer, Boolean>();
+		
+		objectMap = new ArrayMap<Integer, MapObject>();
+		enabledMap = new ArrayMap<Integer, Boolean>();
+		unusedID = new ObjectSet<Integer>();
 		
 		actionManager = new ActionManager(this);
 		
@@ -186,7 +194,15 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	
 	public Level getCurrentLevel() {
 		// Setup spawns
-		updateLevelSpawns();
+//		updateLevelSpawns();
+		
+		// Update the object list in the level
+		for(int id : objectMap.keys()) {
+			if(enabledMap.get(id)) {
+				currentLevel.addMapObject(objectMap.get(id));
+			}
+		}
+		
 		return currentLevel;
 	}
 	
@@ -197,80 +213,144 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 		tileMap = currentLevel.getTileMap();
 		
 		// Init the entity spawns
-		initEntitySpawns();
+//		initEntitySpawns();
+		
+		// Populate MapObjects
+		id = currentLevel.getCurrentID(); // Set the ID
+		
+		// Clear Maps
+		objectMap.clear();
+		enabledMap.clear();
+		unusedID.clear();
+		
+		// Add all the IDs to the unused set
+		for(int i = 0; i < id; i++) unusedID.add(i);
+		
+		Array<MapObject> objects = currentLevel.getMapObjects();
+		for(MapObject mobj : objects) {
+			// Remove ID
+			unusedID.remove(mobj.getId()); 
+		
+			objectMap.put(mobj.getId(), mobj);
+			enabledMap.put(mobj.getId(), true);
+			
+			// We don't serialize the level editor for each map object, so if this 
+			// level was just loaded the level editor would be null
+			mobj.setEditor(this);
+		}
+	}
+
+	/** Returns the next id and INCREMENTS the id counter */
+	public int nextID() {
+		// If there is an unusedID use that first before creating a new one
+		if(unusedID.size > 0) {
+			int ret = unusedID.first();
+			unusedID.remove(ret);
+			return ret;
+		}
+		return id++;
+	}
+	
+	public void removeMapObject(int id) {
+		enabledMap.put(id, false);
+	}
+	
+	public void addMapObject(MapObject mobj) {
+		// IF this object already exists, then just enable it
+		if(objectMap.containsKey(mobj.getId())) {
+			enableMapObject(mobj.getId());
+			return;
+		}
+		
+		objectMap.put(mobj.getId(), mobj);
+		enabledMap.put(mobj.getId(), true);
+	}
+	
+	public void enableMapObject(int id) {
+		enabledMap.put(id, true);
+	}
+	
+	public Array<MapObject> getEnabledMapObjects() {
+		Array<MapObject> ret = new Array<MapObject>();
+		for(int id : objectMap.keys()) {
+			if(enabledMap.get(id)) {
+				ret.add(objectMap.get(id));
+			}
+		}
+		return ret;
 	}
 	
 	/** Clears spawn map and disable map. Loads in spawns from new level */
-	private void initEntitySpawns() {
-		spawnMap.clear();
-		entityAdded.clear();
-		nextID = 1;
-		
-		if(currentLevel.getPlayerSpawn() != null) {
-			setPlayerSpawn(currentLevel.getPlayerSpawn());
-		}
-		for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
-			addSpawn(spawn);
-		}
-	}
-	
-	public int addSpawn(EntitySpawn spawn) {
-		spawnMap.put(nextID, new EntitySpawn(spawn));
-		entityAdded.put(nextID, true);
-		return nextID++;
-	}
-	
-	public void removeSpawn(int id){
-		if(id == 0) return;
-		entityAdded.put(id, false);
-	}
-	
-	public EntitySpawn getSpawn(int id){
-		return spawnMap.get(id);
-	}
-	
-	public void updateLevelSpawns(){
-		currentLevel.removeAllSpawns();
-		currentLevel.setPlayerSpawn(spawnMap.get(0));
-		
-		for(Integer id : spawnMap.keys()){
-			if(id == 0) continue;
-			if(entityAdded.get(id)) {
-				currentLevel.addEntitySpawn(spawnMap.get(id));
-			}
-		}
-	}
-	
-	public Array<EntitySpawn> getActiveSpawns(){
-		Array<EntitySpawn> spawns = new Array<Level.EntitySpawn>();
-		for(int id : spawnMap.keys()) {
-			if(entityAdded.get(id)) {
-				spawns.add(spawnMap.get(id));
-			}
-		}
-		return spawns;
-	}
-	
-	public int nextID(){
-		return nextID;
-	}
-	
-	public void setPlayerSpawn(EntitySpawn spawn){
-		spawnMap.put(0, spawn);
-		enableSpawn(0);
-	}
-	
-	public EntitySpawn getPlayerSpawn(){
-		return spawnMap.get(0);
-	}
-	
-	public void enableSpawn(int id){
-		entityAdded.put(id, true);
-	}
-	
-	public boolean isEnabled(int spawnID) {
-		return entityAdded.containsKey(spawnID) && entityAdded.get(spawnID);
-	}
+//	private void initEntitySpawns() {
+//		spawnMap.clear();
+//		entityAdded.clear();
+//		nextID = 1;
+//		
+//		if(currentLevel.getPlayerSpawn() != null) {
+//			setPlayerSpawn(currentLevel.getPlayerSpawn());
+//		}
+//		for(EntitySpawn spawn : currentLevel.getEntitySpawns()) {
+//			addSpawn(spawn);
+//		}
+//	}
+//	
+//	public int addSpawn(EntitySpawn spawn) {
+//		spawnMap.put(nextID, new EntitySpawn(spawn));
+//		entityAdded.put(nextID, true);
+//		return nextID++;
+//	}
+//	
+//	public void removeSpawn(int id){
+//		if(id == 0) return;
+//		entityAdded.put(id, false);
+//	}
+//	
+//	public EntitySpawn getSpawn(int id){
+//		return spawnMap.get(id);
+//	}
+//	
+//	public void updateLevelSpawns(){
+//		currentLevel.removeAllSpawns();
+//		currentLevel.setPlayerSpawn(spawnMap.get(0));
+//		
+//		for(Integer id : spawnMap.keys()){
+//			if(id == 0) continue;
+//			if(entityAdded.get(id)) {
+//				currentLevel.addEntitySpawn(spawnMap.get(id));
+//			}
+//		}
+//	}
+//	
+//	public Array<EntitySpawn> getActiveSpawns(){
+//		Array<EntitySpawn> spawns = new Array<Level.EntitySpawn>();
+//		for(int id : spawnMap.keys()) {
+//			if(entityAdded.get(id)) {
+//				spawns.add(spawnMap.get(id));
+//			}
+//		}
+//		return spawns;
+//	}
+//	
+//	public int nextID(){
+//		return nextID;
+//	}
+//	
+//	public void setPlayerSpawn(EntitySpawn spawn){
+//		spawnMap.put(0, spawn);
+//		enableSpawn(0);
+//	}
+//	
+//	public EntitySpawn getPlayerSpawn(){
+//		return spawnMap.get(0);
+//	}
+//	
+//	public void enableSpawn(int id){
+//		entityAdded.put(id, true);
+//	}
+//	
+//	public boolean isEnabled(int spawnID) {
+//		return entityAdded.containsKey(spawnID) && entityAdded.get(spawnID);
+//	}
 	
 	public void setWorldCamera(OrthographicCamera camera) {
 		this.worldCamera = camera;
@@ -374,33 +454,37 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			selectAction = (SelectAction) actionManager.getCurrentActionInstance();
 		}
 		
-		for(int id : spawnMap.keys()) { 
-			if(!entityAdded.get(id)) continue;
-			EntitySpawn entitySpawn = spawnMap.get(id);
+		for(int id : objectMap.keys()) { 
+			if(!enabledMap.get(id)) continue;
 			
-			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
-			EntityIndex index = entitySpawn.getIndex();
-			Vector2 pos = entitySpawn.getPos();
-			Animation<TextureRegion> animation = index.getIdleAnimation();
-			TextureRegion frame = animation.getKeyFrame(animTime);
+			MapObject mobj = objectMap.get(id);
+			mobj.render(batch, mobj.getPos(), this);
 			
-			float w = frame.getRegionWidth();
-			float h = frame.getRegionHeight();
-			
-			float x = pos.x - w * 0.5f;
-			float y = pos.y - h * 0.5f;
-			
-			if(!entitySpawn.isFacingRight()) {
-				frame.flip(true, false);
-			}
-			
-			if(selected) {
-				batch.setColor(Color.WHITE);
-			} else {
-				batch.setColor(1.0f, 1.0f, 1.0f, 0.75f);
-			}
-			batch.draw(frame, x, y, w * 0.5f, h * 0.5f, w, h, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f);
-			frame.flip(frame.isFlipX(), false);
+//			EntitySpawn entitySpawn = spawnMap.get(id);
+//			
+//			boolean selected = selectAction == null ? false : selectAction.isSelected(entitySpawn);
+//			EntityIndex index = entitySpawn.getIndex();
+//			Vector2 pos = entitySpawn.getPos();
+//			Animation<TextureRegion> animation = index.getIdleAnimation();
+//			TextureRegion frame = animation.getKeyFrame(animTime);
+//			
+//			float w = frame.getRegionWidth();
+//			float h = frame.getRegionHeight();
+//			
+//			float x = pos.x - w * 0.5f;
+//			float y = pos.y - h * 0.5f;
+//			
+//			if(!entitySpawn.isFacingRight()) {
+//				frame.flip(true, false);
+//			}
+//			
+//			if(selected) {
+//				batch.setColor(Color.WHITE);
+//			} else {
+//				batch.setColor(1.0f, 1.0f, 1.0f, 0.75f);
+//			}
+//			batch.draw(frame, x, y, w * 0.5f, h * 0.5f, w, h, GameVars.PPM_INV, GameVars.PPM_INV, 0.0f);
+//			frame.flip(frame.isFlipX(), false);
 		}
 		batch.setColor(Color.WHITE);
 		batch.end();
@@ -687,7 +771,7 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			moveAction.move();
 		}
 		open = false;
-		updateLevelSpawns();
+		getCurrentLevel(); // HACK Updates the level's object list
 	}
 	
 	public boolean isMouseOnMap() {

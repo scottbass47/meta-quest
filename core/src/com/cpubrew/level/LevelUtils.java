@@ -5,6 +5,7 @@ import java.io.BufferedOutputStream;
 
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.files.FileHandle;
+import com.cpubrew.editor.mapobject.MapObject;
 import com.cpubrew.level.tiles.MapTile;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.io.Input;
@@ -19,6 +20,7 @@ public class LevelUtils {
 		kryo.setReferences(false);
 		kryo.register(Level.class, Level.getSerializer(), 10);
 		kryo.register(MapTile.class, MapTile.getSerializer(), 11);
+		kryo.register(MapObject.class, MapObject.getSerializer(), 12);
 		return kryo;
 	}
 	
