@@ -1,7 +1,5 @@
 package com.cpubrew.editor.action;
 
-import java.util.Iterator;
-
 import com.badlogic.gdx.Input.Keys;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -14,7 +12,6 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.utils.Array;
 import com.badlogic.gdx.utils.ObjectSet;
 import com.cpubrew.editor.Interactable;
-import com.cpubrew.editor.SelectableSpawnpoint;
 import com.cpubrew.editor.SelectableTile;
 import com.cpubrew.editor.command.DeleteCommand;
 import com.cpubrew.editor.command.PasteCommand;
@@ -67,13 +64,13 @@ public class SelectAction extends EditorAction {
 		
 		// HACK ughhhh...
 		// Removed bad spawns
-		for(Iterator<Interactable<?>> iter = selected.iterator(); iter.hasNext(); ) {
-			Interactable<?> select = iter.next();
-			if(select instanceof SelectableSpawnpoint) {
-				SelectableSpawnpoint spawnpoint = (SelectableSpawnpoint) select;
-				if(spawnpoint.disabled()) iter.remove();
-			}
-		}
+//		for(Iterator<Interactable<?>> iter = selected.iterator(); iter.hasNext(); ) {
+//			Interactable<?> select = iter.next();
+//			if(select instanceof SelectableSpawnpoint) {
+//				SelectableSpawnpoint spawnpoint = (SelectableSpawnpoint) select;
+//				if(spawnpoint.disabled()) iter.remove();
+//			}
+//		}
 	}
 
 	@Override

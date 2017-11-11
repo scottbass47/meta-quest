@@ -891,23 +891,20 @@ public class Level {
 				}
 			}
 
-			output.writeInt(object.entitySpawns.size);
-			for (EntitySpawn spawn : object.entitySpawns) {
-				output.writeFloat(spawn.getPos().x);
-				output.writeFloat(spawn.getPos().y);
-				output.writeString(spawn.getIndex().name().toLowerCase());
-				output.writeBoolean(spawn.facingRight);
+			output.writeInt(object.mapObjects.size);
+			for (MapObject mobj : object.mapObjects) {
+				kryo.writeClassAndObject(output, mobj);
 			}
 
-			EntitySpawn spawn = object.getPlayerSpawn();
-			output.writeBoolean(spawn != null);
-			
-			if(spawn != null) {
-				output.writeFloat(spawn.getPos().x);
-				output.writeFloat(spawn.getPos().y);
-				output.writeString(spawn.getIndex().name().toLowerCase());
-				output.writeBoolean(spawn.facingRight);
-			}
+//			EntitySpawn spawn = object.getPlayerSpawn();
+//			output.writeBoolean(spawn != null);
+//			
+//			if(spawn != null) {
+//				output.writeFloat(spawn.getPos().x);
+//				output.writeFloat(spawn.getPos().y);
+//				output.writeString(spawn.getIndex().name().toLowerCase());
+//				output.writeBoolean(spawn.facingRight);
+//			}
 		}
 
 		@Override
@@ -930,27 +927,33 @@ public class Level {
 			level.tileMap = grid;
 
 			int size = input.readInt();
-			Array<EntitySpawn> spawns = new Array<EntitySpawn>();
-			for (int i = 0; i < size; i++) {
-				EntitySpawn spawn = new EntitySpawn();
-				spawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
-				spawn.index = EntityIndex.get(input.readString());
-				spawn.facingRight = input.readBoolean();
-				spawns.add(spawn);
+			Array<MapObject> mapObjects = new Array<MapObject>();
+			for(int i = 0; i < size; i++) {
+				MapObject mobj = (MapObject) kryo.readClassAndObject(input);
+				mapObjects.add(mobj);
 			}
-			level.entitySpawns = spawns;
+			level.mapObjects = mapObjects;
+//			Array<EntitySpawn> spawns = new Array<EntitySpawn>();
+//			for (int i = 0; i < size; i++) {
+//				EntitySpawn spawn = new EntitySpawn();
+//				spawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
+//				spawn.index = EntityIndex.get(input.readString());
+//				spawn.facingRight = input.readBoolean();
+//				spawns.add(spawn);
+//			}
+//			level.entitySpawns = spawns;
 
-			boolean playerExists = input.readBoolean();
-			if(!playerExists) {
-				System.out.println("No player spawn");
-				return level;
-			} else {
-				EntitySpawn playerSpawn = new EntitySpawn();
-				playerSpawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
-				playerSpawn.index = EntityIndex.get(input.readString());
-				playerSpawn.facingRight = input.readBoolean();
-				level.setPlayerSpawn(playerSpawn);
-			}
+//			boolean playerExists = input.readBoolean();
+//			if(!playerExists) {
+//				System.out.println("No player spawn");
+//				return level;
+//			} else {
+//				EntitySpawn playerSpawn = new EntitySpawn();
+//				playerSpawn.setPos(new Vector2(input.readFloat(), input.readFloat()));
+//				playerSpawn.index = EntityIndex.get(input.readString());
+//				playerSpawn.facingRight = input.readBoolean();
+//				level.setPlayerSpawn(playerSpawn);
+//			}
 			
 			return level;
 		}

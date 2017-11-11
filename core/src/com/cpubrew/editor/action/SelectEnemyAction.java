@@ -2,8 +2,8 @@ package com.cpubrew.editor.action;
 
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.cpubrew.editor.EnemyPanel;
-import com.cpubrew.editor.PlaceableSpawnpoint;
 import com.cpubrew.editor.SelectListener;
+import com.cpubrew.editor.mapobject.MapObjectFactory;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.game.GameVars;
 
@@ -23,7 +23,7 @@ public class SelectEnemyAction extends EditorAction {
 				selectedEntity = index;
 				actionManager.switchAction(EditorActions.PLACE);
 				PlaceAction placeAction = (PlaceAction) actionManager.getCurrentActionInstance();
-				placeAction.setPlaceable(new PlaceableSpawnpoint(index));
+				placeAction.setPlaceable(MapObjectFactory.createSpawnpoint(editor, index));
 			}
 		});
 	}
