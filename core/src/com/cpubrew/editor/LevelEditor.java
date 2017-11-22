@@ -87,7 +87,7 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	private Label saveLabel;
 	private Label actionLabel;
 	private Label autoTileLabel;
-
+	
 	// Entity Spawns
 //	private ArrayMap<Integer, EntitySpawn> spawnMap; // 0 is reserved for the player
 //	private ArrayMap<Integer, Boolean> entityAdded;
@@ -162,7 +162,7 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 							e.printStackTrace();
 						}
 					} else {
-						synchronized (currentLevel) {
+						synchronized (this) {
 							try {
 								// HACK This isn't very good
 								LevelUtils.saveLevel(getCurrentLevel());
@@ -197,11 +197,15 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 //		updateLevelSpawns();
 		
 		// Update the object list in the level
+		currentLevel.removeAllMapObjects();
+		
 		for(int id : objectMap.keys()) {
 			if(enabledMap.get(id)) {
 				currentLevel.addMapObject(objectMap.get(id));
 			}
 		}
+		
+		currentLevel.setCurrentID(id);
 		
 		return currentLevel;
 	}
@@ -238,6 +242,8 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			// level was just loaded the level editor would be null
 			mobj.setEditor(this);
 		}
+		
+		
 	}
 
 	/** Returns the next id and INCREMENTS the id counter */
@@ -253,17 +259,20 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	
 	public void removeMapObject(int id) {
 		enabledMap.put(id, false);
+		printIds();
 	}
 	
 	public void addMapObject(MapObject mobj) {
 		// IF this object already exists, then just enable it
 		if(objectMap.containsKey(mobj.getId())) {
 			enableMapObject(mobj.getId());
+			printIds();
 			return;
 		}
 		
 		objectMap.put(mobj.getId(), mobj);
 		enabledMap.put(mobj.getId(), true);
+		printIds();
 	}
 	
 	public void enableMapObject(int id) {
@@ -278,6 +287,14 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			}
 		}
 		return ret;
+	}
+	
+	private void printIds() {
+		System.out.println("ID Status\n---------");
+		for(int id : objectMap.keys()) {
+			System.out.println(objectMap.get(id) + " - " + enabledMap.get(id));
+		}
+		System.out.println();
 	}
 	
 	/** Clears spawn map and disable map. Loads in spawns from new level */
@@ -458,6 +475,12 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			if(!enabledMap.get(id)) continue;
 			
 			MapObject mobj = objectMap.get(id);
+			
+			if(selectAction != null && selectAction.isSelected(mobj)) {
+				batch.setColor(Color.WHITE);
+			} else {
+				batch.setColor(1.0f, 1.0f, 1.0f, 0.75f);
+			}
 			mobj.render(batch, mobj.getPos(), this);
 			
 //			EntitySpawn entitySpawn = spawnMap.get(id);
@@ -540,7 +563,7 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 			TilePanel tilePanel = getTilePanel();
 			
 			TilesetTile tilesetTile = calculateTilesetTileAt(row, col, tilePanel.getActiveTile().getClusterID());
-			tile.setId(tilesetTile.getID());
+			tile.setId(tilesetTile.getTileID());
 
 			currTileChanges.addTile(row, col, tileMap.get(row, col));
 			tileMap.add(row, col, tile);
@@ -579,7 +602,7 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 		int clusterID = tileset.getClusterID(mapTile.getID());
 
 		TilesetTile tile = calculateTilesetTileAt(row, col, clusterID);
-		mapTile.setId(tile.getID());
+		mapTile.setId(tile.getTileID());
 		
 		tileMap.set(row, col, mapTile);
 	}

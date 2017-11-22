@@ -8,6 +8,7 @@ import com.cpubrew.editor.LevelEditor;
 import com.cpubrew.editor.command.Command;
 import com.cpubrew.editor.command.PlaceMapObjectCommand;
 import com.cpubrew.utils.Maths;
+import com.cpubrew.utils.StringUtils;
 import com.esotericsoftware.kryo.Kryo;
 import com.esotericsoftware.kryo.Serializer;
 import com.esotericsoftware.kryo.io.Input;
@@ -28,6 +29,7 @@ public class MapObject implements Interactable<MapObject> {
 	
 	// Data
 	private MapObjectData data;
+	private EntityCreator creator;
 	
 	public MapObject() {
 		this(-1, null, null);
@@ -46,8 +48,19 @@ public class MapObject implements Interactable<MapObject> {
 	}
 
 	@Override
-	public Vector2 getPosition(Vector2 offset) {
-		return offset.add(pos);
+	public Vector2 getPosition(Vector2 position) {
+		int row = Maths.toGridCoord(position.y);
+		int col = Maths.toGridCoord(position.x);
+		
+		return new Vector2(col + 0.5f, row + 0.5f);
+	}
+	
+	@Override
+	public Vector2 getPositionOff(Vector2 offset) {
+		int row = Maths.toGridCoord(pos.y + offset.y); 
+		int col = Maths.toGridCoord(pos.x + offset.x);
+
+		return new Vector2(col + 0.5f, row + 0.5f);
 	}
 
 	@Override
@@ -121,6 +134,7 @@ public class MapObject implements Interactable<MapObject> {
 		copy.editor = editor;
 		copy.renderer = renderer.createCopy();
 		copy.data = data.createCopy();
+		copy.creator = creator;
 		
 		return copy;
 	}
@@ -139,17 +153,18 @@ public class MapObject implements Interactable<MapObject> {
 
 	@Override
 	public boolean contentsEqual(MapObject value) {
-		return equals(value);
+		return id == value.getId(); // ids are unique, so this is a valid check
 	}
 
-	@Override
-	public void move(Vector2 position, LevelEditor editor) {
-		
-	}
+//	@Override
+//	public void move(Vector2 position, LevelEditor editor) {
+//		setPos(position);
+//	}
 
 	@Override
 	public void add(Vector2 position, LevelEditor editor) {
-		
+		setPos(position); // We can set this directly because the passed in position is adjusted for snapping policies
+		editor.addMapObject(this);
 	}
 
 	@Override
@@ -162,7 +177,7 @@ public class MapObject implements Interactable<MapObject> {
 
 	@Override
 	public boolean placeOnClick() {
-		return false;
+		return true;
 	}
 	
 	/**
@@ -213,6 +228,14 @@ public class MapObject implements Interactable<MapObject> {
 		return data;
 	}
 	
+	public void setCreator(EntityCreator creator) {
+		this.creator = creator;
+	}
+	
+	public EntityCreator getCreator() {
+		return creator;
+	}
+	
 	public Rectangle getHitbox() {
 		return hitbox;
 	}
@@ -223,7 +246,7 @@ public class MapObject implements Interactable<MapObject> {
 
 	@Override
 	public String toString() {
-		return type + " [ " + id + "] @ " + pos;
+		return type + " [" + id + "] @ " + StringUtils.vectorToString(pos, 2);
 	}
 	
 	// SERIALIZATION
@@ -238,22 +261,22 @@ public class MapObject implements Interactable<MapObject> {
 		@Override
 		public void write(Kryo kryo, Output output, MapObject object) {
 			kryo.writeClassAndObject(output, object.type); 
+			kryo.writeClassAndObject(output, object.data);
 			
 			output.writeInt(object.id);
 			output.writeFloat(object.pos.x);
 			output.writeFloat(object.pos.y);
-			kryo.writeClassAndObject(output, object.data);
 		}
 
 		@Override
 		public MapObject read(Kryo kryo, Input input, Class<MapObject> type) {
 			MapObjectType mtype = (MapObjectType) kryo.readClassAndObject(input);
+			MapObjectData data = (MapObjectData) kryo.readClassAndObject(input);
 			
-			MapObject mobj = mtype.createDefault();
+			MapObject mobj = mtype.createDefault(data);
 			mobj.id = input.readInt();
 			mobj.type = mtype;
 			mobj.pos = new Vector2(input.readFloat(), input.readFloat());
-			mobj.data = (MapObjectData) kryo.readClassAndObject(input);
 			
 			return mobj;
 		}

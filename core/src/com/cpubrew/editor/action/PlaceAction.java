@@ -28,7 +28,7 @@ public class PlaceAction extends EditorAction {
 		if (editor.isMouseOnMap()) {
 			batch.setProjectionMatrix(worldCamera.combined);
 			batch.begin();
-			activePlaceable.render(batch, editor.toWorldCoords(editor.getMousePos()), editor);
+			activePlaceable.render(batch, activePlaceable.getPosition(editor.toWorldCoords(editor.getMousePos())), editor);
 			batch.end();
 		}
 	}
@@ -42,7 +42,7 @@ public class PlaceAction extends EditorAction {
 		if(!editor.isMouseOnMap()) return;
 		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
 		if(!activePlaceable.placeOnClick()) {
-			Command command = activePlaceable.onPlace(mousePos, editor);
+			Command command = activePlaceable.onPlace(activePlaceable.getPosition(mousePos), editor);
 			editor.executeCommand(command);
 		}
 	}
@@ -51,7 +51,7 @@ public class PlaceAction extends EditorAction {
 	public void onMouseUp(MouseEvent ev) {
 		if(!editor.isMouseOnMap()) return;
 		Vector2 mousePos = editor.toWorldCoords(ev.getX(), ev.getY());
-		Command command = activePlaceable.onPlace(mousePos, editor);
+		Command command = activePlaceable.onPlace(activePlaceable.getPosition(mousePos), editor);
 		editor.executeCommand(command);
 	}
 

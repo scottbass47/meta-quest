@@ -275,8 +275,8 @@ public class GameScreen extends AbstractScreen {
 //		
 //		arena.stop();
 		
-//		levelManager.switchToEditorMode();
-//		editorOpen = true;
+		levelManager.switchToEditorMode();
+		editorOpen = true;
 	}
 	
 	public void resetFrameBuffer(int width, int height) {
@@ -477,7 +477,7 @@ public class GameScreen extends AbstractScreen {
 		levelManager.render();
 		if (DebugVars.NAVMESH_ON) {
 			if(levelManager.getCurrentLevel().getMeshes().size > 0){
-				NavMesh.get(EntityIndex.GRUNT_GREMLIN).render(batch);
+				NavMesh.get(levelManager.getCurrentLevel().getMeshes().first()).render(batch);
 			}
 		}
 		if(DebugVars.FLOW_FIELD_ON){

@@ -293,6 +293,10 @@ public enum EntityIndex {
 		return null;
 	}
 	
+	public static boolean isPlayer(EntityIndex index) {
+		return index == KNIGHT || index == ROGUE || index == MONK;
+	}
+	
 	
 	
 }

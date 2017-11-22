@@ -23,6 +23,7 @@ import com.cpubrew.editor.mapobject.MapObject;
 import com.cpubrew.editor.mapobject.MapObjectType;
 import com.cpubrew.editor.mapobject.data.SpawnpointData;
 import com.cpubrew.entity.EntityIndex;
+import com.cpubrew.entity.EntityType;
 import com.cpubrew.factory.EntityFactory;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.level.tiles.MapTile.Side;
@@ -56,6 +57,7 @@ public class Level {
 	
 	// Map Objects
 	private int currentID;
+	private MapObject playerObject;
 	private Array<MapObject> mapObjects;
 
 	// Level Info
@@ -638,6 +640,10 @@ public class Level {
 	}
 	
 	public void addMapObject(MapObject mobj) {
+		// If the mobj represents the player spawn, save it
+		if(mobj.getType() == MapObjectType.SPAWNPOINT && EntityIndex.isPlayer(((SpawnpointData)mobj.getData()).getIndex())) {
+			playerObject = mobj;
+		}
 		mapObjects.add(mobj);
 	}
 	
@@ -646,7 +652,12 @@ public class Level {
 	}
 	
 	public void removeAllMapObjects() {
+		playerObject = null;
 		mapObjects.clear();
+	}
+	
+	public MapObject getPlayerObject() {
+		return playerObject;
 	}
 
 //	public void addEntitySpawn(EntityIndex index, Vector2 pos, boolean facingRight) {
@@ -926,12 +937,22 @@ public class Level {
 			}
 			level.tileMap = grid;
 
+			int highestID = 0;
 			int size = input.readInt();
 			Array<MapObject> mapObjects = new Array<MapObject>();
 			for(int i = 0; i < size; i++) {
 				MapObject mobj = (MapObject) kryo.readClassAndObject(input);
 				mapObjects.add(mobj);
+				highestID = Math.max(highestID, mobj.getId());
+				
+				if(mobj.getType() == MapObjectType.SPAWNPOINT) {
+					if(EntityIndex.isPlayer(((SpawnpointData)mobj.getData()).getIndex())) {
+						level.playerObject = mobj;
+					}
+				}
 			}
+			level.currentID = highestID + 1;
+			
 			level.mapObjects = mapObjects;
 //			Array<EntitySpawn> spawns = new Array<EntitySpawn>();
 //			for (int i = 0; i < size; i++) {

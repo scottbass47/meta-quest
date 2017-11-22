@@ -13,7 +13,7 @@ public class MoveAction extends EditorAction{
 	private Array<Interactable<?>> selected;
 	private Vector2 offset;
 	private Vector2 start;
-	private Vector2 randStart;
+//	private Vector2 randStart;
 	private SelectAction selectAction;
 	
 	@Override
@@ -37,7 +37,7 @@ public class MoveAction extends EditorAction{
 		batch.setProjectionMatrix(worldCamera.combined);
 		batch.begin();
 		for(Interactable<?> select : selected) {
-			select.render(batch, select.getPosition(offset), editor);
+			select.render(batch, select.getPositionOff(offset), editor);
 		}
 		batch.end();
 	}
@@ -55,7 +55,7 @@ public class MoveAction extends EditorAction{
 				select.remove(editor);
 			}
 		}
-		randStart = selected.first().getPosition(offset);
+//		randStart = selected.first().getPosition(offset);
 	}
 	
 	@Override
@@ -83,8 +83,7 @@ public class MoveAction extends EditorAction{
 		actionManager.switchAction(EditorActions.SELECT);
 		SelectAction selectAction = (SelectAction) actionManager.getCurrentActionInstance();
 		
-		Vector2 shiftAmount = selected.first().getPosition(Vector2.Zero).sub(randStart);
-		selectAction.set(shiftAmount, this.selectAction);
+		selectAction.set(start, offset.add(start), this.selectAction);
 		
 	}
 }

@@ -22,10 +22,6 @@ public class TilesetTile {
 		this.slot = slot;
 	}
 
-	public int getID() {
-		return tileID;
-	}
-
 	public TileSlot getSlot() {
 		return slot;
 	}

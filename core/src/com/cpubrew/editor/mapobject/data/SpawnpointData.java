@@ -7,6 +7,10 @@ public class SpawnpointData implements MapObjectData{
 
 	private EntityIndex index;
 	
+	public SpawnpointData() {
+		index = null;
+	}
+	
 	public SpawnpointData(EntityIndex index) {
 		this.index = index;
 	}

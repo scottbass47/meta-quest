@@ -22,8 +22,9 @@ public class MoveCommand extends Command {
 	@Override
 	public void execute(LevelEditor editor) {
 		for(Interactable<?> select : selected) {
-			oldState.put(select.getPosition(Vector2.Zero), select);
-			select.move(select.getPosition(offset), editor);
+			oldState.put(select.getPositionOff(Vector2.Zero), select);
+			select.add(select.getPositionOff(offset), editor);
+//			select.move(select.getPosition(offset), editor);
 		}
 	}
 
@@ -33,7 +34,7 @@ public class MoveCommand extends Command {
 		
 		for(Vector2 pos : oldState.keys()) {
 			Interactable<?> select = oldState.get(pos);
-			select.move(pos, editor);
+			select.add(pos, editor);
 		}
 	}
 
@@ -42,7 +43,7 @@ public class MoveCommand extends Command {
 		StringBuilder builder = new StringBuilder();
 		builder.append("Moving:");
 		for(Interactable<?> select : selected) {
-			builder.append("\n\tMove " + select + " to " + select.getPosition(offset));
+			builder.append("\n\tMove " + select + " to " + select.getPositionOff(offset));
 		}
 		return builder.toString();
 	}

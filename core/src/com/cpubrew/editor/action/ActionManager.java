@@ -17,7 +17,9 @@ import com.cpubrew.gui.MouseListener;
 import com.cpubrew.gui.Window;
 import com.cpubrew.level.Level;
 import com.cpubrew.level.LevelUtils;
+import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.level.tiles.TilesetTile;
+import com.cpubrew.level.tiles.MapTile.TileType;
 
 public class ActionManager implements KeyListener, MouseListener {
 
@@ -193,8 +195,13 @@ public class ActionManager implements KeyListener, MouseListener {
 			if(tile != null) {
 				editor.getTilePanel().setActiveTile(tile);
 				switchAction(EditorActions.PLACE);
+				
+				// Create a template tile with the right id
+				MapTile mapTile = new MapTile(0, 0, TileType.GROUND);
+				mapTile.setId(tile.getTileID());
+
 				PlaceAction placeAction = (PlaceAction) getCurrentActionInstance();
-				placeAction.setPlaceable(new SelectableTile(null));
+				placeAction.setPlaceable(new SelectableTile(mapTile));
 			}
 		}
 	}

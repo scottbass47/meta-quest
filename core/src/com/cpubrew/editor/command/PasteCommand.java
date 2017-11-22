@@ -21,7 +21,7 @@ public class PasteCommand extends Command{
 	@Override
 	public void execute(LevelEditor editor) {
 		for(Interactable<?> select : selected) {
-			select.move(select.getPosition(Vector2.X), editor);
+			select.add(select.getPositionOff(Vector2.X), editor);
 		}
 	}
 
@@ -39,7 +39,7 @@ public class PasteCommand extends Command{
 		StringBuilder builder = new StringBuilder();
 		builder.append("Pasting:");
 		for(Interactable<?> select : selected) {
-			builder.append("\n\tPaste " + select + " to " + select.getPosition(Vector2.Zero));
+			builder.append("\n\tPaste " + select + " to " + select.getPositionOff(Vector2.Zero));
 		}
 		return builder.toString();
 	}

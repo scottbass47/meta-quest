@@ -56,7 +56,7 @@ public class FillAction extends EditorAction {
 	@Override
 	public void onMouseUp(MouseEvent ev) {
 		TilePanel tilePanel = editor.getTilePanel();
-		editor.executeCommand(new FillCommand(fillTiles, tilePanel.getActiveTile().getID(), TileType.GROUND));
+		editor.executeCommand(new FillCommand(fillTiles, tilePanel.getActiveTile().getTileID(), TileType.GROUND));
 	}
 	
 	private void brushFire(int row, int col) {

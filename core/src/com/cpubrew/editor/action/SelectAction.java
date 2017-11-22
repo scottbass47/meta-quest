@@ -339,14 +339,25 @@ public class SelectAction extends EditorAction {
 		);
 	}
 	
-	public void set(Vector2 shiftAmount, SelectAction selectAction) {
+	public void set(Vector2 start, Vector2 end, SelectAction selectAction) {
 		areaSelected = true;
+		tiles = selectAction.tiles;
 		selected = selectAction.selected;
 		clipboard = selectAction.clipboard;
 		selectRect = selectAction.selectRect;
-		selectRect.x += shiftAmount.x;
-		selectRect.y += shiftAmount.y;
-		tiles = selectAction.tiles;
+		
+		// If tiles were moved, we have to do extra calculations
+		if(tiles) {
+			int deltaCol = Maths.toGridCoord(end.x - start.x);
+			int deltaRow = Maths.toGridCoord(end.y - start.y);
+			
+			selectRect.x += deltaCol;
+			selectRect.y += deltaRow;
+		} else {
+			selectRect.x += end.x - start.x;
+			selectRect.y += end.y - start.y;
+		}
+		
 		mouseDown = false;
 		magicSelect = selectAction.magicSelect;
 	}

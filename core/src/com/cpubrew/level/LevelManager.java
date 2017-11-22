@@ -5,7 +5,6 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.World;
 import com.badlogic.gdx.utils.ObjectSet;
@@ -18,13 +17,16 @@ import com.cpubrew.debug.ConsoleCommands;
 import com.cpubrew.debug.DebugInput;
 import com.cpubrew.debug.DebugVars;
 import com.cpubrew.editor.LevelEditor;
+import com.cpubrew.editor.mapobject.MapObject;
+import com.cpubrew.editor.mapobject.MapObjectFactory;
+import com.cpubrew.editor.mapobject.MapObjectType;
+import com.cpubrew.editor.mapobject.data.SpawnpointData;
 import com.cpubrew.entity.EntityIndex;
 import com.cpubrew.entity.EntityLoader;
 import com.cpubrew.entity.EntityManager;
 import com.cpubrew.factory.EntityFactory;
 import com.cpubrew.game.PauseMenu;
 import com.cpubrew.input.GameInput;
-import com.cpubrew.level.Level.EntitySpawn;
 import com.cpubrew.level.tiles.MapTile;
 import com.cpubrew.systems.FlowFieldSystem;
 
@@ -94,7 +96,10 @@ public class LevelManager{
 		if(currentLevel == null || !currentLevel.getName().equals(levelName)) {
 			newLevel = LevelUtils.loadLevel(this, levelName);
 			if(newLevel == null) {
-				throw new RuntimeException("No level '" + levelName + "'");
+				newLevel = new Level(this);
+				newLevel.setName(levelName);
+				
+//				throw new RuntimeException("No level '" + levelName + "'");
 			}
 			newLevel.load();
 		}
@@ -113,14 +118,25 @@ public class LevelManager{
 		}
 		
 		// 5. Spawn in entities in new level
-		for(EntitySpawn spawn : newLevel.getEntitySpawns()){
-			if(spawn.getIndex() == EntityIndex.KNIGHT || spawn.getIndex() == EntityIndex.ROGUE || spawn.getIndex() == EntityIndex.MONK) continue;
-			Vector2 spawnPoint = spawn.getPos();
-			Entity enemy = spawn.getIndex().create(spawnPoint.x, spawnPoint.y);
-
-			if(Mappers.facing.get(enemy) != null) Mappers.facing.get(enemy).facingRight = spawn.isFacingRight();
+//		for(EntitySpawn spawn : newLevel.getEntitySpawns()){
+//			if(spawn.getIndex() == EntityIndex.KNIGHT || spawn.getIndex() == EntityIndex.ROGUE || spawn.getIndex() == EntityIndex.MONK) continue;
+//			Vector2 spawnPoint = spawn.getPos();
+//			Entity enemy = spawn.getIndex().create(spawnPoint.x, spawnPoint.y);
+//
+//			if(Mappers.facing.get(enemy) != null) Mappers.facing.get(enemy).facingRight = spawn.isFacingRight();
+//			
+//			engine.addEntity(enemy);
+//		}
+		
+		for(MapObject mobj : newLevel.getMapObjects()) {
+			// Skip spawning in the player
+			if(mobj.getType() == MapObjectType.SPAWNPOINT) {
+				SpawnpointData data = (SpawnpointData) mobj.getData();
+				if(data.getIndex() == EntityIndex.KNIGHT || data.getIndex() == EntityIndex.ROGUE || data.getIndex() == EntityIndex.MONK) continue;
+			}
 			
-			engine.addEntity(enemy);
+			Entity entity = mobj.getCreator().create(mobj);
+			engine.addEntity(entity);
 		}
 		
 		// 6. Spawn in player (if that fails, switch to editor mode)
@@ -184,14 +200,16 @@ public class LevelManager{
 	
 	@SuppressWarnings("unchecked")
 	public void spawnPlayer(Level newLevel){
-		EntitySpawn spawn = newLevel.getPlayerSpawn();
-		if(spawn == null) {
+//		EntitySpawn spawn = newLevel.getPlayerSpawn();
+		MapObject playerObject = newLevel.getPlayerObject();
+		if(playerObject == null) {
 			System.out.println("No spawn point set for player... Spawning player at (0,0)");
-			spawn = new EntitySpawn(EntityIndex.KNIGHT, new Vector2(), true);
+			playerObject = MapObjectFactory.createSpawnpoint(editor, new SpawnpointData(EntityIndex.KNIGHT));
 		}
+		SpawnpointData data = (SpawnpointData) playerObject.getData();
 		Entity player = null;
 		if(engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).size() == 0){
-			player = spawn.getIndex().create(spawn.getPos().x, spawn.getPos().y);
+			player = data.getIndex().create(playerObject.getPos().x, playerObject.getPos().y);
 			player.getComponent(InputComponent.class).set(input);
 			engine.addEntity(player);
 			this.player = player;
@@ -199,10 +217,10 @@ public class LevelManager{
 			player = engine.getEntitiesFor(Family.all(PlayerComponent.class).get()).first();
 		}
 		
-		Mappers.facing.get(player).facingRight = spawn.isFacingRight();
+//		Mappers.facing.get(player).facingRight = spawn.isFacingRight();
 		
 		Body body = Mappers.body.get(player).body;
-		body.setTransform(spawn.getPos().x, spawn.getPos().y, 0.0f);
+		body.setTransform(playerObject.getPos().x, playerObject.getPos().y, 0.0f);
 		Mappers.level.get(player).level = newLevel;
 		
 		ConsoleCommands.setPlayer(player);

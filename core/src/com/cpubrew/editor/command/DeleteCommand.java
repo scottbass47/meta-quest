@@ -24,7 +24,7 @@ public class DeleteCommand extends Command {
 	@Override
 	public void undo(LevelEditor editor) {
 		for(Interactable<?> select : selected) {
-			select.add(select.getPosition(Vector2.Zero), editor);
+			select.add(select.getPositionOff(Vector2.Zero), editor);
 		}
 	}
 	
