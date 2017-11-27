@@ -881,4 +881,8 @@ public class LevelEditor implements KeyListener, MouseListener, ScrollListener {
 	public Window getEditorWindow() {
 		return editorWindow;
 	}
+	
+	public ActionManager getActionManager() {
+		return actionManager;
+	}
 }
